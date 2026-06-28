@@ -1,0 +1,11 @@
+# API 키 관련
+*.env
+.env*
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# 임시 파일
+*.tmp
+*.log
