@@ -6,6 +6,10 @@
 .DS_Store
 Thumbs.db
 
+# 대용량 문서
+*.pptx
+*.ppt
+
 # 임시 파일
 *.tmp
 *.log
