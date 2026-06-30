@@ -17,24 +17,15 @@ const SECTION_PROMPT = (function(){try{var b=atob('4puUIEFCU09MVVRFIFJVTEUgIzE6I
 async function generateWithGPTSection(prompt, apiKey) {
   const guidelineText = SECTION_STYLE + (refGuidelines.trim() ? '\n\n' + refGuidelines : '');
   const fullPrompt = SECTION_PROMPT.replace('__GUIDELINE__', guidelineText).replace('__PROMPT__', prompt);
-  const content = [];
-  if (refImageDataURL) {
-    content.push({ type: 'input_image', image_url: refImageDataURL });
-  }
-  for (const ref of (styleRefImages || [])) {
-    content.push({ type: 'input_image', image_url: ref });
-  }
-  if (content.length > 0) {
-    content.push({ type: 'input_text', text: 'These are reference images. Match this exact illustration style.' });
-  }
-  content.push({ type: 'input_text', text: fullPrompt });
-  const resp = await fetch('https://api.openai.com/v1/responses', {
+  const resp = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: 'gpt-4o',
-      input: [{ role: 'user', content }],
-      tools: [{ type: 'image_generation', quality: 'low', size: '1536x1024' }]
+      model: 'dall-e-3',
+      prompt: fullPrompt,
+      n: 1,
+      size: '1792x1024',
+      response_format: 'b64_json'
     })
   });
   if (!resp.ok) {
@@ -42,9 +33,9 @@ async function generateWithGPTSection(prompt, apiKey) {
     throw new Error(err?.error?.message || `HTTP ${resp.status}`);
   }
   const data = await resp.json();
-  const imgItem = (data.output || []).find(o => o.type === 'image_generation_call');
-  if (!imgItem) throw new Error('응답에 이미지가 없습니다.');
-  return `data:image/png;base64,${imgItem.result}`;
+  const b64 = data?.data?.[0]?.b64_json;
+  if (!b64) throw new Error('응답에 이미지가 없습니다.');
+  return `data:image/png;base64,${b64}`;
 }
 // __AI_END__
 
@@ -55,18 +46,15 @@ async function generateWithGPT(prompt, apiKey) {
   const headerPromptText = (activeHeaderStyle !== 'B')
     ? HEADER_PROMPT_A.replace('__PROMPT__', prompt)
     : HEADER_PROMPT_B.replace('__PROMPT__', prompt);
-  const content = [];
-  for (const ref of headerRefImages) {
-    content.push({ type: 'input_image', image_url: ref });
-  }
-  content.push({ type: 'input_text', text: headerPromptText });
-  const resp = await fetch('https://api.openai.com/v1/responses', {
+  const resp = await fetch('https://api.openai.com/v1/images/generations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
     body: JSON.stringify({
-      model: 'gpt-4o',
-      input: [{ role: 'user', content }],
-      tools: [{ type: 'image_generation', quality: 'low', size: '1024x1024' }]
+      model: 'dall-e-3',
+      prompt: headerPromptText,
+      n: 1,
+      size: '1024x1024',
+      response_format: 'b64_json'
     })
   });
   if (!resp.ok) {
@@ -74,8 +62,8 @@ async function generateWithGPT(prompt, apiKey) {
     throw new Error(err?.error?.message || `HTTP ${resp.status}`);
   }
   const data = await resp.json();
-  const imgItem = (data.output || []).find(o => o.type === 'image_generation_call');
-  if (!imgItem) throw new Error('응답에 이미지가 없습니다.');
-  return `data:image/png;base64,${imgItem.result}`;
+  const b64 = data?.data?.[0]?.b64_json;
+  if (!b64) throw new Error('응답에 이미지가 없습니다.');
+  return `data:image/png;base64,${b64}`;
 }
 // __AI_END__
