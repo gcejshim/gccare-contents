@@ -796,6 +796,7 @@ body {
   <!-- ── 왼쪽: 편집 폼 ── -->
   <div class="edit-panel">
 
+    <!-- EXPORT_REMOVE_START -->
     <!-- AI API 키 설정 -->
     <div class="ai-api-settings">
       <div class="ai-api-settings-title">AI 이미지 생성 API 키</div>
@@ -808,6 +809,7 @@ body {
         <button id="key-openai-save" class="ai-key-save-btn" onclick="saveApiKeys()">API 키 저장</button>
       </div>
     </div>
+    <!-- EXPORT_REMOVE_END -->
 
     <!-- 헤더 섹션 -->
     <div class="panel-section">
@@ -864,6 +866,7 @@ body {
         </div>
       </div>
 
+      <!-- CHAR_TOGGLE_START -->
       <div id="char-toggle-row" class="field" style="display:flex;align-items:center;gap:10px;">
         <label style="margin:0;flex-shrink:0;display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:3px;height:12px;background:var(--green);border-radius:2px;flex-shrink:0;"></span>본문 캐릭터</label>
         <div style="display:flex;background:#f0f4fa;border-radius:20px;padding:3px;gap:2px;">
@@ -871,6 +874,7 @@ body {
           <button id="btn-even" onclick="setCardType(false)" style="padding: 5px 36px; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; border-radius: 16px; cursor: pointer; font-size: 12px; font-weight: 700; background: transparent; color: rgb(136, 136, 136); transition: 0.2s;">여성</button>
         </div>
       </div>
+      <!-- CHAR_TOGGLE_END -->
     </div>
 
     <!-- 섹션 01~06 -->
@@ -1184,11 +1188,13 @@ function buildSectionForms() {
     block.querySelector('.section-del-btn').addEventListener('click', () => removeSection(delIdx));
 
     const secIdx = i;
-    block.querySelector(`#ai-gen-btn-sec-${i}`).addEventListener('click', () => {
+    const aiBtn = block.querySelector(`#ai-gen-btn-sec-${i}`);
+    if (aiBtn) aiBtn.addEventListener('click', () => {
       const prompt = block.querySelector(`#ai-prompt-sec-${secIdx}`).value;
       generateAIImage(prompt, secIdx);
     });
-    block.querySelector(`#ai-del-sec-${i}`).addEventListener('click', () => removeSectionImg(secIdx));
+    const aiDelBtn = block.querySelector(`#ai-del-sec-${i}`);
+    if (aiDelBtn) aiDelBtn.addEventListener('click', () => removeSectionImg(secIdx));
 
     wrap.appendChild(block);
   });
@@ -1499,7 +1505,7 @@ async function exportHTML() {
 
   // 6. sectionImages 교체 (빈 객체 또는 기존 값 모두 처리)
   html = html.replace(
-    /const sectionImages\s*=\s*\{[\s\S]*?\};/,
+    /const sectionImages\s*=\s*\{[\s\S]*?\};?/,
     `const sectionImages = ${JSON.stringify(savedSections)};`
   );
 
@@ -1516,7 +1522,13 @@ async function exportHTML() {
   );
 
   // 6b. DOM의 base64 img src 제거 (applyInitImages에서 복원, 중복 저장 방지)
+  // 로고는 정적 에셋이므로 보존
+  const logoMatch = html.match(/<img class="c-header-logo" src="([^"]+)"/);
+  const logoSrc = logoMatch ? logoMatch[1] : '';
   html = html.replace(/ src="data:image\/[^"]{20,}"/g, ' src=""');
+  if (logoSrc && logoSrc.startsWith('data:')) {
+    html = html.replace('<img class="c-header-logo" src=""', `<img class="c-header-logo" src="${logoSrc}"`);
+  }
 
   // 7. 뱃지 input value 속성 교체
   html = html.replace(
@@ -1524,34 +1536,19 @@ async function exportHTML() {
     `$1${liveBadge.replace(/"/g, '&quot;')}$2`
   );
 
-  // 8. applyInitImages 함수 추가 (중복 방지)
-  if (!html.includes('function applyInitImages(')) {
-    const applyFn = `function applyInitImages() {
-  setCardType(isOddCard);
-  selectHeaderStyle(activeHeaderStyle);
-  if (headerImageURL) {
-    setBarImage('upload-bar-header', headerImageURL, () => removeHeaderImg());
-    const slot = document.getElementById('p-header-img');
-    if (slot) slot.innerHTML = '<img src="' + headerImageURL + '" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">';
-  }
-  Object.entries(sectionImages).forEach(([i, url]) => {
-    const ni = parseInt(i);
-    setBarImage('paste-zone-sec-' + ni, url, () => removeSectionImg(ni));
-    updateSectionImg(ni);
+  // 8. 초기화 IIFE 교체 — loadFromStorage / applyInitImages → card01 스타일 inline IIFE
+  const initIIFE = `(function(){
+  Object.entries(sectionImages).forEach(function(entry){
+    var idx = entry[0], url = entry[1];
+    if(url) setBarImage('paste-zone-sec-'+idx, url, function(){ removeSectionImg(parseInt(idx)); });
   });
-}`;
-    html = html.replace('function resetAll()', applyFn + '\nfunction resetAll()');
+  if(headerImageURL){
+    setBarImage('upload-bar-header', headerImageURL, function(){ removeHeaderImg(); });
+    var hSlot = document.getElementById('p-header-img');
+    if(hSlot) hSlot.innerHTML = '<img src="'+headerImageURL+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">';
   }
-
-  // 9. loadFromStorage → applyInitImages (초기·재내보내기 모두 처리)
-  html = html.replace(/(?:loadFromStorage|applyInitImages)\(\);/, 'applyInitImages();');
-  // 재내보내기 시 setCardType/selectHeaderStyle 이미 있으면 교체, 없으면 삽입
-  if (html.includes('function applyInitImages(') && !html.includes('setCardType(isOddCard)')) {
-    html = html.replace(
-      /function applyInitImages\(\) \{/,
-      `function applyInitImages() {\n  setCardType(isOddCard);\n  selectHeaderStyle(activeHeaderStyle);`
-    );
-  }
+})();`;
+  html = html.replace(/(?:loadFromStorage|applyInitImages)\(\);/, initIIFE);
 
   // 10. 저장 준비 (폴더 먼저 선택)
 
@@ -1590,10 +1587,11 @@ async function exportHTML() {
   // 마스터 파일이 아닌 경우 AI/스타일선택 기능 완전 제거
   const masterFileName = window.location.pathname.split('/').pop();
   if (fileName !== masterFileName) {
-    html = html.replace(/<div class="ai-api-settings">[\s\S]*?<\/div>\s*(?=<div)/g, '');
     html = html.replace(/<div class="ai-gen-row"[^>]*>[\s\S]*?<\/div>/g, '');
-    // 스타일 선택 UI 완전 제거 (마커 기반)
+    // AI API 키 섹션 + 스타일 선택 UI 완전 제거 (마커 기반)
     html = html.replace(/[ \t]*<!-- EXPORT_REMOVE_START -->[\s\S]*?<!-- EXPORT_REMOVE_END -->\n?/g, '');
+    // 본문 캐릭터 선택 UI 완전 제거 (마커 기반 — char-toggle-row)
+    html = html.replace(/[ \t]*<!-- CHAR_TOGGLE_START -->[\s\S]*?<!-- CHAR_TOGGLE_END -->\n?/g, '');
     // 프롬프트 코드 완전 제거
     html = html.replace(/\/\/ __AI_START__[\s\S]*?\/\/ __AI_END__\n?/g, '');
     // refGuidelines 내용 비우기
