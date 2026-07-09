@@ -112,6 +112,10 @@ module.exports = async function handler(req, res) {
     const dataURL = await callOpenAIImage({ apiKey: effectiveKey, content, size });
     res.status(200).json({ dataURL });
   } catch (e) {
-    res.status(500).json({ error: e.message || String(e) });
+    // 디버그용: 어떤 키(개인/회사)가 쓰였는지 끝 4자리만 노출 (전체 키는 절대 노출 안 함)
+    const usedKey = (req.body && req.body.apiKey && req.body.apiKey.trim())
+      ? `개인 키 (...${req.body.apiKey.trim().slice(-4)})`
+      : `회사 공용키 (...${(process.env.OPENAI_API_KEY || '').slice(-4)})`;
+    res.status(500).json({ error: `[사용된 키: ${usedKey}] ` + (e.message || String(e)) });
   }
 };
