@@ -805,6 +805,7 @@ body {
         <input class="ai-key-input" id="key-openai" type="password" placeholder="✓ GPT 키 저장됨" autocomplete="off" style="padding-right:28px;">
         <button id="key-openai-clear" onclick="clearApiKey()" title="키 삭제" style="display: block; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border-width: medium; border-style: none; border-color: currentcolor; border-image: initial; cursor: pointer; color: rgb(170, 170, 170); font-size: 16px; line-height: 1; padding: 0px;">✕</button>
       </div>
+      <div id="key-openai-status" style="margin-top:6px;font-size:12px;"></div>
       <div style="margin-top:8px;text-align:right;">
         <button id="key-openai-save" class="ai-key-save-btn" onclick="saveApiKeys()">✓ 저장됨</button>
       </div>
@@ -1793,13 +1794,13 @@ function updateKeyUI() {
   const clearBtn = document.getElementById('key-openai-clear');
   const saveBtn = document.getElementById('key-openai-save');
   if (saved) {
-    input.placeholder = '✓ GPT 키 저장됨';
-    if (status) { status.textContent = ''; }
+    input.placeholder = '✓ 개인 키 저장됨';
+    if (status) { status.textContent = '🔑 개인 키 사용 중'; status.style.color = '#2a4a7f'; }
     if (clearBtn) clearBtn.style.display = 'block';
     if (saveBtn) { saveBtn.textContent = '✓ 저장됨'; }
   } else {
     input.placeholder = 'GPT API 키를 입력해주세요';
-    if (status) { status.textContent = ''; }
+    if (status) { status.textContent = '🏢 회사 공용키 사용 중'; status.style.color = '#666'; }
     if (clearBtn) clearBtn.style.display = 'none';
     if (saveBtn) { saveBtn.textContent = 'API 키 저장'; }
   }
