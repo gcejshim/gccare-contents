@@ -2364,10 +2364,9 @@ document.addEventListener('click', function(e) {
 <!-- AI_LOADER_START -->
 <script>
 (function(){
-const _0a='T1dVNU16SXpZMlV5T1ROa1l6QXlaakZoWWprd1pUUmxOMkk1WTJJeE0yWXlaR1V6TjJReVl3PT0=',_0c='Contents_Prompt',_0e='AccessLog',_0f='ApprovedUsers',_0g='https://redmine.gchcintra.com';
-function _0h(s){try{return atob(atob(s));}catch(e){return '';}}
-async function _0k(c,t,n){const ts=new Date().toISOString(),en=`${ts}\t${c}\t${t}\t${n}`;try{const tk=_0h(_0a),u=`${_0g}/projects/${_0c}/wiki/${_0e}.json?key=${tk}`;let ls=[];const gr=await fetch(u);if(gr.ok){const d=await gr.json(),m=(d.wiki_page&&d.wiki_page.text||'').match(/<pre>([\s\S]*?)<\/pre>/);if(m)ls=m[1].split('\n').map(s=>s.trim()).filter(Boolean);}ls.push(en);await fetch(u,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({wiki_page:{text:`<pre>\n${ls.join('\n')}\n</pre>`}})});}catch(e){console.warn('접근 로그 기록 실패(무시하고 계속 진행):',e);}}
-async function _0l(){try{const t=_0h(_0a),u=`${_0g}/projects/${_0c}/wiki/${_0f}.json?key=${t}`,r=await fetch(u);if(!r.ok)throw new Error(`Redmine 접근 실패 (${r.status})`);const d=await r.json(),m=(d.wiki_page&&d.wiki_page.text||'').match(/<pre>([\s\S]*?)<\/pre>/);if(!m)return [];return m[1].split('\n').map(s=>s.trim()).filter(Boolean).map(s=>s.split('\t').map(x=>x.trim())).filter(p=>p.length===3&&p[0]&&p[1]&&p[2]).map(p=>({c:p[0],t:p[1],n:p[2]}));}catch(e){console.warn('사용자 명단 불러오기 실패(직접입력으로 진행 가능):',e);return [];}}
+const SHEETS_URL='https://script.google.com/macros/s/AKfycbzsgN563o-OCtMFRU7H_Ks4wOpzNw2rMMuyJstkEiJIDmxBe7atXoAgAICNxF1-18g-/exec';
+async function _0k(c,t,n){try{await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({c,t,n})});}catch(e){console.warn('접근 로그 기록 실패(무시하고 계속 진행):',e);}}
+async function _0l(){try{const r=await fetch(SHEETS_URL);if(!r.ok)throw new Error(`구글시트 접근 실패 (${r.status})`);const d=await r.json();return Array.isArray(d)?d:[];}catch(e){console.warn('사용자 명단 불러오기 실패(직접입력으로 진행 가능):',e);return [];}}
 function _0r(){try{return JSON.parse(localStorage.getItem('_gcUserId')||'null');}catch(e){return null;}}
 function _0m(us){return new Promise((res)=>{const saved=_0r();const COS=['GC케어','GC메디아이'];const defC=saved&&COS.includes(saved.c)?saved.c:'GC케어';const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;';const bx=document.createElement('div');bx.style.cssText='background:#fff;border-radius:12px;padding:12px;width:286px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.2);';bx.innerHTML=`
       <div style="font-weight:700;font-size:14px;margin-bottom:6px;">사용자 확인</div>
