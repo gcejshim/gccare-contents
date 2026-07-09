@@ -2,6 +2,10 @@
 // 프롬프트 원문과 회사 공용 OpenAI API 키는 전부 환경변수(process.env)에만 있고,
 // 이 코드가 올라간 깃허브 저장소에는 절대 값이 노출되지 않는다.
 
+// 이미지 생성이 40초 정도 걸리므로 함수 실행 시간 제한을 늘려둠
+// (Hobby 플랜에서는 이 값이 무시되고 여전히 짧게 제한될 수 있음 — 실제 배포 후 테스트 필요)
+module.exports.config = { maxDuration: 60 };
+
 async function callOpenAIImage({ apiKey, content, size }) {
   const resp = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
