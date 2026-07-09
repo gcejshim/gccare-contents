@@ -27,7 +27,13 @@ async function callOpenAIImage({ apiKey, content, size }) {
 
   const data = await resp.json();
   const imgItem = (data.output || []).find((o) => o.type === 'image_generation_call');
-  if (!imgItem) throw new Error('OpenAI 응답에 이미지가 없습니다.');
+  if (!imgItem) {
+    // 디버그용: 실제 응답에 어떤 항목이 왔는지 보여줌 (프롬프트 원문은 응답에 없으므로 노출 안 됨)
+    const types = (data.output || []).map((o) => o.type + (o.status ? `(${o.status})` : ''));
+    const refusal = (data.output || []).find((o) => o.type === 'message')
+      ?.content?.map((c) => c.text || c.refusal).filter(Boolean).join(' | ');
+    throw new Error(`OpenAI 응답에 이미지가 없습니다. output types: [${types.join(', ')}]${refusal ? ' / message: ' + refusal : ''}`);
+  }
   return `data:image/png;base64,${imgItem.result}`;
 }
 
