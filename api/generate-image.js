@@ -37,6 +37,19 @@ async function callOpenAIImage({ apiKey, content, size }) {
   return `data:image/png;base64,${imgItem.result}`;
 }
 
+// 진단용 — Vercel 복호화 시 실제 확인된 글자 수 (실제 값은 노출 안 함, 길이만 비교)
+const EXPECTED_LEN = {
+  SECTION_STYLE: 2025,
+  SECTION_PROMPT: 840,
+  SECTION_GUIDELINE_MALE: 126,
+  SECTION_GUIDELINE_FEMALE: 182,
+  HEADER_PROMPT_A: 535,
+  HEADER_PROMPT_B: 788
+};
+function checkEnvLengths(keys) {
+  return keys.map((k) => `${k}=${(process.env[k] || '').length}/${EXPECTED_LEN[k]}`).join(', ');
+}
+
 function buildSectionContent({ prompt, gender, styleRefImages, refImageDataURL }) {
   const guideline = gender === 'female'
     ? process.env.SECTION_GUIDELINE_FEMALE || ''
@@ -116,6 +129,9 @@ module.exports = async function handler(req, res) {
     const usedKey = (req.body && req.body.apiKey && req.body.apiKey.trim())
       ? `개인 키 (...${req.body.apiKey.trim().slice(-4)})`
       : `회사 공용키 (...${(process.env.OPENAI_API_KEY || '').slice(-4)})`;
-    res.status(500).json({ error: `[사용된 키: ${usedKey}] ` + (e.message || String(e)) });
+    const envKeys = (req.body && req.body.kind === 'header')
+      ? ['HEADER_PROMPT_A', 'HEADER_PROMPT_B']
+      : ['SECTION_STYLE', 'SECTION_PROMPT', 'SECTION_GUIDELINE_MALE', 'SECTION_GUIDELINE_FEMALE'];
+    res.status(500).json({ error: `[사용된 키: ${usedKey}] [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}] ` + (e.message || String(e)) });
   }
 };
