@@ -817,7 +817,7 @@ body.brand-medii .c-section-img-wrap::after {
 
       <div class="field">
         <label style="display:flex;align-items:center;gap:6px;"><span style="display:inline-block;width:3px;height:12px;background:var(--green);border-radius:2px;flex-shrink:0;"></span>헤더 이미지</label>
-        <input type="file" id="f-header-img" accept="image/webp" style="display:none" onchange="loadHeaderImg(this)">
+        <input type="file" id="f-header-img" accept="image/*" style="display:none" onchange="loadHeaderImg(this)">
         <div class="img-upload-bar has-image" id="upload-bar-header" ondragover="this.classList.add('drag-over');event.preventDefault()" ondragleave="this.classList.remove('drag-over')" ondrop="this.classList.remove('drag-over');onDrop(event,'header')">
           <button type="button" class="img-upload-plus" onclick="document.getElementById('f-header-img').click()">+</button>
           <span class="img-upload-input">이미지 삽입됨</span>
@@ -994,7 +994,7 @@ body.brand-medii .c-section-img-wrap::after {
 
       <div class="c-header">
         <img class="c-header-logo" src="data:image/png;base64,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" alt="어떠케어">
-        <div class="c-header-img-slot" id="p-header-img"><img src="" alt=""></div>
+        <div class="c-header-img-slot" id="p-header-img"><img src="" alt="" style="width:100%;height:100%;object-fit:cover;display:block;"></div>
         <div class="c-header-badge" id="p-badge">간 건강 관리 · 04</div>
         <div class="c-header-text">
           <h1 class="c-header-title" id="p-title">간수치가 높다는 신호,<br><span class="hl">무엇</span>이 문제일까?</h1>
@@ -1010,7 +1010,7 @@ body.brand-medii .c-section-img-wrap::after {
 </div>
 
 <!-- 숨겨진 파일 input들 (섹션 이미지용) -->
-<div id="file-inputs" style="display:none"><input type="file" accept="image/webp" id="fi-0"><input type="file" accept="image/webp" id="fi-1"><input type="file" accept="image/webp" id="fi-2"><input type="file" accept="image/webp" id="fi-3"><input type="file" accept="image/webp" id="fi-4"><input type="file" accept="image/webp" id="fi-5"></div>
+<div id="file-inputs" style="display:none"><input type="file" accept="image/*" id="fi-0"><input type="file" accept="image/*" id="fi-1"><input type="file" accept="image/*" id="fi-2"><input type="file" accept="image/*" id="fi-3"><input type="file" accept="image/*" id="fi-4"><input type="file" accept="image/*" id="fi-5"></div>
 
 <script>
 let DEFAULTS = [
@@ -1059,7 +1059,7 @@ function buildSectionForms() {
   DEFAULTS.forEach((d, i) => {
     // 파일 input
     const fi = document.createElement('input');
-    fi.type = 'file'; fi.accept = 'image/webp'; fi.id = `fi-${i}`;
+    fi.type = 'file'; fi.accept = 'image/*'; fi.id = `fi-${i}`;
     fi.onchange = function() { loadSectionImg(this, i); };
     fileWrap.appendChild(fi);
 
@@ -1911,7 +1911,7 @@ async function saveImage() {
           el.style.justifyContent = 'center';
           el.style.lineHeight = '30px';
           el.style.paddingTop = '0';
-          el.style.paddingBottom = '3px';270
+          el.style.paddingBottom = '3px';
         });
         clonedDoc.querySelectorAll('.c-header-badge').forEach(el => {
           const text = el.textContent.trim();
@@ -1992,7 +1992,6 @@ document.addEventListener('paste', e => {
   for (const item of items) {
     if (item.type.startsWith('image/')) {
       e.preventDefault();
-      if (item.type !== 'image/webp') { alert('WebP 파일만 사용할 수 있습니다.'); break; }
       const file = item.getAsFile();
       applyImageFile(file, pasteTarget);
       break;
@@ -2015,7 +2014,6 @@ function onDrop(e, target) {
   e.currentTarget.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (file && file.type.startsWith('image/')) {
-    if (file.type !== 'image/webp') { alert('WebP 파일만 사용할 수 있습니다.'); return; }
     applyImageFile(file, target);
   }
 }
