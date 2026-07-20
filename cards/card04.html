@@ -1687,11 +1687,13 @@ function loadCardFile(input) {
 function resetAll() {
   if (!confirm('모든 내용을 초기화할까요?')) return;
   document.getElementById('f-title').value = DEFAULTS_TITLE;
-  document.getElementById('ai-prompt-header').value = '';
+  const headerPromptEl = document.getElementById('ai-prompt-header');
+  if (headerPromptEl) headerPromptEl.value = '';
   DEFAULTS.forEach((d, i) => {
     document.getElementById(`s-title-${i}`).value = d.title;
     document.getElementById(`s-body-${i}`).value = d.body;
-    document.getElementById(`ai-prompt-sec-${i}`).value = '';
+    const secPromptEl = document.getElementById(`ai-prompt-sec-${i}`);
+    if (secPromptEl) secPromptEl.value = '';
     removeSectionImg(i);
   });
   removeHeaderImg();
@@ -1725,12 +1727,12 @@ function updateKeyUI() {
   const clearBtn = document.getElementById('key-openai-clear');
   const saveBtn = document.getElementById('key-openai-save');
   if (saved) {
-    input.placeholder = '✓ 개인 키 저장됨';
+    if (input) input.placeholder = '✓ 개인 키 저장됨';
     if (status) { status.textContent = '🔑 개인 키 사용 중'; status.style.color = '#2a4a7f'; }
     if (clearBtn) clearBtn.style.display = 'block';
     if (saveBtn) { saveBtn.textContent = '✓ 저장됨'; }
   } else {
-    input.placeholder = '회사 공용키 사용 중';
+    if (input) input.placeholder = '회사 공용키 사용 중';
     if (status) { status.textContent = ''; }
     if (clearBtn) clearBtn.style.display = 'none';
     if (saveBtn) { saveBtn.textContent = 'API 키 저장'; }
