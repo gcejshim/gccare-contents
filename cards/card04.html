@@ -1515,13 +1515,8 @@ async function exportHTML() {
   const masterFileName = window.location.pathname.split('/').pop();
   if (fileName !== masterFileName) {
     html = html.replace(/<div class="ai-gen-row"[^>]*>[\s\S]{0,2000}?<\/div>/g, '');
-    // AI API 키 섹션 + 스타일 선택 UI 완전 제거 (마커 기반)
-    html = html.replace(/[ \t]*\n?/g, '');
-    // 본문 캐릭터 선택 UI 완전 제거 (마커 기반 — char-toggle-row)
-    html = html.replace(/[ \t]*\n?/g, '');
     // 프롬프트 코드 완전 제거
     html = html.replace(/\/\/ __AI_START__[\s\S]*?\/\/ __AI_END__\n?/g, '');
-    html = html.replace(/[ \t]*\n?/g, '');
     html = html.replace(/<script src="cardnews_editor\d+\.js"><\/script>\s*/g, '');
     // 참고이미지 제거 (파일 크기 절감)
     html = html.replace(/let styleRefImages = \[.*\];/, 'let styleRefImages = [];');
