@@ -256,10 +256,14 @@ body {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  overflow-x: hidden;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
 }
+.flow-sticky-inner::-webkit-scrollbar { display: none; }
 .flow-sticky-item {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   flex-direction: row;
   align-items: center;
