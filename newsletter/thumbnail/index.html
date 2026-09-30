@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>뉴스레터 썸네일 만들기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="assets.js"></script>
+<style>
+/* ── 디자인 시스템 토큰 (Figma Foundation) ── */
+:root{
+  --careBlue-10:#f5fbff; --careBlue-50:#f0f8ff; --careBlue-100:#d6eaff; --careBlue-500:#2f74eb;
+  --careBlue-600:#1d55c4; --careBlue-900:#031552;
+  --careGreen-10:#f5fff8; --careGreen-400:#2bcf75; --careGreen-500:#0ac262; --careGreen-600:#009c50;
+  --careOrange-50:#fff7e6; --careOrange-600:#d46b08; --careRed-500:#f5222d;
+  --coolNeutral-50:#f7f7fb; --coolNeutral-100:#e8eaef; --coolNeutral-200:#ccd1d6;
+  --neutral-0:#ffffff; --neutral-500:#8a8a8a; --neutral-600:#6c6c6c; --neutral-800:#2a2a2a; --neutral-900:#111111;
+  /* 뉴스레터 전용: 14호 기준 타이틀 색 (DS 외, 사용자 지정 유지) */
+  --nl-title:#002540;
+  /* 뉴스레터 전용: 그린 배경 (DS 외, 사용자 지정) */
+  --nl-green:#20b977;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Pretendard,system-ui,sans-serif;background:var(--coolNeutral-50);color:var(--neutral-900);letter-spacing:-0.2px}
+button,input,select,textarea{font:inherit;color:inherit}
+
+/* ── 상단 바 ── */
+.topbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:10px;padding:14px 24px;
+  background:radial-gradient(ellipse 38% 180% at 58% 50%, rgba(10,194,98,.22), rgba(10,194,98,0) 70%), radial-gradient(ellipse 30% 160% at 20% 50%, rgba(47,116,235,.25), rgba(47,116,235,0) 70%), var(--careBlue-900)}
+.topbar .brand{display:flex;align-items:center;gap:12px;margin-right:12px}
+.topbar .brand img{height:18px;width:auto;display:block}
+.topbar .brand span{width:1px;height:14px;background:rgba(255,255,255,.3)}
+.topbar h1{font-size:15px;font-weight:600;margin:0;color:var(--neutral-0)}
+.topbar .btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:var(--neutral-0)}
+.topbar .btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);color:var(--neutral-0)}
+.topbar .btn.primary{background:var(--careBlue-500);border-color:var(--careBlue-500)}
+.topbar .btn.primary:hover{background:var(--careBlue-600);border-color:var(--careBlue-600)}
+.topbar .sp{flex:1}
+.btn{height:36px;padding:0 14px;border:1px solid var(--coolNeutral-200);border-radius:8px;background:var(--neutral-0);cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+.btn.primary{background:var(--careBlue-500);border-color:var(--careBlue-500);color:var(--neutral-0);font-weight:600}
+.btn.primary:hover{background:var(--careBlue-600);color:var(--neutral-0)}
+.btn.sm{height:30px;padding:0 10px;font-size:13px}
+
+/* ── 레이아웃 ── */
+.main{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px;max-width:1400px;margin:0 auto}
+.panel{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:22px;align-self:start}
+.sec h3{font-size:14px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.sec h3 small{font-weight:400;color:var(--neutral-500);font-size:12px}
+.row{display:flex;gap:8px;align-items:center}
+.field{display:flex;flex-direction:column;gap:6px;flex:1}
+.field label{font-size:12px;color:var(--neutral-600)}
+input[type=text],input[type=number],textarea,select{width:100%;border:1px solid var(--coolNeutral-200);border-radius:8px;padding:8px 10px;font-size:14px;background:var(--neutral-0)}
+textarea{resize:vertical;min-height:92px;line-height:1.5}
+select{appearance:none;-webkit-appearance:none;padding-right:34px;cursor:pointer;
+  background:var(--neutral-0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);border-color:var(--careBlue-500)}
+.hint{font-size:12px;color:var(--neutral-500);line-height:1.5;margin-top:6px}
+.hint b{color:var(--careBlue-500);font-weight:600}
+
+.seg{display:flex;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden}
+.seg button{flex:1;height:34px;border:0;background:var(--neutral-0);cursor:pointer;font-size:13px;border-right:1px solid var(--coolNeutral-200)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--careBlue-500);color:var(--neutral-0);font-weight:600}
+
+.swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sw{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;border:0;background:none;padding:0}
+.sw i{width:100%;aspect-ratio:1.4;border-radius:8px;border:1px solid var(--coolNeutral-200);display:flex;align-items:flex-end;padding:6px;font-style:normal;font-weight:700;font-size:13px}
+.sw span{font-size:11px;color:var(--neutral-600)}
+.sw.on i{outline:2px solid var(--careBlue-500);outline-offset:2px}
+.sw.dim i{opacity:.45}
+.sw-custom i{align-items:center;justify-content:center;color:var(--neutral-600);background:var(--neutral-0)}
+
+.drop{border:1.5px dashed var(--coolNeutral-200);border-radius:10px;padding:14px;text-align:center;font-size:13px;color:var(--neutral-600);cursor:pointer;background:var(--coolNeutral-50)}
+.drop:hover,.drop.over{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+.imgrow{display:flex;gap:10px;align-items:center;margin-top:10px}
+.imgrow img{width:64px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--coolNeutral-100)}
+.slider{display:grid;grid-template-columns:44px 1fr 40px;align-items:center;gap:8px;font-size:12px;color:var(--neutral-600);margin-top:8px}
+.slider input{width:100%}
+.slider output{text-align:right;font-variant-numeric:tabular-nums}
+
+.chip-edit{display:grid;grid-template-columns:120px 1fr;gap:6px;margin-top:6px}
+.switch{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
+
+/* ── 미리보기 ── */
+.stage{display:flex;flex-direction:column;gap:16px;min-width:0}
+.card{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:20px}
+.card h2{font-size:14px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+.card h2 small{font-weight:400;color:var(--neutral-500);font-size:12px}
+.preview-wrap{width:798px;height:462px;max-width:100%;position:relative;border-radius:4px;box-shadow:0 0 0 1px var(--coolNeutral-100)}
+.preview-scale{transform:scale(2);transform-origin:0 0;width:399px;height:231px}
+.first{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.first #previewActual{box-shadow:0 0 0 1px var(--coolNeutral-100);flex:none}
+.first-side{flex:1;min-width:260px}
+.side-h{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--neutral-600)}
+.actual .lbl{font-size:12px;color:var(--neutral-500);margin-top:6px}
+.lint{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.lint li{font-size:13px;padding:7px 10px;border-radius:8px;display:flex;gap:8px;align-items:baseline;line-height:1.45;cursor:default}
+.lint li.sum{font-weight:700}
+.lint .lx{flex:1}
+.lint .lx em{font-style:normal;font-weight:600}
+.lint .std{font-size:12px;color:var(--neutral-600);font-weight:400}
+.lint .tag{flex:none;font-size:11px;padding:0 6px;border-radius:8px;background:rgba(255,255,255,.7);color:var(--neutral-600)}
+.lint li.warn{background:var(--careOrange-50);color:var(--careOrange-600)}
+.lint li.ok{background:var(--careGreen-10);color:var(--careGreen-600)}
+.lint li.info{background:var(--careBlue-50);color:var(--careBlue-600)}
+.filename{font-size:13px;color:var(--neutral-600);word-break:break-all}
+.filename code{background:var(--coolNeutral-50);padding:2px 6px;border-radius:4px;color:var(--neutral-900)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--careBlue-900);color:var(--neutral-0);padding:12px 20px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+
+/* ── 썸네일 본체 (399×231, 내보내기 대상) ── */
+.thumb{position:relative;width:399px;height:231px;overflow:hidden;font-family:Pretendard,sans-serif;background:var(--t-bg)}
+.thumb .t-img{position:absolute;display:block;max-width:none;z-index:0}
+.thumb .t-fade{position:absolute;top:0;bottom:0;z-index:1}
+.thumb .t-content{position:absolute;left:28px;top:28px;right:28px;bottom:28px;display:flex;flex-direction:column;z-index:2}
+.thumb .t-logo{width:78px;height:19px;display:block}
+.thumb .t-title{margin:0;font-weight:700;color:var(--t-title);letter-spacing:-0.104px;word-break:keep-all}
+.thumb .t-title .ln{display:block;white-space:nowrap}
+.thumb .t-title .hl{color:var(--t-accent)}
+.thumb .t-chips{display:flex;gap:6px;margin-top:auto}
+.thumb .t-chip{height:28px;padding:0 11px 0 9px;border-radius:14px;background:var(--neutral-0);display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--neutral-800);white-space:nowrap;box-shadow:0 2px 6px rgba(3,21,82,.08)}
+.thumb .t-chip img{width:14px;height:14px;display:block}
+#exportHost{position:fixed;left:-10000px;top:0}
+.modal{position:fixed;inset:0;background:rgba(3,21,82,.4);display:flex;align-items:center;justify-content:center;z-index:40;padding:16px}
+.modal[hidden]{display:none}
+.modal-box{background:var(--neutral-0);border-radius:14px;padding:28px;max-width:560px;width:100%;max-height:90vh;overflow:auto}
+.modal-box h2{margin:0 0 14px;font-size:18px;color:var(--careBlue-900)}
+.modal-box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.6}
+.modal-box ul{margin:4px 0;padding-left:18px;font-size:13px;color:var(--neutral-600)}
+.modal-box b{color:var(--careBlue-600)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>뉴스레터 썸네일 만들기</h1></div>
+  <button class="btn sm" data-sample="1401">예시: 14호 01</button>
+  <button class="btn sm" data-sample="1402">예시: 14호 02</button>
+  <button class="btn sm" data-sample="14021">예시: 14호 02_1</button>
+  <button class="btn sm" id="btnNew">새로 만들기</button>
+  <button class="btn sm" id="btnHelp">사용법</button>
+  <span class="sp"></span>
+  <button class="btn" id="btnLoad" title="저장해 둔 편집 원본(.json)을 열어요">편집 원본 열기</button>
+  <button class="btn" id="btnSave" title="다시 고칠 수 있는 편집 원본(.json)을 저장해요">편집 원본 저장</button>
+  <button class="btn primary" id="btnExport" title="뉴스레터에 올릴 완성 이미지">완성 이미지 저장 (PNG)</button>
+  <input type="file" id="fileLoad" accept=".json,application/json" hidden>
+</header>
+
+<div class="main">
+  <!-- ── 입력 패널 ── -->
+  <aside class="panel">
+    <div class="sec">
+      <h3>호수 · 콘텐츠</h3>
+      <div class="row">
+        <div class="field"><label>호수</label><input type="number" id="issue" min="1"></div>
+        <div class="field"><label>콘텐츠 번호</label>
+          <select id="no"><option value="01">01 (메인)</option><option value="02">02 (서브)</option><option value="03">03</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3>타이틀 <small>줄바꿈한 대로 표시돼요</small></h3>
+      <textarea id="title" spellcheck="false"></textarea>
+      <div class="hint">강조하고 싶은 단어는 <b>[대괄호]</b>로 감싸 주세요. 예: 검진 결과가 [나왔습니다.]</div>
+      <div class="row" style="margin-top:10px">
+        <div class="field"><label>글자 크기</label>
+          <div class="seg" id="titleSize"><button data-v="26">기본 26</button><button data-v="22">작게 22</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3>배경 색상</h3>
+      <div class="swatches" id="presets"></div>
+      <div class="hint" id="presetHint" hidden>지금은 <b>장면형</b>이라 이미지의 배경을 그대로 쓰고, 글자색은 이미지 밝기에 맞춰 자동으로 정해져요. 색을 고르면 배경색이 보이도록 사진형으로 바뀌어요.</div>
+    </div>
+
+    <div class="sec">
+      <h3>이미지</h3>
+      <div class="seg" id="layout">
+        <button data-v="scene">장면형</button><button data-v="object">오브젝트형</button><button data-v="photo">사진형</button>
+      </div>
+      <div class="hint" id="layoutHint"></div>
+      <div class="drop" id="drop" style="margin-top:10px">이미지를 끌어다 놓거나 <b>클릭</b>해서 선택<br>복사한 이미지는 <b>Ctrl+V</b>로 붙여넣기</div>
+      <input type="file" id="fileImg" accept="image/*" hidden>
+      <div class="imgrow" id="imgRow" hidden>
+        <img id="imgThumb" alt="">
+        <button class="btn sm" id="btnImgRemove">이미지 빼기</button>
+      </div>
+      <div id="imgCtrls" hidden>
+        <div class="slider"><span>크기</span><input type="range" id="imgScale" min="50" max="160"><output id="oScale"></output></div>
+        <div class="slider"><span>좌우</span><input type="range" id="imgX" min="-100" max="100"><output id="oX"></output></div>
+        <div class="slider"><span>상하</span><input type="range" id="imgY" min="-100" max="100"><output id="oY"></output></div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <h3>키워드 칩 <small>최대 3개</small></h3>
+      <label class="switch"><input type="checkbox" id="chipsOn"> 칩 표시하기</label>
+      <div id="chipEditors"></div>
+    </div>
+  </aside>
+
+  <!-- ── 미리보기 ── -->
+  <section class="stage">
+    <div class="card">
+      <h2>실제 크기 (1배) <small>뉴스레터에 들어가는 크기 399×231 · 저장은 3배(1197×693)</small></h2>
+      <div class="first">
+        <div id="previewActual"></div>
+        <div class="first-side">
+          <h3 class="side-h">자동 점검</h3>
+          <ul class="lint" id="lint"></ul>
+        </div>
+      </div>
+      <p class="filename" style="margin:14px 0 0">저장 파일명: <code id="fname"></code></p>
+    </div>
+    <div class="card">
+      <h2>확대해서 보기 (2배) <small>글자 · 이미지 경계 등 세부 확인용</small></h2>
+      <div class="preview-wrap"><div class="preview-scale" id="preview"></div></div>
+    </div>
+  </section>
+</div>
+
+<div class="modal" id="help" hidden>
+  <div class="modal-box">
+    <h2>썸네일 만드는 방법</h2>
+    <p class="hint" style="margin:0 0 12px">💡 claude.ai의 <b>GC 뉴스레터 썸네일</b> 스킬로 기획안을 변환했다면, Claude가 준 작업 내용을 복사해서 이 화면에 <b>Ctrl+V</b>로 붙여넣으세요. 1~5번이 자동으로 채워져요.</p>
+    <ol>
+      <li><b>호수와 콘텐츠 번호</b>를 확인해요. 저장 파일명에 그대로 들어가요.</li>
+      <li><b>타이틀</b>을 기획안대로 입력해요. 엔터로 줄을 나누면 그대로 보여요. 3줄 이내를 권장해요.<br>강조할 단어는 <b>[대괄호]</b>로 감싸면 강조색이 돼요.</li>
+      <li><b>배경 색상</b>을 골라요. 글자색과 로고는 자동으로 맞춰져요.<br>이미지 배경과 색을 딱 맞춰야 할 때만 <b>[색 찍기]</b>로 이미지나 화면의 색을 스포이트로 찍어 써요.</li>
+      <li><b>이미지</b>를 넣어요. 끌어다 놓기, 클릭해서 선택, Ctrl+V 붙여넣기 모두 돼요.
+        <ul>
+          <li><b>장면형</b>: 배경까지 있는 이미지(14호 방식). 왼쪽이 비어 있는 이미지가 좋아요.</li>
+          <li><b>오브젝트형</b>: 배경이 투명한 PNG</li>
+          <li><b>사진형</b>: 일반 사진. 인물 사진은 회사가 보유한 사진만 써 주세요.</li>
+        </ul>
+        크기·좌우·상하 막대로 위치를 맞춰요. <b>이미지에는 글자가 없어야 해요.</b></li>
+      <li>필요하면 <b>키워드 칩</b>(최대 3개, 7자 이내)을 켜요.</li>
+      <li><b>자동 점검</b>에 주황색 경고가 없는지 확인해요.</li>
+      <li><b>[완성 이미지 저장 (PNG)]</b>을 누르면 다운로드 폴더에 저장돼요.</li>
+      <li>나중에 다시 고칠 수 있게 <b>[편집 원본 저장]</b>도 눌러 두세요. PNG는 고칠 수 없고, 편집 원본(.json)을 <b>[편집 원본 열기]</b>로 열면 그대로 이어서 수정할 수 있어요.</li>
+    </ol>
+    <p class="hint">작업 내용은 이 브라우저에 자동저장돼요. 다른 PC로 옮기거나 보관하려면 [편집 원본 저장]으로 파일을 받아 두세요.<br>처음이라면 상단의 [예시: 14호 01]을 눌러 보고 고쳐 보는 게 가장 빨라요.</p>
+    <div style="text-align:right;margin-top:16px"><button class="btn primary" id="btnHelpClose">확인</button></div>
+  </div>
+</div>
+
+<div id="exportHost"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  const A = window.NL_ASSETS || {};
+  const W = 399, H = 231;
+
+  // ── 배경 프리셋 (DS 토큰만 사용) ──
+  const PRESETS = {
+    lightBlue:  {name:'라이트 블루', bg:'--careBlue-50',     title:'--nl-title',     accent:'--careBlue-500', icon:'--careBlue-500', logo:'logoBlue'},
+    white:      {name:'화이트',      bg:'--coolNeutral-50',  title:'--nl-title',     accent:'--careBlue-500', icon:'--careBlue-500', logo:'logoBlue'},
+    navy:       {name:'네이비',      bg:'--careBlue-900',    title:'--neutral-0',    accent:'--careGreen-400',icon:'--careBlue-500', logo:'logoWhite'},
+    blue:       {name:'블루',        bg:'--careBlue-600',    title:'--neutral-0',    accent:'--careBlue-100', icon:'--careBlue-500', logo:'logoWhite'},
+    lightGreen: {name:'라이트 그린', bg:'--careGreen-10',    title:'--nl-title',     accent:'--careGreen-600',icon:'--careGreen-600',logo:'logoBlue'},
+    green:      {name:'그린',        bg:'--nl-green',        title:'--neutral-0',    accent:'--nl-title',     icon:'--careGreen-600',logo:'logoBlue'},
+  };
+  const tok = n => n.startsWith('--') ? getComputedStyle(document.documentElement).getPropertyValue(n).trim() : n;
+  const isHex = v => /^#[0-9a-f]{6}$/i.test(v || '');
+  function lum(hex){
+    const n = parseInt(hex.slice(1), 16), c = [n >> 16, (n >> 8) & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); });
+    return .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+  }
+  const contrast = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+  // 직접 고른 배경색: 밝기에 따라 글자색·강조색·로고 자동
+  function customPreset(hex){
+    const dark = contrast(hex, '#ffffff') >= contrast(hex, tok('--nl-title'));
+    return dark
+      ? {name:'직접 선택', bg:hex, title:'--neutral-0', accent:'--careGreen-400', icon:'--careBlue-500', logo:'logoWhite'}
+      : {name:'직접 선택', bg:hex, title:'--nl-title', accent:'--careBlue-500', icon:'--careBlue-500', logo:'logoBlue'};
+  }
+  const presetOf = () => S.preset === 'custom' && isHex(S.customBg) ? customPreset(S.customBg) : (PRESETS[S.preset] || PRESETS.lightBlue);
+
+  // ── 칩 아이콘 (Lucide 라인) ──
+  const ICONS = [
+    ['User','사람'],['Users','사람들'],['FileText','문서'],['ClipboardCheck','체크리스트'],['HeartPulse','건강'],
+    ['Stethoscope','진료'],['Hospital','병원'],['CalendarCheck','일정'],['ShieldCheck','안전'],['Activity','활동'],
+    ['TrendingUp','상승'],['ChartColumn','차트'],['MessageCircle','상담'],['Building2','회사'],['Footprints','걷기'],
+    ['Pill','약'],['Bell','알림'],['CircleCheck','완료'],['Search','확인'],['Smartphone','앱'],['Clock','시간'],['Target','목표']
+  ].filter(([k]) => window.lucide && lucide.icons && lucide.icons[k]);
+
+  const LAYOUT_HINT = {
+    scene:'이미지가 썸네일 전체를 채워요. 왼쪽에 글자 자리가 비어 있는 이미지가 좋아요.',
+    object:'배경이 투명한 PNG(오브젝트만 있는 이미지)를 오른쪽에 얹어요.',
+    photo:'사진이 오른쪽 절반을 채우고, 경계가 배경색으로 자연스럽게 이어져요.'
+  };
+
+  const DEFAULT = () => ({
+    v:1, issue:15, no:'01', title:'타이틀을\n입력해 주세요', titleSize:26, preset:'lightBlue', layout:'scene',
+    image:null, img:{scale:100,x:0,y:0}, chipsOn:false,
+    chips:[{icon:'User',label:''},{icon:'MessageCircle',label:''},{icon:'TrendingUp',label:''}]
+  });
+  const SAMPLES = {
+    '1401': () => Object.assign(DEFAULT(), {issue:14,no:'01',title:'검진결과가\n나왔습니다.\n무엇을 해야 할까요?',layout:'scene',image:A.sample1401,
+      img:{scale:100,x:0,y:60}, chipsOn:true,
+      chips:[{icon:'User',label:'결과 확인'},{icon:'MessageCircle',label:'사후관리'},{icon:'TrendingUp',label:'건강관리 계획'}]}),
+    '1402': () => Object.assign(DEFAULT(), {issue:14,no:'02',title:'걷기 챌린지,\n더 오래 참여하고\n더 쉽게 운영하려면?',layout:'scene',image:A.sample1402,
+      img:{scale:88,x:85,y:100}}),
+    '14021': () => Object.assign(DEFAULT(), {issue:14,no:'02',title:'걷기 챌린지,\n더 오래 참여하고\n더 쉽게 운영하려면?',layout:'scene',image:A.sample14021,
+      img:{scale:94,x:100,y:100}})
+  };
+
+  let S = DEFAULT();
+  const $ = id => document.getElementById(id);
+  const imgCache = {};   // dataURL → {w,h,corner}
+
+  // ── 자동저장 (localStorage, 실패해도 동작) ──
+  const KEY = 'gc-nl-thumb-v1';
+  let saveTimer = null, warnedQuota = false;
+  function autosave(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      try { localStorage.setItem(KEY, JSON.stringify(S)); }
+      catch(e){
+        try { localStorage.setItem(KEY, JSON.stringify(Object.assign({}, S, {image:null}))); } catch(_){}
+        if (!warnedQuota){ warnedQuota = true; toast('이미지가 커서 자동저장에서 제외했어요. [편집 원본 저장]으로 보관해 주세요.'); }
+      }
+    }, 400);
+  }
+  function restore(){
+    try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.v === 1) S = Object.assign(DEFAULT(), s); } catch(_){}
+  }
+
+  // ── 유틸 ──
+  const esc = s => s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  function toast(msg){ const t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove('show'),2600); }
+  function rgba(color, a){
+    let r, g, b, m;
+    if ((m = color.match(/^#([0-9a-f]{6})$/i))) { const n = parseInt(m[1], 16); r = n >> 16; g = (n >> 8) & 255; b = n & 255; }
+    else if ((m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/))) { [r, g, b] = [m[1], m[2], m[3]]; }
+    else return color;
+    return `rgba(${r},${g},${b},${a})`;
+  }
+  // 사진형 경계 페이드: CSS 그라데이션 대신 이미지로 만들어 저장 시 경계선이 생기지 않게 함
+  const fadeCache = {};
+  function fadeURL(color){
+    if (fadeCache[color]) return fadeCache[color];
+    const c = document.createElement('canvas'); c.width = 256; c.height = 1;
+    const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 256, 0);
+    g.addColorStop(0, rgba(color, 1)); g.addColorStop(0.08, rgba(color, 1)); g.addColorStop(0.9, rgba(color, 0)); g.addColorStop(1, rgba(color, 0));
+    x.fillStyle = g; x.fillRect(0, 0, 256, 1);
+    return (fadeCache[color] = c.toDataURL('image/png'));
+  }
+  function iconDataURL(name, color, size){
+    const node = lucide.icons[name]; if (!node) return '';
+    const svg = lucide.createElement(node);
+    svg.setAttribute('width', size); svg.setAttribute('height', size);
+    svg.setAttribute('stroke', color); svg.setAttribute('stroke-width', '2');
+    svg.setAttribute('xmlns','http://www.w3.org/2000/svg');
+    return 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(new XMLSerializer().serializeToString(svg))));
+  }
+  function loadImgMeta(src){
+    if (imgCache[src]) return Promise.resolve(imgCache[src]);
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => {
+        let corner = null, dark = false;
+        try {
+          const c = document.createElement('canvas'); c.width = 16; c.height = 9;
+          const x = c.getContext('2d'); x.drawImage(im, 0, 0, 16, 9);
+          const d = x.getImageData(0, 0, 16, 9).data;
+          if (d[3] > 250) corner = `rgb(${d[0]},${d[1]},${d[2]})`;
+          // 글자가 올라가는 왼쪽 55% 영역의 평균 밝기 → 어두운 이미지면 흰 글자
+          let sum = 0, n = 0;
+          for (let yy = 0; yy < 9; yy++) for (let xx = 0; xx < 9; xx++){
+            const i = (yy * 16 + xx) * 4; sum += (0.2126 * d[i] + 0.7152 * d[i+1] + 0.0722 * d[i+2]) * (d[i+3] / 255) + 255 * (1 - d[i+3] / 255); n++;
+          }
+          dark = sum / n < 140;
+        } catch(_){}
+        res(imgCache[src] = {w:im.naturalWidth, h:im.naturalHeight, corner, dark});
+      };
+      im.onerror = () => res(imgCache[src] = {w:1, h:1, corner:null, dark:false});
+      im.src = src;
+    });
+  }
+  // 이미지 배치: 기준 크기 × 배율, x/y는 -100(왼/위 맞춤) ~ 100(오른/아래 맞춤)
+  function placeImage(meta){
+    const s = S.img.scale / 100;
+    let rx = 0, ry = 0, rw = W, rh = H, w, h;
+    if (S.layout === 'scene'){
+      const k = Math.max(W / meta.w, H / meta.h); w = meta.w * k * s; h = meta.h * k * s;
+    } else if (S.layout === 'object'){
+      rx = W * 0.42; rw = W - rx;
+      const k = Math.min(rw / meta.w, rh / meta.h); w = meta.w * k * s; h = meta.h * k * s;
+    } else {
+      rx = W * 0.48; rw = W - rx;
+      const k = Math.max(rw / meta.w, rh / meta.h); w = meta.w * k * s; h = meta.h * k * s;
+    }
+    return { left: rx + (rw - w) * (0.5 + S.img.x / 200), top: ry + (rh - h) * (0.5 + S.img.y / 200), w, h, rx };
+  }
+
+  // ── 썸네일 그리기 ──
+  async function renderThumb(host){
+    const meta = S.image ? await loadImgMeta(S.image) : null;
+    const sceneImg = meta && S.layout === 'scene';
+    // 장면형: 배경은 이미지 자체 → 글자색·로고는 이미지 밝기로 자동 결정
+    const P = sceneImg ? (meta.dark ? PRESETS.navy : PRESETS.lightBlue) : presetOf();
+    let bg = tok(P.bg);
+    if (sceneImg && meta.corner) bg = meta.corner;   // 이미지가 작아졌을 때 남는 가장자리를 이미지 색으로 채움
+    const size = S.titleSize === 22 ? {fs:22, lh:30} : {fs:26, lh:32};
+
+    const lines = S.title.split('\n').map(l => l.trim()).filter((l, i, arr) => l || i < arr.length - 1);
+    const titleHTML = lines.map(l => `<span class="ln">${esc(l).replace(/\[([^\]]+)\]/g, '<span class="hl">$1</span>') || '&nbsp;'}</span>`).join('');
+
+    let imgHTML = '';
+    if (meta){
+      const p = placeImage(meta);
+      imgHTML = `<img class="t-img" src="${S.image}" style="left:${p.left}px;top:${p.top}px;width:${p.w}px;height:${p.h}px" alt="">`;
+      if (S.layout === 'photo'){
+        imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.22)}px;height:${H}px" alt="">`;
+        imgHTML += `<div class="t-fade" style="left:0;width:${Math.floor(p.rx)}px;background:${bg}"></div>`;
+      }
+    }
+
+    const iconColor = tok(P.icon);
+    const chips = S.chipsOn ? S.chips.filter(c => c.label.trim()).slice(0, 3) : [];
+    const chipsHTML = chips.length ? `<div class="t-chips">${chips.map(c =>
+      `<span class="t-chip"><img src="${iconDataURL(c.icon, iconColor, 14)}" alt="">${esc(c.label.trim())}</span>`).join('')}</div>` : '';
+
+    const gap = chips.length ? 22 : 0;
+    host.innerHTML = `
+      <div class="thumb" style="--t-bg:${bg};--t-title:${tok(P.title)};--t-accent:${tok(P.accent)}">
+        ${imgHTML}
+        <div class="t-content">
+          <img class="t-logo" src="${A[P.logo] || ''}" alt="GC Care">
+          <h1 class="t-title" style="font-size:${size.fs}px;line-height:${size.lh}px;margin-top:${chips.length ? gap : 'auto'}px">${titleHTML}</h1>
+          ${chipsHTML}
+        </div>
+      </div>`;
+    if (!chips.length) host.querySelector('.t-title').style.marginTop = 'auto';
+    return host.querySelector('.thumb');
+  }
+
+  // ── 자동 점검 ── 한 줄 제목 + 한 줄 해결법, 이유(why)는 마우스를 올리면 표시
+  const TAGS = { guide:'가이드', wcag:'WCAG', tip:'팁' };
+  function lint(){
+    const out = [];
+    const add = (level, tag, title, fix, why, std) => out.push({level, tag, title, fix, why: why || (std ? '글자색과 배경색의 밝기 차이예요. WCAG 2.1(웹 접근성 국제 기준): 큰 글씨(굵게 18.66px 이상) 3 : 1, 일반 글씨 4.5 : 1 이상' : ''), std});
+    const lines = S.title.split('\n').map(l => l.trim()).filter(Boolean);
+    const plain = lines.map(l => l.replace(/[\[\]]/g, ''));
+
+    if (!lines.length) add('warn','guide','타이틀이 비어 있어요','기획안 타이틀을 입력하세요','썸네일에서 가장 먼저 읽히는 부분이에요.');
+    if (lines.length > 3) add('warn','guide',`타이틀 ${lines.length}줄 (3줄 이내 권장)`,'문장을 줄이거나 [작게 22]','목록에서 작게 보여서 3줄이 넘으면 한눈에 안 읽혀요.');
+    const c = document.createElement('canvas').getContext('2d');
+    c.font = `700 ${S.titleSize}px Pretendard`;
+    plain.forEach((l, i) => {
+      const w = c.measureText(l).width;
+      if (w > W - 56) add('warn','guide',`${i+1}번째 줄이 밖으로 넘쳐요`,'줄을 나누세요','잘린 글자는 저장 이미지에서도 잘려요.');
+    });
+    if (plain.some(l => l.length === 1)) add('warn','guide','한 글자만 있는 줄이 있어요','앞 줄과 합치세요','떨어진 한 글자는 어색하고 끊어 읽게 돼요.');
+    if ((S.title.match(/\[/g)||[]).length !== (S.title.match(/\]/g)||[]).length) add('warn','tip','강조 괄호 [ ] 짝이 안 맞아요','[ 와 ] 로 함께 감싸세요','짝이 안 맞으면 괄호가 그대로 보여요.');
+
+    if (!(S.layout === 'scene' && S.image)){
+      const P = presetOf(), bg = tok(P.bg);
+      if (isHex(bg)){
+        const WHY = '배경과 글자의 밝기 차이예요. 큰 굵은 글씨는 3 : 1 이상이 국제 기준(WCAG 2.1)이에요.';
+        const ct = contrast(bg, tok(P.title));
+        if (ct >= 3) add('ok','wcag',`글자·배경 색 대비 ${ct.toFixed(1)} : 1 통과`,'','','기준 3 : 1 이상 (큰 글씨)');
+        else if (S.preset === 'green') {}   // 브랜드 지정 색: 대비 안내 생략 (사용자 지정)
+        else add('warn','wcag',`글자·배경 색 대비 ${ct.toFixed(1)} : 1 (기준 3 : 1 미만)`, S.preset === 'custom' ? '더 밝거나 어두운 색을 찍으세요' : '다른 배경을 고르세요', WHY);
+        if (/\[[^\]]+\]/.test(S.title)){
+          const ca = contrast(bg, tok(P.accent));
+          if (ca >= 3) add('ok','wcag',`강조 단어·배경 색 대비 ${ca.toFixed(1)} : 1 통과`,'','','기준 3 : 1 이상 (큰 글씨)');
+          else add('warn','wcag',`강조 단어·배경 색 대비 ${ca.toFixed(1)} : 1 (기준 3 : 1 미만)`,'강조를 빼거나 배경 변경','강조한 단어가 배경에 묻힐 수 있어요.');
+        }
+      }
+      if (S.preset === 'custom') add('info','guide',`직접 고른 배경 ${S.customBg}`,'이미지 색과 맞출 때만 사용','브랜드 톤을 위해 평소에는 기본 색상을 써요.');
+    }
+    if (!S.image) add('info','tip','이미지가 없어요','넣으면 더 눈에 띄어요 (없어도 저장 가능)','');
+    if (S.chipsOn){
+      const labels = S.chips.map(x => x.label.trim()).filter(Boolean);
+      if (!labels.length) add('warn','tip','칩 내용이 없어요','문구를 넣거나 칩을 끄세요','빈 칩은 표시되지 않아요.');
+      if (labels.some(x => x.length > 7)) add('warn','guide','칩 문구 7자 초과','"결과 확인"처럼 짧게','길면 세 개가 한 줄에 안 들어가요.');
+      if (lines.length > 3) add('warn','guide','칩 + 4줄 타이틀','타이틀 3줄로 줄이거나 칩 끄기','공간이 부족해 글자와 칩이 붙어 보여요.');
+    }
+    if (S.image && S.layout === 'object'){
+      const m = imgCache[S.image]; if (m && m.corner) add('info','tip','배경 있는 이미지 + 오브젝트형','[장면형]이나 [사진형] 권장','이미지 테두리가 네모로 보일 수 있어요.');
+    }
+
+    const warns = out.filter(x => x.level === 'warn').length;
+    const rank = {warn:0, info:1, ok:2};
+    out.sort((a, b) => rank[a.level] - rank[b.level]);
+    const head = warns ? `<li class="sum warn">고칠 곳 ${warns}개</li>` : `<li class="sum ok">✓ 문제 없어요. 저장해도 좋아요</li>`;
+    $('lint').innerHTML = head + out.map(x => `
+      <li class="${x.level}" title="${esc(x.why || '')}">
+        <b>${x.level === 'warn' ? '!' : x.level === 'ok' ? '✓' : 'i'}</b>
+        <span class="lx">${esc(x.title)}${x.std ? ` <small class="std">· ${esc(x.std)}</small>` : ''}${x.fix ? ` <em>→ ${esc(x.fix)}</em>` : ''}</span>
+        <span class="tag">${TAGS[x.tag]}</span>
+      </li>`).join('');
+  }
+
+  function fileName(){
+    const t = S.title.split('\n').map(l => l.trim()).filter(Boolean).join(' ').replace(/[\[\]]/g, '')
+      .replace(/[\\/:*?"<>|]/g, '').replace(/\s+/g, ' ').trim().replace(/[.\s]+$/, '') || '썸네일';
+    return `(${S.issue}호)${S.no}.${t}.png`;
+  }
+
+  // ── 화면 동기화 ──
+  async function refresh(){
+    await renderThumb($('preview'));
+    await renderThumb($('previewActual'));
+    $('fname').textContent = fileName();
+    lint(); autosave();
+  }
+  function syncForm(){
+    $('issue').value = S.issue; $('no').value = S.no; $('title').value = S.title;
+    document.querySelectorAll('#titleSize button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.titleSize));
+    document.querySelectorAll('#layout button').forEach(b => b.classList.toggle('on', b.dataset.v === S.layout));
+    const sceneImg = S.layout === 'scene' && !!S.image;
+    document.querySelectorAll('.sw').forEach(b => { b.classList.toggle('on', !sceneImg && b.dataset.v === S.preset); b.classList.toggle('dim', sceneImg); });
+    $('presetHint').hidden = !sceneImg;
+    const cc = $('customChip');
+    if (S.preset === 'custom' && isHex(S.customBg)){ cc.style.background = S.customBg; cc.style.color = contrast(S.customBg, '#ffffff') > 3 ? '#ffffff' : tok('--neutral-600'); }
+    else { cc.style.background = ''; cc.style.color = ''; }
+    $('layoutHint').textContent = LAYOUT_HINT[S.layout];
+    $('imgRow').hidden = $('imgCtrls').hidden = !S.image;
+    if (S.image) $('imgThumb').src = S.image;
+    [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY','']].forEach(([id,k,o,u]) => { $(id).value = S.img[k]; $(o).textContent = S.img[k] + u; });
+    $('chipsOn').checked = S.chipsOn;
+    buildChipEditors();
+  }
+  function buildChipEditors(){
+    const opts = ICONS.map(([k,n]) => `<option value="${k}">${n}</option>`).join('');
+    $('chipEditors').innerHTML = S.chipsOn ? S.chips.map((c,i) => `
+      <div class="chip-edit">
+        <select data-ci="${i}" data-k="icon">${opts}</select>
+        <input type="text" data-ci="${i}" data-k="label" placeholder="칩 ${i+1} 문구" value="${esc(c.label)}" maxlength="12">
+      </div>`).join('') : '';
+    $('chipEditors').querySelectorAll('select').forEach(s => s.value = S.chips[+s.dataset.ci].icon);
+  }
+
+  // ── 배경색 직접 선택 (스포이트 → 지원 안 되면 색상 선택 창) ──
+  async function pickColor(){
+    let hex = null;
+    if (window.EyeDropper){
+      try { hex = (await new EyeDropper().open()).sRGBHex; } catch(_){ return; }   // Esc로 취소
+    } else {
+      hex = await new Promise(res => {
+        const inp = document.createElement('input'); inp.type = 'color'; inp.value = isHex(S.customBg) ? S.customBg : '#f0f8ff';
+        inp.addEventListener('change', () => res(inp.value)); inp.click();
+      });
+    }
+    if (!hex) return;
+    if (/^rgb/.test(hex)){ const m = hex.match(/\d+/g).map(Number); hex = '#' + m.slice(0,3).map(v => v.toString(16).padStart(2,'0')).join(''); }
+    S.preset = 'custom'; S.customBg = hex.toLowerCase();
+    if (S.layout === 'scene' && S.image){ S.layout = 'photo'; S.img = {scale:100, x:60, y:0}; }
+    syncForm(); refresh(); toast(`배경색을 ${S.customBg}(으)로 바꿨어요. 글자색은 자동으로 맞췄어요.`);
+  }
+
+  // ── 작업 불러오기 (파일 · 붙여넣기 공용) ──
+  function loadState(text, msg){
+    try {
+      const s = JSON.parse(text);
+      if (s.v !== 1) throw 0;
+      const d = DEFAULT();
+      S = Object.assign(d, s, { img: Object.assign(d.img, s.img || {}) });
+      S.chips = [0,1,2].map(i => Object.assign({icon:'User', label:''}, (s.chips || [])[i] || {}));
+      S.chips.forEach(c => { if (!lucide.icons[c.icon]) c.icon = 'CircleCheck'; });
+      if (!PRESETS[S.preset] && !(S.preset === 'custom' && isHex(S.customBg))) S.preset = 'lightBlue';
+      if (!LAYOUT_HINT[S.layout]) S.layout = 'scene';
+      S.titleSize = S.titleSize === 22 ? 22 : 26;
+      syncForm(); refresh(); toast(msg);
+    } catch(_){ toast('불러올 수 없는 내용이에요. 파일이나 텍스트를 확인해 주세요.'); }
+  }
+
+  // ── 이미지 입력 ──
+  function readImage(file){
+    if (!file || !file.type.startsWith('image/')) { if (file) toast('이미지 파일만 넣을 수 있어요. (PNG, JPG, WebP)'); return; }
+    const r = new FileReader();
+    r.onload = () => {
+      const im = new Image();
+      im.onload = () => {
+        const max = 2400, k = Math.min(1, max / Math.max(im.width, im.height));
+        const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        // WebP로 변환해 보관 (용량 절감, 투명 배경 유지). WebP 미지원 브라우저는 PNG/JPEG로 대체
+        let url = c.toDataURL('image/webp', 0.9);
+        if (!url.startsWith('data:image/webp')){
+          const png = file.type === 'image/png' || file.type === 'image/webp';
+          url = c.toDataURL(png ? 'image/png' : 'image/jpeg', 0.92);
+        }
+        S.image = url;
+        const kb = Math.round(file.size / 1024), nkb = Math.round(url.length * 0.75 / 1024);
+        S.img = {scale:100, x: S.layout === 'scene' ? 0 : 60, y: S.layout === 'object' ? 100 : 0};
+        syncForm(); refresh(); toast(`이미지를 넣었어요. (${kb}KB → ${nkb}KB로 가볍게 변환)`);
+      };
+      im.onerror = () => toast('이 이미지 형식은 열 수 없어요. PNG나 JPG로 저장해서 넣어 주세요.');
+      im.src = r.result;
+    };
+    r.readAsDataURL(file);
+  }
+
+  // ── 이벤트 ──
+  function init(){
+    $('presets').innerHTML = Object.entries(PRESETS).map(([k,p]) =>
+      `<button class="sw" data-v="${k}"><i style="background:var(${p.bg});color:var(${p.title})">가<b style="color:var(${p.accent})">나</b></i><span>${p.name}</span></button>`).join('')
+      + `<button class="sw sw-custom" data-v="custom" title="스포이트로 이미지나 화면의 색을 찍어요"><i id="customChip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></i><span>색 찍기</span></button>`;
+    $('topLogo').src = A.logoTop || A.logoWhite || '';
+    restore(); syncForm(); refresh();
+
+    $('issue').addEventListener('input', e => { S.issue = Math.max(1, parseInt(e.target.value) || 1); refresh(); });
+    $('no').addEventListener('change', e => { S.no = e.target.value; refresh(); });
+    $('title').addEventListener('input', e => { S.title = e.target.value; refresh(); });
+    $('titleSize').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.titleSize = +b.dataset.v; syncForm(); refresh(); });
+    $('layout').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.layout = b.dataset.v; S.img = {scale:100, x: S.layout==='scene'?0:60, y: S.layout==='object'?100:0}; syncForm(); refresh(); });
+    $('presets').addEventListener('click', e => {
+      const b = e.target.closest('.sw'); if (!b) return;
+      if (b.dataset.v === 'custom'){ pickColor(); return; }
+      S.preset = b.dataset.v;
+      if (S.layout === 'scene' && S.image){
+        // 장면형 이미지는 배경이 그려져 있으므로, 배경색을 보이게 하려면 사진형으로 전환
+        S.layout = 'photo'; S.img = {scale:100, x:60, y:0};
+        toast('배경색이 보이도록 [사진형]으로 바꿨어요. 이미지 경계가 배경색으로 이어져요.');
+      }
+      syncForm(); refresh();
+    });
+    [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY','']].forEach(([id,k,o,u]) =>
+      $(id).addEventListener('input', e => { S.img[k] = +e.target.value; $(o).textContent = S.img[k] + u; refresh(); }));
+    $('chipsOn').addEventListener('change', e => { S.chipsOn = e.target.checked; buildChipEditors(); refresh(); });
+    $('chipEditors').addEventListener('input', e => { const t = e.target; if (t.dataset.ci == null) return; S.chips[+t.dataset.ci][t.dataset.k] = t.value; refresh(); });
+
+    const drop = $('drop');
+    drop.addEventListener('click', () => $('fileImg').click());
+    $('fileImg').addEventListener('change', e => { readImage(e.target.files[0]); e.target.value = ''; });
+    ['dragover','dragenter'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    document.addEventListener('paste', e => {
+      // 이미지는 커서 위치와 상관없이 항상 받음
+      const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+      if (it) { e.preventDefault(); readImage(it.getAsFile()); return; }
+      if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+      // Claude가 만들어 준 작업 내용(JSON 텍스트) 붙여넣기
+      const text = (e.clipboardData?.getData('text') || '').trim().replace(/^```(json)?\s*|\s*```$/g, '');
+      if (text.startsWith('{')) loadState(text, 'Claude 작업 내용을 불러왔어요. 이미지만 넣으면 돼요.');
+    });
+    // 화면 어디에 놓아도 이미지로 받기 (크롬이 이미지를 새 화면으로 여는 것 방지)
+    document.addEventListener('dragover', e => e.preventDefault());
+    document.addEventListener('drop', e => {
+      e.preventDefault(); drop.classList.remove('over');
+      const f = [...(e.dataTransfer?.files || [])].find(x => x.type.startsWith('image/'));
+      if (f) { readImage(f); return; }
+      if (e.dataTransfer?.files?.length) { toast('이미지 파일만 넣을 수 있어요. (PNG, JPG, WebP)'); return; }
+      if ((e.dataTransfer?.types || []).some(t => t === 'text/uri-list' || t === 'text/html'))
+        toast('웹페이지 이미지는 바로 가져올 수 없어요. 이미지를 PC에 저장하거나 복사(Ctrl+C)한 뒤 넣어 주세요.');
+    });
+    $('btnImgRemove').addEventListener('click', () => { S.image = null; syncForm(); refresh(); });
+
+    document.querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => { S = SAMPLES[b.dataset.sample](); syncForm(); refresh(); toast('예시를 불러왔어요. 자유롭게 고쳐 보세요.'); }));
+    $('btnNew').addEventListener('click', () => { if (!confirm('지금 작업을 지우고 새로 만들까요?\n(필요하면 먼저 [편집 원본 저장]을 눌러 주세요)')) return; const keep = S.issue; S = DEFAULT(); S.issue = keep; syncForm(); refresh(); });
+
+    $('btnHelp').addEventListener('click', () => { $('help').hidden = false; });
+    $('btnHelpClose').addEventListener('click', () => { $('help').hidden = true; });
+    $('help').addEventListener('click', e => { if (e.target.id === 'help') $('help').hidden = true; });
+    try { if (!localStorage.getItem('gc-nl-thumb-helped')){ $('help').hidden = false; localStorage.setItem('gc-nl-thumb-helped','1'); } } catch(_){}
+
+    $('btnSave').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(S)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileName().replace(/\.png$/, '.json'); a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    });
+    $('btnLoad').addEventListener('click', () => $('fileLoad').click());
+    $('fileLoad').addEventListener('change', e => {
+      const f = e.target.files[0]; if (!f) return;
+      f.text().then(t => loadState(t, '작업을 불러왔어요.'));
+      e.target.value = '';
+    });
+
+    $('btnExport').addEventListener('click', async () => {
+      const btn = $('btnExport'); btn.disabled = true; btn.textContent = '저장 중…';
+      try {
+        await document.fonts.ready;
+        const node = await renderThumb($('exportHost'));
+        await Promise.all([...node.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+        const canvas = await html2canvas(node, {scale:3, backgroundColor:null, useCORS:true, logging:false, width:W, height:H});
+        canvas.toBlob(b => {
+          const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fileName(); a.click();
+          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+          toast(`저장했어요: ${fileName()} (${canvas.width}×${canvas.height}, ${Math.round(b.size/1024)}KB)`);
+        }, 'image/png');
+      } catch(err){ console.error(err); toast('저장 중 문제가 생겼어요. 다시 시도해 주세요.'); }
+      finally { btn.disabled = false; btn.textContent = '완성 이미지 저장 (PNG)'; $('exportHost').innerHTML = ''; }
+    });
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>
