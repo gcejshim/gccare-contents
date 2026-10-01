@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>뉴스레터 컬러 매핑</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  body { margin: 0; padding: 32px 16px; background: #f7f7fb; font-family: Pretendard, sans-serif; color: #1b1b1b; }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  h1 { font-size: 22px; margin: 0 0 6px; }
+  p.sub { margin: 0 0 24px; color: #676e71; font-size: 14px; }
+  h2 { font-size: 16px; margin: 32px 0 10px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; font-size: 14px; }
+  th, td { padding: 10px 12px; border-bottom: 1px solid #e8eaef; text-align: left; vertical-align: middle; }
+  th { background: #031552; color: #fff; font-weight: 600; font-size: 13px; }
+  .sw { display: inline-block; width: 56px; height: 32px; border-radius: 6px; border: 1px solid #e8eaef; vertical-align: middle; margin-right: 8px; }
+  code { font-size: 12px; color: #454849; }
+  .tok { font-weight: 600; }
+  .de { color: #828d92; font-size: 12px; }
+  .chg { color: #2f74eb; font-weight: 600; }
+  .demo { display: flex; gap: 16px; flex-wrap: wrap; }
+  .demo > div { flex: 1 1 380px; }
+  .demo h3 { font-size: 13px; color: #676e71; margin: 0 0 8px; font-weight: 500; }
+  .card { background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 2px 8px rgba(3,21,82,.06); }
+  .card .hd { padding: 14px 18px; color: #fff; font-weight: 700; font-size: 15px; }
+  .row { display: flex; align-items: center; gap: 12px; padding: 12px 18px; border-bottom: 1px solid var(--line); }
+  .badge { flex: none; width: 46px; height: 24px; border-radius: 12px; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+  .badge.sub { color: var(--blue); }
+  .bar { flex: 1; height: 6px; border-radius: 3px; background: var(--line); position: relative; }
+  .bar i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--green); }
+  .pct { width: 44px; text-align: right; font-weight: 700; color: var(--num); }
+  .bg { padding: 16px; border-radius: 16px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>13·14호 컬러 → 디자인 시스템 토큰 매핑</h1>
+  <p class="sub">13·14호 완성 PNG에서 뽑은 색을 Foundation(ai8JLld3k0Zg9blRCq2H4C) Color 토큰과 대조. ΔE 3 이하는 눈으로 거의 구분 안 됨.</p>
+
+  <h2>나란히 보기</h2>
+  <div class="demo">
+    <div>
+      <h3>13·14호 원본</h3>
+      <div class="bg" style="background:#F2F4F8;--line:#E3E5E9;--blue:#4C7EE5;--green:#0AC262;--num:#031552">
+        <div class="card">
+          <div class="hd" style="background:#1F2B64">뉴스레터를 받아보시는 가장 큰 이유는?</div>
+          <div class="row"><span class="badge" style="background:#4C7EE5">1위</span><div class="bar"><i style="width:75%"></i></div><span class="pct">75%</span></div>
+          <div class="row"><span class="badge sub" style="background:#D0E1FC">2위</span><div class="bar"><i style="width:44%"></i></div><span class="pct">44%</span></div>
+          <div class="row" style="border:0"><span class="badge sub" style="background:#D0E1FC">3위</span><div class="bar"><i style="width:25%"></i></div><span class="pct">25%</span></div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <h3>DS 토큰 적용</h3>
+      <div class="bg" style="background:#f7f7fb;--line:#e8eaef;--blue:#2f74eb;--green:#0ac262;--num:#031552">
+        <div class="card">
+          <div class="hd" style="background:#031552">뉴스레터를 받아보시는 가장 큰 이유는?</div>
+          <div class="row"><span class="badge" style="background:#2f74eb">1위</span><div class="bar"><i style="width:75%"></i></div><span class="pct">75%</span></div>
+          <div class="row"><span class="badge sub" style="background:#d6eaff">2위</span><div class="bar"><i style="width:44%"></i></div><span class="pct">44%</span></div>
+          <div class="row" style="border:0"><span class="badge sub" style="background:#d6eaff">3위</span><div class="bar"><i style="width:25%"></i></div><span class="pct">25%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h2>블루톤 (주 컬러)</h2>
+  <table>
+    <tr><th>용도</th><th>13·14호</th><th>DS 토큰</th><th>차이</th></tr>
+    <tr><td>카드·표 헤더 남색</td><td><span class="sw" style="background:#1F2B64"></span><code>#1F2B64</code></td><td><span class="sw" style="background:#031552"></span><span class="tok">careBlue/900</span> <code>#031552</code></td><td class="de"><span class="chg">11.3 · 더 어두워짐 (선택)</span></td></tr>
+    <tr><td>진남색 수치</td><td><span class="sw" style="background:#031552"></span><code>#031552</code></td><td><span class="sw" style="background:#031552"></span><span class="tok">careBlue/900</span> <code>#031552</code></td><td class="de">0 · 동일</td></tr>
+    <tr><td>진남색2</td><td><span class="sw" style="background:#1A237E"></span><code>#1A237E</code></td><td><span class="sw" style="background:#062478"></span><span class="tok">careBlue/800</span> <code>#062478</code></td><td class="de">5.0</td></tr>
+    <tr><td>강조 블루</td><td><span class="sw" style="background:#002A8C"></span><code>#002A8C</code></td><td><span class="sw" style="background:#002a8c"></span><span class="tok">careBlue/700</span> <code>#002a8c</code></td><td class="de">0 · 동일</td></tr>
+    <tr><td>순위 배지·아이콘 파랑</td><td><span class="sw" style="background:#4C7EE5"></span><code>#4C7EE5</code></td><td><span class="sw" style="background:#2f74eb"></span><span class="tok">careBlue/500</span> <code>#2f74eb</code></td><td class="de"><span class="chg">10.6 · 더 선명해짐 (선택)</span></td></tr>
+    <tr><td>파랑 연</td><td><span class="sw" style="background:#7AA2F1"></span><code>#7AA2F1</code></td><td><span class="sw" style="background:#5998f7"></span><span class="tok">careBlue/400</span> <code>#5998f7</code></td><td class="de">10.6 · 조금 진해짐</td></tr>
+    <tr><td>연파랑 배경 (2위 이하 배지)</td><td><span class="sw" style="background:#D0E1FC"></span><code>#D0E1FC</code></td><td><span class="sw" style="background:#d6eaff"></span><span class="tok">careBlue/100</span> <code>#d6eaff</code></td><td class="de">4.4</td></tr>
+  </table>
+
+  <h2>뉴트럴 (바탕·구분선)</h2>
+  <table>
+    <tr><th>용도</th><th>13·14호</th><th>DS 토큰</th><th>차이</th></tr>
+    <tr><td>바탕</td><td><span class="sw" style="background:#F2F4F8"></span><code>#F2F4F8</code></td><td><span class="sw" style="background:#f7f7fb"></span><span class="tok">coolNeutral/50</span> <code>#f7f7fb</code></td><td class="de">1.4</td></tr>
+    <tr><td>구분선</td><td><span class="sw" style="background:#E3E5E9"></span><code>#E3E5E9</code></td><td><span class="sw" style="background:#e8eaef"></span><span class="tok">coolNeutral/100</span> <code>#e8eaef</code></td><td class="de">1.9</td></tr>
+    <tr><td>연파랑2 (칸 구분)</td><td><span class="sw" style="background:#E8EAF6"></span><code>#E8EAF6</code></td><td><span class="sw" style="background:#e8eaef"></span><span class="tok">coolNeutral/100</span> <code>#e8eaef</code></td><td class="de">3.6</td></tr>
+  </table>
+
+  <h2>그린 (포인트)</h2>
+  <table>
+    <tr><th>용도</th><th>13·14호</th><th>DS 토큰</th><th>차이</th></tr>
+    <tr><td>그린 (막대·강조 단어)</td><td><span class="sw" style="background:#0AC262"></span><code>#0AC262</code></td><td><span class="sw" style="background:#0ac262"></span><span class="tok">careGreen/500</span> <code>#0ac262</code></td><td class="de">0 · 동일</td></tr>
+    <tr><td>진그린</td><td><span class="sw" style="background:#007541"></span><code>#007541</code></td><td><span class="sw" style="background:#007541"></span><span class="tok">careGreen/700</span> <code>#007541</code></td><td class="de">0 · 동일</td></tr>
+    <tr><td>연그린</td><td><span class="sw" style="background:#E6FAED"></span><code>#E6FAED</code></td><td><span class="sw" style="background:#f5fff8"></span><span class="tok">careGreen/10</span> <code>#f5fff8</code></td><td class="de">5.4 · 조금 더 연해짐</td></tr>
+  </table>
+
+  <h2>예외 (사용자 지정 · 그대로 유지)</h2>
+  <table>
+    <tr><th>용도</th><th>색</th><th>비고</th></tr>
+    <tr><td>타이틀</td><td><span class="sw" style="background:#002540"></span><code>#002540</code></td><td class="de">14호 원본 유지</td></tr>
+    <tr><td>그린 배경</td><td><span class="sw" style="background:#20B977"></span><code>#20B977</code></td><td class="de">썸네일 프리셋</td></tr>
+  </table>
+</div>
+</body>
+</html>

@@ -2,9 +2,19 @@
 
 운영자가 디자이너 없이 뉴스레터 이미지를 만들 수 있게 돕는 도구입니다.
 
+## 뉴스레터 만들기 (통합본 · 프로토타입)
+
+**바로 열기:** https://gcejshim.github.io/gccare-contents/newsletter/app/dist/newsletter-maker.html
+
+썸네일 · 콘텐츠 이미지(PC·모바일) · 에셋 · 가이드를 한 화면 메뉴로 모은 도구입니다. 호수를 한 번만 정하면 두 도구에 같이 적용되고, 저장한 파일은 "이번 호" 체크리스트에 자동으로 표시돼요.
+
+- **콘텐츠 이미지 생성:** 블록(리스트 · 순위 · 표 · 차트 · 히어로 · 단계별 화면 등)을 골라 내용만 넣으면 PC 1800px · 모바일 1050px로 저장
+- **claude.ai 스킬:** `skills/gc-newsletter-block.zip`을 올리고 기획안을 주면 블록 내용(JSON)을 만들어 줘요 → 편집기 화면에 Ctrl+V
+
 ## 썸네일 만들기
 
-**바로 열기:** https://gcejshim.github.io/gccare-contents/newsletter/thumbnail/dist/thumbnail-v1.1.html
+**바로 열기:** https://gcejshim.github.io/gccare-contents/newsletter/thumbnail/dist/thumbnail.html  
+(통합본 › 뉴스레터 썸네일 메뉴에도 같은 도구가 들어 있어요)
 
 크롬이나 엣지에서 열면 됩니다. 파일로 받아 두면 인터넷 없이도 동작합니다.
 
@@ -21,16 +31,20 @@
 
 ## 도구 수정하기 (개발)
 
+통합본은 `app/`, 콘텐츠 이미지 편집기는 `editor/`, 썸네일은 `thumbnail/`에서 고칩니다. 각 폴더에서 `python3 build.py` → `dist/`에 **같은 이름**으로 다시 만들어집니다(통합본은 `app/build.py`가 썸네일·편집기 개발본을 함께 묶음).
+
+
 ```bash
 cd newsletter/thumbnail
 # index.html 수정 후
-python3 build.py        # → dist/thumbnail-vX.html 생성 (build.py의 VERSION 올리기)
+python3 build.py        # → dist/thumbnail.html (이름 고정 · build.py의 VERSION만 올리기)
 ```
 
 ## 버전
 
 | 버전 | 내용 |
 |---|---|
+| 통합본 v1.1 · 편집기 v1.3 · 썸네일 v1.2 (2026-10-01) | 통합본(메뉴 셸) 프로토타입, 콘텐츠 이미지 블록 13종(차트 4종 HTML · 단계별 화면 · 직접 만든 블록 · 이미지 그대로), 13호 원본 기준 표·순위 막대·글자색 #111, 한글 CI 상단 바, Pretendard Medium 추가, 파일 이름 고정 |
 | v1.1 | 이미지 붙여넣기·끌어다 놓기 수정, 공식 CI 상단 바 |
 | v1.0 | 자동 점검 한 줄 형식, WCAG 대비 기준 표시 |
 | v0.6~0.9 | 영문 로고, 그린 배경, 편집 원본 저장/열기 |
