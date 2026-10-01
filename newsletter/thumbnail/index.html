@@ -76,6 +76,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .drop{border:1.5px dashed var(--coolNeutral-200);border-radius:10px;padding:14px;text-align:center;font-size:13px;color:var(--neutral-600);cursor:pointer;background:var(--coolNeutral-50)}
 .drop:hover,.drop.over{border-color:var(--careBlue-500);color:var(--careBlue-500)}
 .imgrow{display:flex;gap:10px;align-items:center;margin-top:10px}
+.imgrow[hidden]{display:none}
 .imgrow img{width:64px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--coolNeutral-100)}
 .slider{display:grid;grid-template-columns:44px 1fr 40px;align-items:center;gap:8px;font-size:12px;color:var(--neutral-600);margin-top:8px}
 .slider input{width:100%}
@@ -89,8 +90,25 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .card{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:20px}
 .card h2{font-size:14px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px}
 .card h2 small{font-weight:400;color:var(--neutral-500);font-size:12px}
-.preview-wrap{width:798px;height:462px;max-width:100%;position:relative;border-radius:4px;box-shadow:0 0 0 1px var(--coolNeutral-100)}
-.preview-scale{transform:scale(2);transform-origin:0 0;width:399px;height:231px}
+.gen{display:flex;flex-direction:column;gap:12px}
+.gen-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.gen-row > .field{min-width:200px}
+.gen-bg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--neutral-600)}
+.gen-bg i{width:22px;height:22px;border-radius:6px;border:1px solid var(--coolNeutral-200);flex:none}
+.gen-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gen-act a.btn{display:inline-flex;align-items:center;text-decoration:none;color:inherit}
+#genPrompt{min-height:220px;font-size:13px;background:var(--coolNeutral-50)}
+.gen-chars{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--neutral-600)}
+.gen-chars[hidden]{display:none}
+.gen-chars img{width:72px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--coolNeutral-100)}
+.gen-status{font-size:13px;color:var(--neutral-600)}
+.gen-status.err{color:var(--careRed-500)}
+.gen-list{display:flex;gap:8px;flex-wrap:wrap}
+.gen-list:empty{display:none}
+.gen-list button{width:96px;height:64px;padding:0;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;cursor:pointer;
+  background:repeating-conic-gradient(var(--coolNeutral-100) 0 25%, var(--neutral-0) 0 50%) 0 0/12px 12px}
+.gen-list button.on{outline:2px solid var(--careBlue-500);outline-offset:2px}
+.gen-list img{width:100%;height:100%;object-fit:contain;display:block}
 .first{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
 .first #previewActual{box-shadow:0 0 0 1px var(--coolNeutral-100);flex:none}
 .first-side{flex:1;min-width:260px}
@@ -225,8 +243,31 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       <p class="filename" style="margin:14px 0 0">저장 파일명: <code id="fname"></code></p>
     </div>
     <div class="card">
-      <h2>확대해서 보기 (2배) <small>글자 · 이미지 경계 등 세부 확인용</small></h2>
-      <div class="preview-wrap"><div class="preview-scale" id="preview"></div></div>
+      <h2>이미지 만들기 <small>고른 배경 색상 · 레이아웃 · 스타일에 맞춰 프롬프트를 짜 드려요 · 바로 만들기(빠른 시안) 또는 ChatGPT(고품질)</small></h2>
+      <div class="gen">
+        <div class="gen-bg">지금 배경: <i id="genBgChip"></i><b id="genBgName"></b><span id="genLayoutName"></span></div>
+        <div class="gen-row">
+          <div class="field" style="flex:none"><label>스타일</label>
+            <div class="seg" id="genStyle"><button data-v="3d">3D</button><button data-v="photoObject">실사 사물</button><button data-v="photoPeople">실사 인물</button></div>
+          </div>
+          <div class="field"><label>무엇을 그릴까요? <span style="color:var(--neutral-500)">(구체적일수록 좋아요 · 비워 두면 타이틀로 정해요)</span></label>
+            <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 운동화와 걷기 앱이 켜진 휴대폰 / 의사가 여자 직원에게 결과를 설명하는 모습"></textarea>
+          </div>
+        </div>
+        <div class="hint" id="genHint" style="margin:0"></div>
+        <div class="gen-chars" id="genChars" hidden></div>
+        <div class="field"><label>프롬프트 <span style="color:var(--neutral-500)">(자동으로 짜져요 · 직접 고쳐도 돼요)</span></label>
+          <textarea id="genPrompt" spellcheck="false"></textarea>
+        </div>
+        <div class="gen-act">
+          <button class="btn primary" id="btnGen">바로 만들기</button>
+          <button class="btn" id="btnGenCopy">프롬프트 복사</button>
+          <a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener">ChatGPT 열기</a>
+          <span class="gen-status" id="genStatus"></span>
+        </div>
+        <div class="gen-list" id="genList"></div>
+        <div class="hint" style="margin:0"><b>바로 만들기</b>는 빠른 시안용이에요(30초 안팎). 완성도가 필요하면 <b>프롬프트 복사</b> → ChatGPT에서 만든 이미지를 왼쪽 <b>이미지</b> 칸에 <b>Ctrl+V</b>로 넣어요. 오브젝트형(투명 배경)은 <b>다운로드한 PNG를 끌어다 놓기</b>가 안전해요.</div>
+      </div>
     </div>
   </section>
 </div>
@@ -239,11 +280,11 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       <li><b>호수와 콘텐츠 번호</b>를 확인해요. 저장 파일명에 그대로 들어가요.</li>
       <li><b>타이틀</b>을 기획안대로 입력해요. 엔터로 줄을 나누면 그대로 보여요. 3줄 이내를 권장해요.<br>강조할 단어는 <b>[대괄호]</b>로 감싸면 강조색이 돼요.</li>
       <li><b>배경 색상</b>을 골라요. 글자색과 로고는 자동으로 맞춰져요.<br>이미지 배경과 색을 딱 맞춰야 할 때만 <b>[색 찍기]</b>로 이미지나 화면의 색을 스포이트로 찍어 써요.</li>
-      <li><b>이미지</b>를 넣어요. 끌어다 놓기, 클릭해서 선택, Ctrl+V 붙여넣기 모두 돼요.
+      <li><b>이미지</b>를 넣어요. 끌어다 놓기, 클릭해서 선택, Ctrl+V 붙여넣기 모두 돼요. 새로 그려야 하면 오른쪽 <b>[ChatGPT 이미지 프롬프트]</b>를 복사해서 ChatGPT에서 만들어요. 실제 인터뷰 사진은 그대로 붙여넣어 주세요.
         <ul>
           <li><b>장면형</b>: 배경까지 있는 이미지(14호 방식). 왼쪽이 비어 있는 이미지가 좋아요.</li>
           <li><b>오브젝트형</b>: 배경이 투명한 PNG</li>
-          <li><b>사진형</b>: 일반 사진. 인물 사진은 회사가 보유한 사진만 써 주세요.</li>
+          <li><b>사진형</b>: 일반 사진. 실제 인터뷰 · 고객사 인물은 실제 사진을 붙여넣어 주세요.</li>
         </ul>
         크기·좌우·상하 막대로 위치를 맞춰요. <b>이미지에는 글자가 없어야 해요.</b></li>
       <li>필요하면 <b>키워드 칩</b>(최대 3개, 7자 이내)을 켜요.</li>
@@ -307,7 +348,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   const DEFAULT = () => ({
     v:1, issue:15, no:'01', title:'타이틀을\n입력해 주세요', titleSize:26, preset:'lightBlue', layout:'scene',
     image:null, img:{scale:100,x:0,y:0}, chipsOn:false,
-    chips:[{icon:'User',label:''},{icon:'MessageCircle',label:''},{icon:'TrendingUp',label:''}]
+    chips:[{icon:'User',label:''},{icon:'MessageCircle',label:''},{icon:'TrendingUp',label:''}],
+    sceneBlend:false,   // true: [바로 만들기]로 고른 배경색에 맞춰 만든 장면형 이미지 → 배경색·글자색은 프리셋 유지, 왼쪽은 배경색으로 이어줌
+    gen:{style:'3d', desc:''}
   });
   const SAMPLES = {
     '1401': () => Object.assign(DEFAULT(), {issue:14,no:'01',title:'검진결과가\n나왔습니다.\n무엇을 해야 할까요?',layout:'scene',image:A.sample1401,
@@ -337,7 +380,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     }, 400);
   }
   function restore(){
-    try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.v === 1) S = Object.assign(DEFAULT(), s); } catch(_){}
+    try { const s = JSON.parse(localStorage.getItem(KEY) || 'null'); if (s && s.v === 1){ S = Object.assign(DEFAULT(), s); S.gen = Object.assign(DEFAULT().gen, s.gen || {}); } } catch(_){}
   }
 
   // ── 유틸 ──
@@ -411,8 +454,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   // ── 썸네일 그리기 ──
   async function renderThumb(host){
     const meta = S.image ? await loadImgMeta(S.image) : null;
-    const sceneImg = meta && S.layout === 'scene';
-    // 장면형: 배경은 이미지 자체 → 글자색·로고는 이미지 밝기로 자동 결정
+    const sceneImg = meta && S.layout === 'scene' && !S.sceneBlend;
+    // 장면형: 배경은 이미지 자체 → 글자색·로고는 이미지 밝기로 자동 결정 (배경색에 맞춰 바로 만든 이미지는 제외)
     const P = sceneImg ? (meta.dark ? PRESETS.navy : PRESETS.lightBlue) : presetOf();
     let bg = tok(P.bg);
     if (sceneImg && meta.corner) bg = meta.corner;   // 이미지가 작아졌을 때 남는 가장자리를 이미지 색으로 채움
@@ -428,6 +471,11 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       if (S.layout === 'photo'){
         imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.22)}px;height:${H}px" alt="">`;
         imgHTML += `<div class="t-fade" style="left:0;width:${Math.floor(p.rx)}px;background:${bg}"></div>`;
+      } else if (S.layout === 'scene' && S.sceneBlend){
+        // AI가 배경색을 정확히 못 맞춰도 글자 쪽(왼쪽)은 고른 배경색으로 자연스럽게 이어줌
+        const sx = Math.round(W * 0.3);
+        imgHTML += `<div class="t-fade" style="left:0;width:${sx}px;background:${bg}"></div>`;
+        imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${sx - 1}px;width:${Math.round(W * 0.3)}px;height:${H}px" alt="">`;
       }
     }
 
@@ -469,7 +517,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     if (plain.some(l => l.length === 1)) add('warn','guide','한 글자만 있는 줄이 있어요','앞 줄과 합치세요','떨어진 한 글자는 어색하고 끊어 읽게 돼요.');
     if ((S.title.match(/\[/g)||[]).length !== (S.title.match(/\]/g)||[]).length) add('warn','tip','강조 괄호 [ ] 짝이 안 맞아요','[ 와 ] 로 함께 감싸세요','짝이 안 맞으면 괄호가 그대로 보여요.');
 
-    if (!(S.layout === 'scene' && S.image)){
+    if (!(S.layout === 'scene' && S.image && !S.sceneBlend)){
       const P = presetOf(), bg = tok(P.bg);
       if (isHex(bg)){
         const WHY = '배경과 글자의 밝기 차이예요. 큰 굵은 글씨는 3 : 1 이상이 국제 기준(WCAG 2.1)이에요.';
@@ -485,7 +533,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       }
       if (S.preset === 'custom') add('info','guide',`직접 고른 배경 ${S.customBg}`,'이미지 색과 맞출 때만 사용','브랜드 톤을 위해 평소에는 기본 색상을 써요.');
     }
-    if (!S.image) add('info','tip','이미지가 없어요','넣으면 더 눈에 띄어요 (없어도 저장 가능)','');
+    if (!S.image) add('info','tip','이미지가 없어요','아래 ChatGPT 프롬프트로 만들거나 사진을 붙여넣으세요 (없어도 저장 가능)','');
     if (S.chipsOn){
       const labels = S.chips.map(x => x.label.trim()).filter(Boolean);
       if (!labels.length) add('warn','tip','칩 내용이 없어요','문구를 넣거나 칩을 끄세요','빈 칩은 표시되지 않아요.');
@@ -516,8 +564,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
 
   // ── 화면 동기화 ──
   async function refresh(){
-    await renderThumb($('preview'));
     await renderThumb($('previewActual'));
+    syncGen();
     $('fname').textContent = fileName();
     lint(); autosave();
   }
@@ -525,7 +573,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('issue').value = S.issue; $('no').value = S.no; $('title').value = S.title;
     document.querySelectorAll('#titleSize button').forEach(b => b.classList.toggle('on', +b.dataset.v === S.titleSize));
     document.querySelectorAll('#layout button').forEach(b => b.classList.toggle('on', b.dataset.v === S.layout));
-    const sceneImg = S.layout === 'scene' && !!S.image;
+    const sceneImg = S.layout === 'scene' && !!S.image && !S.sceneBlend;
     document.querySelectorAll('.sw').forEach(b => { b.classList.toggle('on', !sceneImg && b.dataset.v === S.preset); b.classList.toggle('dim', sceneImg); });
     $('presetHint').hidden = !sceneImg;
     const cc = $('customChip');
@@ -537,6 +585,161 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY','']].forEach(([id,k,o,u]) => { $(id).value = S.img[k]; $(o).textContent = S.img[k] + u; });
     $('chipsOn').checked = S.chipsOn;
     buildChipEditors();
+    document.querySelectorAll('#genStyle button').forEach(b => b.classList.toggle('on', b.dataset.v === S.gen.style));
+    $('genDesc').value = S.gen.desc;
+  }
+
+  // ── 이미지 만들기: 프롬프트 자동 작성 → [바로 만들기](회사 공용 서버 · 빠른 시안) 또는 [복사] → ChatGPT ──
+  const GEN_URL = 'https://gccardnews.vercel.app/api/generate-image';
+  const GEN_STYLE_HINT = {
+    '3d': '13·14호 같은 부드러운 3D 클레이 느낌이에요. <b>여자 · 남자 · 의사</b>라고 쓰면 카드뉴스 캐릭터 얼굴로 그려요.',
+    photoObject: '12호 커피 썸네일처럼 사람 없이 헬스케어 관련 사물을 실사로 그려요.',
+    photoPeople: '검진센터 · 상담 · 사내 건강관리 장면의 가상 인물(한국인) 사진이에요. <b>실제 인터뷰 · 고객사 인물 사진은 왼쪽 이미지 칸에 붙여넣기</b>로 넣어 주세요.'
+  };
+  const GEN_LAYOUT_NAME = {scene:'장면형 (배경까지 그림 · 왼쪽은 글자 자리로 비움)', object:'오브젝트형 (투명 배경 · 오른쪽에 올림)', photo:'사진형 (오른쪽 절반)'};
+
+  // 3D에서 '여자·남자·의사' 같은 말이 있으면 카드뉴스 편집기 캐릭터를 같은 얼굴로 참고
+  const FEMALE = /여자|여성|여직원|여사원|여의사|엄마|어머니|아내|할머니|언니|누나|그녀/;
+  const MALE = /남자|남성|남직원|남사원|남의사|아빠|아버지|남편|할아버지|오빠/;
+  const DOCTOR = /의사|원장|전문의|닥터/;   // 의사: 캐릭터 얼굴 그대로 50대 · 흰 가운 (여의사라고 쓰지 않으면 남자 캐릭터)
+  const F_DOCTOR = /여의사|여자\s?의사|여성\s?의사/;
+  function charRefs(text){
+    const url = {female:A.charFemale, male:A.charMale}, out = [];
+    const add = (gender, role) => { if (url[gender]) out.push({gender, role, url:url[gender]}); };
+    if (DOCTOR.test(text)){
+      const dg = F_DOCTOR.test(text) ? 'female' : 'male';
+      add(dg, 'doctor');
+      if (dg === 'male' && FEMALE.test(text)) add('female', 'office');
+      if (dg === 'female' && MALE.test(text.replace(F_DOCTOR, ''))) add('male', 'office');
+    } else {
+      if (FEMALE.test(text)) add('female', 'office');
+      if (MALE.test(text)) add('male', 'office');
+    }
+    return out;
+  }
+
+  function buildPrompt(){
+    const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase(), style = S.gen.style, layout = S.layout;
+    const title = S.title.replace(/[\[\]]/g, '').replace(/\s*\n\s*/g, ' ').trim();
+    const desc = S.gen.desc.trim();
+    const chars = style === '3d' ? charRefs(desc || title) : [];
+    const L = [];
+    L.push(layout === 'object' ? '배경이 투명한 PNG로 오브젝트 이미지를 만들어 줘.'
+      : layout === 'photo' ? '뉴스레터 썸네일 오른쪽 절반에 들어갈 이미지를 만들어 줘.'
+      : '뉴스레터 썸네일 배경 이미지를 만들어 줘.');
+    // 타이틀은 내용 참고용으로만 따로 구분 (글자는 썸네일 도구가 올리므로 이미지에 쓰면 안 됨)
+    L.push('', '[썸네일 타이틀 · 내용 참고용]');
+    L.push(`"${title}"`);
+    L.push('→ 이 문장은 나중에 따로 올리는 글자야. 이미지 안에 글자로 쓰지 말고, 무엇을 그릴지 정하는 참고로만 써 줘.');
+    L.push('', '[그릴 것]');
+    L.push(desc || '위 타이틀의 내용을 대표하는, 한눈에 알아볼 수 있는 물건(또는 장면) 하나를 골라 단순하게.');
+    L.push('기업 건강관리(건강검진 · 사후관리 · 사내 건강관리)와 분명히 관련 있어야 해.');
+
+    if (chars.length || style === 'photoPeople'){
+      L.push('', '[인물]');
+      chars.forEach(c => {
+        const who = c.gender === 'female' ? '여자 캐릭터(긴 웨이브 머리)' : '남자 캐릭터(짧은 검은 머리)';
+        if (c.role === 'doctor') L.push(`- 첨부한 ${who}와 같은 얼굴 · 헤어스타일로, 50대 의사로 그려 줘. 관자놀이 흰머리와 잔주름이 보이게, 흰 가운과 청진기.`);
+        else L.push(`- 첨부한 ${who}와 같은 얼굴 · 헤어스타일의 한국인 사무직 직원. 사원증을 메고, 의상은 ${c.gender === 'male' ? '블루 계열(하늘색 셔츠나 남색 니트)' : `배경색 ${bg}과 같은 계열(베이지 · 갈색 금지)`}.`);
+      });
+      if (chars.length) L.push('- 주제에 적은 행동(상담, 결과 보기 등)이 보이게 그리고, 나란히 서서 포즈만 취하는 단체 사진처럼 만들지 마.');
+      if (style === 'photoPeople') L.push('- 실존 인물이 아닌 가상의 한국인 사무직 직원 · 보건 담당자 · 의료진. 자연스러운 표정.');
+      else L.push('- 사람이 나온다면 한국인으로.');
+    }
+
+    L.push('', '[구도]');
+    if (layout === 'object'){
+      L.push('- 정사각형 1024×1024, 배경은 반드시 투명.');
+      L.push('- 물건은 가운데에 모으고 사방에 여백을 넉넉히. 바닥에 아주 옅은 그림자만.');
+      L.push(`- 배경색 ${bg} 위에 올렸을 때 또렷하게 보이는 색으로.`);
+    } else if (layout === 'photo'){
+      L.push('- 가로 3:2 (1536×1024). 주제는 가운데~오른쪽에.');
+      L.push(`- 가장자리 톤은 배경색 ${bg}과 자연스럽게 이어지게.`);
+    } else {
+      L.push('- 가로 3:2 (1536×1024).');
+      L.push(`- 왼쪽 55%는 완전히 비워 둘 것(타이틀 글자 자리). 거의 단색인 ${bg}만.`);
+      L.push(`- 주제는 오른쪽 45%에, 오른쪽 아래에 무게. 배경 전체는 ${bg} 단색에 가깝게.`);
+    }
+
+    L.push('', '[스타일]');
+    L.push(style === 'photoObject' ? '- 실사 제품 사진 느낌. 사람은 넣지 말 것. 자연광, 얕은 심도, 깔끔하게.'
+      : style === 'photoPeople' ? '- 실사 에디토리얼 사진. 자연광, 전문적이고 따뜻한 분위기.'
+      : '- 부드러운 3D 클레이 일러스트, 둥근 형태, 은은한 스튜디오 조명. 깔끔하고 친근하지만 유치하지 않게.');
+    L.push('- 색: 블루 톤(#2F74EB, #1D55C4, #D6EAFF) 위주, 초록(#0AC262)은 작은 포인트로만.');
+
+    L.push('', '[절대 금지]');
+    L.push('- 글자, 숫자, 영어, 한글, 로고, 라벨을 이미지 어디에도 넣지 말 것.');
+    L.push('- 휴대폰 · 모니터 · 기기 화면에도 숫자 대신 아이콘이나 그래프만.');
+    L.push('- 워터마크, 테두리 금지.');
+
+    L.push('', '[용도]', 'GC케어 기업 건강관리 뉴스레터 썸네일. 독자는 기업 인사 · 보건 담당자.');
+    if (chars.length) L.push('', '※ 첨부한 캐릭터 이미지는 얼굴 · 헤어스타일만 참고하고, 이미지 속 장기 · 음식 · 글자는 무시해 줘.');
+    return {text: L.join('\n'), chars};
+  }
+
+  const gens = [];   // 이번에 바로 만든 이미지 후보 (새로고침하면 사라짐)
+  let generating = false, promptEdited = false;
+  function syncGen(){
+    const P = presetOf();
+    $('genBgChip').style.background = tok(P.bg);
+    $('genBgName').textContent = P.name;
+    $('genLayoutName').textContent = ' · ' + GEN_LAYOUT_NAME[S.layout];
+    $('genHint').innerHTML = GEN_STYLE_HINT[S.gen.style] || '';
+    const {text, chars} = buildPrompt();
+    if (!promptEdited) $('genPrompt').value = text;
+    $('genChars').hidden = !chars.length;
+    $('genChars').innerHTML = chars.length ? '캐릭터 감지:' + chars.map(c => {
+      const k = c.gender === 'female' ? 'charFemale' : 'charMale';
+      return ` <img src="${A[k]}" alt="" style="object-position:${c.gender === 'female' ? '14%' : '50%'} 20%;width:44px"> ${c.gender === 'female' ? '여자' : '남자'}${c.role === 'doctor' ? ' (50대 의사)' : ''} <button class="btn sm" data-dl="${k}">내려받기</button>`;
+    }).join('') + ' <span>· ChatGPT에서는 내려받은 캐릭터 이미지를 같이 올려 주세요</span>' : '';
+    $('genList').innerHTML = gens.map((g, i) => `<button data-gi="${i}" class="${g.url === S.image ? 'on' : ''}" title="눌러서 이 이미지 쓰기"><img src="${g.url}" alt=""></button>`).join('');
+  }
+
+  // 최대 2400px로 줄이고 WebP로 변환해 보관 (투명 배경 유지)
+  function shrink(src){
+    return new Promise((res, rej) => {
+      const im = new Image();
+      im.onload = () => {
+        const k = Math.min(1, 2400 / Math.max(im.width, im.height));
+        const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        const url = c.toDataURL('image/webp', 0.9);
+        res(url.startsWith('data:image/webp') ? url : c.toDataURL('image/png'));
+      };
+      im.onerror = rej; im.src = src;
+    });
+  }
+  async function generate(){
+    if (generating) return;
+    const prompt = $('genPrompt').value.trim();
+    if (!prompt){ toast('프롬프트가 비어 있어요.'); return; }
+    const {chars} = buildPrompt(), layout = S.layout;
+    generating = true; $('btnGen').disabled = true; $('btnGen').textContent = '만드는 중…';
+    const st = $('genStatus'); st.className = 'gen-status'; st.textContent = '그리는 중이에요. 30초 안팎 걸려요.';
+    const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
+    try {
+      const resp = await fetch(GEN_URL, {method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
+        body: JSON.stringify({kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url)})});
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.dataURL){
+        const msg = data.error || `서버 응답 오류 (${resp.status})`;
+        throw new Error(/알 수 없는 kind/.test(msg) ? '서버에 썸네일 기능이 아직 배포되지 않았어요.' : msg);
+      }
+      const url = await shrink(data.dataURL);
+      gens.unshift({url, layout}); if (gens.length > 6) gens.pop();
+      useGen(gens[0]);
+      st.textContent = '완성! 빠른 시안이에요. 완성도가 필요하면 [프롬프트 복사] → ChatGPT로 만들어 붙여넣으세요.';
+    } catch(e){
+      st.className = 'gen-status err';
+      st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '만들지 못했어요: ' + (e.message || e);
+    } finally {
+      clearTimeout(timer); generating = false; $('btnGen').disabled = false; $('btnGen').textContent = '바로 만들기';
+    }
+  }
+  function useGen(g){
+    S.image = g.url; S.layout = g.layout; S.sceneBlend = g.layout === 'scene';
+    S.img = g.layout === 'object' ? {scale:85, x:100, y:100} : {scale:100, x: g.layout === 'scene' ? 0 : 60, y:0};
+    syncForm(); refresh();
   }
   function buildChipEditors(){
     const opts = ICONS.map(([k,n]) => `<option value="${k}">${n}</option>`).join('');
@@ -562,7 +765,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     if (!hex) return;
     if (/^rgb/.test(hex)){ const m = hex.match(/\d+/g).map(Number); hex = '#' + m.slice(0,3).map(v => v.toString(16).padStart(2,'0')).join(''); }
     S.preset = 'custom'; S.customBg = hex.toLowerCase();
-    if (S.layout === 'scene' && S.image){ S.layout = 'photo'; S.img = {scale:100, x:60, y:0}; }
+    if (S.layout === 'scene' && S.image && !S.sceneBlend){ S.layout = 'photo'; S.img = {scale:100, x:60, y:0}; }
     syncForm(); refresh(); toast(`배경색을 ${S.customBg}(으)로 바꿨어요. 글자색은 자동으로 맞췄어요.`);
   }
 
@@ -572,7 +775,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       const s = JSON.parse(text);
       if (s.v !== 1) throw 0;
       const d = DEFAULT();
-      S = Object.assign(d, s, { img: Object.assign(d.img, s.img || {}) });
+      S = Object.assign(d, s, { img: Object.assign(d.img, s.img || {}), gen: Object.assign(d.gen, s.gen || {}) });
       S.chips = [0,1,2].map(i => Object.assign({icon:'User', label:''}, (s.chips || [])[i] || {}));
       S.chips.forEach(c => { if (!lucide.icons[c.icon]) c.icon = 'CircleCheck'; });
       if (!PRESETS[S.preset] && !(S.preset === 'custom' && isHex(S.customBg))) S.preset = 'lightBlue';
@@ -598,7 +801,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
           const png = file.type === 'image/png' || file.type === 'image/webp';
           url = c.toDataURL(png ? 'image/png' : 'image/jpeg', 0.92);
         }
-        S.image = url;
+        S.image = url; S.sceneBlend = false;
         const kb = Math.round(file.size / 1024), nkb = Math.round(url.length * 0.75 / 1024);
         S.img = {scale:100, x: S.layout === 'scene' ? 0 : 60, y: S.layout === 'object' ? 100 : 0};
         syncForm(); refresh(); toast(`이미지를 넣었어요. (${kb}KB → ${nkb}KB로 가볍게 변환)`);
@@ -621,12 +824,14 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('no').addEventListener('change', e => { S.no = e.target.value; refresh(); });
     $('title').addEventListener('input', e => { S.title = e.target.value; refresh(); });
     $('titleSize').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.titleSize = +b.dataset.v; syncForm(); refresh(); });
-    $('layout').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.layout = b.dataset.v; S.img = {scale:100, x: S.layout==='scene'?0:60, y: S.layout==='object'?100:0}; syncForm(); refresh(); });
+    $('layout').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.layout = b.dataset.v; promptEdited = false; S.img = {scale:100, x: S.layout==='scene'?0:60, y: S.layout==='object'?100:0}; syncForm(); refresh(); });
     $('presets').addEventListener('click', e => {
       const b = e.target.closest('.sw'); if (!b) return;
       if (b.dataset.v === 'custom'){ pickColor(); return; }
-      S.preset = b.dataset.v;
-      if (S.layout === 'scene' && S.image){
+      S.preset = b.dataset.v; promptEdited = false;
+      if (S.layout === 'scene' && S.image && S.sceneBlend){
+        toast('배경색을 바꿨어요. 이미지 색이 안 어울리면 새 배경에 맞춰 다시 만들어 주세요.');
+      } else if (S.layout === 'scene' && S.image){
         // 장면형 이미지는 배경이 그려져 있으므로, 배경색을 보이게 하려면 사진형으로 전환
         S.layout = 'photo'; S.img = {scale:100, x:60, y:0};
         toast('배경색이 보이도록 [사진형]으로 바꿨어요. 이미지 경계가 배경색으로 이어져요.');
@@ -662,7 +867,21 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       if ((e.dataTransfer?.types || []).some(t => t === 'text/uri-list' || t === 'text/html'))
         toast('웹페이지 이미지는 바로 가져올 수 없어요. 이미지를 PC에 저장하거나 복사(Ctrl+C)한 뒤 넣어 주세요.');
     });
-    $('btnImgRemove').addEventListener('click', () => { S.image = null; syncForm(); refresh(); });
+    $('btnImgRemove').addEventListener('click', () => { S.image = null; S.sceneBlend = false; syncForm(); refresh(); });
+
+    $('genStyle').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.gen.style = b.dataset.v; promptEdited = false; syncForm(); refresh(); });
+    $('genDesc').addEventListener('input', e => { S.gen.desc = e.target.value; promptEdited = false; syncGen(); autosave(); });
+    $('genPrompt').addEventListener('input', () => { promptEdited = true; });
+    $('btnGenCopy').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText($('genPrompt').value); toast('프롬프트를 복사했어요. ChatGPT에 붙여 넣어 주세요.'); }
+      catch(e){ $('genPrompt').select(); toast('복사가 막혀 있어요. 선택된 프롬프트를 Ctrl+C로 복사해 주세요.'); }
+    });
+    $('btnGen').addEventListener('click', generate);
+    $('genList').addEventListener('click', e => { const b = e.target.closest('[data-gi]'); if (b) useGen(gens[+b.dataset.gi]); });
+    $('genChars').addEventListener('click', e => {
+      const b = e.target.closest('[data-dl]'); if (!b) return;
+      const a = document.createElement('a'); a.href = A[b.dataset.dl]; a.download = b.dataset.dl === 'charFemale' ? 'GC케어_여자캐릭터.webp' : 'GC케어_남자캐릭터.webp'; a.click();
+    });
 
     document.querySelectorAll('[data-sample]').forEach(b => b.addEventListener('click', () => { S = SAMPLES[b.dataset.sample](); syncForm(); refresh(); toast('예시를 불러왔어요. 자유롭게 고쳐 보세요.'); }));
     $('btnNew').addEventListener('click', () => { if (!confirm('지금 작업을 지우고 새로 만들까요?\n(필요하면 먼저 [편집 원본 저장]을 눌러 주세요)')) return; const keep = S.issue; S = DEFAULT(); S.issue = keep; syncForm(); refresh(); });

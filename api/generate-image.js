@@ -6,7 +6,7 @@
 // (Hobby 플랜에서는 이 값이 무시되고 여전히 짧게 제한될 수 있음 — 실제 배포 후 테스트 필요)
 module.exports.config = { maxDuration: 60 };
 
-async function callOpenAIImage({ apiKey, content, size }) {
+async function callOpenAIImage({ apiKey, content, size, background }) {
   const resp = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -16,7 +16,8 @@ async function callOpenAIImage({ apiKey, content, size }) {
     body: JSON.stringify({
       model: 'gpt-4o',
       input: [{ role: 'user', content }],
-      tools: [{ type: 'image_generation', quality: 'low', size }]
+      // 투명 배경은 기본 이미지 모델이 지원하지 않아 gpt-image-1을 지정
+      tools: [{ type: 'image_generation', quality: 'low', size, ...(background ? { background, model: 'gpt-image-1' } : {}) }]
     })
   });
 
@@ -82,6 +83,17 @@ function buildHeaderContent({ prompt, activeHeaderStyle, headerRefImages }) {
   return content;
 }
 
+// 뉴스레터 썸네일 [바로 만들기] — 프롬프트는 썸네일 도구가 짜서 화면에 보여 주고(ChatGPT 복사용과 같은 내용) 그대로 받는다.
+// charRefs: 프롬프트에 '첨부한 캐릭터'로 적힌 카드뉴스 편집기 캐릭터 이미지 (최대 2장)
+const isSmallImage = (u) => /^data:image\/(webp|png|jpeg);base64,/.test(u || '') && u.length < 500000;
+function buildThumbContent({ prompt, charRefs }) {
+  const chars = (Array.isArray(charRefs) ? charRefs : []).filter(isSmallImage).slice(0, 2);
+  const content = chars.map((u) => ({ type: 'input_image', image_url: u }));
+  const note = chars.length ? '\n\n(The attached image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)' : '';
+  content.push({ type: 'input_text', text: prompt + note });
+  return content;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -110,8 +122,12 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    let content, size;
-    if (kind === 'header') {
+    let content, size, background;
+    if (kind === 'thumb') {
+      content = buildThumbContent(body);
+      size = body.layout === 'object' ? '1024x1024' : '1536x1024';
+      if (body.layout === 'object') background = 'transparent';
+    } else if (kind === 'header') {
       content = buildHeaderContent(body);
       size = '1024x1024';
     } else if (kind === 'section') {
@@ -122,16 +138,18 @@ module.exports = async function handler(req, res) {
       return;
     }
 
-    const dataURL = await callOpenAIImage({ apiKey: effectiveKey, content, size });
+    const dataURL = await callOpenAIImage({ apiKey: effectiveKey, content, size, background });
     res.status(200).json({ dataURL });
   } catch (e) {
     // 디버그용: 어떤 키(개인/회사)가 쓰였는지 끝 4자리만 노출 (전체 키는 절대 노출 안 함)
     const usedKey = (req.body && req.body.apiKey && req.body.apiKey.trim())
       ? `개인 키 (...${req.body.apiKey.trim().slice(-4)})`
       : `회사 공용키 (...${(process.env.OPENAI_API_KEY || '').slice(-4)})`;
-    const envKeys = (req.body && req.body.kind === 'header')
+    const kind = req.body && req.body.kind;
+    const envKeys = kind === 'header'
       ? ['HEADER_PROMPT_A', 'HEADER_PROMPT_B']
       : ['SECTION_STYLE', 'SECTION_PROMPT', 'SECTION_GUIDELINE_MALE', 'SECTION_GUIDELINE_FEMALE'];
-    res.status(500).json({ error: `[사용된 키: ${usedKey}] [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}] ` + (e.message || String(e)) });
+    const envInfo = kind === 'thumb' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
+    res.status(500).json({ error: `[사용된 키: ${usedKey}]${envInfo} ` + (e.message || String(e)) });
   }
 };

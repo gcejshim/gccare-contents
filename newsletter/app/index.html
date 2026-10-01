@@ -261,7 +261,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <div class="card">
           <h3>ChatGPT에 붙여 넣을 프롬프트<span class="sp"></span><button class="btn sm" id="aiCopy">복사</button><a class="btn sm primary" id="aiOpen" target="_blank" rel="noopener">ChatGPT 열기</a></h3>
           <div class="prompt" id="aiPrompt"></div>
-          <p class="hint" style="margin-top:10px">만든 이미지는 ChatGPT에서 복사하거나 저장한 뒤, 썸네일 · 콘텐츠 도구에 <b>Ctrl+V</b>로 넣어요. 회사 공용 키로 바로 그리는 기능은 준비 중이에요.</p>
+          <p class="hint" style="margin-top:10px">만든 이미지는 ChatGPT에서 복사하거나 저장한 뒤, 썸네일 · 콘텐츠 도구에 <b>Ctrl+V</b>로 넣어요. 썸네일은 <b>뉴스레터 썸네일 › 이미지 만들기</b>에서 배경 · 레이아웃에 맞춘 프롬프트를 바로 짜 주고, 빠른 시안도 만들 수 있어요.</p>
         </div>
       </div>
     </div>
@@ -495,7 +495,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       '- Color palette: calm blue tones as the base (#031552 navy, #2F74EB blue, #D6EAFF / #F0F8FF light blue, #F7F7FB off-white). Use green (#0AC262) only as a small accent.',
       '- Audience: HR and occupational-health managers at Korean companies (B2B). Professional, trustworthy, warm — not an app UI, not a stock-photo cliché.',
       '- ABSOLUTELY NO TEXT: no letters, numbers, Korean/English words, logos, labels, signage, or UI text anywhere in the image.',
-      '- No realistic photos of real-looking people. If people appear, use stylized illustration characters only.',
+      '- People: fictional East Asian (Korean) people only, never real or famous people. Real interview or customer photos are added by the team, not generated.',
       '- No watermarks, no borders, no frames.',
       `- Output size: ${u.size}.`
     ].filter(x => x !== null).join('\n');
