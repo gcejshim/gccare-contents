@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>뉴스레터 만들기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<script src="../thumbnail/vendor/lucide.min.js"></script>
+<script src="../thumbnail/assets.js"></script>
+<script src="../editor/assets-editor.js"></script>
+<script src="samples.js"></script>
+<style>
+/* ── 디자인 시스템 토큰 (Figma Foundation ai8JLld3k0Zg9blRCq2H4C) ── */
+:root{
+  --careBlue-10:#f5fbff; --careBlue-50:#f0f8ff; --careBlue-100:#d6eaff; --careBlue-200:#add3ff; --careBlue-400:#5998f7;
+  --careBlue-500:#2f74eb; --careBlue-600:#1d55c4; --careBlue-700:#002a8c; --careBlue-800:#062478; --careBlue-900:#031552;
+  --careGreen-10:#f5fff8; --careGreen-50:#d1fadd; --careGreen-500:#0ac262; --careGreen-600:#009c50; --careGreen-700:#007541;
+  --careOrange-50:#fff7e6; --careOrange-600:#d46b08; --careRed-500:#f5222d;
+  --coolNeutral-50:#f7f7fb; --coolNeutral-100:#e8eaef; --coolNeutral-200:#ccd1d6; --coolNeutral-300:#a9b0b7;
+  --coolNeutral-500:#828d92; --coolNeutral-600:#676e71; --coolNeutral-900:#1b1b1b;
+  --neutral-0:#ffffff; --neutral-500:#8a8a8a; --neutral-600:#6c6c6c; --neutral-900:#111111;
+  --nl-title:#002540; --nl-green:#20b977;
+  --top:62px; --side:220px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Pretendard,system-ui,sans-serif;background:var(--coolNeutral-50);color:var(--neutral-900);letter-spacing:-0.2px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--careBlue-500)}
+
+/* ── 상단 바 ── */
+.topbar{position:fixed;inset:0 0 auto 0;height:var(--top);z-index:20;display:flex;align-items:center;gap:14px;padding:0 20px;
+  background:radial-gradient(ellipse 38% 180% at 58% 50%, rgba(10,194,98,.22), rgba(10,194,98,0) 70%), radial-gradient(ellipse 30% 160% at 20% 50%, rgba(47,116,235,.25), rgba(47,116,235,0) 70%), var(--careBlue-900);color:var(--neutral-0)}
+.brand{display:flex;align-items:center;gap:12px;width:calc(var(--side) - 20px)}
+.brand img{height:18px;width:auto;display:block}
+.brand span{width:1px;height:14px;background:rgba(255,255,255,.3)}
+.brand h1{font-size:15px;font-weight:600;margin:0;white-space:nowrap}
+.issue{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:4px 6px}
+.issue button{width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:var(--neutral-0);cursor:pointer;font-size:14px}
+.issue button:hover{background:rgba(255,255,255,.14)}
+.issue b{font-size:15px;min-width:44px;text-align:center}
+.issue small{font-size:12px;opacity:.75;padding-right:4px}
+.dday{font-size:12px;font-weight:700;padding:3px 9px;border-radius:10px;background:var(--careGreen-500);color:var(--neutral-0)}
+.dday.soon{background:var(--careOrange-600)}
+.dday.over{background:var(--careRed-500)}
+.topbar .sp{flex:1}
+.btn{height:34px;padding:0 13px;border:1px solid var(--coolNeutral-200);border-radius:8px;background:var(--neutral-0);cursor:pointer;font-size:13px;font-weight:500;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--neutral-900)}
+.btn:hover{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+.btn.primary{background:var(--careBlue-500);border-color:var(--careBlue-500);color:var(--neutral-0);font-weight:600}
+.btn.primary:hover{background:var(--careBlue-600);color:var(--neutral-0)}
+.btn.sm{height:28px;padding:0 10px;font-size:12px}
+.topbar .btn{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.22);color:var(--neutral-0)}
+.topbar .btn:hover{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4);color:var(--neutral-0)}
+
+/* ── 메뉴 ── */
+.side{position:fixed;top:var(--top);bottom:0;left:0;width:var(--side);background:var(--neutral-0);border-right:1px solid var(--coolNeutral-100);padding:14px 10px;display:flex;flex-direction:column;gap:2px;z-index:10}
+.menu{display:flex;align-items:center;gap:10px;height:40px;padding:0 12px;border-radius:8px;border:0;background:none;cursor:pointer;font-size:14px;font-weight:500;color:var(--coolNeutral-600);text-align:left;width:100%}
+.menu svg{flex:none;width:18px;height:18px}
+.menu:hover{background:var(--coolNeutral-50);color:var(--careBlue-900)}
+.menu.on{background:var(--careBlue-50);color:var(--careBlue-600);font-weight:700}
+.menu .badge{margin-left:auto;font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;background:var(--coolNeutral-100);color:var(--coolNeutral-600)}
+.side hr{border:0;border-top:1px solid var(--coolNeutral-100);margin:8px 4px}
+.side .foot{margin-top:auto;font-size:11px;color:var(--neutral-500);padding:8px 12px;line-height:1.5}
+
+/* ── 본문 ── */
+.main{position:fixed;top:var(--top);left:var(--side);right:0;bottom:0;overflow:auto}
+.view{display:none;min-height:100%}
+.view.on{display:block}
+.view.frame{height:100%}
+.view.frame iframe{display:block;width:100%;height:100%;border:0;background:var(--coolNeutral-50)}
+.page{max-width:1120px;margin:0 auto;padding:28px 28px 60px}
+.page h2{font-size:22px;margin:0 0 6px;color:var(--careBlue-900)}
+.page > p.lead{margin:0 0 22px;color:var(--coolNeutral-600);font-size:14px;line-height:1.6}
+.card{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+.card h3{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--careBlue-900)}
+.card h3 small{font-weight:400;font-size:12px;color:var(--neutral-500)}
+.card h3 .sp{flex:1}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;color:var(--neutral-600)}
+input[type=text],input[type=number],input[type=date],input[type=url],textarea,select{border:1px solid var(--coolNeutral-200);border-radius:8px;padding:8px 10px;font-size:14px;background:var(--neutral-0);width:100%}
+textarea{resize:vertical;line-height:1.55}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);border-color:var(--careBlue-500)}
+.hint{font-size:12px;color:var(--neutral-500);line-height:1.55}
+.hint b{color:var(--careBlue-500)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.tbl{width:100%;border-collapse:collapse;font-size:13px}
+.tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--coolNeutral-100);text-align:left;vertical-align:top;line-height:1.5}
+.tbl th{font-size:12px;color:var(--coolNeutral-600);font-weight:600;background:var(--coolNeutral-50)}
+.tbl code,.page code{background:var(--coolNeutral-50);padding:1px 6px;border-radius:4px;font-size:12px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--careBlue-900);color:var(--neutral-0);padding:12px 20px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
+.toast.show{opacity:1}
+
+/* 이번 호 */
+.ct{border:1px solid var(--coolNeutral-100);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.ct-h{display:flex;align-items:center;gap:8px}
+.ct-h b{font-size:13px;color:var(--careBlue-600);background:var(--careBlue-50);padding:2px 8px;border-radius:6px}
+.ct-h input{flex:1}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.st{border-radius:10px;padding:10px 12px;background:var(--coolNeutral-50);font-size:12px;color:var(--coolNeutral-600);display:flex;flex-direction:column;gap:4px}
+.st strong{font-size:14px;color:var(--neutral-900)}
+.st.done{background:var(--careGreen-10);color:var(--careGreen-600)}
+.st.done strong{color:var(--careGreen-700)}
+.st.part{background:var(--careBlue-50);color:var(--careBlue-600)}
+.ct .acts{display:flex;gap:6px;flex-wrap:wrap}
+.files{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:13px;max-height:260px;overflow:auto}
+.files li{display:flex;gap:10px;align-items:center;padding:6px 8px;border-radius:6px}
+.files li:nth-child(odd){background:var(--coolNeutral-50)}
+.files li .t{color:var(--neutral-500);font-size:12px;width:92px;flex:none}
+.files li .k{margin-left:auto;color:var(--neutral-500);font-size:12px}
+.files li.big .k{color:var(--careOrange-600);font-weight:600}
+.empty{padding:20px;text-align:center;color:var(--neutral-500);font-size:13px;border:1.5px dashed var(--coolNeutral-200);border-radius:10px}
+.todo{margin:0;padding-left:18px;font-size:14px;line-height:1.9;color:var(--coolNeutral-600)}
+.todo b{color:var(--careBlue-900)}
+
+/* 에셋 */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--coolNeutral-100);margin-bottom:18px}
+.tabs button{border:0;background:none;padding:10px 14px;font-size:14px;cursor:pointer;color:var(--coolNeutral-600);border-bottom:2px solid transparent;margin-bottom:-1px}
+.tabs button.on{color:var(--careBlue-600);border-bottom-color:var(--careBlue-500);font-weight:700}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.chips button{border:1px solid var(--coolNeutral-200);background:var(--neutral-0);border-radius:16px;padding:5px 12px;font-size:13px;cursor:pointer}
+.chips button.on{background:var(--careBlue-900);border-color:var(--careBlue-900);color:var(--neutral-0)}
+.chips button small{opacity:.6;margin-left:3px}
+.gal{columns:3 260px;column-gap:14px}
+.gal .it{break-inside:avoid;margin-bottom:14px;background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;cursor:zoom-in}
+.gal .it:hover{border-color:var(--careBlue-200);box-shadow:0 4px 14px rgba(3,21,82,.08)}
+.gal .it img{display:block;width:100%;height:auto}
+.gal .it .m{padding:8px 10px;font-size:12px;color:var(--coolNeutral-600);display:flex;gap:6px;align-items:center}
+.gal .it .m b{color:var(--careBlue-900)}
+.gal .it .m span{margin-left:auto;font-size:11px;padding:1px 6px;border-radius:6px;background:var(--careBlue-50);color:var(--careBlue-600)}
+.lb{position:fixed;inset:0;background:rgba(3,21,82,.6);z-index:40;display:flex;align-items:center;justify-content:center;padding:24px}
+.lb[hidden]{display:none}
+.lb-box{background:var(--neutral-0);border-radius:14px;max-width:min(1000px,96vw);max-height:92vh;display:flex;flex-direction:column;overflow:hidden}
+.lb-box .im{overflow:auto;background:var(--coolNeutral-50);padding:16px;flex:1}
+.lb-box .im img{display:block;max-width:100%;margin:0 auto}
+.lb-box .bar{display:flex;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--coolNeutral-100);font-size:13px;flex-wrap:wrap}
+.lb-box .bar .sp{flex:1}
+.logos{display:flex;gap:14px;flex-wrap:wrap}
+.logo{border:1px solid var(--coolNeutral-100);border-radius:10px;padding:16px;display:flex;flex-direction:column;gap:10px;align-items:flex-start;min-width:220px}
+.logo .pv{height:70px;width:100%;display:flex;align-items:center;justify-content:center;border-radius:8px}
+.logo .pv img{max-height:28px;max-width:180px}
+.logo .n{font-size:13px;font-weight:600}
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.icons div{border:1px solid var(--coolNeutral-100);border-radius:8px;padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--coolNeutral-600)}
+.icons svg{width:24px;height:24px;color:var(--careBlue-500)}
+.icons code{font-size:10px}
+.sws{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.sw{border:1px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;cursor:pointer;background:var(--neutral-0);text-align:left;padding:0}
+.sw i{display:block;height:56px}
+.sw div{padding:8px 10px;font-size:12px;line-height:1.45}
+.sw div b{display:block;font-size:12px}
+.sw div code{font-size:11px;background:none;padding:0;color:var(--coolNeutral-600)}
+.prompt{background:var(--careBlue-900);color:#e8eef9;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;max-height:380px;overflow:auto}
+.ph-card{text-align:center;padding:48px 24px}
+.ph-card svg{width:40px;height:40px;color:var(--careBlue-400)}
+.ph-card h3{justify-content:center;font-size:18px;margin:12px 0 8px}
+.ph-card ul{display:inline-block;text-align:left;margin:12px 0 0;color:var(--coolNeutral-600);font-size:14px;line-height:1.9}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>뉴스레터 만들기</h1></div>
+  <div class="issue" title="호수를 바꾸면 썸네일 · 콘텐츠 이미지 도구에 같이 적용돼요">
+    <button id="issuePrev" aria-label="이전 호">◀</button><b id="issueNo"></b><small id="issueYm"></small><button id="issueNext" aria-label="다음 호">▶</button>
+  </div>
+  <span class="dday" id="dday" hidden></span>
+  <span class="sp"></span>
+  <button class="btn" id="btnOpenAll" title="[호 전체 저장]으로 받아 둔 파일을 열어요">호 전체 열기</button>
+  <button class="btn" id="btnSaveAll" title="이번 호의 썸네일 · 콘텐츠 이미지 작업과 체크리스트를 파일 하나로 저장해요">호 전체 저장</button>
+  <input type="file" id="fileAll" accept=".json,application/json" hidden>
+</header>
+
+<nav class="side" id="side">
+  <button class="menu" data-view="home" data-icon="LayoutDashboard">이번 호</button>
+  <hr>
+  <button class="menu" data-view="thumb" data-icon="Image">뉴스레터 썸네일</button>
+  <button class="menu" data-view="image" data-icon="LayoutTemplate">콘텐츠 이미지 생성</button>
+  <button class="menu" data-view="pdf" data-icon="FileText">PDF <span class="badge">준비 중</span></button>
+  <hr>
+  <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
+  <button class="menu" data-view="guide" data-icon="BookOpen">가이드</button>
+  <div class="foot">GC케어 뉴스레터 만들기 <span id="ver">개발본</span><br>작업은 이 브라우저에 자동저장돼요</div>
+</nav>
+
+<main class="main">
+  <!-- 이번 호 -->
+  <section class="view" id="v-home"><div class="page">
+    <h2 id="homeTitle"></h2>
+    <p class="lead">콘텐츠마다 썸네일 · PC · 모바일 이미지를 만들면 저장할 때 자동으로 체크돼요. 다 만들면 [호 전체 저장]으로 작업 파일을 보관해 두세요.</p>
+    <div class="card">
+      <h3>호 정보</h3>
+      <div class="row">
+        <div class="field" style="width:180px"><label>게시 마감일</label><input type="date" id="due"></div>
+        <div class="field" style="flex:1;min-width:240px"><label>메모 (기획안 위치 · 전달 사항 등)</label><input type="text" id="memo" placeholder="예: 기획안 202610_뉴스레터/참고자료/… · 10/10 1차 검수"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>콘텐츠 <small>한 호 = 콘텐츠 2~3개</small><span class="sp"></span><button class="btn sm" id="btnC3"></button></h3>
+      <div class="grid2" id="contents"></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>저장 기록 <small>이 브라우저에서 저장한 파일</small></h3>
+        <ul class="files" id="files"></ul>
+      </div>
+      <div class="card">
+        <h3>작업 순서</h3>
+        <ol class="todo">
+          <li><b>기획안</b>을 받아 콘텐츠 제목과 메모를 적어요.</li>
+          <li><b>뉴스레터 썸네일</b>을 콘텐츠마다 1장씩 만들어요.</li>
+          <li><b>콘텐츠 이미지 생성</b>에서 블록을 골라 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 블록이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 10~14호를 참고해요.</span></li>
+          <li>배경 · 일러스트가 필요하면 <b>에셋 › AI로 그리기</b>에서 프롬프트를 만들어 ChatGPT에 붙여 넣어요.</li>
+          <li>저장 기록에 <b>1MB 초과</b> 표시가 없는지 확인하고 납품해요.</li>
+          <li><b>[호 전체 저장]</b>으로 작업 파일을 보관해요.</li>
+        </ol>
+      </div>
+    </div>
+  </div></section>
+
+  <!-- 도구 (iframe) -->
+  <section class="view frame" id="v-thumb"></section>
+  <section class="view frame" id="v-image"></section>
+
+  <!-- PDF -->
+  <section class="view" id="v-pdf"><div class="page">
+    <div class="card ph-card">
+      <i data-icon="FileText"></i>
+      <h3>PDF는 준비 중이에요</h3>
+      <p class="hint" style="font-size:14px">15호 PC · 모바일 블록을 만들면서 그 블록을 그대로 재사용해 PDF 템플릿을 만들 예정이에요.</p>
+      <ul>
+        <li>규격: A4 세로 (900 × 1273) · 게시판 업로드 · 화면 열람용</li>
+        <li>방향: 한 페이지 한 메시지, 큰 숫자 · 도식, 본문 최소화 (토스 콘텐츠 벤치마킹)</li>
+        <li>내보내기: 브라우저 인쇄 → PDF (글자가 실제 텍스트로 남음)</li>
+      </ul>
+    </div>
+  </div></section>
+
+  <!-- 에셋 -->
+  <section class="view" id="v-assets"><div class="page">
+    <h2>에셋</h2>
+    <p class="lead">이미지는 각 도구에 바로 <b>붙여넣기(Ctrl+V)</b>하거나 끌어다 놓으면 돼요. 여기서는 지난 호 샘플을 참고하고, 로고 · 아이콘 · 컬러를 확인하고, AI 이미지 프롬프트를 만들어요.</p>
+    <div class="tabs" id="aTabs">
+      <button data-t="samples">샘플 모아보기</button><button data-t="ai">AI로 그리기</button><button data-t="logo">로고 · 아이콘</button><button data-t="color">컬러</button>
+    </div>
+    <div id="a-samples">
+      <div class="chips" id="sChips"></div>
+      <div class="gal" id="gal"></div>
+    </div>
+    <div id="a-ai" hidden>
+      <div class="grid2">
+        <div class="card">
+          <h3>무엇을 그릴까요?</h3>
+          <div class="field" style="margin-bottom:12px"><label>용도</label><select id="aiUse"></select></div>
+          <div class="field" style="margin-bottom:12px"><label>주제 (기획안 내용을 한두 문장으로)</label><textarea id="aiTopic" rows="3" placeholder="예: 하반기 건강검진 시즌, 담당자가 수검 현황을 점검하는 모습"></textarea></div>
+          <div class="field" style="margin-bottom:12px"><label>꼭 들어갈 것 (선택)</label><input type="text" id="aiItems" placeholder="예: 달력, 체크리스트 클립보드, 청진기"></div>
+          <div class="field" style="margin-bottom:12px"><label>그림체</label><select id="aiStyle"></select></div>
+          <div class="field"><label>우리 팀 GPT 주소 (있으면 넣어 두세요)</label><input type="url" id="aiGpt" placeholder="https://chatgpt.com/g/…"></div>
+          <p class="hint" style="margin-top:10px">⚠️ 이미지 안에는 <b>글자를 넣지 않아요.</b> 글자는 썸네일 · 콘텐츠 도구에서 넣어요. 인물 <b>실사 사진</b>은 회사 보유 사진만 써요(AI 실사 인물 X).</p>
+        </div>
+        <div class="card">
+          <h3>ChatGPT에 붙여 넣을 프롬프트<span class="sp"></span><button class="btn sm" id="aiCopy">복사</button><a class="btn sm primary" id="aiOpen" target="_blank" rel="noopener">ChatGPT 열기</a></h3>
+          <div class="prompt" id="aiPrompt"></div>
+          <p class="hint" style="margin-top:10px">만든 이미지는 ChatGPT에서 복사하거나 저장한 뒤, 썸네일 · 콘텐츠 도구에 <b>Ctrl+V</b>로 넣어요. 회사 공용 키로 바로 그리는 기능은 준비 중이에요.</p>
+        </div>
+      </div>
+    </div>
+    <div id="a-logo" hidden>
+      <div class="card"><h3>로고</h3><div class="logos" id="logos"></div></div>
+      <div class="card"><h3>아이콘 <small>Lucide · 콘텐츠 이미지 블록에서 고를 수 있는 아이콘</small></h3><div class="icons" id="icons"></div></div>
+    </div>
+    <div id="a-color" hidden>
+      <div class="card"><h3>뉴스레터 컬러 <small>13·14호 기준 → 디자인 시스템 토큰 (누르면 색상값 복사)</small></h3><div class="sws" id="sws"></div></div>
+    </div>
+  </div></section>
+
+  <!-- 가이드 -->
+  <section class="view" id="v-guide"><div class="page">
+    <h2>가이드</h2>
+    <p class="lead">뉴스레터 산출물 규격과 디자인 원칙이에요. 바꾸지 말아야 할 기준이 모여 있어요.</p>
+    <div class="card"><h3>산출물 규격</h3>
+      <table class="tbl"><tr><th>산출물</th><th>작업 크기</th><th>저장</th><th>비고</th></tr>
+        <tr><td>PC 이미지</td><td>폭 900</td><td>2배 (1800px)</td><td>메일에서 약 660px로 줄어 보임 → 본문 최소 18, 가장 작은 글자 14, 선 1.5px 이상</td></tr>
+        <tr><td>모바일 이미지</td><td>폭 350</td><td>3배 (1050px)</td><td>타이틀 16·18 / 본문 14·16</td></tr>
+        <tr><td>썸네일</td><td>399 × 231</td><td>3배 (1197 × 693)</td><td>타이틀 26 (길면 22)</td></tr>
+        <tr><td>PDF</td><td>A4 세로 900 × 1273</td><td>인쇄 → PDF</td><td>게시판 · 화면 열람용</td></tr>
+        <tr><td>파일 크기</td><td colspan="3">1MB 이하. 넘으면 사진이 많은 이미지만 JPG(품질 90)로 저장. 이미지 크기는 줄이지 않음(2·3배 의미가 사라짐)</td></tr>
+      </table>
+    </div>
+    <div class="card"><h3>파일 이름</h3>
+      <table class="tbl"><tr><th>구분</th><th>규칙</th><th>예시</th></tr>
+        <tr><td>PC</td><td><code>YYYYMM_contentsNN_pNN.png</code></td><td>202610_contents01_p01.png</td></tr>
+        <tr><td>모바일</td><td><code>YYYYMM_contentsNN_mNN.png</code></td><td>202610_contents01_m01.png</td></tr>
+        <tr><td>썸네일</td><td><code>(N호)NN.제목.png</code></td><td>(15호)01.하반기 검진 마무리.png</td></tr>
+        <tr><td>호 ↔ 년월</td><td colspan="2">10호 = 202605 … 14호 = 202609 · <b>15호 = 202610</b> (콘텐츠 01 = 메인, 02 = 서브)</td></tr>
+      </table>
+    </div>
+    <div class="card"><h3>디자인 원칙 <small>바꾸지 말 것</small></h3>
+      <table class="tbl">
+        <tr><th style="width:140px">관점</th><td>앱 화면이 아니라 B2B(HR · 보건 담당자) 정보 콘텐츠 → 편집 디자인 · 인포그래픽. 디자인 시스템은 컬러 · 타이포 토큰만 사용</td></tr>
+        <tr><th>컬러</th><td>블루톤 기반 + 그린(careGreen)은 포인트로만. 예외: 타이틀 <code>#002540</code>, 그린 배경 <code>#20B977</code></td></tr>
+        <tr><th>아이콘</th><td>Lucide 라인 아이콘이 기본. 채움은 강조할 때만</td></tr>
+        <tr><th>이미지</th><td>AI 이미지에는 글자를 넣지 않음(글자는 항상 HTML로). 인물 사진은 회사 보유 사진만</td></tr>
+        <tr><th>작업 방식</th><td>초안을 넓게 먼저 잡고 점점 좁혀 감. 요청하지 않은 산출물은 늘리지 않음</td></tr>
+      </table>
+    </div>
+    <div class="card"><h3>자주 쓰는 블록 <small>10~14호 분석 · 에셋 › 샘플 모아보기에서 실제 이미지 확인</small></h3>
+      <table class="tbl"><tr><th>블록</th><th>언제 쓰나</th><th>도구</th></tr>
+        <tr><td>아이콘 리스트 카드</td><td>확인 항목 · 체크리스트 · 예방 수칙</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>순위 막대</td><td>설문 결과 (복수 응답, 공동 순위)</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>가로 막대 차트</td><td>항목별 비율 · 건수 비교</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>표</td><td>판정 기준 · 방식 비교 · 과태료</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>목업 히어로</td><td>서비스 · 관리자 화면 소개</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>A vs B 비교 카드</td><td>두 사업장 · 두 방식 비교</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>차트 (꺾은선 · 원형 · 전후 비교)</td><td>추이 · 구성비 · 프로그램 효과</td><td>15호에 나오면 추가</td></tr>
+        <tr><td>단계 흐름 · 인용 · 인터뷰 · 사진</td><td>운영 흐름 · 기획자 한마디 · 고객사 인터뷰</td><td>15호에 나오면 추가</td></tr>
+      </table>
+    </div>
+    <div class="card"><h3>AI 이미지 비용</h3>
+      <p class="hint" style="font-size:13px;margin:0">건당 약 <b>₩35</b> (카드뉴스 실측 기준). 회사 공용 키 사용량은 UsageLog 시트에 기록돼요. 자세한 내용: <code>docs/AI비용_사용현황.md</code></p>
+    </div>
+  </div></section>
+</main>
+
+<div class="lb" id="lb" hidden><div class="lb-box"><div class="im"><img id="lbImg" alt=""></div>
+  <div class="bar"><b id="lbName"></b><span id="lbMeta" class="hint"></span><span class="sp"></span><span class="hint" id="lbNote">예시 내용으로 추가돼요 → 기획안대로 고치기</span><button class="btn sm primary" id="lbMake">새로 만들기</button><button class="btn sm" id="lbClose">닫기</button></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  'use strict';
+  let A = window.NL_ASSETS || {};   // 배포본은 boot() 뒤에 채워지므로 init에서 다시 읽음
+  const PACK = window.NL_PACK || null;           // 배포본: 도구 · 라이브러리 · 폰트가 한 파일에 들어 있음
+  const KEY = 'gc-nl-hub-v1';
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const ymOf = n => { const m = 5 + (n - 10); const y = 2026 + Math.floor((m - 1) / 12); return `${y}${String(((m - 1) % 12 + 12) % 12 + 1).padStart(2, '0')}`; };
+  const DUE = {15: '2026-10-14'};               // 알고 있는 게시 마감일
+  let toastT;
+  function toast(m, ms){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2600); }
+  function svg(name){ const n = window.lucide && lucide.icons[name]; if (!n) return ''; const el = lucide.createElement(n); el.setAttribute('stroke-width', '2'); return el.outerHTML; }
+  function download(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
+
+  // ── 상태 ──
+  let H;
+  function blankIssue(n){ return {due: DUE[n] || '', memo: '', c3: false, contents: {'01': {title: ''}, '02': {title: ''}, '03': {title: ''}}, files: {}}; }
+  function load(){ try { const h = JSON.parse(localStorage.getItem(KEY) || 'null'); if (h && h.issues) return h; } catch(e){} return {issue: 15, view: 'home', aTab: 'samples', ai: {}, issues: {}}; }
+  function save(){ try { localStorage.setItem(KEY, JSON.stringify(H)); } catch(e){} }
+  const I = () => (H.issues[H.issue] = H.issues[H.issue] || blankIssue(H.issue));
+
+  // ── 도구 (iframe) ──
+  const TOOLS = {thumb: {src: '../thumbnail/index.html'}, image: {src: '../editor/index.html'}};
+  const pending = {};
+  function frameOf(win){ return Object.keys(TOOLS).find(k => TOOLS[k].el && TOOLS[k].el.contentWindow === win); }
+  function send(tool, m){ const t = TOOLS[tool]; if (t.el && t.ready) t.el.contentWindow.postMessage(Object.assign({nl: 1}, m), '*'); else (t.queue = t.queue || []).push(m); }
+  function ask(tool, type){
+    return new Promise(res => { const id = Math.random().toString(36).slice(2); pending[id] = res; send(tool, {type, reqId: id}); setTimeout(() => { if (pending[id]){ delete pending[id]; res(null); } }, 4000); });
+  }
+  function mountTools(){
+    Object.entries(TOOLS).forEach(([k, t]) => {
+      const f = document.createElement('iframe'); f.title = k === 'thumb' ? '뉴스레터 썸네일' : '콘텐츠 이미지 생성';
+      if (PACK) f.srcdoc = PACK.toolHTML(k); else f.src = t.src;
+      t.el = f; $('v-' + k).appendChild(f);
+    });
+  }
+  window.addEventListener('message', e => {
+    const m = e.data, tool = frameOf(e.source); if (!m || m.nl !== 1 || !tool) return;
+    const t = TOOLS[tool];
+    if (m.type === 'ready'){ t.ready = true; send(tool, {type: 'setIssue', issue: H.issue}); (t.queue || []).splice(0).forEach(q => send(tool, q)); if (tool === 'image') refreshPlan(); }
+    if (m.type === 'issueChanged' && m.issue && m.issue !== H.issue){ setIssue(m.issue, tool); }
+    if (m.type === 'state' && pending[m.reqId]){ pending[m.reqId](m.state); delete pending[m.reqId]; }
+    if (m.type === 'exported'){
+      (m.files || []).forEach(f => { const iss = H.issues[f.issue] = H.issues[f.issue] || blankIssue(f.issue); iss.files[f.name] = Object.assign({t: Date.now()}, f); });
+      save(); if (H.view === 'home') renderHome();
+    }
+  });
+
+  // ── 호수 ──
+  function setIssue(n, from){
+    n = Math.max(1, n | 0); H.issue = n; I(); save();
+    Object.keys(TOOLS).forEach(k => { if (k !== from) send(k, {type: 'setIssue', issue: n}); });
+    renderTop(); if (H.view === 'home') renderHome();
+  }
+  function renderTop(){
+    $('issueNo').textContent = `${H.issue}호`; const ym = ymOf(H.issue); $('issueYm').textContent = `${ym.slice(0, 4)}.${ym.slice(4)}`;
+    const due = I().due, dd = $('dday');
+    if (due){ const d = Math.ceil((new Date(due + 'T23:59:59') - new Date()) / 864e5); dd.hidden = false; dd.textContent = d > 0 ? `마감 D-${d}` : d === 0 ? '오늘 마감' : `마감 ${-d}일 지남`; dd.className = 'dday' + (d < 0 ? ' over' : d <= 3 ? ' soon' : ''); }
+    else dd.hidden = true;
+  }
+
+  // ── 메뉴 ──
+  function go(view){
+    H.view = view; save();
+    document.querySelectorAll('.menu').forEach(b => b.classList.toggle('on', b.dataset.view === view));
+    document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + view));
+    if (view === 'home') renderHome();
+    if (view === 'assets') renderAssets();
+    if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
+  }
+
+  // ── 이번 호 ──
+  let plan = {};   // 콘텐츠 이미지 도구에 만들어 둔 장수 {'01': 3, ...}
+  async function refreshPlan(){
+    const s = await ask('image', 'getState'); plan = {};
+    if (s && s.ym === ymOf(H.issue)) (s.items || []).forEach(it => { plan[it.contents] = (plan[it.contents] || 0) + 1; });
+    if (H.view === 'home') renderHome();
+  }
+  function renderHome(){
+    const iss = I(), ym = ymOf(H.issue);
+    $('homeTitle').textContent = `${H.issue}호 · ${ym.slice(0, 4)}년 ${+ym.slice(4)}월호`;
+    $('due').value = iss.due || ''; $('memo').value = iss.memo || '';
+    $('btnC3').textContent = iss.c3 ? '콘텐츠 03 빼기' : '+ 콘텐츠 03 추가';
+    const files = Object.values(iss.files);
+    const list = iss.c3 ? ['01', '02', '03'] : ['01', '02'];
+    $('contents').innerHTML = list.map(c => {
+      const th = files.filter(f => f.kind === 'thumb' && f.no === c);
+      const pc = new Set(files.filter(f => f.kind === 'pc' && f.contents === c).map(f => f.no)).size;
+      const mo = new Set(files.filter(f => f.kind === 'mo' && f.contents === c).map(f => f.no)).size;
+      const want = plan[c] || 0;
+      const st = (n, w) => n === 0 ? '' : (w && n < w) ? 'part' : 'done';
+      const lbl = (n, w) => w ? `${n} / ${w}장` : `${n}장`;
+      return `<div class="ct"><div class="ct-h"><b>${c} ${c === '01' ? '메인' : c === '02' ? '서브' : ''}</b><input type="text" data-title="${c}" value="${esc(iss.contents[c].title)}" placeholder="콘텐츠 제목"></div>
+        <div class="steps">
+          <div class="st ${th.length ? 'done' : ''}">썸네일<strong>${th.length ? '저장함' : '아직'}</strong></div>
+          <div class="st ${st(pc, want)}">PC<strong>${lbl(pc, want)}</strong></div>
+          <div class="st ${st(mo, want)}">모바일<strong>${lbl(mo, want)}</strong></div>
+        </div>
+        <div class="acts"><button class="btn sm" data-go="thumb" data-no="${c}">썸네일 만들기</button><button class="btn sm" data-go="image">콘텐츠 이미지 만들기</button></div></div>`;
+    }).join('');
+    const fs = files.sort((a, b) => b.t - a.t);
+    $('files').innerHTML = fs.length ? fs.map(f => { const d = new Date(f.t);
+      return `<li class="${f.kb > 1024 ? 'big' : ''}"><span class="t">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span><span>${esc(f.name)}</span><span class="k">${f.w ? `${f.w}×${f.h} · ` : ''}${f.kb}KB${f.kb > 1024 ? ' · 1MB 초과' : ''}</span></li>`; }).join('')
+      : '<li class="empty" style="display:block">아직 저장한 파일이 없어요. 썸네일이나 콘텐츠 이미지를 저장하면 여기에 쌓여요.</li>';
+    renderTop();
+  }
+
+  // ── 에셋: 샘플 ──
+  const TYPES = {
+    list: ['아이콘 리스트 카드', 'list'], rank: ['순위 막대', 'rank'], hbar: ['가로 막대 차트', 'hbar'], table: ['표', 'table'],
+    hero: ['목업 히어로', 'hero'], steps: ['단계별 화면', 'steps'], compare: ['A vs B 비교', 'compare'],
+    vbar: ['세로 막대 (전후 비교)', 'vbar'], stack: ['100% 누적 막대', 'stack'], line: ['꺾은선 (추이)', 'line'], donut: ['도넛 (구성비)', 'donut'], chart: ['차트', null],
+    flow: ['단계 흐름', null], quote: ['인용 · 인터뷰', null], photo: ['사진', null], illust: ['AI 일러스트', null], thumb: ['썸네일', null]
+  };
+  let sFilter = 'all', lbItem = null;
+  function renderSamples(){
+    const S = window.NL_SAMPLES || [];
+    const cnt = t => S.filter(s => t === 'all' || s.type === t).length;
+    $('sChips').innerHTML = [['all', '전체'], ...Object.entries(TYPES).filter(([k]) => cnt(k)).map(([k, v]) => [k, v[0]])]
+      .map(([k, l]) => `<button data-f="${k}" class="${k === sFilter ? 'on' : ''}">${l}<small>${cnt(k)}</small></button>`).join('');
+    const items = S.map((s, i) => Object.assign({i}, s)).filter(s => sFilter === 'all' || s.type === sFilter).sort((a, b) => b.issue - a.issue);
+    $('gal').innerHTML = items.length ? items.map(s => `<div class="it" data-i="${s.i}"><img src="${s.src}" alt="" loading="lazy"><div class="m"><b>${s.issue}호</b>${esc(s.type === 'thumb' ? s.title : s.name.replace('.png', ''))}<span>${TYPES[s.type][0]}</span></div></div>`).join('')
+      : '<div class="empty">샘플이 없어요. app/make_samples.py를 실행해 주세요.</div>';
+  }
+  function openLB(i){
+    const s = (window.NL_SAMPLES || [])[i]; if (!s) return; lbItem = s;
+    $('lbImg').src = s.src; $('lbName').textContent = `${s.issue}호 · ${s.type === 'thumb' ? s.title : s.name}`;
+    $('lbMeta').textContent = `${TYPES[s.type][0]} · 원본 ${s.w}×${s.h}`;
+    const b = TYPES[s.type][1]; $('lbMake').hidden = !b && s.type !== 'thumb'; $('lbNote').hidden = !b;
+    $('lbMake').textContent = s.type === 'thumb' ? '썸네일 만들러 가기' : `${TYPES[s.type][0]}로 새로 만들기`;
+    $('lbMake').title = '콘텐츠 이미지 생성에 이 형태의 블록을 예시 내용으로 하나 추가해요. 샘플 내용이 복사되지는 않아요.';
+    $('lb').hidden = false;
+  }
+
+  // ── 에셋: AI로 그리기 (ChatGPT 프롬프트) ──
+  const USES = {
+    thumbScene: {name: '썸네일 배경 (장면형 · 14호 방식)', size: '가로형 1536×1024 (3:2)',
+      ko: '뉴스레터 썸네일 배경 이미지. 화면 왼쪽 45%는 타이틀 글자가 들어갈 자리라 비워 두고(단색에 가까운 밝은 배경), 오른쪽에 주제를 표현하는 장면을 배치.',
+      en: 'Newsletter thumbnail background. Keep the LEFT 45% of the canvas empty and calm (soft, nearly flat light background) for a headline that will be added later. Place the main scene on the RIGHT side.'},
+    thumbObject: {name: '썸네일 오브젝트 (투명 배경)', size: '정사각 1024×1024, 투명 배경 PNG',
+      ko: '썸네일 오른쪽 아래에 올릴 오브젝트 하나. 배경은 투명.',
+      en: 'A single object to place at the bottom-right of a thumbnail. Transparent background (PNG), object centered with generous margin, soft contact shadow only.'},
+    heroBg: {name: '콘텐츠 이미지 배경 (히어로)', size: '가로형 1536×1024 (3:2)',
+      ko: '콘텐츠 이미지 상단 배경. 가운데에 화면 캡처나 카드가 올라가므로 가운데는 단순하게, 가장자리에 은은한 장식.',
+      en: 'Background for a newsletter content banner. The CENTER will be covered by a UI screenshot card, so keep the center simple; put subtle decorative elements near the edges.'},
+    illust: {name: '본문 일러스트 (장면)', size: '가로형 1536×1024 (3:2)',
+      ko: '본문에 들어갈 장면 일러스트. 한눈에 상황이 이해되도록 단순한 구도.',
+      en: 'An editorial illustration for a newsletter article. One clear scene that explains the situation at a glance; simple composition, few elements.'}
+  };
+  const STYLES = {
+    soft3d: {name: '3D 일러스트 (12·14호 느낌)', en: 'Soft 3D illustration style, rounded clay-like shapes, gentle studio lighting, clean and friendly, not childish.'},
+    flat: {name: '플랫 일러스트', en: 'Clean flat vector illustration, simple geometric shapes, minimal shading, generous whitespace.'},
+    object: {name: '실사 오브젝트 (사람 없음)', en: 'Photorealistic product-style shot of objects only (no people), soft natural light, shallow depth of field, clean background.'}
+  };
+  function buildPrompt(){
+    const ai = H.ai, u = USES[ai.use] || USES.thumbScene, st = STYLES[ai.style] || STYLES.soft3d;
+    const topic = (ai.topic || '').trim() || '(주제를 입력해 주세요)';
+    const items = (ai.items || '').trim();
+    return [
+      `[GC케어 뉴스레터 이미지 · ${u.name}]`, '',
+      `주제: ${topic}`, items ? `꼭 들어갈 것: ${items}` : null, `용도: ${u.ko}`, `크기: ${u.size}`, '',
+      'Create an image with these rules:',
+      `- Purpose: ${u.en}`,
+      `- Subject: ${topic}${items ? ` — include: ${items}` : ''}`,
+      `- Style: ${st.en}`,
+      '- Color palette: calm blue tones as the base (#031552 navy, #2F74EB blue, #D6EAFF / #F0F8FF light blue, #F7F7FB off-white). Use green (#0AC262) only as a small accent.',
+      '- Audience: HR and occupational-health managers at Korean companies (B2B). Professional, trustworthy, warm — not an app UI, not a stock-photo cliché.',
+      '- ABSOLUTELY NO TEXT: no letters, numbers, Korean/English words, logos, labels, signage, or UI text anywhere in the image.',
+      '- No realistic photos of real-looking people. If people appear, use stylized illustration characters only.',
+      '- No watermarks, no borders, no frames.',
+      `- Output size: ${u.size}.`
+    ].filter(x => x !== null).join('\n');
+  }
+  function renderAI(){
+    const ai = H.ai = Object.assign({use: 'thumbScene', style: 'soft3d', topic: '', items: '', gpt: ''}, H.ai || {});
+    $('aiUse').innerHTML = Object.entries(USES).map(([k, v]) => `<option value="${k}"${k === ai.use ? ' selected' : ''}>${v.name}</option>`).join('');
+    $('aiStyle').innerHTML = Object.entries(STYLES).map(([k, v]) => `<option value="${k}"${k === ai.style ? ' selected' : ''}>${v.name}</option>`).join('');
+    $('aiTopic').value = ai.topic; $('aiItems').value = ai.items; $('aiGpt').value = ai.gpt;
+    updatePrompt();
+  }
+  function updatePrompt(){
+    $('aiPrompt').textContent = buildPrompt();
+    const g = (H.ai.gpt || '').trim();
+    $('aiOpen').href = /^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(g) ? g : 'https://chatgpt.com/';
+    $('aiOpen').textContent = /^https:\/\//.test(g) ? '우리 팀 GPT 열기' : 'ChatGPT 열기';
+  }
+
+  // ── 에셋: 로고 · 아이콘 · 컬러 ──
+  const ICONS = ['SquareCheckBig','CircleCheck','ListChecks','ClipboardCheck','ClipboardList','Users','UserCheck','UserPlus','UserX','ContactRound','IdCard','Building2','Hospital','FileCheck','FileText','ShieldPlus','ShieldCheck','CalendarCheck','CalendarDays','Clock','Search','Target','TrendingUp','ChartColumn','HeartPulse','Heart','Stethoscope','Activity','Pill','Brain','Footprints','Thermometer','Bell','Megaphone','Mail','Smartphone','Monitor','MessageCircle','Lightbulb','Award','Settings','RefreshCw','Info','CircleAlert','TriangleAlert'];
+  const COLORS = [
+    ['카드 · 표 헤더, 수치', 'careBlue/900', '#031552'], ['진남색2', 'careBlue/800', '#062478'], ['강조 블루', 'careBlue/700', '#002a8c'],
+    ['순위 배지 · 아이콘', 'careBlue/500', '#2f74eb'], ['파랑 연', 'careBlue/400', '#5998f7'], ['막대 (일반)', 'careBlue/200', '#add3ff'],
+    ['연파랑 배경 · 배지', 'careBlue/100', '#d6eaff'], ['아이콘 원 · 상자 배경', 'careBlue/50', '#f0f8ff'],
+    ['그린 포인트 (막대 · 강조 단어)', 'careGreen/500', '#0ac262'], ['진그린', 'careGreen/700', '#007541'], ['연그린', 'careGreen/10', '#f5fff8'],
+    ['바탕', 'coolNeutral/50', '#f7f7fb'], ['구분선', 'coolNeutral/100', '#e8eaef'],
+    ['타이틀 (예외 · 14호 원본)', '뉴스레터 전용', '#002540'], ['그린 배경 (예외)', '뉴스레터 전용', '#20b977']
+  ];
+  let assetsBuilt = false;
+  function renderAssets(){
+    const t = H.aTab || 'samples';
+    [...$('aTabs').children].forEach(b => b.classList.toggle('on', b.dataset.t === t));
+    ['samples', 'ai', 'logo', 'color'].forEach(k => { $('a-' + k).hidden = k !== t; });
+    if (t === 'samples') renderSamples();
+    if (t === 'ai') renderAI();
+    if (assetsBuilt) return; assetsBuilt = true;
+    const logos = [['logoBlue', '영문 로고 · 남색 (썸네일 · 밝은 배경)', '--careBlue-50'], ['logoWhite', '영문 로고 · 흰색 (어두운 배경)', '--careBlue-900'], ['logoTop', '공식 CI 컬러 + 흰 글자 (상단 바)', '--careBlue-900']];
+    $('logos').innerHTML = logos.filter(([k]) => A[k]).map(([k, n, bg]) => `<div class="logo"><div class="pv" style="background:var(${bg})"><img src="${A[k]}" alt=""></div><span class="n">${n}</span><button class="btn sm" data-dl="${k}">PNG 내려받기</button></div>`).join('') || '<div class="empty">로고 파일이 없어요.</div>';
+    $('icons').innerHTML = ICONS.filter(k => window.lucide && lucide.icons[k]).map(k => `<div>${svg(k)}<code>${k}</code></div>`).join('');
+    $('sws').innerHTML = COLORS.map(([u, tk, hex]) => `<button class="sw" data-hex="${hex}"><i style="background:${hex}"></i><div><b>${tk}</b><code>${hex}</code><br>${u}</div></button>`).join('');
+  }
+
+  // ── 호 전체 저장 / 열기 ──
+  async function saveAll(){
+    const [thumb, image] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState')]);
+    const data = {v: 1, kind: 'nl-issue', issue: H.issue, ym: ymOf(H.issue), savedAt: new Date().toISOString(), hub: I(), thumb, image};
+    download(new Blob([JSON.stringify(data)], {type: 'application/json'}), `${ymOf(H.issue)}_뉴스레터_${H.issue}호_전체.json`);
+    toast(`${H.issue}호 전체 작업을 저장했어요.${!thumb || !image ? ' (열리지 않은 도구는 빠졌어요)' : ''}`, 3500);
+  }
+  function openAll(text){
+    let d; try { d = JSON.parse(text); } catch(e){ toast('파일을 읽을 수 없어요.'); return; }
+    if (!d || d.kind !== 'nl-issue'){ toast('[호 전체 저장]으로 만든 파일이 아니에요. 도구별 편집 원본은 각 도구에서 열어 주세요.', 4000); return; }
+    H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); setIssue(d.issue);
+    if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: `${d.issue}호 썸네일 작업을 불러왔어요.`});
+    if (d.image) send('image', {type: 'setState', state: d.image, msg: `${d.issue}호 콘텐츠 이미지 작업을 불러왔어요.`});
+    save(); renderHome(); toast(`${d.issue}호 전체 작업을 열었어요.`);
+  }
+
+  // ── 시작 ──
+  function init(){
+    A = window.NL_ASSETS || A;
+    const top = A.logoTopKo || A.logoTop; if (top) $('topLogo').src = top; else $('topLogo').remove();   // 상단 바: 한글 GC케어 CI
+    if (PACK) $('ver').textContent = 'v' + PACK.version;
+    document.querySelectorAll('.menu').forEach(b => b.insertAdjacentHTML('afterbegin', svg(b.dataset.icon)));
+    document.querySelectorAll('[data-icon]:not(.menu)').forEach(el => { el.outerHTML = svg(el.dataset.icon); });
+    H = load(); I();
+    mountTools(); renderTop();
+    const v = location.hash.slice(1);
+    go(['home', 'thumb', 'image', 'pdf', 'assets', 'guide'].includes(v) ? v : (H.view || 'home'));
+
+    $('side').addEventListener('click', e => { const b = e.target.closest('.menu'); if (b) go(b.dataset.view); });
+    $('issuePrev').addEventListener('click', () => setIssue(H.issue - 1));
+    $('issueNext').addEventListener('click', () => setIssue(H.issue + 1));
+    $('due').addEventListener('change', e => { I().due = e.target.value; save(); renderTop(); });
+    $('memo').addEventListener('input', e => { I().memo = e.target.value; save(); });
+    $('btnC3').addEventListener('click', () => { I().c3 = !I().c3; save(); renderHome(); });
+    $('contents').addEventListener('input', e => { const c = e.target.dataset.title; if (c){ I().contents[c].title = e.target.value; save(); } });
+    $('contents').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.no) send('thumb', {type: 'setNo', no: b.dataset.no}); go(b.dataset.go); });
+    $('btnSaveAll').addEventListener('click', saveAll);
+    $('btnOpenAll').addEventListener('click', () => { $('fileAll').value = ''; $('fileAll').click(); });
+    $('fileAll').addEventListener('change', e => { const f = e.target.files[0]; if (f) f.text().then(openAll); });
+
+    $('aTabs').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; H.aTab = b.dataset.t; save(); renderAssets(); });
+    $('sChips').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; sFilter = b.dataset.f; renderSamples(); });
+    $('gal').addEventListener('click', e => { const it = e.target.closest('.it'); if (it) openLB(+it.dataset.i); });
+    $('lbClose').addEventListener('click', () => { $('lb').hidden = true; });
+    $('lb').addEventListener('click', e => { if (e.target === $('lb')) $('lb').hidden = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') $('lb').hidden = true; });
+    $('lbMake').addEventListener('click', () => {
+      if (!lbItem) return; $('lb').hidden = true;
+      if (lbItem.type === 'thumb'){ go('thumb'); return; }
+      const b = TYPES[lbItem.type][1]; if (b){ send('image', {type: 'addBlock', blockType: b}); go('image'); }
+    });
+    ['aiUse', 'aiStyle', 'aiTopic', 'aiItems', 'aiGpt'].forEach(id => $(id).addEventListener('input', e => {
+      const k = {aiUse: 'use', aiStyle: 'style', aiTopic: 'topic', aiItems: 'items', aiGpt: 'gpt'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
+    }));
+    $('aiCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(buildPrompt()); toast('프롬프트를 복사했어요. ChatGPT에 붙여 넣어 주세요.'); } catch(e){ toast('복사가 막혀 있어요. 프롬프트를 직접 선택해서 복사해 주세요.'); } });
+    $('logos').addEventListener('click', async e => { const b = e.target.closest('[data-dl]'); if (!b) return; const blob = await (await fetch(A[b.dataset.dl])).blob(); download(blob, `GC케어_${b.dataset.dl}.png`); });
+    $('sws').addEventListener('click', async e => { const b = e.target.closest('[data-hex]'); if (!b) return; try { await navigator.clipboard.writeText(b.dataset.hex); toast(`${b.dataset.hex} 복사했어요.`); } catch(err){ toast(b.dataset.hex); } });
+    window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (v && v !== H.view && $('v-' + v)) go(v); });
+  }
+  if (PACK && PACK.boot) PACK.boot().then(init); else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+</body>
+</html>

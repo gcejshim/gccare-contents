@@ -112,7 +112,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .toast.show{opacity:1}
 
 /* ── 썸네일 본체 (399×231, 내보내기 대상) ── */
-.thumb{position:relative;width:399px;height:231px;overflow:hidden;font-family:Pretendard,sans-serif;background:var(--t-bg)}
+.thumb{position:relative;width:399px;height:231px;overflow:hidden;font-family:Pretendard,sans-serif;background:var(--t-bg);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .thumb .t-img{position:absolute;display:block;max-width:none;z-index:0}
 .thumb .t-fade{position:absolute;top:0;bottom:0;z-index:1}
 .thumb .t-content{position:absolute;left:28px;top:28px;right:28px;bottom:28px;display:flex;flex-direction:column;z-index:2}
@@ -131,6 +131,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .modal-box ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.6}
 .modal-box ul{margin:4px 0;padding-left:18px;font-size:13px;color:var(--neutral-600)}
 .modal-box b{color:var(--careBlue-600)}
+
+/* ── 메뉴 셸(뉴스레터 만들기) 안에 들어갔을 때 ── */
+body.embedded .topbar{background:var(--neutral-0);border-bottom:1px solid var(--coolNeutral-100);padding:10px 20px}
+body.embedded .topbar .brand{display:none}
+body.embedded .topbar .btn:not(.primary){background:var(--neutral-0);border-color:var(--coolNeutral-200);color:var(--neutral-900)}
+body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);color:var(--careBlue-500)}
 </style>
 </head>
 <body>
@@ -611,7 +617,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('topLogo').src = A.logoTop || A.logoWhite || '';
     restore(); syncForm(); refresh();
 
-    $('issue').addEventListener('input', e => { S.issue = Math.max(1, parseInt(e.target.value) || 1); refresh(); });
+    $('issue').addEventListener('input', e => { S.issue = Math.max(1, parseInt(e.target.value) || 1); refresh(); notify({type:'issueChanged', issue:S.issue}); });
     $('no').addEventListener('change', e => { S.no = e.target.value; refresh(); });
     $('title').addEventListener('input', e => { S.title = e.target.value; refresh(); });
     $('titleSize').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.titleSize = +b.dataset.v; syncForm(); refresh(); });
@@ -689,13 +695,29 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
           const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fileName(); a.click();
           setTimeout(() => URL.revokeObjectURL(a.href), 1000);
           toast(`저장했어요: ${fileName()} (${canvas.width}×${canvas.height}, ${Math.round(b.size/1024)}KB)`);
+          notify({type:'exported', files:[{name:fileName(), kind:'thumb', issue:S.issue, no:S.no, w:canvas.width, h:canvas.height, kb:Math.round(b.size/1024)}]});
         }, 'image/png');
       } catch(err){ console.error(err); toast('저장 중 문제가 생겼어요. 다시 시도해 주세요.'); }
       finally { btn.disabled = false; btn.textContent = '완성 이미지 저장 (PNG)'; $('exportHost').innerHTML = ''; }
     });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  // ── 메뉴 셸(뉴스레터 만들기)과 연결: 호수 공유 · 저장 기록 전달 · 편집 원본 주고받기 ──
+  function notify(m){ if (window.parent !== window) window.parent.postMessage(Object.assign({nl:1, tool:'thumb'}, m), '*'); }
+  function bridge(){
+    if (window.parent === window) return;
+    document.body.classList.add('embedded');
+    window.addEventListener('message', e => {
+      const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
+      if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ S.issue = m.issue; syncForm(); refresh(); }
+      if (m.type === 'setNo' && m.no){ S.no = m.no; syncForm(); refresh(); }
+      if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:S});
+      if (m.type === 'setState' && m.state) loadState(JSON.stringify(m.state), m.msg || '썸네일 작업을 불러왔어요.');
+    });
+    notify({type:'ready', issue:S.issue});
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { init(); bridge(); }); else { init(); bridge(); }
 })();
 </script>
 </body>
