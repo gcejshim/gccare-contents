@@ -49,7 +49,7 @@
 newsletter/
 ├─ thumbnail/          썸네일 도구
 │  ├─ index.html       개발본 (여기서 수정)
-│  ├─ build.py         python3 build.py → dist/thumbnail.html (이름 고정, 단일 파일, 오프라인 동작. thumbnail-v1.1.html은 옛 링크용으로만 남김)
+│  ├─ build.py         python3 build.py → dist/thumbnail.html (이름 고정, 단일 파일, 오프라인 동작.)
 │  ├─ assets.js        로고·예시 이미지(base64). assets/ 원본에서 생성
 │  └─ vendor/          html2canvas 1.4.1, lucide 0.460.0, Pretendard woff2
 │     └─ vendor/Pretendard-Medium.woff2  (npm pretendard@1.3.9 경로. gh 경로는 404) — 빌드 3종 모두 500 = Medium

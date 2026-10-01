@@ -14,7 +14,7 @@
 ## 썸네일 만들기
 
 **바로 열기:** https://gcejshim.github.io/gccare-contents/newsletter/thumbnail/dist/thumbnail.html  
-(통합본 › 뉴스레터 썸네일 메뉴에도 같은 도구가 들어 있어요. 예전 주소 `thumbnail-v1.1.html`도 당분간 열려요)
+(통합본 › 뉴스레터 썸네일 메뉴에도 같은 도구가 들어 있어요)
 
 크롬이나 엣지에서 열면 됩니다. 파일로 받아 두면 인터넷 없이도 동작합니다.
 
