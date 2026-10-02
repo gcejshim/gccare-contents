@@ -292,7 +292,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <tr><td>PC</td><td><code>YYYYMM_contentsNN_pNN.png</code></td><td>202610_contents01_p01.png</td></tr>
         <tr><td>모바일</td><td><code>YYYYMM_contentsNN_mNN.png</code></td><td>202610_contents01_m01.png</td></tr>
         <tr><td>썸네일</td><td><code>(N호)NN.제목.png</code></td><td>(15호)01.하반기 검진 마무리.png</td></tr>
-        <tr><td>호 ↔ 년월</td><td colspan="2">10호 = 202605 … 14호 = 202609 · <b>15호 = 202610</b> (콘텐츠 01 = 메인, 02 = 서브)</td></tr>
+        <tr><td>호 ↔ 년월</td><td colspan="2">10호 = 202605 … 14호 = 202609 · <b>15호 = 202610</b> (콘텐츠 01 = 메인, 02 · 03 = 서브)</td></tr>
       </table>
     </div>
     <div class="card"><h3>디자인 원칙 <small>바꾸지 말 것</small></h3>
@@ -304,15 +304,15 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <tr><th>작업 방식</th><td>초안을 넓게 먼저 잡고 점점 좁혀 감. 요청하지 않은 산출물은 늘리지 않음</td></tr>
       </table>
     </div>
-    <div class="card"><h3>자주 쓰는 블록 <small>10~14호 분석 · 에셋 › 샘플 모아보기에서 실제 이미지 확인</small></h3>
+    <div class="card"><h3>자주 쓰는 블록 <small>지난 호 분석 · 에셋 › 샘플 모아보기에서 실제 이미지 확인</small></h3>
       <table class="tbl"><tr><th>블록</th><th>언제 쓰나</th><th>도구</th></tr>
         <tr><td>아이콘 리스트 카드</td><td>확인 항목 · 체크리스트 · 예방 수칙</td><td>✅ 콘텐츠 이미지</td></tr>
         <tr><td>순위 막대</td><td>설문 결과 (복수 응답, 공동 순위)</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>가로 막대 차트</td><td>항목별 비율 · 건수 비교</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>가로 막대</td><td>항목별 비율 · 건수 비교</td><td>✅ 콘텐츠 이미지</td></tr>
         <tr><td>표</td><td>판정 기준 · 방식 비교 · 과태료</td><td>✅ 콘텐츠 이미지</td></tr>
         <tr><td>목업 히어로</td><td>서비스 · 관리자 화면 소개</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>A vs B 비교 카드</td><td>두 사업장 · 두 방식 비교</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>차트 (꺾은선 · 원형 · 전후 비교)</td><td>추이 · 구성비 · 프로그램 효과</td><td>15호에 나오면 추가</td></tr>
+        <tr><td>A vs B 비교</td><td>두 사업장 · 두 방식 비교</td><td>✅ 콘텐츠 이미지</td></tr>
+        <tr><td>세로 막대 · 100% 누적 막대 · 꺾은선 · 도넛</td><td>전후 비교 · 구성비 · 추이</td><td>✅ 콘텐츠 이미지</td></tr>
         <tr><td>단계 흐름 · 인용 · 인터뷰 · 사진</td><td>운영 흐름 · 기획자 한마디 · 고객사 인터뷰</td><td>15호에 나오면 추가</td></tr>
       </table>
     </div>
@@ -419,7 +419,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       const want = plan[c] || 0;
       const st = (n, w) => n === 0 ? '' : (w && n < w) ? 'part' : 'done';
       const lbl = (n, w) => w ? `${n} / ${w}장` : `${n}장`;
-      return `<div class="ct"><div class="ct-h"><b>${c} ${c === '01' ? '메인' : c === '02' ? '서브' : ''}</b><input type="text" data-title="${c}" value="${esc(iss.contents[c].title)}" placeholder="콘텐츠 제목"></div>
+      return `<div class="ct"><div class="ct-h"><b>${c} ${c === '01' ? '메인' : '서브'}</b><input type="text" data-title="${c}" value="${esc(iss.contents[c].title)}" placeholder="콘텐츠 제목"></div>
         <div class="steps">
           <div class="st ${th.length ? 'done' : ''}">썸네일<strong>${th.length ? '저장함' : '아직'}</strong></div>
           <div class="st ${st(pc, want)}">PC<strong>${lbl(pc, want)}</strong></div>
@@ -435,11 +435,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   }
 
   // ── 에셋: 샘플 ──
-  const TYPES = {
-    list: ['아이콘 리스트 카드', 'list'], rank: ['순위 막대', 'rank'], hbar: ['가로 막대 차트', 'hbar'], table: ['표', 'table'],
-    hero: ['목업 히어로', 'hero'], steps: ['단계별 화면', 'steps'], compare: ['A vs B 비교', 'compare'],
-    vbar: ['세로 막대 (전후 비교)', 'vbar'], stack: ['100% 누적 막대', 'stack'], line: ['꺾은선 (추이)', 'line'], donut: ['도넛 (구성비)', 'donut'], chart: ['차트', null],
-    flow: ['단계 흐름', null], quote: ['인용 · 인터뷰', null], photo: ['사진', null], illust: ['AI 일러스트', null], thumb: ['썸네일', null]
+  const TYPES = {   // 칩 순서 = 콘텐츠 이미지 편집기 유형 묶음 순서 (리스트 · 비교 → 표 → 차트 → 화면 · 사진 → 썸네일). 이름도 편집기와 같게
+    list: ['아이콘 리스트 카드', 'list'], compare: ['A vs B 비교', 'compare'], quote: ['인용 · 인터뷰', 'quote'],
+    table: ['표', 'table'],
+    rank: ['순위 막대', 'rank'], hbar: ['가로 막대', 'hbar'], vbar: ['세로 막대', 'vbar'], stack: ['100% 누적 막대', 'stack'], line: ['꺾은선', 'line'], donut: ['도넛', 'donut'], chart: ['차트', null],
+    hero: ['목업 히어로', 'hero'], steps: ['단계별 화면', 'steps'], flow: ['단계 흐름', 'flow'], photo: ['사진', null], illust: ['AI 일러스트', null],
+    thumb: ['썸네일', null]
   };
   let sFilter = 'all', lbItem = null;
   function renderSamples(){
@@ -463,7 +464,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 
   // ── 에셋: AI로 그리기 (ChatGPT 프롬프트) ──
   const USES = {
-    thumbScene: {name: '썸네일 배경 (장면형 · 14호 방식)', size: '가로형 1536×1024 (3:2)',
+    thumbScene: {name: '썸네일 배경 (장면형)', size: '가로형 1536×1024 (3:2)',
       ko: '뉴스레터 썸네일 배경 이미지. 화면 왼쪽 45%는 타이틀 글자가 들어갈 자리라 비워 두고(단색에 가까운 밝은 배경), 오른쪽에 주제를 표현하는 장면을 배치.',
       en: 'Newsletter thumbnail background. Keep the LEFT 45% of the canvas empty and calm (soft, nearly flat light background) for a headline that will be added later. Place the main scene on the RIGHT side.'},
     thumbObject: {name: '썸네일 오브젝트 (투명 배경)', size: '정사각 1024×1024, 투명 배경 PNG',
@@ -522,7 +523,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     ['연파랑 배경 · 배지', 'careBlue/100', '#d6eaff'], ['아이콘 원 · 상자 배경', 'careBlue/50', '#f0f8ff'],
     ['그린 포인트 (막대 · 강조 단어)', 'careGreen/500', '#0ac262'], ['진그린', 'careGreen/700', '#007541'], ['연그린', 'careGreen/10', '#f5fff8'],
     ['바탕', 'coolNeutral/50', '#f7f7fb'], ['구분선', 'coolNeutral/100', '#e8eaef'],
-    ['타이틀 (예외 · 14호 원본)', '뉴스레터 전용', '#002540'], ['그린 배경 (예외)', '뉴스레터 전용', '#20b977']
+    ['타이틀 (예외)', '뉴스레터 전용', '#002540'], ['그린 배경 (예외)', '뉴스레터 전용', '#20b977']
   ];
   let assetsBuilt = false;
   function renderAssets(){
