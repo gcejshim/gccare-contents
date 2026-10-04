@@ -148,9 +148,14 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tcbar small{color:var(--coolNeutral-500);margin-left:4px;font-size:11px}
 .tcbar button{border:1px solid var(--coolNeutral-200);background:var(--neutral-0);border-radius:6px;padding:3px 8px;font-size:12px;font-weight:700;cursor:pointer;color:var(--neutral-900)}
 .tcbar button:hover{border-color:var(--careBlue-500)}
+.tcbar button.tc-sw{width:22px;height:22px;padding:0;border-radius:50%} .tcbar button.tc-sw.on{outline:2px solid var(--careBlue-500);outline-offset:1px}
 .tcbar .tc-b-blue{color:var(--careBlue-700)} .tcbar .tc-b-green{color:var(--careGreen-700)} .tcbar .tc-b-red{color:var(--careRed-500)} .tcbar .tc-b-orange{color:var(--careOrange-600)} .tcbar .tc-b-gray{color:var(--coolNeutral-600)}
 
 .fcpop{width:320px}
+.prpop{width:220px} .prpop #prList{display:flex;flex-direction:column;gap:2px}
+.prpop #prList button{text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--neutral-900)}
+.prpop #prList button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)} .prpop #prList button.on{color:var(--careBlue-700);font-weight:700}
+.pv [data-pairpick]{cursor:pointer} .pv [data-pairpick]:hover{outline:2px dashed var(--careBlue-300);outline-offset:6px;border-radius:4px}
 .fcl{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
 .fcl button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px;border:1px solid transparent;border-radius:10px;background:none;cursor:pointer;font-size:12px;color:var(--neutral-700)}
 .fcl button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)}
@@ -629,14 +634,11 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
           <div class="field"><label>이미지 번호</label><input type="number" id="itNo" min="1" max="20"></div>
         </div>
         <div class="fname" id="fname"></div>
-        <div class="field"><label>이 호의 이미지 <small id="itCount"></small></label>
-          <div class="row"><select id="itPick" style="flex:1;min-width:0"></select></div>
-        </div>
+        <div class="hint" style="margin:0">콘텐츠 · 번호를 바꾸면 그 이미지로 이동해요. 없는 번호면 새 이미지가 만들어져요.</div>
         <div class="row">
-          <button class="btn xs" id="btnNewItem">+ 새 이미지</button>
-          <button class="btn xs" data-it="dup">복제</button>
+          <button class="btn xs" data-it="dup">이 이미지 복제</button>
           <span style="flex:1"></span>
-          <button class="btn xs" data-it="del">삭제</button>
+          <button class="btn xs" data-it="del">이 이미지 삭제</button>
         </div>
       </div>
     </div>
@@ -691,7 +693,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     <h2>뉴스레터 이미지 만드는 방법</h2>
     <ol>
       <li><b>호수</b>를 입력해요. 년월과 파일명이 자동으로 정해져요. (15호 = 202610)</li>
-      <li><b>① 콘텐츠 정보</b>에서 콘텐츠 · 이미지 번호를 정하고(<b>[+ 새 이미지]</b>로 한 장 추가), <b>② 이미지 유형</b>에서 레이아웃을 고른 뒤, <b>③ 디자인 · 내용</b>을 고쳐요. 같은 유형을 한 장 더 만들 때는 <b>[복제]</b>.</li>
+      <li><b>① 콘텐츠 정보</b>에서 콘텐츠 · 이미지 번호를 고르고(없는 번호면 새 이미지), <b>② 이미지 유형</b>에서 레이아웃을 고른 뒤, <b>③ 디자인 · 내용</b>을 고쳐요. 같은 유형을 한 장 더 만들 때는 <b>[이 이미지 복제]</b>.</li>
       <li><b>콘텐츠 번호</b>와 <b>이미지 번호</b>를 기획안대로 맞춰요. 파일명: <b>202610_contents01_p01.png</b> (PC) · <b>_m01.png</b> (모바일)</li>
       <li>왼쪽 <b>내용</b>을 기획안대로 고쳐요. 오른쪽에서 PC·모바일이 같이 바뀌어요. 미리보기의 글자·숫자를 <b>클릭</b>해서 바로 고쳐도 돼요. (Enter 확인 · Esc 취소)</li>
       <li><b>자동 점검</b>에 주황색 경고가 없는지 확인해요. <b>[메일 크기로 보기]</b>로 실제 메일에서 보이는 크기도 확인해요.</li>
@@ -765,8 +767,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   // ── 블록 정의 ──
   // fields: t = text | area | num | select | icon | toggle | image | list(sub)
   const BADGE_BG = [['--careGreen-600','그린'],['--careGreen-700','진그린'],['--careGreen-50','연그린'],['--careBlue-500','블루'],['--careBlue-900','남색'],['--careBlue-100','연파랑'],['--careOrange-600','주황'],['--coolNeutral-600','회색']];   // 배지 배경색
+  const badgeTxt = s => esc(String(s).replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1'));   // 배지 글자는 늘 흰색이라 글자 색 표시는 걷어냄
   const badgeStyle = d => { const t = d.badgeBg || '--careGreen-600'; return ` style="background:var(${t});color:var(${isDarkTok(t) ? '--neutral-0' : t === '--careBlue-100' ? '--careBlue-700' : '--careGreen-700'})"`; };
-  const PAIR_OK = ['line', 'donut', 'vbar', 'hbar', 'stack', 'rank'];   // 그래프 2개 나란히에 넣을 수 있는 유형
+  const PAIR_OK = ['line', 'donut', 'vbar', 'hbar', 'stack'];   // 그래프 2개 나란히에 넣을 수 있는 유형 (순위 막대는 남색 카드 모양이라 반쪽 폭에 안 어울려 뺌)
   const BADGE = {'그린': 'green', '연그린': 'lgreen', '노랑': 'yellow', '빨강': 'red', '파랑': 'blue', '회색': 'gray'};   // 표 첫 칸 배지 색
   const HEAD_COLORS = [['navy','남색'],['blue','블루'],['light','연파랑'],['green','그린']];   // 표 머리글 · 순위 막대 질문 헤더
   const BLOCKS = {
@@ -1240,7 +1243,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         {badge:'걷기 캠페인', title:'삼성헬스·아이폰 건강 앱 자동 연동', text:"일상의 걸음 수가 자동으로 참여 실적이 돼요. 별도로 '무언가를 해야 한다'는 부담 없이 임직원이 쉽게 참여할 수 있어요.", image:''},
         {badge:'건강습관 인증 챌린지', title:'운동·식습관·마음 다짐까지 주제 다양화', text:'걷기 외에도 물 마시기, 계단 오르기, 수면 기록 등 일상 속에서 쉽게 참여할 수 있는 주제로 운영할 수 있어요.', image:''}]}),
       render(d){
-        return `<div class="c2">${(d.items || []).map((it, i) => `<div class="c2-c">${it.badge ? `<span class="c2-b"${badgeStyle(d)}${E(`items.${i}.badge`)}>${esc(it.badge)}</span>` : ''}<div class="c2-t"${E(`items.${i}.title`)}>${rich(it.title)}</div><div class="c2-d"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.image ? `<div class="c2-i"><img src="${it.image}" alt=""></div>` : '<div class="ph">이미지를 넣어 주세요 (선택)</div>'}</div>`).join('')}</div>`;
+        return `<div class="c2">${(d.items || []).map((it, i) => `<div class="c2-c">${it.badge ? `<span class="c2-b"${badgeStyle(d)}${E(`items.${i}.badge`)}>${badgeTxt(it.badge)}</span>` : ''}<div class="c2-t"${E(`items.${i}.title`)}>${rich(it.title)}</div><div class="c2-d"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.image ? `<div class="c2-i"><img src="${it.image}" alt=""></div>` : '<div class="ph">이미지를 넣어 주세요 (선택)</div>'}</div>`).join('')}</div>`;
       },
       lint(d){ return []; }
     },
@@ -1279,7 +1282,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       render(d){
         const rows = (d.items || []).map((it, i) => `<div class="qt-r"><div class="qt-av">${it.image ? `<img src="${it.image}" alt="">` : ''}</div><div class="qt-w"><div class="qt-b"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.who ? `<div class="qt-n"${E(`items.${i}.who`)}>${esc(it.who)}</div>` : ''}</div></div>`).join('');
         const note = d.note ? `<div class="qt-note"><div${E('note')}>${rich(d.note)}</div>${d.noteBy ? `<div class="qt-by"${E('noteBy')}>${esc(d.noteBy)}</div>` : ''}</div>` : '';
-        return `<div class="qt">${d.badge ? `<span class="c2-b"${badgeStyle(d)}${E('badge')}>${esc(d.badge)}</span>` : ''}${d.title ? `<div class="qt-t"${E('title')}>${rich(d.title)}</div>` : ''}${rows}${note}</div>`;
+        return `<div class="qt">${d.badge ? `<span class="c2-b"${badgeStyle(d)}${E('badge')}>${badgeTxt(d.badge)}</span>` : ''}${d.title ? `<div class="qt-t"${E('title')}>${rich(d.title)}</div>` : ''}${rows}${note}</div>`;
       },
       lint(d){ return (d.items || []).some(it => !it.image) ? [['info', '얼굴 이미지가 없는 말풍선이 있어요. 얼굴만 보이게 자른 정사각형 이미지를 넣어 주세요.']] : []; }
     },
@@ -1321,18 +1324,18 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     pair: {
       name: '그래프 2개 나란히', hint: '서로 다른 그래프 비교',
       fields: [
-        {k:'left', t:'pairsel', label:'왼쪽 그래프 (목록에서 고르기)'},
+        {k:'left', t:'pairsel', label:'왼쪽 그래프 (미리보기에서 눌러도 골라져요)'},
         {k:'right', t:'pairsel', label:'오른쪽 그래프'}
       ],
       sample: () => ({left:'', right:''}),
       render(d, m, it){
         const one = id => { const o = S.items.find(x => x.id === id); if (!o || !PAIR_OK.includes(o.type)) return '<div class="ph">그래프를 골라 주세요</div>';
-          // 원본 그래프를 반쪽 폭으로 그림. 미리보기에서 고치기 · 색 고르기는 원본 그래프에서 (data-e · data-cp 제거)
-          return BLOCKS[o.type].render(o.data, m, Object.assign({}, o, {half: true, bg: it && it.bg})).replace(/ data-(e|r|c|num|cp)="[^"]*"/g, ''); };
-        return `<div class="box pr"><div class="pr-c">${one(d.left)}</div><div class="pr-c">${one(d.right)}</div></div>`;
+          // 원본 그래프를 반쪽 폭으로 그림. 미리보기에서 글자 · 숫자 · 색을 누르면 원본 그래프(data-src)가 바로 고쳐짐
+          return `<div data-src="${o.id}">${BLOCKS[o.type].render(o.data, m, Object.assign({}, o, {half: true, bg: it && it.bg}))}</div>`; };
+        return `<div class="box pr"><div class="pr-c" data-pairpick="left">${one(d.left)}</div><div class="pr-c" data-pairpick="right">${one(d.right)}</div></div>`;
       },
-      lint(d){ const w = []; if (!d.left || !d.right) w.push(['warn', '왼쪽 · 오른쪽 그래프를 모두 골라 주세요. 그래프는 목록에 먼저 만들어 두면 돼요.']);
-        else w.push(['info', '내용 · 색은 원본 그래프에서 고쳐요. 원본 그래프는 [전체 저장]에서 따로 저장하지 않아요.']); return w; }
+      lint(d){ const w = []; if (!d.left || !d.right) w.push(['warn', '왼쪽 · 오른쪽 그래프를 모두 골라 주세요. 그래프 이미지를 먼저 만들어 두면 돼요.']);
+        else w.push(['info', '미리보기에서 글자 · 숫자 · 색을 누르면 바로 고쳐져요. 그래프를 바꾸려면 그래프의 빈 곳을 눌러요. 원본 그래프는 [전체 저장]에서 따로 저장하지 않아요.']); return w; }
     },
 
     compare: {
@@ -1531,9 +1534,6 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     // ① 파일명 · 이 호의 이미지 선택칸
     const dupe = S.items.some((o, j) => j !== S.sel && o.contents === it.contents && pad2(o.no) === pad2(it.no));
     $('fname').innerHTML = `저장 파일명 <code>${esc(fileBase(it, 'pc'))}.${ext(it)}</code>${dupe ? '<span class="warn">같은 번호가 있어요</span>' : ''}`;
-    const order = S.items.map((o, i) => i).sort((a, b) => (S.items[a].contents + pad2(S.items[a].no)).localeCompare(S.items[b].contents + pad2(S.items[b].no)) || a - b);
-    $('itPick').innerHTML = order.map(i => { const o = S.items[i]; return `<option value="${i}"${i === S.sel ? ' selected' : ''}>contents${o.contents}_${pad2(o.no)} · ${o.fresh ? '유형 고르기 전' : BLOCKS[o.type].name}</option>`; }).join('');
-    $('itCount').textContent = `${S.items.length}장`;
     // ② 유형 목록: 늘 펼침 · 한 줄에 유형 하나 (고른 유형은 파란 테두리). 새 이미지일 때만 위에 안내 한 줄
     $('typeSel').hidden = !it.fresh;
     $('typeSel').className = 'tsel pending'; $('typeSel').textContent = '아래에서 이미지 유형을 골라 주세요';
@@ -1585,8 +1585,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       case 'icon': return icBtn(path, v, f.none);
       case 'colors': { const d = cur().data, ns = (f.names ? f.names(d) : []);
         return `<div class="icrows">${ns.map((nm, i) => `<div class="icrow"><span>${esc(String(nm))}</span>${cpBtn(i, (d.cols || [])[i])}</div>`).join('') || '<div class="hint">계열을 먼저 입력해 주세요.</div>'}</div>`; }
-      case 'pairsel': { const me = cur(), opts = S.items.filter(o => o !== me && PAIR_OK.includes(o.type));
-        return `<select ${p}><option value="">고르기</option>${opts.map(o => `<option value="${o.id}"${o.id === v ? ' selected' : ''}>contents${o.contents}_${pad2(o.no)} · ${esc(BLOCKS[o.type].name)}${o.data.title ? ' · ' + esc(String(o.data.title).slice(0, 18)) : ''}</option>`).join('')}</select>${opts.length ? '' : '<div class="hint">목록에 그래프(꺾은선 · 도넛 · 막대)를 먼저 만들어 주세요.</div>'}`; }
+      case 'pairsel': { const opts = pairOpts();
+        return `<select ${p}><option value="">고르기</option>${opts.map(([o, nm]) => `<option value="${o.id}"${o.id === v ? ' selected' : ''}>${esc(nm)}</option>`).join('')}</select>${opts.length ? '' : '<div class="hint">그래프(꺾은선 · 도넛 · 막대) 이미지를 먼저 만들어 주세요.</div>'}`; }
       case 'badgerows': { const d = cur().data, bd = String(v || '').split('\n').map(x => x.trim());
         return `<div class="icrows">${BLOCKS.table.parse(d).rows.map((r, i) => `<div class="icrow"><span>${esc(String(r[0] || ''))}</span><select data-badge-row="${i}" style="width:110px">${Object.keys(BADGE).map(k => `<option${(bd[i] || '파랑') === k ? ' selected' : ''}>${k}</option>`).join('')}</select></div>`).join('')}</div>`; }
       case 'iconrows': { const d = cur().data, ic = String(v || '').split('\n').map(x => x.trim());
@@ -1672,13 +1672,15 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     const ks = path.split('.'), f = B.fields.find(x => x.k === ks[0]); if (!f) return null;
     return f.t === 'list' && ks.length === 3 ? (f.sub.find(x => x.k === ks[2]) || null) : f;
   }
+  // 미리보기 요소가 속한 이미지: 그래프 2개 나란히 안의 그래프는 원본 그래프(data-src), 그 밖에는 지금 이미지
+  function srcOf(el){ const s = el.closest('[data-src]'); return (s && S.items.find(o => o.id === s.dataset.src)) || cur(); }
   function rawOf(el){
-    const d = cur().data, p = el.dataset.e;
+    const d = srcOf(el).data, p = el.dataset.e;
     if (el.dataset.r != null) return cellGet(d[p], +el.dataset.r, +el.dataset.c, p === 'series');
     const v = getPath(d, p); return v == null ? '' : String(v);
   }
   function startEdit(el){
-    const f = el.dataset.r != null ? null : fieldOf(BLOCKS[cur().type], el.dataset.e);
+    const f = el.dataset.r != null ? null : fieldOf(BLOCKS[srcOf(el).type], el.dataset.e);
     // 처음부터 단어를 드래그해서 눌렀으면 그 단어를 기억해 두었다가 편집 모드에서도 그 부분만 선택 (없으면 전체 선택)
     const sel0 = getSelection(), picked = sel0.rangeCount && el.contains(sel0.anchorNode) ? sel0.toString().trim() : '';
     editing = {el, raw: rawOf(el), multi: !!f && f.t === 'area'};
@@ -1690,6 +1692,11 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     const sel = getSelection(); sel.removeAllRanges(); sel.addRange(rg);
     // 숫자 칸(그래프 값 등)은 숫자만 받으므로 색 도구 막대를 띄우지 않음
     const isNum = !!el.dataset.num || (f && f.t === 'num'); const bar = $('tcBar'); bar.hidden = isNum;
+    // 배지는 글자를 흰색 그대로 두고 배경색만 바꿈 (블록 안 배지 전체가 같은 색)
+    if (!bar.dataset.text) bar.dataset.text = bar.innerHTML;
+    if (el.classList.contains('c2-b')){ const now = cur().data.badgeBg || '--careGreen-600';
+      bar.innerHTML = '<span>배지 배경</span>' + BADGE_BG.map(([t, n]) => `<button type="button" class="tc-sw${t === now ? ' on' : ''}" data-bg="${t}" title="${n}" style="background:var(${t})"></button>`).join(''); }
+    else bar.innerHTML = bar.dataset.text;
     if (!isNum){ const a = el.getBoundingClientRect(); bar.style.left = Math.max(8, Math.min(innerWidth - bar.offsetWidth - 8, a.left)) + 'px'; bar.style.top = Math.max(8, a.top - bar.offsetHeight - 8) + 'px'; }
   }
   // 색 도구 막대: 고른 부분(없으면 전체)에 {색:…} 표시를 씌우고 바로 반영. [기본]은 색 표시를 걷어냄
@@ -1713,7 +1720,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     let v = el.innerText.replace(/ /g, ' ').replace(/\n+$/, '');
     if (!ok || v === ed.raw){ refresh(); return; }
     if (!ed.multi) v = v.replace(/\s*\n\s*/g, '//');   // 한 줄 입력칸의 줄바꿈은 //
-    const it = cur(), d = it.data, p = el.dataset.e;
+    const it = srcOf(el), d = it.data, p = el.dataset.e;
     const num = s => { const n = parseFloat(String(s).replace(/,/g, '')); return isNaN(n) ? null : n; };
     if (el.dataset.r != null){
       v = v.replace(/\|/g, '/').trim();   // | 는 칸 구분 기호라 글자로 못 씀
@@ -1756,9 +1763,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     pop.hidden = false; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
     pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left)) + 'px'; pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
   }
-  let cpTarget = null;
+  let cpTarget = null, cpItem = null;
   function openColors(i, anchor){
-    cpTarget = i; const pop = $('cpPop'), now = (cur().data.cols || [])[i];
+    cpTarget = i; cpItem = srcOf(anchor); const pop = $('cpPop'), now = (cpItem.data.cols || [])[i];
     $('cpList').innerHTML = CHART_COLORS.map(([g, ts]) => `<div class="icg"><div class="icg-h">${g}</div><div class="cpg">${ts.map(t =>
       `<button type="button" data-tok="${t}" title="${tokName(t)}" class="${t === now ? 'on' : ''}" style="background:var(${t})"></button>`).join('')}</div></div>`).join('')
       + `<button type="button" class="btn xs" data-tok="" style="margin-top:8px">자동으로 되돌리기</button>`;
@@ -1768,8 +1775,23 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
   }
   function closeColors(){ $('cpPop').hidden = true; cpTarget = null; }
+  // 그래프 2개 나란히: 고를 수 있는 그래프 목록. 이름은 짧게 '세로 막대 그래프', 같은 유형이 여럿이면 뒤에 2 · 3
+  function pairOpts(){
+    const me = cur(), seen = {};
+    return S.items.filter(o => o !== me && PAIR_OK.includes(o.type)).map(o => { const n = BLOCKS[o.type].name.replace(/( 그래프)?$/, ' 그래프'); seen[n] = (seen[n] || 0) + 1; return [o, seen[n] > 1 ? `${n} ${seen[n]}` : n]; });
+  }
+  let prTarget = null;
+  function openPair(side, anchor){
+    prTarget = side; const pop = $('prPop'), now = cur().data[side], opts = pairOpts();
+    $('prList').innerHTML = opts.map(([o, nm]) => `<button type="button" data-pr="${o.id}" class="${o.id === now ? 'on' : ''}">${esc(nm)}</button>`).join('') || '<div class="hint">그래프(꺾은선 · 도넛 · 막대) 이미지를 먼저 만들어 주세요.</div>';
+    pop.hidden = false; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left + 12)) + 'px'; pop.style.top = Math.max(8, Math.min(innerHeight - h - 8, a.top + 12)) + 'px';
+  }
   function bindIcons(){
-    $('tcBar').addEventListener('mousedown', e => { const b = e.target.closest('[data-tc]'); e.preventDefault(); if (b) applyTextColor(b.dataset.tc); });
+    $('tcBar').addEventListener('mousedown', e => { const b = e.target.closest('[data-tc]'), g = e.target.closest('[data-bg]'); e.preventDefault();
+      if (b) applyTextColor(b.dataset.tc);
+      else if (g && editing){ const el = editing.el; el.textContent = el.innerText.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1');
+        cur().data.badgeBg = g.dataset.bg; endEdit(true); buildForm(); refresh(); } });
     document.addEventListener('click', e => {
       const b = e.target.closest('[data-icpick]'); if (b){ e.preventDefault(); openIcons(b.dataset.icpick, b, !!b.dataset.none); return; }
       const pick = e.target.closest('#icPop [data-icon-name]'); if (pick){ const t = icTarget; closeIcons(); if (t) setIcon(t, pick.dataset.iconName); return; }
@@ -1779,8 +1801,10 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       if (!e.target.closest('#fcPop')) $('fcPop').hidden = true;
       const cb = e.target.closest('[data-colpick]'); if (cb){ e.preventDefault(); openColors(+cb.dataset.colpick, cb); return; }
       const tk = e.target.closest('#cpPop [data-tok]');
-      if (tk){ const i = cpTarget, d = cur().data; closeColors(); if (i == null) return; d.cols = (d.cols || []).slice(); d.cols[i] = tk.dataset.tok || null; buildForm(); refresh(); return; }
+      if (tk){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return; d.cols = (d.cols || []).slice(); d.cols[i] = tk.dataset.tok || null; buildForm(); refresh(); return; }
       if (!e.target.closest('#cpPop') && !e.target.closest('[data-cp]')) closeColors();
+      const pr = e.target.closest('#prPop [data-pr]'); if (pr){ const s = prTarget; $('prPop').hidden = true; prTarget = null; if (s){ cur().data[s] = pr.dataset.pr; buildForm(); refresh(); } return; }
+      if (!e.target.closest('#prPop') && !e.target.closest('[data-pairpick]')){ $('prPop').hidden = true; prTarget = null; }
     });
     $('icQ').addEventListener('input', e => { const q = e.target.value.trim().toLowerCase();
       $('icList').querySelectorAll('[data-q]').forEach(b => { b.hidden = !!q && !b.dataset.q.toLowerCase().includes(q); });
@@ -1790,6 +1814,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   function bindInlineEdit(box){
     box.addEventListener('click', e => {
       const ic = e.target.closest('[data-ic]'); if (ic){ if (editing) endEdit(true); openIcons(ic.dataset.ic, ic, !!ic.dataset.none); return; }
+      const pp = e.target.closest('[data-pairpick]'); if (pp && !e.target.closest('[data-e], [data-cp]')){ if (editing) endEdit(true); openPair(pp.dataset.pairpick, pp); return; }
       const cp = e.target.closest('[data-cp]'); if (cp && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors(+cp.dataset.cp, cp); return; }
       const el = e.target.closest('[data-e]'); if (!el || (editing && editing.el === el)) return;
       if (editing) endEdit(true); else startEdit(el);
@@ -1884,21 +1909,22 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       if (b.dataset.lintact === 'trimCols'){ const d = cur().data, n = BLOCKS.table.parse(d).n; d.rows = String(d.rows || '').split('\n').map(l => l.split('|').slice(0, n).join('|').replace(/\s+$/, '')).join('\n'); buildForm(); refresh(); toast('내용에서 넘친 칸을 지웠어요.'); }
     });
     $('items').addEventListener('click', e => { const el = e.target.closest('[data-type]'); if (el) pickType(el.dataset.type); });
-    $('itPick').addEventListener('change', e => { S.sel = +e.target.value; buildForm(); refresh(); });
-    $('btnNewItem').addEventListener('click', () => {
-      const c = cur() ? cur().contents : '01';
-      const no = Math.max(0, ...S.items.filter(o => o.contents === c).map(o => parseInt(o.no, 10) || 0)) + 1;
-      S.items.push(Object.assign(newItem('list', c, no), {fresh: true})); S.sel = S.items.length - 1;
-      buildForm(); refresh(); toast('새 이미지를 만들었어요. ② 이미지 유형을 골라 주세요.');
-    });
+    // 콘텐츠 · 번호 고르기 = 그 이미지로 이동 (없으면 새 이미지. 유형 고르기 전 빈 이미지는 새로 만들지 않고 번호만 옮김)
+    const goItem = (c, no) => {
+      const i = S.items.findIndex(o => o.contents === c && (parseInt(o.no, 10) || 0) === no);
+      if (i >= 0) S.sel = i;
+      else if (cur() && cur().fresh){ cur().contents = c; cur().no = no; }
+      else { S.items.push(Object.assign(newItem('list', c, no), {fresh: true})); S.sel = S.items.length - 1; toast('새 이미지를 만들었어요. ② 이미지 유형을 골라 주세요.'); }
+      buildForm(); refresh();
+    };
     document.querySelectorAll('[data-it]').forEach(b => b.addEventListener('click', () => {
       const i = S.sel, act = b.dataset.it, arr = S.items;
       if (act === 'dup'){ const c = clone(arr[i]); c.id = uid(); c.no = Math.max(...arr.filter(o => o.contents === c.contents).map(o => parseInt(o.no, 10) || 0)) + 1; arr.splice(i + 1, 0, c); S.sel++; }
       if (act === 'del'){ if (arr.length === 1){ toast('이미지가 하나뿐이라 지울 수 없어요.'); return; } if (!confirm('이 이미지를 목록에서 지울까요?')) return; arr.splice(i, 1); S.sel = Math.max(0, i - 1); }
       buildForm(); refresh();
     }));
-    $('itContents').addEventListener('change', e => { cur().contents = e.target.value; refresh(); });
-    $('itNo').addEventListener('input', e => { cur().no = parseInt(e.target.value, 10) || 1; refresh(); });
+    $('itContents').addEventListener('change', e => goItem(e.target.value, 1));
+    $('itNo').addEventListener('change', e => goItem(cur().contents, Math.max(1, parseInt(e.target.value, 10) || 1)));
     $('itFmt').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; cur().fmt = b.dataset.v; buildForm(); refresh(); });
     $('results').addEventListener('click', e => { const b = e.target.closest('[data-jpg]'); if (!b) return; const r = lastRes[+b.dataset.jpg]; if (r && r.jpg){ download(r.jpg.blob, r.jpg.name); toast(`저장했어요: ${r.jpg.name} (${r.jpg.kb}KB) · 같은 이름의 PNG는 지워 주세요`, 4000); } });
     $('itBg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; cur().bg = b.dataset.v; buildForm(); refresh(); });
@@ -1976,6 +2002,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
 })();
 </script>
 <div class="tcbar" id="tcBar" hidden><span>글자 색</span><button type="button" data-tc="">기본</button><button type="button" data-tc="블루" class="tc-b-blue">블루</button><button type="button" data-tc="그린" class="tc-b-green">그린</button><button type="button" data-tc="빨강" class="tc-b-red">빨강</button><small>단어를 드래그해 고르면 그 부분만</small></div>
+<div class="icpop prpop" id="prPop" hidden><div class="icg-h">그래프 고르기</div><div id="prList"></div></div>
 <div class="icpop fcpop" id="fcPop" hidden><div class="icg-h">얼굴 고르기 <small style="font-weight:400;color:var(--coolNeutral-500)">지난 호 인터뷰 3D 얼굴</small></div><div class="fcl" id="fcList"></div></div>
 <div class="icpop cppop" id="cpPop" hidden><div class="icl" id="cpList"></div></div>
 <div class="icpop" id="icPop" hidden><input type="text" id="icQ" placeholder="찾기 (예: 달력, 사람)"><div class="icl" id="icList"></div></div>
