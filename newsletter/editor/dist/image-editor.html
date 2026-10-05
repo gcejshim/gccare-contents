@@ -691,7 +691,6 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   <span class="fstat" id="fileStat"></span>
   <button class="btn" id="btnLoad" title="저장해 둔 작업 파일(.json)을 열어요">작업 파일 열기</button>
   <button class="btn" id="btnSave" title="지금 연 작업 파일에 덮어써요 (Ctrl+S) · 처음이면 저장할 곳을 물어봐요">작업 파일 저장</button>
-  <button class="btn" id="btnSaveAs" title="새 이름 · 위치로 저장해요. 그다음부터는 그 파일에 저장돼요">다른 이름으로 저장</button>
   <i class="bsep"></i>
   <button class="btn primary" id="btnExport" title="지금 보고 있는 이미지 한 장을 PC(2배)·모바일(3배)로 저장해요">이 이미지 저장</button>
   <button class="btn" id="btnExportAll" title="목록의 모든 이미지를 PC·모바일로 저장해요">전체 이미지 저장</button>
@@ -2374,7 +2373,6 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('btnExport').addEventListener('click', () => exportItems([view()]));
     $('btnExportAll').addEventListener('click', () => { const out = S.items.filter(o => !o.owner && !S.items.some(p => p.type === 'pair' && (p.data.left === o.id || p.data.right === o.id))), nOut = out.length, nAll = S.items.filter(o => !o.owner).length; if (confirm(`목록의 ${nOut}장을 PC·모바일로 모두 저장할까요? (파일 ${nOut * 2}개${nOut < nAll ? ' · 나란히에 쓰인 원본 그래프는 빼고' : ''})`)) exportItems(out); });
     $('btnSave').addEventListener('click', () => saveJSON(false));
-    $('btnSaveAs').addEventListener('click', () => saveJSON(true));
     $('btnLoad').addEventListener('click', openJSON);
     document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 's'){ e.preventDefault(); saveJSON(false); } });   // Ctrl+S
     hdb(0, 'cur').then(h => { if (h) curFile = h; fileStat(); });
