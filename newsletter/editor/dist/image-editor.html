@@ -764,7 +764,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       <div class="pv">
         <div class="pvp" id="pvPcBox">
           <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><b>PC</b><span class="lbl" id="pvPcLbl"></span><span class="sp"></span>
-            <label class="switch" title="메일에서는 PC 이미지가 약 660px로 줄어 보여요"><input type="checkbox" id="mail"> 메일 크기로 보기</label></div>
+            <label class="switch" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><input type="checkbox" id="mail"> 메일 크기로 보기</label></div>
           <div class="pvb"><div class="pv-frame" id="pvPc"></div><p class="hint" id="mailHint" hidden></p></div>
         </div>
         <div class="pvp" id="pvMoBox">
@@ -1778,9 +1778,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     const mail = $('mail').checked; $('mailHint').hidden = !mail;
     const sz = () => {
       const p = $('pvPc').firstElementChild, mo = $('pvMo').firstElementChild; if (!p || !mo) return;
-      // PC: 미리보기 칸보다 넓으면 맞춰 줄이기, 메일 크기면 660px
+      // PC: 미리보기 칸보다 넓으면 맞춰 줄이기, 메일 크기면 630px (15호 Outlook 실측, 2026-10-05)
       const avail = $('pvPcBox').clientWidth - 2, fit = Math.min(1, avail / 900);
-      const z = mail ? Math.min(660 / 900, fit) : fit;
+      const z = mail ? Math.min(630 / 900, fit) : fit;
       $('pvPc').style.zoom = z < 0.999 ? z.toFixed(4) : '';
       const ph = Math.round(p.offsetHeight), mh = Math.round(mo.offsetHeight);
       $('pvPcLbl').innerHTML = `900 × ${ph} → 저장 <b>1800 × ${ph * 2}</b> · ${mail ? '메일 크기' : z < 0.999 ? `${Math.round(z * 100)}%` : '실제 크기'}`;
