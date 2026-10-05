@@ -2271,8 +2271,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     const blob = new Blob([JSON.stringify(S, null, 1)], {type: 'application/json'}), def = `${S.ym}_뉴스레터_${S.issue}호_편집원본.json`;
     if (!window.showSaveFilePicker){ download(blob, def); markSaved(def); toast('작업 파일을 다운로드 폴더에 저장했어요.'); return; }
     try {
-      let h = !asNew && curFile && await hOK(curFile) ? curFile : null;   // [저장]: 지금 파일에 그대로 덮어쓰기
-      if (!h) h = await showSaveFilePicker({id: 'nl-work', suggestedName: curFile ? curFile.name : def, types: JTYPE});
+      // 저장할 때마다 저장 창을 띄움 — 지난번 파일의 폴더 · 이름이 미리 채워져 있어 그대로 [저장]하면 덮어쓰기, 이름을 바꾸면 새 파일
+      const opt = {suggestedName: curFile ? curFile.name : def, types: JTYPE}; if (curFile) opt.startIn = curFile; else opt.id = 'nl-work';
+      const h = await showSaveFilePicker(opt);
       const w = await h.createWritable(); await w.write(blob); await w.close();
       curFile = h; hdb(1, 'cur', h); markSaved(h.name); toast(`저장했어요 · ${h.name}`);
     } catch(e){ if (e.name !== 'AbortError') toast('저장하지 못했어요. 다시 시도해 주세요.'); }
