@@ -289,7 +289,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         크기·좌우·상하 막대로 위치를 맞춰요. <b>이미지에는 글자가 없어야 해요.</b></li>
       <li>필요하면 <b>키워드 칩</b>(최대 3개, 7자 이내)을 켜요.</li>
       <li><b>자동 점검</b>에 주황색 경고가 없는지 확인해요.</li>
-      <li><b>[완성 이미지 저장 (PNG)]</b>을 누르면 다운로드 폴더에 저장돼요.</li>
+      <li><b>[완성 이미지 저장 (PNG)]</b>을 누르면 처음 한 번 저장할 폴더를 고르고, 그다음부터 그 폴더에 저장돼요.</li>
       <li>나중에 다시 고칠 수 있게 <b>[편집 원본 저장]</b>도 눌러 두세요. PNG는 고칠 수 없고, 편집 원본(.json)을 <b>[편집 원본 열기]</b>로 열면 그대로 이어서 수정할 수 있어요.</li>
     </ol>
     <p class="hint">작업 내용은 이 브라우저에 자동저장돼요. 다른 PC로 옮기거나 보관하려면 [편집 원본 저장]으로 파일을 받아 두세요.<br>처음이라면 상단의 [예시: 14호 01]을 눌러 보고 고쳐 보는 게 가장 빨라요.</p>
@@ -891,10 +891,29 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('help').addEventListener('click', e => { if (e.target.id === 'help') $('help').hidden = true; });
     try { if (!localStorage.getItem('gc-nl-thumb-helped')){ $('help').hidden = false; localStorage.setItem('gc-nl-thumb-helped','1'); } } catch(_){}
 
-    $('btnSave').addEventListener('click', () => {
-      const blob = new Blob([JSON.stringify(S)], {type:'application/json'});
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fileName().replace(/\.png$/, '.json'); a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    // 저장 위치: 작업 파일은 처음 한 번 고르면 같은 파일에 덮어쓰기, 이미지는 처음 한 번 폴더를 고르면 그 폴더에 저장 (새로 고침 전까지). 고를 수 없는 브라우저는 다운로드 폴더
+    const dl = (blob, name) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); };
+
+    // 저장 위치 기억: 고른 파일 · 폴더를 브라우저(IndexedDB)에 보관해서, 새로 고침하거나 다음에 열어도 다시 묻지 않음 (권한만 한 번 확인)
+    const hdb = (put, key, val) => new Promise(res => { try { const rq = indexedDB.open('gc-nl-handles', 1); rq.onupgradeneeded = () => rq.result.createObjectStore('h');
+      rq.onsuccess = () => { try { const st = rq.result.transaction('h', put ? 'readwrite' : 'readonly').objectStore('h'), r = put ? st.put(val, key) : st.get(key); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); } catch(_){ res(null); } }; rq.onerror = () => res(null); } catch(_){ res(null); } });
+    const hOK = async h => { try { if (await h.queryPermission({mode: 'readwrite'}) === 'granted') return true; return await h.requestPermission({mode: 'readwrite'}) === 'granted'; } catch(_){ return false; } };
+    const saveHandles = {}; let imgDir = null;
+    async function saveOver(blob, name){
+      if (window.showSaveFilePicker){
+        try { let h = saveHandles[name] || await hdb(0, 'f:' + name); if (h && !(await hOK(h))) h = null; if (!h) h = await showSaveFilePicker({id: 'nl-work', suggestedName: name, types: [{description: 'JSON', accept: {'application/json': ['.json']}}]}); saveHandles[name] = h; hdb(1, 'f:' + name, h);
+          const w = await h.createWritable(); await w.write(blob); await w.close(); return h.name;
+        } catch(e){ if (e.name === 'AbortError') return null; delete saveHandles[name]; }
+      }
+      dl(blob, name); return name;
+    }
+    async function saveImg(blob, name){
+      if (imgDir){ try { const fh = await imgDir.getFileHandle(name, {create: true}); const w = await fh.createWritable(); await w.write(blob); await w.close(); return imgDir.name + ' 폴더'; } catch(e){ console.error(e); } }
+      dl(blob, name); return '다운로드 폴더';
+    }
+    $('btnSave').addEventListener('click', async () => {
+      const n = await saveOver(new Blob([JSON.stringify(S)], {type:'application/json'}), fileName().replace(/\.png$/, '.json'));
+      if (n) toast(`작업 파일을 저장했어요. (${n})`);
     });
     $('btnLoad').addEventListener('click', () => $('fileLoad').click());
     $('fileLoad').addEventListener('change', e => {
@@ -904,18 +923,17 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     });
 
     $('btnExport').addEventListener('click', async () => {
+      if (!imgDir && window.showDirectoryPicker){ const kept = await hdb(0, 'thumbDir'); if (kept && await hOK(kept)) imgDir = kept; else { try { imgDir = await showDirectoryPicker({id: 'nl-images', mode: 'readwrite'}); hdb(1, 'thumbDir', imgDir); } catch(e){ if (e.name === 'AbortError') return; } } }
       const btn = $('btnExport'); btn.disabled = true; btn.textContent = '저장 중…';
       try {
         await document.fonts.ready;
         const node = await renderThumb($('exportHost'));
         await Promise.all([...node.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
         const canvas = await html2canvas(node, {scale:3, backgroundColor:null, useCORS:true, logging:false, width:W, height:H});
-        canvas.toBlob(b => {
-          const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = fileName(); a.click();
-          setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-          toast(`저장했어요: ${fileName()} (${canvas.width}×${canvas.height}, ${Math.round(b.size/1024)}KB)`);
-          notify({type:'exported', files:[{name:fileName(), kind:'thumb', issue:S.issue, no:S.no, w:canvas.width, h:canvas.height, kb:Math.round(b.size/1024)}]});
-        }, 'image/png');
+        const b = await new Promise(r => canvas.toBlob(r, 'image/png'));
+        const where = await saveImg(b, fileName());
+        toast(`저장했어요: ${fileName()} (${canvas.width}×${canvas.height}, ${Math.round(b.size/1024)}KB · ${where})`);
+        notify({type:'exported', files:[{name:fileName(), kind:'thumb', issue:S.issue, no:S.no, w:canvas.width, h:canvas.height, kb:Math.round(b.size/1024)}]});
       } catch(err){ console.error(err); toast('저장 중 문제가 생겼어요. 다시 시도해 주세요.'); }
       finally { btn.disabled = false; btn.textContent = '완성 이미지 저장 (PNG)'; $('exportHost').innerHTML = ''; }
     });
