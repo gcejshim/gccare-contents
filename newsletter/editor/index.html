@@ -248,7 +248,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl{width:900px;font-family:Pretendard,sans-serif;color:var(--neutral-900);letter-spacing:-0.2px;word-break:keep-all;line-height:1.5;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;   /* Figma와 같은 글자 다듬기 (맥 크롬에서 흰 글자가 두꺼워지는 것 방지) */
   padding:var(--pad);background:var(--coolNeutral-50);
-  --fs-hero:28px;--fs-title:22px;--fs-body:18px;--fs-sub:16px;--fs-cap:14px;--fs-num:22px;--fs-val:12px;--fs-valL:20px;--pad:24px;--px:24px;--r:16px}
+  --fs-hero:28px;--fs-title:22px;--fs-body:18px;--fs-sub:16px;--fs-cap:14px;--fs-num:22px;--fs-val:13px;--fs-valL:20px;--pad:24px;--px:24px;--r:16px}
 .nl-mo{width:350px;--fs-hero:22px;--fs-title:18px;--fs-body:16px;--fs-sub:14px;--fs-cap:12px;--fs-num:18px;--fs-val:10px;--fs-valL:16px;--pad:16px;--px:16px;--r:14px}
 .nl.bg-white{background:var(--neutral-0)}
 .nl.bg-none{padding:0;background:var(--neutral-0)}
@@ -703,10 +703,10 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         <button type="button" class="btn" id="btnSkill" style="width:100%;justify-content:center">Claude 스킬 결과 넣기</button>
       </div>
       <div class="tsel" id="typeSel" hidden style="margin-bottom:8px"></div>
-      <!-- 템플릿: 선택칸을 누르면 아래로 목록이 열리고, 이름에 마우스를 올리면 오른쪽 미리보기에 실제 크기로 보임 -->
+      <!-- 템플릿: 선택칸을 누르면 아래로 목록이 열림 (마우스 올림 미리보기는 사용자 요청으로 없앰, 2026-10-07) -->
       <div class="tpick">
         <button type="button" class="tselbox" id="btnPick"><span class="nm" id="typeNow"></span><i>▼</i></button>
-        <div class="tdrop" id="tPop" hidden><div class="tip">이름에 마우스를 올리면 오른쪽 미리보기에서 모양을 확인할 수 있어요 · 눌러서 고르기 · 위 칸을 누르면 접혀요</div><div class="items" id="items"></div></div>
+        <div class="tdrop" id="tPop" hidden><div class="tip">눌러서 고르기 · 위 칸을 누르면 접혀요</div><div class="items" id="items"></div></div>
       </div>
     </div>
 
@@ -1755,7 +1755,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       const z = mail ? Math.min(630 / 900, fit) : fit;
       $('pvPc').style.zoom = z < 0.999 ? z.toFixed(4) : '';
       const ph = Math.round(p.offsetHeight), mh = Math.round(mo.offsetHeight);
-      $('pvPcLbl').innerHTML = `900 × ${ph} → 저장 <b>1800 × ${ph * 2}</b> · ${mail ? '메일 크기' : z < 0.999 ? `${Math.round(z * 100)}%` : '실제 크기'}`;
+      $('pvPcLbl').innerHTML = `900 × ${ph} → 저장 <b>1800 × ${ph * 2}</b> · ${mail ? '메일 크기 <b>630</b> (70%)' : z < 0.999 ? `${Math.round(z * 100)}%` : '실제 크기'}`;
       $('pvMoLbl').innerHTML = `350 × ${mh} → 저장 <b>1050 × ${mh * 3}</b>`;
     };
     sz(); document.fonts && document.fonts.ready.then(sz);
@@ -1774,7 +1774,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('btnPick').classList.toggle('fresh', !!it.fresh);
     if (!$('tPop').hidden) markPick();
   }
-  // 템플릿 목록 (선택칸 아래로 열림). 이름에 마우스를 올리면 그 템플릿을 예시 내용으로 미리보기에 잠깐 보여 줌 — 내용은 안 바뀜
+  // 템플릿 목록 (선택칸 아래로 열림). 눌러서 고르면 미리보기에 바로 보임 (hoverType은 목록을 닫을 때 정리용으로만 남음)
   let pickBuilt = false, hoverIt = null;
   function openPick(){
     if (!pickBuilt){ pickBuilt = true;
@@ -2305,8 +2305,6 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('items').addEventListener('click', e => { const el = e.target.closest('[data-type]'); if (el){ hoverType(null); pickType(el.dataset.type); markPick(); } });   // 고른 뒤에도 목록은 그대로 (접고 펴기는 사용자가)
     $('btnPick').addEventListener('click', () => { if ($('tPop').hidden) openPick(); else closePick(); try { localStorage.setItem('gc-nl-tpick-open', $('tPop').hidden ? '0' : '1'); } catch(_){} });
     setTimeout(() => { try { if (localStorage.getItem('gc-nl-tpick-open') === '1') openPick(); } catch(_){} }, 0);   // 지난번에 펼쳐 두었으면 펼친 채로
-    $('items').addEventListener('mouseover', e => { const el = e.target.closest('[data-type]'); if (el) hoverType(el.dataset.type); });
-    $('tPop').addEventListener('mouseleave', () => hoverType(null));
     // 열 때: 지금 이미지가 있으면 그 이미지의 소스(nl-block)를 미리 넣어 둠 → 고쳐서 [넣기]하거나, 전체 선택돼 있어 새 결과를 붙이면 바로 바뀜. 새 이미지면 빈 칸
     const srcOfItem = it => { const d = clone(it.data);
       if (it.type === 'pair') ['left', 'right'].forEach(k => { const c = S.items.find(o => o.id === d[k]); d[k] = c ? {type: c.type, data: clone(c.data)} : ''; });
