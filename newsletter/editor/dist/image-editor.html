@@ -209,9 +209,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tcbar .tc-b-blue{color:var(--careBlue-700)} .tcbar .tc-b-green{color:var(--careGreen-700)} .tcbar .tc-b-red{color:var(--careRed-500)} .tcbar .tc-b-orange{color:var(--careOrange-600)} .tcbar .tc-b-gray{color:var(--coolNeutral-600)}
 
 .fcpop{width:320px}
-.prpop{width:220px} .prpop #prList,.prpop #bdList{display:flex;flex-direction:column;gap:2px}
-.prpop #bdList button{text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--neutral-900)}
-.prpop #bdList button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)} .prpop #bdList button.on{color:var(--careBlue-700);font-weight:700}
+.prpop{width:220px} .prpop #prList,.prpop #bdList,.prpop #tnList{display:flex;flex-direction:column;gap:2px}
+.prpop #bdList button,.prpop #tnList button{text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--neutral-900)}
+.prpop #bdList button:hover,.prpop #tnList button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)} .prpop #bdList button.on,.prpop #tnList button.on{color:var(--careBlue-700);font-weight:700}
 .prpop #prList button{text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--neutral-900)}
 .prpop #prList button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)} .prpop #prList button.on{color:var(--careBlue-700);font-weight:700}
 .pv [data-pairpick]{cursor:pointer} .pv [data-pairpick]:hover{outline:2px dashed var(--careBlue-300);outline-offset:6px;border-radius:4px}
@@ -298,6 +298,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .box{background:var(--neutral-0);border-radius:var(--r);box-shadow:0 2px 10px rgba(3,21,82,.06);overflow:hidden}
 .nl.bg-none .box{border-radius:0;box-shadow:none}
 /* 흰 바탕 · 여백 없음: 메일 흰 배경과 붙지 않게 바깥 테두리 1.5px (PC 선 최소 규격). 그림자는 빼서 저장 PNG 가장자리 번짐 방지 */
+.nl.bg-white.t-bigstat{box-sizing:border-box;border:1.5px solid var(--coolNeutral-100)}   /* 상자 없는 템플릿(큰 숫자 카드): 흰 바탕이면 이미지 가장자리(900 · 350 폭)에 라인을 넣어 저장 */
 .nl.bg-white .box,.nl.bg-none .box,.nl.bg-white .rk,.nl.bg-none .rk,.nl.bg-white .cp-c,.nl.bg-none .cp-c{box-shadow:none;border:1.5px solid var(--coolNeutral-100)}
 .nl .hd{background:var(--careBlue-900);color:var(--neutral-0);font-weight:600;   /* 어두운 바탕 흰 글자: 저장 PNG에서 Figma Bold와 같은 굵기로 보이도록 600 (사용자 결정) */
   font-size:var(--fs-title);line-height:1.16;letter-spacing:-0.3px;padding:16px var(--px);display:flex;align-items:center;gap:10px}
@@ -464,8 +465,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl-mo .fl-a{justify-content:center}
 /* 큰 숫자 카드 */
 .nl .bs{display:flex;flex-direction:column;gap:16px}
-.nl .bs-c{display:flex;align-items:center;gap:40px;padding:28px 40px;border-radius:16px;background:var(--careGreen-10);border:1px solid var(--careGreen-50)}
-.nl .bs-n{flex:none;min-width:140px;color:var(--careGreen-500);font-weight:700;line-height:1}
+.nl .bs-c{display:flex;align-items:center;gap:40px;padding:28px 40px;border-radius:16px;background:var(--careGreen-10);border:1.5px solid var(--careGreen-50)}   /* 메일(×0.7)에서도 보이게 선 1.5px */.nl .bs-n{flex:none;min-width:140px;color:var(--careGreen-500);font-weight:700;line-height:1}
 .nl .bs-n b{font-size:56px;letter-spacing:-1px}
 .nl .bs-n small{font-size:32px;margin-left:2px}
 .nl .bs-t{font-size:var(--fs-sub);font-weight:500;line-height:28px;--hl:var(--careGreen-600)}
@@ -671,6 +671,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 
 /* ── 미리보기에서 바로 고치기 (저장 이미지에는 안 나옴) ── */
 #pvPc [data-e],#pvMo [data-e]{cursor:text}
+#pvPc [data-tonepick],#pvMo [data-tonepick]{cursor:pointer} #pvPc [data-tonepick]:hover,#pvMo [data-tonepick]:hover{outline:1.5px dashed var(--careBlue-400);outline-offset:4px}
 #pvPc [data-dbadge],#pvMo [data-dbadge]{cursor:pointer} #pvPc [data-dbadge]:hover,#pvMo [data-dbadge]:hover{outline:1.5px dashed var(--careBlue-400);outline-offset:2px}
 #pvPc [data-e]:hover,#pvMo [data-e]:hover{outline:1.5px dashed var(--careBlue-400);outline-offset:2px;border-radius:2px}
 #pvPc [data-e].editing,#pvMo [data-e].editing{outline:2px solid var(--careBlue-500);outline-offset:2px;background:var(--neutral-0);color:var(--neutral-900);white-space:pre-wrap;min-width:24px}
@@ -1362,13 +1363,13 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       render(d, m){
         const st = String(d.steps || '').split('\n').map(x => x.trim()).filter(Boolean), arrow = icon(m === 'mo' ? 'ChevronDown' : 'ChevronRight', css(d.tone === 'blue' ? '--careBlue-500' : '--careGreen-500'), m === 'mo' ? 18 : 22, 2.5);
         const head = d.head ? `<div class="fl-h">${d.avatar ? `<img class="fl-av" src="${d.avatar}" alt="">` : ''}<span${E('head')}>${rich(d.head)}</span></div>` : '';
-        return `<div class="box fl">${head}${d.title ? `<div class="fl-t"${E('title')}>${rich(d.title)}</div>` : ''}${d.desc ? `<div class="fl-d"${E('desc')}>${rich(d.desc)}</div>` : ''}<div class="fl-s">${st.map((x, i) => (i ? `<span class="fl-a">${arrow}</span>` : '') + `<span class="fl-b">${esc(x)}</span>`).join('')}</div></div>`;
+        return `<div class="box fl">${head}${d.title ? `<div class="fl-t"${E('title')}>${rich(d.title)}</div>` : ''}${d.desc ? `<div class="fl-d"${E('desc')}>${rich(d.desc)}</div>` : ''}<div class="fl-s" data-tonepick>${st.map((x, i) => (i ? `<span class="fl-a">${arrow}</span>` : '') + `<span class="fl-b">${esc(x)}</span>`).join('')}</div></div>`;
       },
       lint(d){ const n = String(d.steps || '').split('\n').filter(x => x.trim()).length; return n > 5 ? [['info', '단계가 5개를 넘으면 PC 한 줄에 다 안 들어가요. 4개 이하가 좋아요.']] : []; }
     },
 
     bigstat: {
-      name: '큰 숫자 카드', hint: '핵심 수치 + 설명',
+      name: '큰 숫자 카드', hint: '핵심 수치 + 설명', bg0: 'white',
       fields: [
         {k:'tone', t:'select', label:'강조색', opts:[['green','그린'],['blue','블루']]},
         {k:'items', t:'list', label:'카드 (숫자 · 단위 · 설명)', add:{value:'10', unit:'%', text:'설명을 넣어 주세요'}, sub:[{k:'value', t:'text', w:'s', ph:'33'}, {k:'unit', t:'text', w:'s', ph:'%'}, {k:'text', t:'area', rows:2, ph:'설명 ([대괄호] = 그린 강조)'}]}
@@ -1746,7 +1747,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   const fileBase = (it, m) => `${S.ym}_contents${it.contents}_${m === 'pc' ? 'p' : 'm'}${pad2(it.no)}`;
   const ext = it => it.fmt === 'jpg' ? 'jpg' : 'png';
   const JPG_Q = 0.9;
-  function newItem(type, contents, no){ return {id: uid(), type, contents: contents || '01', no: no || 1, bg: BLOCKS[type].bg ? 'none' : 'gray', fmt: 'png', data: BLOCKS[type].sample()}; }
+  function newItem(type, contents, no){ return {id: uid(), type, contents: contents || '01', no: no || 1, bg: BLOCKS[type].bg ? 'none' : BLOCKS[type].bg0 || 'gray', fmt: 'png', data: BLOCKS[type].sample()}; }
   function sampleState(){
     const mk = (type, c, n, bg) => Object.assign(newItem(type, c, n), bg ? {bg} : {});
     const order = ['list', 'compare', 'table', 'rank', 'hbar', 'vbar', 'stack', 'line', 'donut', 'hero'];   // 유형마다 1장 · 묶음 순서 (번호는 파일명용으로만 차례대로)
@@ -1766,7 +1767,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   function renderItem(it, m){
     const B = BLOCKS[it.type];
     const bgCls = B.bg === 'hero' ? 'hero' + (['grad', 'white', 'gray', 'navy'].includes(it.data.bgStyle) ? ' ' + it.data.bgStyle : '') : B.bg === 'steps' ? 'steps' : B.bg === 'raw' ? 'raw' : B.bg === 'cta' ? 'cta' : 'bg-' + (it.bg || 'gray');
-    return `<div class="nl nl-${m} ${bgCls}${it.data.tone === 'blue' ? ' tone-blue' : ''}">${B.render(it.data, m, it)}</div>`;
+    return `<div class="nl nl-${m} t-${it.type} ${bgCls}${it.data.tone === 'blue' ? ' tone-blue' : ''}">${B.render(it.data, m, it)}</div>`;
   }
   let raf = 0;
   function refresh(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { renderPreview(); renderList(); renderLint(); save(); fileStat(); }); }
@@ -1830,7 +1831,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     if (edited && !confirm(`${BLOCKS[type].name}(으)로 바꾸면 지금 입력한 내용이 예시 내용으로 바뀌어요. 바꿀까요?`)) return;
     const prev = BLOCKS[it.type];
     it.type = type; it.data = BLOCKS[type].sample(); delete it.fresh;
-    it.bg = BLOCKS[type].bg ? 'none' : prev.bg ? 'gray' : (it.bg || 'gray');
+    it.bg = BLOCKS[type].bg ? 'none' : BLOCKS[type].bg0 || (prev.bg || prev.bg0 ? 'gray' : (it.bg || 'gray'));   // bg0 = 그 템플릿의 처음 바탕 (큰 숫자 카드는 흰 바탕)
     buildForm(); refresh();
   }
 
@@ -2019,6 +2020,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     // 템플릿: 머리글 색(hc) 옵션이 있는 블록의 머리글 글자(표 머리글 · 헤더)는 글자 색 대신 머리글 배경색 (연파랑을 골라 글자가 진해져도 다시 바꿀 수 있게 항상)
     else if (el.closest('th, .hd') && BLOCKS[srcOf(el).type].fields.some(f => f.k === 'hc')){ const now = srcOf(el).data.hc || 'navy', SW = {navy:'--careBlue-900', blue:'--careBlue-500', light:'--careBlue-100', green:'--careGreen-700'};
       bar.innerHTML = '<span>머리글 배경</span>' + HEAD_COLORS.map(([k, n]) => `<button type="button" class="tc-sw${k === now ? ' on' : ''}" data-hhc="${k}" title="${n}" style="background:var(${SW[k]})"></button>`).join(''); }
+    // 강조색 글자(큰 숫자 카드 숫자 · 단계 흐름 헤드라인)를 누르면 글자 색 대신 강조색(그린 · 블루) → 카드 · 단계 박스 · 강조 글자까지 같은 색 패턴 (왼쪽 '강조색'과 같은 값)
+    else if (el.closest('.bs-n, .fl-t')){ const now = srcOf(el).data.tone || 'green';
+      bar.innerHTML = '<span>강조색</span>' + [['green', '그린', '--careGreen-500'], ['blue', '블루', '--careBlue-500']].map(([k, n, t]) => `<button type="button" class="tc-sw${k === now ? ' on' : ''}" data-tone="${k}" title="${n}" style="background:var(${t})"></button>`).join('') + `<small>${el.closest('.fl-t') ? '단계 박스 · 화살표도' : '카드 · 강조 글자도'} 같이 바뀌어요</small>`; }
     else bar.innerHTML = bar.dataset.text;
     if (!bar.hidden){ const a = el.getBoundingClientRect(); bar.style.left = Math.max(8, Math.min(innerWidth - bar.offsetWidth - 8, a.left)) + 'px'; bar.style.top = Math.max(8, a.top - bar.offsetHeight - 8) + 'px'; }
   }
@@ -2131,8 +2135,18 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     pop.hidden = false; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
     pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left)) + 'px'; pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
   }
+  // 단계 흐름의 단계 박스: 누르면 강조색(그린 · 블루) 고르기 — 헤드라인 · 화살표도 같은 색 (왼쪽 '강조색'과 같은 값)
+  let tnTarget = null;
+  function openTone(anchor){
+    const it = srcOf(anchor), now = it.data.tone || 'green'; tnTarget = it; const pop = $('tnPop');
+    $('tnList').innerHTML = [['green', '그린'], ['blue', '블루']].map(([k, l]) => `<button type="button" data-tn="${k}" class="${k === now ? 'on' : ''}">${l}</button>`).join('');
+    pop.hidden = false; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left)) + 'px'; pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
+  }
   function bindIcons(){
     $('tcBar').addEventListener('mousedown', e => { const b = e.target.closest('[data-tc]'), g = e.target.closest('[data-bg]'); e.preventDefault();
+      const tn = e.target.closest('[data-tone]');
+      if (tn && editing){ const it = srcOf(editing.el); endEdit(true); it.data.tone = tn.dataset.tone; buildForm(); refresh(); return; }
       const hh = e.target.closest('[data-hhc]');
       if (hh && editing){ const it = srcOf(editing.el); endEdit(true); it.data.hc = hh.dataset.hhc; buildForm(); refresh(); return; }
       const hb = e.target.closest('[data-hbg]');
@@ -2159,6 +2173,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       if (bd){ const t = bdTarget; $('bdPop').hidden = true; bdTarget = null;
         if (t){ const m = {...(t.it.data.dTone || {})}; if (bd.dataset.bd) m[t.ri] = bd.dataset.bd; else delete m[t.ri]; t.it.data.dTone = m; buildForm(); refresh(); } return; }
       if (!e.target.closest('#bdPop') && !e.target.closest('[data-dbadge]')){ $('bdPop').hidden = true; bdTarget = null; }
+      const tq = e.target.closest('#tnPop [data-tn]');
+      if (tq){ const it = tnTarget; $('tnPop').hidden = true; tnTarget = null; if (it){ it.data.tone = tq.dataset.tn; buildForm(); refresh(); } return; }
+      if (!e.target.closest('#tnPop') && !e.target.closest('[data-tonepick]')){ $('tnPop').hidden = true; tnTarget = null; }
       const pk = e.target.closest('[data-pairkind]'); if (pk){ if (editing) endEdit(true); openPair(pk.dataset.pairkind, pk); return; }
       const pr = e.target.closest('#prPop [data-pr]'); if (pr){ const s = prTarget; $('prPop').hidden = true; prTarget = null; if (s) setPairType(s, pr.dataset.pr); return; }
       // 나란히 설정 · 왼쪽 · 오른쪽 그래프 탭
@@ -2179,6 +2196,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         if (g && PAIR_OK.includes(g.type) && S.sub !== g.id){ S.sub = g.id; buildForm(); refresh(); }
         openPair(pp.dataset.pairpick, pp, e.clientX, e.clientY); return; }
       const db = e.target.closest('[data-dbadge]'); if (db){ if (editing) endEdit(true); openBadge(db); return; }
+      const tp = e.target.closest('[data-tonepick]'); if (tp){ if (editing) endEdit(true); openTone(tp); return; }
       const cp = e.target.closest('[data-cp]'); if (cp && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors(+cp.dataset.cp, cp); return; }
       // 직접 만든 블록: data-color 표시가 있는 막대 · 띠 · 배지를 누르면 색 고르기 (글자를 누르면 글자 수정)
       const hc = e.target.closest('[data-hcol]'); if (hc && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors('@hc:' + hc.dataset.hcol, hc); return; }
@@ -2482,6 +2500,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
 <div class="tcbar" id="tcBar" hidden><span>글자 색</span><button type="button" data-tc="">기본</button><button type="button" data-tc="블루" class="tc-b-blue">블루</button><button type="button" data-tc="그린" class="tc-b-green">그린</button><button type="button" data-tc="빨강" class="tc-b-red">빨강</button><i class="tc-sep"></i><button type="button" data-bold title="한 번 더 누르면 보통 굵기로"><b>굵게</b></button><small>단어를 드래그해 고르면 그 부분만</small></div>
 <div class="icpop prpop" id="prPop" hidden><div class="icg-h">그래프 종류</div><div id="prList"></div></div>
 <div class="icpop prpop" id="bdPop" hidden><div class="icg-h">배지 색</div><div id="bdList"></div></div>
+<div class="icpop prpop" id="tnPop" hidden><div class="icg-h">강조색 (헤드라인 · 단계 박스 같이)</div><div id="tnList"></div></div>
 <div class="icpop fcpop" id="fcPop" hidden><div class="icg-h">얼굴 고르기 <small style="font-weight:400;color:var(--coolNeutral-500)">지난 호 인터뷰 3D 얼굴</small></div><div class="fcl" id="fcList"></div></div>
 <div class="icpop cppop" id="cpPop" hidden><div class="icl" id="cpList"></div></div>
 <div class="icpop" id="icPop" hidden><input type="text" id="icQ" placeholder="찾기 (예: 달력, 사람)"><div class="icl" id="icList"></div></div>
