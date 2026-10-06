@@ -1053,6 +1053,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         {k:'acSer', t:'num', label:'강조할 계열 번호 (왼쪽부터 1, 2 …)', w:'s', when: d => d.accent === 'bar'},
         {k:'delta', t:'select', label:'변화량 배지 (첫 계열 → 마지막 계열)', opts:[['none','없음'],['pct','변화율 (▼12.6%)'],['diff','차이 (▼18)']]},
         {k:'good', t:'select', label:'좋아진 방향 (좋아지면 그린 · 나빠지면 빨강 배지)', opts:[['down','줄어들면 좋음 (혈압 · 체중 등)'],['up','늘어나면 좋음 (참여율 · 수검률 등)'],['none','구분 없음 (모두 회색)']], when: d => d.delta && d.delta !== 'none'},
+        {k:'goodCol', t:'color1', label:'좋아졌을 때 배지 색 (비우면 그린)', when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
+        {k:'badCol', t:'color1', label:'나빠졌을 때 배지 색 (비우면 빨강)', when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
         {k:'ref', t:'text', label:'기준선 (값 | 이름 · 비우면 없음)', ph:'120 | 정상 기준'},
         {k:'labels', t:'select', label:'막대 위 숫자', opts:[['all','전부'],['accent','강조한 막대만'],['none','숨김']]},
         {k:'dec', t:'select', label:'소수점', opts:[['auto','입력한 그대로'],['0','정수로'],['1','한 자리'],['2','두 자리']]},
@@ -1094,7 +1096,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
           if (blank(r[1]) || blank(r[n])) return ''; const a = numOf(r[1]), b = numOf(r[n]), df = b - a; if (d.delta === 'pct' && !a) return '';
           const txt = d.delta === 'pct' ? `${Math.abs(df / a * 100).toFixed(fix == null ? 1 : fix)}%` : `${fmtV(Math.abs(df))}${unit}`;
           const good = d.good !== 'none' && df && (df < 0) === (d.good === 'down'), bad = d.good !== 'none' && df && !good;   // 나빠진 방향이면 빨강
-          return `<span class="vb-d${good ? ' good' : bad ? ' bad' : ''}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
+          const cc = good ? d.goodCol : bad ? d.badCol : '', cs = cc ? `border-color:var(${cc});color:var(${cc});background:var(--neutral-0);` : '';   // 배지 색을 직접 고른 경우
+          return `<span class="vb-d${good ? ' good' : bad ? ' bad' : ''}" style="${cs}bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
         };
         const gs = rows.map((r, ri) => { let top = 0, anyL = false;
           const bars = Array.from({length: n}, (_, s) => { if (blank(r[s + 1])) return '<i style="height:0"></i>';   // 값이 비어 있으면 자리만 비워 둠 (0으로 그리지 않음)
@@ -1841,6 +1844,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         const sec = (l, a) => a.length ? `<div class="field"><label>${l}</label><div class="icrows">${a.join('')}</div></div>` : '';
         const all = sec('글자', tx) + sec('세로축', ax) + sec('숫자 (막대 높이가 같이 바뀌어요)', vl) + sec('색 (눌러서 고르기)', cl);
         return all || '<div class="field"><div class="hint">이 블록에는 편집 표시(data-)가 없어서 입력칸을 만들 수 없어요. 새 스킬로 다시 만들면 글자 · 숫자 · 색을 여기서 고칠 수 있어요.</div></div>'; }
+      case 'color1': return `<div class="row">${cpBtn(path, v).replace('data-colpick=', 'data-colpath=')}${v ? `<button type="button" class="btn xs ghost" data-act="clearCol" data-path="${path}">기본으로</button>` : ''}</div>`;   // 색 하나 고르기 (비우면 기본)
       case 'colorslots': return `<div class="icrows">${Object.keys(v || {}).map(k => `<div class="icrow"><span>${esc(k)}</span>${cpBtn(`${path}.${esc(k)}`, v[k]).replace('data-colpick=', 'data-colpath=')}</div>`).join('')}</div>`;
       case 'colors': { const d = cur().data, ns = (f.names ? f.names(d) : []);
         return `<div class="icrows">${ns.map((nm, i) => `<div class="icrow"><span>${esc(String(nm))}</span>${cpBtn(i, (d.cols || [])[i])}</div>`).join('') || '<div class="hint">계열을 먼저 입력해 주세요.</div>'}</div>`; }
@@ -1913,6 +1917,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     if (!b) return;
     const d = cur().data, act = b.dataset.act;
     if (act === 'clearImg'){ setPath(d, b.dataset.path, ''); buildForm(); refresh(); return; }
+    if (act === 'clearCol'){ setPath(d, b.dataset.path, ''); buildForm(); refresh(); return; }   // 고른 색 지우고 기본 색으로
     const k = b.dataset.list, arr = d[k] || (d[k] = []), i = +b.dataset.i;
     const f = BLOCKS[cur().type].fields.find(x => x.k === k);
     if (act === 'add') arr.push(clone(f.add));
