@@ -587,6 +587,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .ch-plot.dt{margin-top:64px}   /* 변화량 배지 자리 */
 .nl .vb-d{position:absolute;left:50%;transform:translateX(-50%);padding:3px 10px;border-radius:999px;border:1px solid var(--coolNeutral-200);background:var(--coolNeutral-50);color:var(--coolNeutral-600);font-size:var(--fs-val);font-weight:700;line-height:1.4;white-space:nowrap}
 .nl .vb-d.good{border-color:var(--careGreen-500);background:var(--careGreen-10);color:var(--careGreen-700)}
+.nl .vb-d.bad{border-color:var(--careRed-500);background:var(--careRed-50);color:var(--careRed-500)}   /* 나빠진 방향 */
 .nl .vb-ref{position:absolute;left:0;right:0;border-top:1.5px dashed var(--careRed-400);pointer-events:none}
 .nl .vb-ref span{position:absolute;right:0;bottom:3px;padding:0 4px;background:var(--neutral-0);font-size:var(--fs-val);font-weight:700;color:var(--careRed-500);white-space:nowrap;pointer-events:auto}
 .nl .ch-x span.ac{font-weight:700;color:var(--careBlue-900)}
@@ -1051,7 +1052,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         {k:'acRow', t:'num', label:'강조할 항목 번호 (위 값 목록의 1, 2 …번째 줄)', w:'s', when: d => d.accent === 'row' || d.accent === 'bar'},
         {k:'acSer', t:'num', label:'강조할 계열 번호 (왼쪽부터 1, 2 …)', w:'s', when: d => d.accent === 'bar'},
         {k:'delta', t:'select', label:'변화량 배지 (첫 계열 → 마지막 계열)', opts:[['none','없음'],['pct','변화율 (▼12.6%)'],['diff','차이 (▼18)']]},
-        {k:'good', t:'select', label:'좋아진 방향 (배지 그린)', opts:[['down','줄어들면 좋음 (혈압 · 체중 등)'],['up','늘어나면 좋음 (참여율 · 수검률 등)'],['none','구분 없음 (모두 회색)']], when: d => d.delta && d.delta !== 'none'},
+        {k:'good', t:'select', label:'좋아진 방향 (좋아지면 그린 · 나빠지면 빨강 배지)', opts:[['down','줄어들면 좋음 (혈압 · 체중 등)'],['up','늘어나면 좋음 (참여율 · 수검률 등)'],['none','구분 없음 (모두 회색)']], when: d => d.delta && d.delta !== 'none'},
         {k:'ref', t:'text', label:'기준선 (값 | 이름 · 비우면 없음)', ph:'120 | 정상 기준'},
         {k:'labels', t:'select', label:'막대 위 숫자', opts:[['all','전부'],['accent','강조한 막대만'],['none','숨김']]},
         {k:'dec', t:'select', label:'소수점', opts:[['auto','입력한 그대로'],['0','정수로'],['1','한 자리'],['2','두 자리']]},
@@ -1092,8 +1093,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         const badge = (r, top, anyL) => {
           if (blank(r[1]) || blank(r[n])) return ''; const a = numOf(r[1]), b = numOf(r[n]), df = b - a; if (d.delta === 'pct' && !a) return '';
           const txt = d.delta === 'pct' ? `${Math.abs(df / a * 100).toFixed(fix == null ? 1 : fix)}%` : `${fmtV(Math.abs(df))}${unit}`;
-          const good = d.good !== 'none' && df && (df < 0) === (d.good === 'down');
-          return `<span class="vb-d${good ? ' good' : ''}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
+          const good = d.good !== 'none' && df && (df < 0) === (d.good === 'down'), bad = d.good !== 'none' && df && !good;   // 나빠진 방향이면 빨강
+          return `<span class="vb-d${good ? ' good' : bad ? ' bad' : ''}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
         };
         const gs = rows.map((r, ri) => { let top = 0, anyL = false;
           const bars = Array.from({length: n}, (_, s) => { if (blank(r[s + 1])) return '<i style="height:0"></i>';   // 값이 비어 있으면 자리만 비워 둠 (0으로 그리지 않음)
@@ -1517,7 +1518,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   const groupOf = t => { const i = GROUPS.findIndex(g => g[1].includes(t)); return i < 0 ? GROUPS.length - 1 : i; };
   const SEQ = ['--careBlue-900', '--careBlue-500', '--careBlue-200', '--coolNeutral-200', '--careBlue-700', '--careBlue-400'];
   // 세로 막대 계열 색 (계열 수 1~5개별, 연한 → 진한)
-  const VB_BLUE = [null, ['--careBlue-500'], ['--careBlue-200', '--careBlue-900'], ['--careBlue-200', '--careBlue-500', '--careBlue-900'],
+  const VB_BLUE = [null, ['--careBlue-500'], ['--careBlue-400', '--careBlue-900'], ['--careBlue-200', '--careBlue-500', '--careBlue-900'],   /* 2계열 첫 막대: 연한 파랑 400 (2026-10-06 은진님 지정, 가로 막대와 같은 톤) */
     ['--careBlue-200', '--careBlue-400', '--careBlue-600', '--careBlue-900'], ['--careBlue-200', '--careBlue-400', '--careBlue-500', '--careBlue-700', '--careBlue-900']];
   const VB_GRAY = [null, ['--coolNeutral-300'], ['--coolNeutral-200', '--coolNeutral-300'], ['--coolNeutral-200', '--coolNeutral-300', '--coolNeutral-500'],
     ['--coolNeutral-200', '--coolNeutral-300', '--coolNeutral-500', '--coolNeutral-600'], ['--coolNeutral-100', '--coolNeutral-200', '--coolNeutral-300', '--coolNeutral-500', '--coolNeutral-600']];
