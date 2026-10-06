@@ -209,7 +209,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tcbar .tc-b-blue{color:var(--careBlue-700)} .tcbar .tc-b-green{color:var(--careGreen-700)} .tcbar .tc-b-red{color:var(--careRed-500)} .tcbar .tc-b-orange{color:var(--careOrange-600)} .tcbar .tc-b-gray{color:var(--coolNeutral-600)}
 
 .fcpop{width:320px}
-.prpop{width:220px} .prpop #prList{display:flex;flex-direction:column;gap:2px}
+.prpop{width:220px} .prpop #prList,.prpop #bdList{display:flex;flex-direction:column;gap:2px}
+.prpop #bdList button{text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--neutral-900)}
+.prpop #bdList button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)} .prpop #bdList button.on{color:var(--careBlue-700);font-weight:700}
 .prpop #prList button{text-align:left;padding:8px 10px;border:1px solid transparent;border-radius:8px;background:none;cursor:pointer;font-size:13px;color:var(--neutral-900)}
 .prpop #prList button:hover{border-color:var(--careBlue-200);background:var(--careBlue-50)} .prpop #prList button.on{color:var(--careBlue-700);font-weight:700}
 .pv [data-pairpick]{cursor:pointer} .pv [data-pairpick]:hover{outline:2px dashed var(--careBlue-300);outline-offset:6px;border-radius:4px}
@@ -669,6 +671,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 
 /* ── 미리보기에서 바로 고치기 (저장 이미지에는 안 나옴) ── */
 #pvPc [data-e],#pvMo [data-e]{cursor:text}
+#pvPc [data-dbadge],#pvMo [data-dbadge]{cursor:pointer} #pvPc [data-dbadge]:hover,#pvMo [data-dbadge]:hover{outline:1.5px dashed var(--careBlue-400);outline-offset:2px}
 #pvPc [data-e]:hover,#pvMo [data-e]:hover{outline:1.5px dashed var(--careBlue-400);outline-offset:2px;border-radius:2px}
 #pvPc [data-e].editing,#pvMo [data-e].editing{outline:2px solid var(--careBlue-500);outline-offset:2px;background:var(--neutral-0);color:var(--neutral-900);white-space:pre-wrap;min-width:24px}
 #pvPc .cx [data-e].editing,#pvMo .cx [data-e].editing{outline-offset:-2px;box-shadow:0 0 0 3px var(--careBlue-100) inset}   /* 직접 만든 블록: 막대 칸처럼 바깥이 잘리는(overflow:hidden) 곳에서도 편집 중 테두리가 보이게 안쪽으로 */
@@ -1086,9 +1089,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         {k:'acRow', t:'num', label:'강조할 항목 번호 (위 값 목록의 1, 2 …번째 줄)', w:'s', when: d => d.accent === 'row' || d.accent === 'bar'},
         {k:'acSer', t:'num', label:'강조할 계열 번호 (왼쪽부터 1, 2 …)', w:'s', when: d => d.accent === 'bar'},
         {k:'delta', t:'select', label:'변화량 배지 (첫 계열 → 마지막 계열)', opts:[['none','없음'],['pct','변화율 (▼12.6%)'],['diff','차이 (▼18)']]},
-        {k:'good', t:'select', label:'좋아진 방향 (좋아지면 그린 · 나빠지면 빨강 배지)', opts:[['down','줄어들면 좋음 (혈압 · 체중 등)'],['up','늘어나면 좋음 (참여율 · 수검률 등)'],['none','구분 없음 (모두 회색)']], when: d => d.delta && d.delta !== 'none'},
-        {k:'goodCol', t:'select', label:'좋아졌을 때 배지 색', opts:[['green','그린'],['red','빨강'],['gray','회색']], when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
-        {k:'badCol', t:'select', label:'나빠졌을 때 배지 색', opts:[['red','빨강'],['green','그린'],['gray','회색']], when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
+        {k:'good', t:'select', label:'좋아진 방향 (좋아지면 그린 · 나빠지면 빨강 · 미리보기에서 배지를 누르면 하나씩 바꿔요)', opts:[['down','줄어들면 좋음 (혈압 · 체중 등)'],['up','늘어나면 좋음 (참여율 · 수검률 등)'],['none','구분 없음 (모두 회색)']], when: d => d.delta && d.delta !== 'none'},
         {k:'ref', t:'text', label:'기준선 (값 | 이름 · 비우면 없음)', ph:'120 | 정상 기준'},
         {k:'labels', t:'select', label:'막대 위 숫자', opts:[['all','전부'],['accent','강조한 막대만'],['none','숨김']]},
         {k:'dec', t:'select', label:'소수점', opts:[['auto','입력한 그대로'],['0','정수로'],['1','한 자리'],['2','두 자리']]},
@@ -1126,19 +1127,19 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         const bw0 = (mo ? [30, 22, 16, 13, 11] : [56, 44, 32, 26, 22])[n - 1];
         const bw = Math.max(6, Math.min(bw0, Math.floor((gw * 0.82 - gap * (n - 1)) / n)));
         const dl = d.delta !== 'none' && n >= 2;
-        const badge = (r, top, anyL) => {
+        const badge = (r, ri, top, anyL) => {
           if (blank(r[1]) || blank(r[n])) return ''; const a = numOf(r[1]), b = numOf(r[n]), df = b - a; if (d.delta === 'pct' && !a) return '';
           const txt = d.delta === 'pct' ? `${Math.abs(df / a * 100).toFixed(fix == null ? 1 : fix)}%` : `${fmtV(Math.abs(df))}${unit}`;
           const good = d.good !== 'none' && df && (df < 0) === (d.good === 'down'), bad = d.good !== 'none' && df && !good;   // 나빠진 방향이면 빨강
-          const BC = {green:' good', red:' bad', gray:''};   // 배지 색은 그린 · 빨강 · 회색 중에서만 (예전에 고른 다른 색은 기본으로)
-          const tone = good ? (BC[d.goodCol] ?? ' good') : bad ? (BC[d.badCol] ?? ' bad') : '';
-          return `<span class="vb-d${tone}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
+          // 배지 색은 방향대로 자동(좋아짐 그린 · 나빠짐 빨강 · 구분 없음 회색). 미리보기에서 배지를 눌러 하나만 바꾼 경우는 dTone
+          const BC = {green:' good', red:' bad', gray:''}, tone = BC[(d.dTone || {})[ri]] ?? (good ? ' good' : bad ? ' bad' : '');
+          return `<span class="vb-d${tone}" data-dbadge="${ri}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
         };
         const gs = rows.map((r, ri) => { let top = 0, anyL = false;
           const bars = Array.from({length: n}, (_, s) => { if (blank(r[s + 1])) return '<i style="height:0"></i>';   // 값이 비어 있으면 자리만 비워 둠 (0으로 그리지 않음)
             const v = numOf(r[s + 1]), p = Math.min(100, Math.max(0, v / max * 100)), L = showL(ri, s); top = Math.max(top, p); anyL = anyL || L;
             return `<i data-cp="${s}" style="height:${p.toFixed(3)}%;background:var(${colOf(ri, s)})">${L ? `<b style="color:var(${lblOf(ri, s)})"${EC('rows', ri, s + 1, 1)}>${fmtV(v)}${unit}</b>` : ''}</i>`; }).join('');
-          return `<div class="vb-g">${bars}${dl ? badge(r, top, anyL) : ''}</div>`; }).join('');
+          return `<div class="vb-g">${bars}${dl ? badge(r, ri, top, anyL) : ''}</div>`; }).join('');
         const ref = refV == null ? '' : `<div class="vb-ref" style="bottom:${(refV / max * 100).toFixed(3)}%"><span${E('ref')}>${rl ? esc(rl) + ' ' : ''}${fmtV(refV)}${unit}</span></div>`;
         const xs = rows.map((r, i) => `<span class="${ac === 'row' && i === aR ? 'ac' : ''}" style="left:${(i + 0.5) / rows.length * 100}%"${EC('rows', i, 0)}>${rich(r[0])}</span>`).join('');
         return `<div class="box ch">${chTitle(d)}<div class="ch-plot${dl ? ' dt' : ''}" style="--bw:${bw}px;--gap:${gap}px">${gridY(ticks, max, unit)}<div class="vb-gs">${gs}</div>${ref}</div><div class="ch-x">${xs}</div>${legend(names.slice(0, n), lgCols)}</div>`;
@@ -2121,6 +2122,15 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     pop.hidden = false; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
     pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, x != null ? x + 8 : a.left + 12)) + 'px'; pop.style.top = Math.max(8, Math.min(innerHeight - h - 8, y != null ? y + 8 : a.top + 12)) + 'px';
   }
+  // 세로 막대 변화량 배지: 미리보기에서 누르면 그 배지 하나만 그린 · 빨강 · 회색 (자동 = 좋아진 방향대로)
+  let bdTarget = null;
+  function openBadge(anchor){
+    const it = srcOf(anchor), ri = anchor.dataset.dbadge, now = (it.data.dTone || {})[ri] || '';
+    bdTarget = {it, ri}; const pop = $('bdPop');
+    $('bdList').innerHTML = [['', '자동 (좋아진 방향대로)'], ['green', '그린'], ['red', '빨강'], ['gray', '회색']].map(([k, l]) => `<button type="button" data-bd="${k}" class="${k === now ? 'on' : ''}">${l}</button>`).join('');
+    pop.hidden = false; const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+    pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left)) + 'px'; pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
+  }
   function bindIcons(){
     $('tcBar').addEventListener('mousedown', e => { const b = e.target.closest('[data-tc]'), g = e.target.closest('[data-bg]'); e.preventDefault();
       const hh = e.target.closest('[data-hhc]');
@@ -2145,6 +2155,10 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         if (typeof i === 'string'){ if (tk.dataset.tok){ if (i.startsWith('@hc:')) hkApply(d, i, tk.dataset.tok); else setPath(d, i, tk.dataset.tok); } buildForm(); refresh(); return; }
         d.cols = (d.cols || []).slice(); d.cols[i] = tk.dataset.tok || null; buildForm(); refresh(); return; }
       if (!e.target.closest('#cpPop') && !e.target.closest('[data-cp]') && !e.target.closest('[data-hcol]')) closeColors();
+      const bd = e.target.closest('#bdPop [data-bd]');
+      if (bd){ const t = bdTarget; $('bdPop').hidden = true; bdTarget = null;
+        if (t){ const m = {...(t.it.data.dTone || {})}; if (bd.dataset.bd) m[t.ri] = bd.dataset.bd; else delete m[t.ri]; t.it.data.dTone = m; buildForm(); refresh(); } return; }
+      if (!e.target.closest('#bdPop') && !e.target.closest('[data-dbadge]')){ $('bdPop').hidden = true; bdTarget = null; }
       const pk = e.target.closest('[data-pairkind]'); if (pk){ if (editing) endEdit(true); openPair(pk.dataset.pairkind, pk); return; }
       const pr = e.target.closest('#prPop [data-pr]'); if (pr){ const s = prTarget; $('prPop').hidden = true; prTarget = null; if (s) setPairType(s, pr.dataset.pr); return; }
       // 나란히 설정 · 왼쪽 · 오른쪽 그래프 탭
@@ -2164,6 +2178,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         const V = view(), g = pairChild(V, pp.dataset.pairpick);
         if (g && PAIR_OK.includes(g.type) && S.sub !== g.id){ S.sub = g.id; buildForm(); refresh(); }
         openPair(pp.dataset.pairpick, pp, e.clientX, e.clientY); return; }
+      const db = e.target.closest('[data-dbadge]'); if (db){ if (editing) endEdit(true); openBadge(db); return; }
       const cp = e.target.closest('[data-cp]'); if (cp && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors(+cp.dataset.cp, cp); return; }
       // 직접 만든 블록: data-color 표시가 있는 막대 · 띠 · 배지를 누르면 색 고르기 (글자를 누르면 글자 수정)
       const hc = e.target.closest('[data-hcol]'); if (hc && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors('@hc:' + hc.dataset.hcol, hc); return; }
@@ -2468,6 +2483,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
 </script>
 <div class="tcbar" id="tcBar" hidden><span>글자 색</span><button type="button" data-tc="">기본</button><button type="button" data-tc="블루" class="tc-b-blue">블루</button><button type="button" data-tc="그린" class="tc-b-green">그린</button><button type="button" data-tc="빨강" class="tc-b-red">빨강</button><i class="tc-sep"></i><button type="button" data-bold title="한 번 더 누르면 보통 굵기로"><b>굵게</b></button><small>단어를 드래그해 고르면 그 부분만</small></div>
 <div class="icpop prpop" id="prPop" hidden><div class="icg-h">그래프 종류</div><div id="prList"></div></div>
+<div class="icpop prpop" id="bdPop" hidden><div class="icg-h">배지 색</div><div id="bdList"></div></div>
 <div class="icpop fcpop" id="fcPop" hidden><div class="icg-h">얼굴 고르기 <small style="font-weight:400;color:var(--coolNeutral-500)">지난 호 인터뷰 3D 얼굴</small></div><div class="fcl" id="fcList"></div></div>
 <div class="icpop cppop" id="cpPop" hidden><div class="icl" id="cpList"></div></div>
 <div class="icpop" id="icPop" hidden><input type="text" id="icQ" placeholder="찾기 (예: 달력, 사람)"><div class="icl" id="icList"></div></div>
