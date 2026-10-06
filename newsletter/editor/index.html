@@ -1053,8 +1053,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         {k:'acSer', t:'num', label:'강조할 계열 번호 (왼쪽부터 1, 2 …)', w:'s', when: d => d.accent === 'bar'},
         {k:'delta', t:'select', label:'변화량 배지 (첫 계열 → 마지막 계열)', opts:[['none','없음'],['pct','변화율 (▼12.6%)'],['diff','차이 (▼18)']]},
         {k:'good', t:'select', label:'좋아진 방향 (좋아지면 그린 · 나빠지면 빨강 배지)', opts:[['down','줄어들면 좋음 (혈압 · 체중 등)'],['up','늘어나면 좋음 (참여율 · 수검률 등)'],['none','구분 없음 (모두 회색)']], when: d => d.delta && d.delta !== 'none'},
-        {k:'goodCol', t:'color1', label:'좋아졌을 때 배지 색 (비우면 그린)', when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
-        {k:'badCol', t:'color1', label:'나빠졌을 때 배지 색 (비우면 빨강)', when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
+        {k:'goodCol', t:'select', label:'좋아졌을 때 배지 색', opts:[['green','그린'],['red','빨강'],['gray','회색']], when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
+        {k:'badCol', t:'select', label:'나빠졌을 때 배지 색', opts:[['red','빨강'],['green','그린'],['gray','회색']], when: d => d.delta && d.delta !== 'none' && d.good !== 'none'},
         {k:'ref', t:'text', label:'기준선 (값 | 이름 · 비우면 없음)', ph:'120 | 정상 기준'},
         {k:'labels', t:'select', label:'막대 위 숫자', opts:[['all','전부'],['accent','강조한 막대만'],['none','숨김']]},
         {k:'dec', t:'select', label:'소수점', opts:[['auto','입력한 그대로'],['0','정수로'],['1','한 자리'],['2','두 자리']]},
@@ -1096,8 +1096,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
           if (blank(r[1]) || blank(r[n])) return ''; const a = numOf(r[1]), b = numOf(r[n]), df = b - a; if (d.delta === 'pct' && !a) return '';
           const txt = d.delta === 'pct' ? `${Math.abs(df / a * 100).toFixed(fix == null ? 1 : fix)}%` : `${fmtV(Math.abs(df))}${unit}`;
           const good = d.good !== 'none' && df && (df < 0) === (d.good === 'down'), bad = d.good !== 'none' && df && !good;   // 나빠진 방향이면 빨강
-          const cc = good ? d.goodCol : bad ? d.badCol : '', cs = cc ? `border-color:var(${cc});color:var(${cc});background:var(--neutral-0);` : '';   // 배지 색을 직접 고른 경우
-          return `<span class="vb-d${good ? ' good' : bad ? ' bad' : ''}" style="${cs}bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
+          const BC = {green:' good', red:' bad', gray:''};   // 배지 색은 그린 · 빨강 · 회색 중에서만 (예전에 고른 다른 색은 기본으로)
+          const tone = good ? (BC[d.goodCol] ?? ' good') : bad ? (BC[d.badCol] ?? ' bad') : '';
+          return `<span class="vb-d${tone}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
         };
         const gs = rows.map((r, ri) => { let top = 0, anyL = false;
           const bars = Array.from({length: n}, (_, s) => { if (blank(r[s + 1])) return '<i style="height:0"></i>';   // 값이 비어 있으면 자리만 비워 둠 (0으로 그리지 않음)
