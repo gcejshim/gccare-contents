@@ -1109,11 +1109,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
         const aR = (parseInt(d.acRow, 10) || 1) - 1, aS = Math.min(n, parseInt(d.acSer, 10) || n) - 1;
         const base = (d.palette === 'mute' ? VB_GRAY : VB_BLUE)[n];
         const isAc = (r, s) => ac === 'last' ? s === n - 1 : ac === 'row' ? r === aR : ac === 'bar' ? r === aR && s === aS : false;
-        // 변화량 배지 + 좋아진 방향이 정해져 있으면, 나빠진 항목의 강조 막대(마지막 계열)는 녹색 대신 빨강 (배지와 같은 의미)
-        const worse = ri => { const r = rows[ri]; if (!r || d.delta === 'none' || d.good === 'none' || n < 2 || blank(r[1]) || blank(r[n])) return false; const df = numOf(r[n]) - numOf(r[1]); return !!df && (df < 0) !== (d.good === 'down'); };
-        const badAc = (r, s) => ac === 'last' && s === n - 1 && worse(r);
-        const colOf = (r, s) => d.cols && d.cols[s] ? d.cols[s] : ac === 'row' ? (r === aR ? VB_BLUE[n][s] : VB_GRAY[n][s]) : badAc(r, s) ? '--careRed-400' : isAc(r, s) ? '--careGreen-500' : base[s];
-        const lblOf = (r, s) => !isAc(r, s) ? (ac === 'row' ? '--coolNeutral-500' : '--neutral-900') : ac === 'row' ? '--careBlue-900' : badAc(r, s) ? '--careRed-500' : '--careGreen-700';
+        const colOf = (r, s) => d.cols && d.cols[s] ? d.cols[s] : ac === 'row' ? (r === aR ? VB_BLUE[n][s] : VB_GRAY[n][s]) : isAc(r, s) ? '--careGreen-500' : base[s];
+        const lblOf = (r, s) => !isAc(r, s) ? (ac === 'row' ? '--coolNeutral-500' : '--neutral-900') : ac === 'row' ? '--careBlue-900' : '--careGreen-700';
         const showL = (r, s) => d.labels === 'none' ? false : d.labels === 'accent' && ac !== 'none' ? isAc(r, s) : true;
         const lgCols = Array.from({length: n}, (_, s) => uc(d, s, ac === 'row' ? VB_BLUE[n][s] : ac === 'last' && s === n - 1 ? '--careGreen-500' : base[s]));
         const fix = d.dec === 'auto' || d.dec == null ? null : +d.dec;
