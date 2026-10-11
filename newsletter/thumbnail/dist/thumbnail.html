@@ -298,7 +298,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
             <div class="seg" id="genStyle"><button data-v="scene3d">3D 배경 포함</button><button data-v="obj3d">3D 오브젝트형</button><button data-v="photo">실사형</button><button data-v="objPhoto">실사 오브젝트형</button></div>
           </div>
           <div class="field"><label>무엇을 그릴까요?</label>
-            <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 운동화와 걷기 앱이 켜진 휴대폰 (비워 두면 타이틀로 정해요)"></textarea>
+            <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 펼쳐진 공시 책자, 체크 방패. 책자 제목 &quot;안전보건 공시&quot; (따옴표 글자만 그림에 들어가요 · 비워 두면 타이틀로 정해요)"></textarea>
           </div>
         </div>
         <div class="field"><label>참고 이미지 <small style="font-weight:400;color:var(--neutral-500)">참고 이미지를 선택하면 그 스타일에 맞추어 이미지가 그려져요</small></label>
@@ -800,7 +800,10 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     L.push('', '[텍스트]');
     L.push('- GC 로고, 썸네일 제목 · 문장, 워터마크는 넣지 않는다.');
     // 글자 없음이 원칙 (CLAUDE.md 디자인 원칙). 10/8 '짧은 UI 글자 허용' → low 화질에서 깨진 가짜 영어가 나와 2026-10-12 되돌림
-    L.push('- 이미지 안에는 어떤 글자 · 숫자 · 영어도 넣지 않는다. 휴대폰 화면 · 문서는 막대 · 줄 · 아이콘 모양으로만 표현한다.');
+    // 「무엇을 그릴까요?」에 따옴표로 적은 글자만 넣기 (2026-10-12 사용자 결정). 없으면 글자 없음
+    const quoted = [...desc.matchAll(/["“”]([^"“”\n]{1,30})["“”]/g)].map(m => m[1].trim()).filter(Boolean);
+    if (quoted.length) L.push(`- 그릴 내용에 따옴표로 적은 글자(${quoted.map(q => `"${q}"`).join(', ')})만 해당 물건 위에 정확한 한글로 또렷하게 넣는다. 그 밖의 글자 · 숫자 · 영어는 넣지 않고, 나머지 화면 · 문서는 막대 · 줄 · 아이콘 모양으로만 표현한다.`);
+    else L.push('- 이미지 안에는 어떤 글자 · 숫자 · 영어도 넣지 않는다. 휴대폰 화면 · 문서는 막대 · 줄 · 아이콘 모양으로만 표현한다.');
     L.push('- 주제 이해에 필요하지 않은 수치나 사실은 지어내지 않는다.');
 
     if (ref || chars.length){
