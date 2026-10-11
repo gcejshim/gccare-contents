@@ -43,61 +43,6 @@
    }
   },
   {
-   "id": "35rib83",
-   "type": "kv",
-   "contents": "01",
-   "no": 4,
-   "bg": "gray",
-   "fmt": "png",
-   "data": {
-    "items": [
-     {
-      "title": "사업주 과태료 (일반건강진단 기준)",
-      "rows": "1차 위반 (1인당) | 10만 원\n2차 위반 (1인당) | 20만 원\n3차 위반 (1인당) | 30만 원"
-     },
-     {
-      "title": "근로자 과태료 (귀책이 근로자에게 있을 때)",
-      "rows": "1차 위반 | 5만 원\n2차 위반 | 10만 원\n3차 위반 | 15만 원"
-     }
-    ]
-   }
-  },
-  {
-   "id": "htjl3q3",
-   "type": "list",
-   "contents": "01",
-   "no": 3,
-   "bg": "gray",
-   "fmt": "png",
-   "data": {
-    "title": "지금 다시 확인할 변동 사항",
-    "headIcon": "SquareCheckBig",
-    "items": [
-     {
-      "icon": "Users",
-      "text": "연초 명단 확정 이후 입사·퇴사·휴직·복직한 임직원"
-     },
-     {
-      "icon": "Building2",
-      "text": "소속 조직이나 사업장이 변경된 임직원"
-     },
-     {
-      "icon": "FileCheck",
-      "text": "외부 기관에서 검진을 완료했지만 아직 반영되지 않은 임직원"
-     },
-     {
-      "icon": "IdCard",
-      "text": "사번·소속·연락처 등 기본 정보에 오류가 있는 임직원"
-     },
-     {
-      "icon": "ShieldPlus",
-      "text": "특수건강진단 대상자 분리 확인"
-     }
-    ]
-   },
-   "fresh": true
-  },
-  {
    "id": "m8bzyw9",
    "type": "html",
    "contents": "02",
@@ -135,6 +80,41 @@
     "htmlMo": "<style>.c{background:#fff;border-radius:16px;padding:18px 14px}.t{font-size:18px;font-weight:700}.t .ts{font-size:16px;font-weight:500;color:var(--coolNeutral-600);margin-left:8px}.lg{display:flex;flex-wrap:wrap;gap:6px 12px;margin:14px 0 12px;font-size:12px;color:var(--coolNeutral-600)}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-2px}.r{display:flex;align-items:center;gap:16px;margin-top:14px}.rl{width:auto;flex:none;font-size:14px;font-weight:700;text-align:left;line-height:1.35}.bar{flex:1;display:flex;height:36px;border-radius:8px;overflow:hidden}.sg{display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden}.av{flex:none;width:auto;height:auto;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--careGreen-10);border-radius:8px;font-size:16px;font-weight:700;color:var(--careGreen-700);padding:4px 10px}.ah{display:flex;justify-content:flex-end}.ah span{width:110px;text-align:center;font-size:14px;font-weight:600;color:var(--careGreen-700)}.mh{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.av small{font-size:12px;font-weight:500}.ft{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:14px;font-size:12px;color:var(--coolNeutral-600)}</style><div class=\"c\"><div class=\"t\"><span data-key=\"a1\" data-edit=\"text\" data-label=\"글자 1\">직장 내 술자리 횟수·음주량 변화</span><span class=\"ts\" data-key=\"a2\" data-edit=\"text\" data-label=\"글자 2\" data-sub=\"\">- 주 52시간제 도입 전후</span></div><div class=\"lg\"><span data-key=\"a3\" data-edit=\"text\" data-label=\"글자 3\"><i style=\"background:var(--coolNeutral-600)\" data-color=\"--coolNeutral-400\" data-ckey=\"ccoolNeutral-600\" data-clabel=\"coolNeutral 600 쓰는 곳\"></i>해당 없음</span><span data-key=\"a4\" data-edit=\"text\" data-label=\"글자 4\"><i style=\"background:var(--careBlue-200)\" data-color=\"--careBlue-200\" data-ckey=\"ccareBlue-200\" data-clabel=\"careBlue 200 쓰는 곳\"></i>증가(1+2점)</span><span data-key=\"a5\" data-edit=\"text\" data-label=\"글자 5\"><i style=\"background:var(--careBlue-50)\" data-color=\"--careBlue-50\" data-ckey=\"ccareBlue-50\" data-clabel=\"careBlue 50 쓰는 곳\"></i>변화 없음(3점)</span><span data-key=\"a6\" data-edit=\"text\" data-label=\"글자 6\"><i style=\"background:var(--careBlue-500)\" data-color=\"--careBlue-500\" data-ckey=\"ccareBlue-500\" data-clabel=\"careBlue 500 쓰는 곳\"></i>감소(4+5점)</span></div><div class=\"mh\"><div class=\"rl\" data-key=\"a8\" data-edit=\"text\" data-label=\"글자 8\">직장 내 술자리 횟수</div><div class=\"av\" data-color=\"--careGreen-10\" data-ckey=\"ccareGreen-10\" data-clabel=\"careGreen 10 쓰는 곳\"><small data-key=\"a7\" data-edit=\"text\" data-label=\"글자 7\">5점 평균(점)</small><span data-key=\"a13\" data-edit=\"value\" data-label=\"숫자 5\">3.48</span></div></div><div class=\"bar\" style=\"margin-top:6px\" data-stack=\"\"><div class=\"sg\" style=\"width:11.78%;background:var(--coolNeutral-600);color:#fff\" data-key=\"a9\" data-edit=\"value\" data-label=\"숫자 1\" data-color=\"--coolNeutral-400\" data-ckey=\"ccoolNeutral-600\" data-clabel=\"coolNeutral 600 쓰는 곳\" data-seg=\"\">11.8</div><div class=\"sg\" style=\"width:8.28%;background:var(--careBlue-200);color:var(--careBlue-900)\" data-key=\"a10\" data-edit=\"value\" data-label=\"숫자 2\" data-color=\"--careBlue-200\" data-ckey=\"ccareBlue-200\" data-clabel=\"careBlue 200 쓰는 곳\" data-seg=\"\">8.3</div><div class=\"sg\" style=\"width:43.71%;background:var(--careBlue-50);color:var(--careBlue-900)\" data-key=\"a11\" data-edit=\"value\" data-label=\"숫자 3\" data-color=\"--careBlue-50\" data-ckey=\"ccareBlue-50\" data-clabel=\"careBlue 50 쓰는 곳\" data-seg=\"\">43.8</div><div class=\"sg\" style=\"width:36.23%;background:var(--careBlue-500);color:#fff\" data-key=\"a12\" data-edit=\"value\" data-label=\"숫자 4\" data-color=\"--careBlue-500\" data-ckey=\"ccareBlue-500\" data-clabel=\"careBlue 500 쓰는 곳\" data-seg=\"\">36.3</div></div><div class=\"mh\"><div class=\"rl\" data-key=\"a14\" data-edit=\"text\" data-label=\"글자 9\">직장 술자리 음주량</div><div class=\"av\" data-color=\"--careGreen-10\" data-ckey=\"ccareGreen-10\" data-clabel=\"careGreen 10 쓰는 곳\"><small data-key=\"a22\" data-edit=\"text\" data-label=\"모바일 글자 · 5점 평균(점)\">5점 평균(점)</small><span data-key=\"a19\" data-edit=\"value\" data-label=\"숫자 10\">3.40</span></div></div><div class=\"bar\" style=\"margin-top:6px\" data-stack=\"\"><div class=\"sg\" style=\"width:14.49%;background:var(--coolNeutral-600);color:#fff\" data-key=\"a15\" data-edit=\"value\" data-label=\"숫자 6\" data-color=\"--coolNeutral-400\" data-ckey=\"ccoolNeutral-600\" data-clabel=\"coolNeutral 600 쓰는 곳\" data-seg=\"\">14.5</div><div class=\"sg\" style=\"width:9.49%;background:var(--careBlue-200);color:var(--careBlue-900)\" data-key=\"a16\" data-edit=\"value\" data-label=\"숫자 7\" data-color=\"--careBlue-200\" data-ckey=\"ccareBlue-200\" data-clabel=\"careBlue 200 쓰는 곳\" data-seg=\"\">9.5</div><div class=\"sg\" style=\"width:44.26%;background:var(--careBlue-50);color:var(--careBlue-900)\" data-key=\"a17\" data-edit=\"value\" data-label=\"숫자 8\" data-color=\"--careBlue-50\" data-ckey=\"ccareBlue-50\" data-clabel=\"careBlue 50 쓰는 곳\" data-seg=\"\">44.3</div><div class=\"sg\" style=\"width:31.77%;background:var(--careBlue-500);color:#fff\" data-key=\"a18\" data-edit=\"value\" data-label=\"숫자 9\" data-color=\"--careBlue-500\" data-ckey=\"ccareBlue-500\" data-clabel=\"careBlue 500 쓰는 곳\" data-seg=\"\">31.8</div></div><div class=\"ft\"><span data-key=\"a20\" data-edit=\"text\" data-label=\"글자 10\">Base: 서울시 임금근로자(n=400), Unit: %</span><span data-key=\"a21\" data-edit=\"text\" data-label=\"글자 11\">(자료=서울연구원)</span></div></div>",
     "html": "<style>.c{background:#fff;border-radius:16px;padding:28px 32px}.t{font-size:22px;font-weight:700}.t .ts{font-size:18px;font-weight:500;color:var(--coolNeutral-600);margin-left:8px}.lg{display:flex;flex-wrap:wrap;gap:8px 20px;margin:20px 0 16px;font-size:14px;color:var(--coolNeutral-600)}.lg i{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:6px;vertical-align:-2px}.r{display:flex;align-items:center;gap:16px;margin-top:14px}.rl{width:150px;flex:none;font-size:16px;font-weight:700;text-align:right;line-height:1.35}.bar{flex:1;display:flex;height:52px;border-radius:8px;overflow:hidden}.sg{display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden}.av{flex:none;width:110px;height:52px;display:flex;align-items:center;justify-content:center;gap:6px;background:var(--careGreen-10);border-radius:8px;font-size:22px;font-weight:700;color:var(--careGreen-700);padding:0}.ah{display:flex;justify-content:flex-end}.ah span{width:110px;text-align:center;font-size:14px;font-weight:600;color:var(--careGreen-700)}.mh{display:flex;justify-content:space-between;align-items:center;margin-top:12px}.av small{font-size:12px;font-weight:500}.ft{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;margin-top:20px;font-size:14px;color:var(--coolNeutral-600)}</style><div class=\"c\"><div class=\"t\"><span data-key=\"a1\" data-edit=\"text\" data-label=\"글자 1\">직장 내 술자리 횟수·음주량 변화</span><span class=\"ts\" data-key=\"a2\" data-edit=\"text\" data-label=\"글자 2\" data-sub=\"\">- 주 52시간제 도입 전후</span></div><div class=\"lg\"><span data-key=\"a3\" data-edit=\"text\" data-label=\"글자 3\"><i style=\"background:var(--coolNeutral-600)\" data-color=\"--coolNeutral-400\" data-ckey=\"ccoolNeutral-600\" data-clabel=\"coolNeutral 600 쓰는 곳\"></i>해당 없음</span><span data-key=\"a4\" data-edit=\"text\" data-label=\"글자 4\"><i style=\"background:var(--careBlue-200)\" data-color=\"--careBlue-200\" data-ckey=\"ccareBlue-200\" data-clabel=\"careBlue 200 쓰는 곳\"></i>증가(1+2점)</span><span data-key=\"a5\" data-edit=\"text\" data-label=\"글자 5\"><i style=\"background:var(--careBlue-50)\" data-color=\"--careBlue-50\" data-ckey=\"ccareBlue-50\" data-clabel=\"careBlue 50 쓰는 곳\"></i>변화 없음(3점)</span><span data-key=\"a6\" data-edit=\"text\" data-label=\"글자 6\"><i style=\"background:var(--careBlue-500)\" data-color=\"--careBlue-500\" data-ckey=\"ccareBlue-500\" data-clabel=\"careBlue 500 쓰는 곳\"></i>감소(4+5점)</span></div><div class=\"ah\"><span data-key=\"a7\" data-edit=\"text\" data-label=\"글자 7\">5점 평균(점)</span></div><div class=\"r\"><div class=\"rl\" data-key=\"a8\" data-edit=\"text\" data-label=\"글자 8\">직장 내 술자리<br>횟수</div><div class=\"bar\" data-stack=\"\"><div class=\"sg\" style=\"width:11.78%;background:var(--coolNeutral-600);color:#fff\" data-key=\"a9\" data-edit=\"value\" data-label=\"숫자 1\" data-color=\"--coolNeutral-400\" data-ckey=\"ccoolNeutral-600\" data-clabel=\"coolNeutral 600 쓰는 곳\" data-seg=\"\">11.8</div><div class=\"sg\" style=\"width:8.28%;background:var(--careBlue-200);color:var(--careBlue-900)\" data-key=\"a10\" data-edit=\"value\" data-label=\"숫자 2\" data-color=\"--careBlue-200\" data-ckey=\"ccareBlue-200\" data-clabel=\"careBlue 200 쓰는 곳\" data-seg=\"\">8.3</div><div class=\"sg\" style=\"width:43.71%;background:var(--careBlue-50);color:var(--careBlue-900)\" data-key=\"a11\" data-edit=\"value\" data-label=\"숫자 3\" data-color=\"--careBlue-50\" data-ckey=\"ccareBlue-50\" data-clabel=\"careBlue 50 쓰는 곳\" data-seg=\"\">43.8</div><div class=\"sg\" style=\"width:36.23%;background:var(--careBlue-500);color:#fff\" data-key=\"a12\" data-edit=\"value\" data-label=\"숫자 4\" data-color=\"--careBlue-500\" data-ckey=\"ccareBlue-500\" data-clabel=\"careBlue 500 쓰는 곳\" data-seg=\"\">36.3</div></div><div class=\"av\" data-key=\"a13\" data-edit=\"value\" data-label=\"숫자 5\" data-color=\"--careGreen-10\" data-ckey=\"ccareGreen-10\" data-clabel=\"careGreen 10 쓰는 곳\">3.48</div></div><div class=\"r\"><div class=\"rl\" data-key=\"a14\" data-edit=\"text\" data-label=\"글자 9\">직장 술자리<br>음주량</div><div class=\"bar\" data-stack=\"\"><div class=\"sg\" style=\"width:14.49%;background:var(--coolNeutral-600);color:#fff\" data-key=\"a15\" data-edit=\"value\" data-label=\"숫자 6\" data-color=\"--coolNeutral-400\" data-ckey=\"ccoolNeutral-600\" data-clabel=\"coolNeutral 600 쓰는 곳\" data-seg=\"\">14.5</div><div class=\"sg\" style=\"width:9.49%;background:var(--careBlue-200);color:var(--careBlue-900)\" data-key=\"a16\" data-edit=\"value\" data-label=\"숫자 7\" data-color=\"--careBlue-200\" data-ckey=\"ccareBlue-200\" data-clabel=\"careBlue 200 쓰는 곳\" data-seg=\"\">9.5</div><div class=\"sg\" style=\"width:44.26%;background:var(--careBlue-50);color:var(--careBlue-900)\" data-key=\"a17\" data-edit=\"value\" data-label=\"숫자 8\" data-color=\"--careBlue-50\" data-ckey=\"ccareBlue-50\" data-clabel=\"careBlue 50 쓰는 곳\" data-seg=\"\">44.3</div><div class=\"sg\" style=\"width:31.77%;background:var(--careBlue-500);color:#fff\" data-key=\"a18\" data-edit=\"value\" data-label=\"숫자 9\" data-color=\"--careBlue-500\" data-ckey=\"ccareBlue-500\" data-clabel=\"careBlue 500 쓰는 곳\" data-seg=\"\">31.8</div></div><div class=\"av\" data-key=\"a19\" data-edit=\"value\" data-label=\"숫자 10\" data-color=\"--careGreen-10\" data-ckey=\"ccareGreen-10\" data-clabel=\"careGreen 10 쓰는 곳\">3.40</div></div><div class=\"ft\"><span data-key=\"a20\" data-edit=\"text\" data-label=\"글자 10\">Base: 서울시 임금근로자(n=400), Unit: %</span><span data-key=\"a21\" data-edit=\"text\" data-label=\"글자 11\">(자료=서울연구원)</span></div></div>"
    }
+  },
+  {
+   "id": "eckhuah",
+   "type": "list",
+   "contents": "01",
+   "no": 3,
+   "bg": "gray",
+   "fmt": "png",
+   "data": {
+    "title": "지금 다시 확인할 변동 사항",
+    "headIcon": "SquareCheckBig",
+    "items": [
+     {
+      "icon": "Users",
+      "text": "연초 명단 확정 이후 입사·퇴사·휴직·복직한 임직원"
+     },
+     {
+      "icon": "Building2",
+      "text": "소속 조직이나 사업장이 변경된 임직원"
+     },
+     {
+      "icon": "FileCheck",
+      "text": "외부 기관에서 검진을 완료했지만 아직 반영되지 않은 임직원"
+     },
+     {
+      "icon": "IdCard",
+      "text": "사번·소속·연락처 등 기본 정보에 오류가 있는 임직원"
+     },
+     {
+      "icon": "ShieldPlus",
+      "text": "특수건강진단 대상자 분리 확인"
+     }
+    ]
+   },
+   "fresh": true
   }
  ],
  "sub": null
