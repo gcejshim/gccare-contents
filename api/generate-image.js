@@ -131,7 +131,7 @@ module.exports = async function handler(req, res) {
     let content, size, background, quality;
     if (kind === 'thumb') {
       content = buildThumbContent(body);
-      quality = 'medium';   // 뉴스레터 썸네일만 중간 화질 (2026-10-08 시험). 카드뉴스는 low 그대로
+      quality = 'low';   // 참고 이미지(styleRef)를 넣으면 low로도 충분한지 시험 (2026-10-12, medium은 10/8 시험값)
       size = body.layout === 'object' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
     } else if (kind === 'header') {
