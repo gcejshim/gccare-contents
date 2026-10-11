@@ -2,7 +2,7 @@
 
 디자이너 대신 **운영자가 직접** 뉴스레터 이미지를 만들 수 있게 하는 도구 모음. 카드뉴스 편집기(`../cards/cardnews_editor_v1.0.html`) 구조를 응용한 단일 HTML 도구 + claude.ai 스킬.
 
-> **현재 단계 (2026-10-02, v1.4): 프로토타입 → 팀장 보고 → 상세 구축.** git은 **main 하나로만** 작업(브랜치 만들지 않음, 사용자 지정). 통합본 `app/dist/newsletter-maker.html`이 최신 (**파일 이름 고정**, 버전은 왼쪽 아래 표시 · README 버전 표). 다음 할 일은 맨 아래 "진행 순서" 참고.
+> **현재 단계 (2026-10-02, v1.4): 프로토타입 → 팀장 보고 → 상세 구축.** git은 **main 하나로만** 작업(브랜치 만들지 않음, 사용자 지정). 통합본 `app/dist/gccare-insight-studio.html`(GC Care Insight Studio, 2026-10-11 이름 변경 · 예전 newsletter-maker.html)이 최신 (**파일 이름 고정**, 버전은 왼쪽 아래 표시 · README 버전 표). 다음 할 일은 맨 아래 "진행 순서" 참고.
 
 ## 산출물 규격 (확정)
 
@@ -61,10 +61,10 @@ newsletter/
 │  ├─ index.html       개발본. 블록 정의는 BLOCKS (list·rank·hbar·table·hero·steps·vbar·stack·line·donut·html·raw·compare)
 │  ├─ assets-editor.js 한글 로고(logoKoBlue/White) · 상단 바 한글 CI(logoTopKo)
 │  └─ build.py         → dist/image-editor.html (이름 고정 · thumbnail/vendor · assets.js 공유)
-├─ app/                통합본 "뉴스레터 만들기" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF 준비 중 · 에셋 · 가이드)
+├─ app/                통합본 "GC Care Insight Studio" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF 준비 중 · 에셋 · 가이드)
 │  ├─ index.html       개발본. 두 도구를 iframe으로 띄우고 postMessage로 호수 공유 · 저장 기록 · 호 전체 저장/열기
 │  ├─ make_samples.py  10~14호 완성 이미지 → samples.js (에셋 › 샘플 모아보기, 2배 WebP). 회사 PC 월별 폴더 또는 `--figma DIR`(Figma 2배 PNG, 파일명=노드 ID, 매핑은 FIGMA 딕셔너리). 11호 contents01_p03 · contents02_p01은 Figma에 납품본이 없어 예전 JPG 유지
-│  └─ build.py         → dist/newsletter-maker.html (이름 고정 · 폰트·라이브러리는 한 번만 넣고 blob URL로 두 도구가 공유, 약 5.8MB)
+│  └─ build.py         → dist/gccare-insight-studio.html (이름 고정 · 폰트·라이브러리는 한 번만 넣고 blob URL로 두 도구가 공유, 약 5.8MB)
 ├─ skills/gc-newsletter-thumbnail/   claude.ai 스킬 (기획안 → 썸네일 JSON). 수정 후 zip 다시 만들기
 ├─ skills/gc-newsletter-block/       claude.ai 스킬 (기획안 → 콘텐츠 블록 nl-block JSON, 블록에 없으면 html 블록). 편집기에 Ctrl+V
 ├─ docs/               GPT 지침(ChatGPT 배경 이미지), 컬러 매핑, 13·14호 원본 대비 비교 이미지
@@ -76,9 +76,14 @@ newsletter/
 ## 썸네일 도구 구조 메모
 
 - 상태 `S` = `{v:1, issue, no, title, titleSize(26|22), preset, customBg, layout(scene|object|photo), image, img{scale,x,y}, chipsOn, chips[3], sceneBlend, gen{style,desc}}` → 앞부분이 스킬 JSON과 동일 (`sceneBlend`·`gen`은 도구 전용, 없어도 불러오기 됨)
+- 한 호 묶음(2026-10-08): `BOOK` = 콘텐츠 번호 → `S`. 콘텐츠 번호를 바꾸면 그 자리로 전환. 작업 파일 · 자동저장 · 통합본 getState는 `{v:1, kind:'nl-thumbs', issue, cur, items:[S…]}`, 한 장짜리(예전 파일 · 스킬 JSON)는 그 번호 자리에 들어감(다른 호면 묶음 새로 시작). 버튼은 편집기와 같게 [작업 파일 열기 · 저장] [이 이미지 저장] [전체 이미지 저장]
 - 프리셋: lightBlue, white, navy, blue, lightGreen, green + `custom`(스포이트)
 - 장면형: 이미지가 배경 → 글자색은 이미지 밝기로 자동, 프리셋 클릭 시 사진형으로 전환. 단 `sceneBlend`(바로 만들기로 배경색에 맞춰 만든 장면형)면 프리셋 유지 + 왼쪽을 배경색으로 페이드
-- **이미지 만들기 카드**(2배 미리보기 자리, 2026-10-02): 배경색 · 레이아웃 · 스타일(3d|photoObject|photoPeople) · 그릴 것 → `buildPrompt()`가 한국어 ChatGPT 프롬프트 작성(직접 수정 가능, 타이틀은 "내용 참고용"으로 분리). 3D에서 여자 · 남자 · 의사 키워드 → `charRefs()`가 `assets.js`의 `charFemale`·`charMale`(카드뉴스 편집기 캐릭터) 감지 + 내려받기
+- **이미지 만들기 카드**(2배 미리보기 자리, 2026-10-02): 배경색 · 이미지 유형 · 그릴 것 → `buildPrompt()`가 한국어 ChatGPT 프롬프트 작성(직접 수정 가능, 타이틀은 "내용 참고용"으로 분리).
+  - 이미지 유형 4종(2026-10-08, `GEN_TYPES`, 이름 · 순서 2026-10-11 사용자 지정): 3D 배경 포함 `scene3d` · 3D 오브젝트형 `obj3d` · 실사형 `photo` · 실사 오브젝트형 `objPhoto`. 유형 ↔ ④ 레이아웃 연동(오브젝트형 ↔ 장면형). 예전 값(3d|photoObject|photoPeople)은 불러올 때 변환
+  - 프롬프트 구성: [주제] [구성](중심 1 + 보조 최대 2) [인물] [배경과 색](배경 이름 + HEX, 밝은/어두운 배경별 명암, 색 고정 없음) [스타일] [구도](배경 포함: 왼쪽 55% 비움 · 오른쪽 45% · 안전 여백 / 오브젝트: 가운데 · 투명 여백) [텍스트](로고 · 제목 금지, 대상 안 짧은 글자 허용) [참고 이미지]. 예전 '글자 · 숫자 전부 금지', '블루 중심', '물건 2~3개'는 뺌. API로 보내는 크기 · 투명 배경도 같은 유형에서 정함 3D에서 여자 · 남자 · 의사 키워드 → `charRefs()`가 `assets.js`의 `charFemale`·`charMale`(카드뉴스 편집기 캐릭터) 감지 + 내려받기
+  - **참고 이미지(2026-10-11)**: 지난 호(8~14호) 썸네일에서 글자 레이어(Container)를 뺀 배경 16장 = `thumbnail/assets/refs/*.png`(3배 원본, 피그마 `2095-1957`) → `make_refs.py`가 2배 WebP + 배경색 · 유형 · 스타일 설명으로 `refs.js`(window.REFS). AI 이미지 생성하기에서 지금 배경색 · 유형에 맞는 것이 '추천'으로 앞에, 자동으로 1순위 선택(`S.gen.ref`: 없음=자동, 'none', id). 프롬프트 [참고 이미지]에 설명이 들어가고, [프롬프트 복사] 시 참고 이미지 내려받기, [바로 만들기]는 `styleRef`로 함께 보냄. 통합본 에셋 › 배경 이미지 탭에서도 봄
+  - 프롬프트 규칙(2026-10-11, 지난 호 분석): 물건은 오른쪽 40~45% · 세로 가운데~아래, **가장자리에서 잘려도 됨**(예전 '잘리지 않게' 반대), 왼쪽 55~60% 비움, 배경은 단색 + 은은한 빛, 장식(메가폰 · 화살표 · 반짝이 · 말풍선) 금지, 화면 · 문서 안 짧은 한글 UI 글자만 허용. 배경색별 물건 색: 네이비 → 초록 · 흰색 / 라이트 블루 · 화이트 → 파랑 · 흰색 + 초록 포인트 / **그린 → 화이트 중심 · 노랑 포인트 · 블루 보조(진한 남색 · 아주 연한 하늘색만)**. 실사형은 인물 오른쪽, 타이틀 왼쪽 아래, 왼쪽으로 어두워지는 그라데이션
   - [프롬프트 복사] → ChatGPT에서 생성 → 이미지 칸에 붙여넣기 (**완성본은 이쪽**)
   - [바로 만들기] → `api/generate-image.js` kind `thumb`(프롬프트 + 캐릭터 이미지 그대로 전달, low 화질, 오브젝트형은 gpt-image-1 투명 배경). 사용자 평가: **지난 호보다 품질이 떨어져 권하기 어려움** → 유지 여부 미정
   - 화질은 비용 문제로 low 유지 (사용자 결정)

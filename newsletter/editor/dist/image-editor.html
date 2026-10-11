@@ -1910,6 +1910,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   function buildForm(){
     const it = cur(), V = view(), B = BLOCKS[it.type];
     if (B.norm) B.norm(it.data);
+    // ② 스킬 칸: 스킬로 넣은 이미지면 그때 붙여 넣은 소스를 그대로 보여 줌 (붙여 넣다 만 글은 지우지 않음)
+    const sk = $('skillTxt'), skIn = sk.value.trim();
+    if (!skIn || S.items.some(o => o.src && o.src.trim() === skIn)){ sk.value = V.src || ''; sk.dispatchEvent(new Event('input')); }
     if (it.type === 'html' && hkUpgrade(it.data)) setTimeout(refresh, 0);   // 편집 표시가 없는 예전 블록은 자동으로 표시를 붙여 입력칸을 만듦
     // 그래프 2개 나란히: [나란히 설정] [왼쪽 그래프] [오른쪽 그래프] 탭. 왼쪽 · 오른쪽 탭은 그 그래프의 상세 편집
     const side = V.type === 'pair' && it !== V ? (V.data.left === it.id ? 'left' : 'right') : '';
@@ -2378,6 +2381,9 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       return s && (s.kind === 'nl-block' || s.kind === 'nl-blocks') ? (s.kind === 'nl-block' ? [s] : (s.items || [])) : []; };
     const skillPv = () => {
       const raw = $('skillTxt').value, list = skillList(raw), box = $('skillPv');
+      if (raw.trim() && view().src && raw.trim() === view().src.trim()){   // 지금 이미지를 만든 소스 → 다시 넣을 필요 없음
+        $('btnSkillClear').hidden = true; $('btnSkillOk').disabled = true;
+        box.innerHTML = '<div class="sp-h">이 이미지를 만든 스킬 결과예요. 넣은 뒤에 고친 내용은 여기에 반영되지 않아요.</div>'; return; }
       $('btnSkillClear').hidden = !raw.trim(); $('btnSkillOk').disabled = !(list && list.some(b => b && BLOCKS[b.type]));
       if (!list){ box.innerHTML = ''; return; }
       const ok = list.filter(b => b && BLOCKS[b.type]);
@@ -2393,7 +2399,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('skillTxt').addEventListener('input', skillPv);
     $('btnSkillClear').addEventListener('click', () => { $('skillTxt').value = ''; skillPv(); });
     $('btnSkillOk').addEventListener('click', () => {
-      if (takeJSON($('skillTxt').value)){ $('skillTxt').value = ''; skillPv(); }
+      if (takeJSON($('skillTxt').value)) skillPv();
       else toast('스킬 결과를 읽을 수 없어요. claude.ai 코드 상자의 [복사] 버튼으로 전체를 복사해 주세요.', 4000);
     });
     // 콘텐츠 · 번호 고르기 = 그 이미지로 이동 (없으면 새 이미지. 유형 고르기 전 빈 이미지는 새로 만들지 않고 번호만 옮김)
@@ -2456,14 +2462,14 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   function takeJSON(raw){
     const txt = String(raw).trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!txt || txt[0] !== '{') return false;
     let s; try { s = JSON.parse(txt); } catch(err){ return false; }
-    if (s && (s.kind === 'nl-block' || s.kind === 'nl-blocks')){ pasteBlocks(s.kind === 'nl-block' ? [s] : (s.items || [])); return true; }
+    if (s && (s.kind === 'nl-block' || s.kind === 'nl-blocks')){ pasteBlocks(s.kind === 'nl-block' ? [s] : (s.items || []), txt); return true; }
     if (valid(s)){ if (confirm('붙여넣은 작업 내용으로 바꿀까요?')) applyState(s, '붙여넣은 내용으로 바꿨어요.'); return true; }
     return false;
   }
 
   // Claude "뉴스레터 블록" 스킬 결과 붙여넣기: {kind:'nl-block', type, contents, no, data} (여러 개면 {kind:'nl-blocks', items:[…]})
   let replaceOK = null;
-  function pasteBlocks(list){
+  function pasteBlocks(list, src){
     const ok = list.filter(b => b && BLOCKS[b.type]);
     if (!ok.length){ toast('붙여넣은 블록 종류를 알 수 없어요.'); return; }
     // 같은 콘텐츠 · 이미지 번호가 이미 있으면 "덮어쓸까요?" → 예: 그 이미지를 교체, 아니요: 아무것도 넣지 않음 (빈 새 이미지는 묻지 않고 교체)
@@ -2475,6 +2481,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     ok.forEach(b => {
       const it = newItem(b.type, cOf(b), nOf(b)), old = dupOf(b);
       it.data = Object.assign(BLOCKS[b.type].sample(), b.data || {});
+      if (src) it.src = src;   // 붙여 넣은 스킬 결과 원문 (② 스킬 칸에 계속 보여 줌)
       if (b.type === 'html') hkUpgrade(it.data);   // 편집 표시가 없는 스킬 결과도 고칠 수 있게
       // 그래프 2개 나란히: left · right에 {type, data}로 그래프를 직접 담아 오면 이 이미지 전용 그래프(owner)로 만듦
       if (b.type === 'pair') ['left', 'right'].forEach(side => { const g = (b.data || {})[side];

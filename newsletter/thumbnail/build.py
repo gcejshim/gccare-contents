@@ -31,6 +31,7 @@ replacements = [
     (r'<script src="[^"]*html2canvas[^"]*"></script>', inline_script(read('vendor/html2canvas.min.js'))),
     (r'<script src="[^"]*lucide[^"]*"></script>', inline_script(read('vendor/lucide.min.js'))),
     (r'<script src="assets.js"></script>', inline_script(read('assets.js'))),
+    (r'<script src="refs.js"></script>', inline_script(read('refs.js'))),   # 참고 이미지 (make_refs.py)
 ]
 for pattern, repl in replacements:
     html, n = re.subn(pattern, lambda m: repl, html)

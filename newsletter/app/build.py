@@ -1,7 +1,7 @@
-"""뉴스레터 만들기(메뉴 셸) 배포본: 셸 + 썸네일 도구 + 콘텐츠 이미지 편집기 + 라이브러리 + 폰트 + 샘플을 HTML 한 파일로 합친다.
+"""GC Care Insight Studio(메뉴 셸) 배포본: 셸 + 썸네일 도구 + 콘텐츠 이미지 편집기 + 라이브러리 + 폰트 + 샘플을 HTML 한 파일로 합친다.
 
 폰트 · 라이브러리는 한 번만 넣고, 실행할 때 blob 주소로 만들어 두 도구(iframe)가 같이 쓴다 → 파일 크기를 줄임.
-실행: python3 build.py  →  dist/newsletter-maker.html (이름 고정 · 인터넷 없이 동작)
+실행: python3 build.py  →  dist/gccare-insight-studio.html (이름 고정 · 인터넷 없이 동작)
 """
 import base64, json, os, re
 
@@ -33,7 +33,7 @@ def tool(path, extra=()):
 
 
 tools = {
-    'thumb': tool(os.path.join(TH, 'index.html')),
+    'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs')]),
     'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd')]),
 }
 libs = {
@@ -41,6 +41,7 @@ libs = {
     'lucide': read(os.path.join(TH, 'vendor', 'lucide.min.js')),
     'assets': read(os.path.join(TH, 'assets.js')),
     'assetsEd': read(os.path.join(ED, 'assets-editor.js')),
+    'refs': read(os.path.join(TH, 'refs.js')),   # 썸네일 참고 이미지 (썸네일 도구 · 에셋 › 배경 이미지)
     'samples': read(os.path.join(HERE, 'samples.js')),
 }
 fonts = {w: base64.b64encode(read(os.path.join(TH, 'vendor', f'Pretendard-{n}.woff2'), 'rb')).decode() for w, n in [('400', 'Regular'), ('500', 'Medium'), ('600', 'SemiBold'), ('700', 'Bold')]}
@@ -59,7 +60,7 @@ BOOT = r"""
     toolHTML(k){ return D.tools[k].replace('__NL_FONTFACE__', faces).replace(/__NL_LIB_(\w+)__/g, (_, n) => urls[n]); },
     async boot(){
       const st = document.createElement('style'); st.textContent = faces; document.head.appendChild(st);
-      for (const k of ['lucide', 'assets', 'assetsEd', 'samples']) await load(urls[k]);
+      for (const k of ['lucide', 'assets', 'assetsEd', 'samples', 'refs']) await load(urls[k]);
       try { await document.fonts.load('700 16px Pretendard'); } catch(e){}
     }
   };
@@ -68,13 +69,13 @@ BOOT = r"""
 
 shell = read(os.path.join(HERE, 'index.html'))
 shell = sub1(r'<link rel="stylesheet" href="[^"]*pretendard[^"]*">\n', '', shell, 'shell font')
-for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="samples\.js"></script>\n']:
+for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="\.\./thumbnail/refs\.js"></script>\n',r'<script src="samples\.js"></script>\n']:
     shell = sub1(pat, '', shell, 'shell lib')
 data = json.dumps({'version': VERSION, 'tools': tools, 'libs': libs, 'fonts': fonts}, ensure_ascii=False).replace('<', '\\u003c')
 pack = '<script>window.__NL_DATA=' + data + ';</script>\n<script>' + BOOT + '</script>\n'
 shell = shell.replace('</head>', pack + '</head>', 1)
-shell = shell.replace('<title>뉴스레터 만들기</title>', f'<title>뉴스레터 만들기 v{VERSION}</title>')
+shell = shell.replace('<title>GC Care Insight Studio</title>', f'<title>GC Care Insight Studio v{VERSION}</title>')
 os.makedirs(os.path.join(HERE, 'dist'), exist_ok=True)
-out = os.path.join(HERE, 'dist', 'newsletter-maker.html')   # 이름 고정 (버전은 파일 안 · README에서 관리)
+out = os.path.join(HERE, 'dist', 'gccare-insight-studio.html')   # 이름 고정 (버전은 파일 안 · README에서 관리)
 with open(out, 'w', encoding='utf-8') as f: f.write(shell)
 print(f'{out}  ({os.path.getsize(out) // 1024} KB)')
