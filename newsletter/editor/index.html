@@ -2075,8 +2075,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     $('icQ').focus();
   }
   function closeIcons(){ $('icPop').hidden = true; icTarget = null; }
-  // 얼굴 고르기: 11호 인터뷰 3D 얼굴 (assets-editor.js face11a~c). 고르면 이미지 칸에 그대로 들어감
-  const FACES = [['face11a', '남 · 안경'], ['face11b', '여'], ['face11c', '남 · 후드']];
+  // 얼굴 고르기: 11호 인터뷰 3D 얼굴 (assets-editor.js face11a~c) + 추가 얼굴 (make_faces.py). 고르면 이미지 칸에 그대로 들어감
+  const FACES = [['face11a', '남 · 안경'], ['face11b', '여'], ['face11c', '남 · 후드'], ['faceWoman20', '20대 여'], ['faceWoman40', '40대 여'], ['faceDoctor', '의사'], ['faceNurse', '간호사']];
   let fcTarget = null;
   function openFaces(path, anchor){
     fcTarget = path; const pop = $('fcPop');

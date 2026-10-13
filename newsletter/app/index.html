@@ -152,6 +152,16 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .sw div b{display:block;font-size:12px}
 .sw div code{font-size:11px;background:none;padding:0;color:var(--coolNeutral-600)}
 .prompt{background:var(--careBlue-900);color:#e8eef9;border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.65;white-space:pre-wrap;font-family:ui-monospace,Menlo,monospace;max-height:380px;overflow:auto}
+/* AI로 그리기 */
+.ai-ref{border:1.5px dashed var(--coolNeutral-200);border-radius:10px;padding:10px 12px;display:flex;gap:12px;align-items:center;min-height:76px;font-size:12px;color:var(--neutral-500);line-height:1.5}
+.ai-ref.over{border-color:var(--careBlue-500);background:var(--careBlue-50)}
+.ai-ref img{width:96px;height:56px;object-fit:cover;border-radius:6px;border:1px solid var(--coolNeutral-100);flex:none}
+.ai-ref .sp{flex:1}
+.gen-st{margin:12px 0 0;font-size:13px;color:var(--careBlue-600)}
+.gen-st.err{color:var(--careRed-500)}
+.ai-out{margin-top:12px;display:flex;flex-direction:column;gap:10px}
+.ai-out[hidden]{display:none}
+.ai-out img{display:block;width:100%;border-radius:10px;border:1px solid var(--coolNeutral-100);background:repeating-conic-gradient(var(--coolNeutral-100) 0 25%, var(--neutral-0) 0 50%) 0 0/16px 16px}
 .ph-card{text-align:center;padding:48px 24px}
 .ph-card svg{width:40px;height:40px;color:var(--careBlue-400)}
 .ph-card h3{justify-content:center;font-size:18px;margin:12px 0 8px}
@@ -180,6 +190,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <button class="menu" data-view="image" data-icon="LayoutTemplate">콘텐츠 이미지 생성</button>
   <button class="menu" data-view="pdf" data-icon="FileText">PDF <span class="badge">준비 중</span></button>
   <hr>
+  <button class="menu" data-view="ai" data-icon="Sparkles">AI로 그리기</button>
   <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
   <button class="menu" data-view="guide" data-icon="BookOpen">가이드</button>
   <div class="foot">GC Care Insight Studio <span id="ver">개발본</span><br>작업은 이 브라우저에 자동저장돼요</div>
@@ -212,7 +223,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
           <li><b>기획안</b>을 받아 콘텐츠 제목과 메모를 적어요.</li>
           <li><b>뉴스레터 썸네일</b>을 콘텐츠마다 1장씩 만들어요.</li>
           <li><b>콘텐츠 이미지 생성</b>에서 블록을 골라 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 블록이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 10~14호를 참고해요.</span></li>
-          <li>배경 · 일러스트가 필요하면 <b>에셋 › AI로 그리기</b>에서 프롬프트를 만들어 ChatGPT에 붙여 넣어요.</li>
+          <li>배경 · 일러스트가 필요하면 <b>AI로 그리기</b>에서 프롬프트를 만들어 ChatGPT에 붙여 넣어요.</li>
           <li>저장 기록에 <b>1MB 초과</b> 표시가 없는지 확인하고 납품해요.</li>
           <li><b>[전체 이미지 저장]</b>으로 이미지를 받고, <b>[전체 파일 저장]</b>으로 작업 파일을 보관해요.</li>
         </ol>
@@ -241,9 +252,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <!-- 에셋 -->
   <section class="view" id="v-assets"><div class="page">
     <h2>에셋</h2>
-    <p class="lead">이미지는 각 도구에 바로 <b>붙여넣기(Ctrl+V)</b>하거나 끌어다 놓으면 돼요. 여기서는 지난 호 샘플을 참고하고, 로고 · 아이콘 · 컬러를 확인하고, AI 이미지 프롬프트를 만들어요.</p>
+    <p class="lead">이미지는 각 도구에 바로 <b>붙여넣기(Ctrl+V)</b>하거나 끌어다 놓으면 돼요. 여기서는 지난 호 샘플을 참고하고, 배경 이미지 · 로고 · 아이콘 · 컬러를 확인해요.</p>
     <div class="tabs" id="aTabs">
-      <button data-t="samples">샘플 모아보기</button><button data-t="bgs">배경 이미지</button><button data-t="ai">AI로 그리기</button><button data-t="logo">로고 · 아이콘</button><button data-t="color">컬러</button>
+      <button data-t="samples">샘플 모아보기</button><button data-t="bgs">배경 이미지</button><button data-t="logo">로고 · 아이콘</button><button data-t="color">컬러</button>
     </div>
     <div id="a-samples">
       <div class="chips" id="sChips"></div>
@@ -254,24 +265,6 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       <div class="chips" id="bChips"></div>
       <div class="gal" id="bGal"></div>
     </div>
-    <div id="a-ai" hidden>
-      <div class="grid2">
-        <div class="card">
-          <h3>무엇을 그릴까요?</h3>
-          <div class="field" style="margin-bottom:12px"><label>용도</label><select id="aiUse"></select></div>
-          <div class="field" style="margin-bottom:12px"><label>주제 (기획안 내용을 한두 문장으로)</label><textarea id="aiTopic" rows="3" placeholder="예: 하반기 건강검진 시즌, 담당자가 수검 현황을 점검하는 모습"></textarea></div>
-          <div class="field" style="margin-bottom:12px"><label>꼭 들어갈 것 (선택)</label><input type="text" id="aiItems" placeholder="예: 달력, 체크리스트 클립보드, 청진기"></div>
-          <div class="field" style="margin-bottom:12px"><label>그림체</label><select id="aiStyle"></select></div>
-          <div class="field"><label>우리 팀 GPT 주소 (있으면 넣어 두세요)</label><input type="url" id="aiGpt" placeholder="https://chatgpt.com/g/…"></div>
-          <p class="hint" style="margin-top:10px">⚠️ 이미지 안에는 <b>글자를 넣지 않아요.</b> 글자는 썸네일 · 콘텐츠 도구에서 넣어요. 인물 <b>실사 사진</b>은 회사 보유 사진만 써요(AI 실사 인물 X).</p>
-        </div>
-        <div class="card">
-          <h3>ChatGPT에 붙여 넣을 프롬프트<span class="sp"></span><button class="btn sm" id="aiCopy">복사</button><a class="btn sm primary" id="aiOpen" target="_blank" rel="noopener">ChatGPT 열기</a></h3>
-          <div class="prompt" id="aiPrompt"></div>
-          <p class="hint" style="margin-top:10px">만든 이미지는 ChatGPT에서 복사하거나 저장한 뒤, 썸네일 · 콘텐츠 도구에 <b>Ctrl+V</b>로 넣어요. 썸네일은 <b>뉴스레터 썸네일 › AI 이미지 생성하기</b>에서 배경 · 레이아웃에 맞춘 프롬프트를 바로 짜 주고, 빠른 시안도 만들 수 있어요.</p>
-        </div>
-      </div>
-    </div>
     <div id="a-logo" hidden>
       <div class="card"><h3>로고</h3><div class="logos" id="logos"></div></div>
       <div class="card"><h3>아이콘 <small>Lucide · 콘텐츠 이미지 블록에서 고를 수 있는 아이콘</small></h3><div class="icons" id="icons"></div></div>
@@ -279,6 +272,34 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     <div id="a-color" hidden>
       <div class="card"><h3>뉴스레터 컬러 <small>13·14호 기준 → 디자인 시스템 토큰 (누르면 색상값 복사)</small></h3><div class="sws" id="sws"></div></div>
     </div>
+  </div></section>
+
+  <!-- AI로 그리기 -->
+  <section class="view" id="v-ai"><div class="page">
+    <h2>AI로 그리기</h2>
+    <p class="lead">콘텐츠 이미지에 쓸 배경과 일러스트를 그려요. 썸네일은 <b>뉴스레터 썸네일</b>에서 만들어요. <b>[바로 만들기]</b>로 여기서 그리거나, 프롬프트를 ChatGPT에 붙여 넣어 만든 뒤 각 도구에 <b>Ctrl+V</b>로 넣어요.</p>
+      <div class="grid2">
+        <div class="card">
+          <h3>무엇을 그릴까요?</h3>
+          <div class="field" style="margin-bottom:12px"><label>주제 (기획안 내용을 한두 문장으로 · 가운데를 비우고 싶으면 같이 적어요)</label><textarea id="aiTopic" rows="3" placeholder="예: 하반기 건강검진 시즌, 담당자가 수검 현황을 점검하는 모습"></textarea></div>
+          <div class="field" style="margin-bottom:12px"><label>꼭 들어갈 것 (선택)</label><input type="text" id="aiItems" placeholder="예: 달력, 체크리스트 클립보드, 청진기"></div>
+          <div class="field" style="margin-bottom:12px"><label>그림체</label><select id="aiStyle"></select></div>
+          <div class="field" style="margin-bottom:12px"><label>참고 이미지 (선택 · 1장) — 그림체 · 분위기만 따라 그려요</label>
+            <div class="ai-ref" id="aiRef"></div><input type="file" id="aiRefFile" accept="image/*" hidden></div>
+          <div class="field"><label>우리 팀 GPT 주소 (있으면 넣어 두세요)</label><input type="url" id="aiGpt" placeholder="https://chatgpt.com/g/…"></div>
+          <p class="hint" style="margin-top:10px">⚠️ 이미지 안에는 <b>글자를 넣지 않아요.</b> 글자는 썸네일 · 콘텐츠 도구에서 넣어요. 인물 <b>실사 사진</b>은 회사 보유 사진만 써요(AI 실사 인물 X).</p>
+        </div>
+        <div class="card">
+          <h3>프롬프트<span class="sp"></span><button class="btn sm" id="aiCopy">복사</button><a class="btn sm" id="aiOpen" target="_blank" rel="noopener">ChatGPT 열기</a><button class="btn sm primary" id="aiGen">바로 만들기</button></h3>
+          <div class="prompt" id="aiPrompt"></div>
+          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 공용 서버로 30초 안팎에 그려요(빠른 시안 품질). 완성본은 프롬프트를 복사해 ChatGPT에서 만들고, 참고 이미지가 있으면 같이 첨부해요.</p>
+          <p class="gen-st" id="aiGenSt" hidden></p>
+          <div class="ai-out" id="aiOut" hidden>
+            <img id="aiOutImg" alt="">
+            <div class="row"><button class="btn sm" id="aiOutCopy">이미지 복사</button><button class="btn sm" id="aiOutSave">PNG 저장</button><span class="hint">각 도구에 Ctrl+V로 붙여 넣어요.</span></div>
+          </div>
+        </div>
+      </div>
   </div></section>
 
   <!-- 가이드 -->
@@ -422,6 +443,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + view));
     if (view === 'home') renderHome();
     if (view === 'assets') renderAssets();
+    if (view === 'ai') renderAI();
     if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
   }
 
@@ -505,56 +527,101 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   }
 
   // ── 에셋: AI로 그리기 (ChatGPT 프롬프트) ──
-  const USES = {
-    thumbScene: {name: '썸네일 배경 (장면형)', size: '가로형 1536×1024 (3:2)',
-      ko: '뉴스레터 썸네일 배경 이미지. 화면 왼쪽 45%는 타이틀 글자가 들어갈 자리라 비워 두고(단색에 가까운 밝은 배경), 오른쪽에 주제를 표현하는 장면을 배치.',
-      en: 'Newsletter thumbnail background. Keep the LEFT 45% of the canvas empty and calm (soft, nearly flat light background) for a headline that will be added later. Place the main scene on the RIGHT side.'},
-    thumbObject: {name: '썸네일 오브젝트 (투명 배경)', size: '정사각 1024×1024, 투명 배경 PNG',
-      ko: '썸네일 오른쪽 아래에 올릴 오브젝트 하나. 배경은 투명.',
-      en: 'A single object to place at the bottom-right of a thumbnail. Transparent background (PNG), object centered with generous margin, soft contact shadow only.'},
-    heroBg: {name: '콘텐츠 이미지 배경 (히어로)', size: '가로형 1536×1024 (3:2)',
-      ko: '콘텐츠 이미지 상단 배경. 가운데에 화면 캡처나 카드가 올라가므로 가운데는 단순하게, 가장자리에 은은한 장식.',
-      en: 'Background for a newsletter content banner. The CENTER will be covered by a UI screenshot card, so keep the center simple; put subtle decorative elements near the edges.'},
-    illust: {name: '본문 일러스트 (장면)', size: '가로형 1536×1024 (3:2)',
-      ko: '본문에 들어갈 장면 일러스트. 한눈에 상황이 이해되도록 단순한 구도.',
-      en: 'An editorial illustration for a newsletter article. One clear scene that explains the situation at a glance; simple composition, few elements.'}
-  };
+  // 썸네일은 썸네일 도구에서만 그림 (10/14) — 여기는 콘텐츠 이미지용, 용도 구분 없이 한 가지 구도
+  // (배경처럼 가운데를 비우고 싶으면 주제에 적음)
+  const SIZE = '가로형 1536×1024 (3:2)';
   const STYLES = {
     soft3d: {name: '3D 일러스트 (12·14호 느낌)', en: 'Soft 3D illustration style, rounded clay-like shapes, gentle studio lighting, clean and friendly, not childish.'},
     flat: {name: '플랫 일러스트', en: 'Clean flat vector illustration, simple geometric shapes, minimal shading, generous whitespace.'},
     object: {name: '실사 오브젝트 (사람 없음)', en: 'Photorealistic product-style shot of objects only (no people), soft natural light, shallow depth of field, clean background.'}
   };
   function buildPrompt(){
-    const ai = H.ai, u = USES[ai.use] || USES.thumbScene, st = STYLES[ai.style] || STYLES.soft3d;
+    const ai = H.ai, st = STYLES[ai.style] || STYLES.soft3d;
     const topic = (ai.topic || '').trim() || '(주제를 입력해 주세요)';
     const items = (ai.items || '').trim();
     return [
-      `[GC케어 뉴스레터 이미지 · ${u.name}]`, '',
-      `주제: ${topic}`, items ? `꼭 들어갈 것: ${items}` : null, `용도: ${u.ko}`, `크기: ${u.size}`, '',
+      '[GC케어 뉴스레터 콘텐츠 이미지]', '',
+      `주제: ${topic}`, items ? `꼭 들어갈 것: ${items}` : null, `크기: ${SIZE}`,
+      aiRef ? '참고 이미지: 첨부한 참고 이미지의 그림체 · 분위기만 따라 그려 주세요.' : null, '',
       'Create an image with these rules:',
-      `- Purpose: ${u.en}`,
+      '- Purpose: An image for a newsletter article. One clear scene that explains the topic at a glance; simple composition, few elements. If the subject asks for an empty area (e.g. empty center), follow it.',
       `- Subject: ${topic}${items ? ` — include: ${items}` : ''}`,
       `- Style: ${st.en}`,
+      aiRef ? '- Style reference: match the rendering style, materials, lighting and mood of the attached reference image (첨부한 참고 이미지). Do not copy its objects, people or text.' : null,
       '- Color palette: calm blue tones as the base (#031552 navy, #2F74EB blue, #D6EAFF / #F0F8FF light blue, #F7F7FB off-white). Use green (#0AC262) only as a small accent.',
       '- Audience: HR and occupational-health managers at Korean companies (B2B). Professional, trustworthy, warm — not an app UI, not a stock-photo cliché.',
       '- ABSOLUTELY NO TEXT: no letters, numbers, Korean/English words, logos, labels, signage, or UI text anywhere in the image.',
       '- People: fictional East Asian (Korean) people only, never real or famous people. Real interview or customer photos are added by the team, not generated.',
       '- No watermarks, no borders, no frames.',
-      `- Output size: ${u.size}.`
+      `- Output size: ${SIZE}.`
     ].filter(x => x !== null).join('\n');
   }
   function renderAI(){
-    const ai = H.ai = Object.assign({use: 'thumbScene', style: 'soft3d', topic: '', items: '', gpt: ''}, H.ai || {});
-    $('aiUse').innerHTML = Object.entries(USES).map(([k, v]) => `<option value="${k}"${k === ai.use ? ' selected' : ''}>${v.name}</option>`).join('');
+    const ai = H.ai = Object.assign({style: 'soft3d', topic: '', items: '', gpt: ''}, H.ai || {});
     $('aiStyle').innerHTML = Object.entries(STYLES).map(([k, v]) => `<option value="${k}"${k === ai.style ? ' selected' : ''}>${v.name}</option>`).join('');
     $('aiTopic').value = ai.topic; $('aiItems').value = ai.items; $('aiGpt').value = ai.gpt;
-    updatePrompt();
+    renderRef(); updatePrompt();
   }
   function updatePrompt(){
     $('aiPrompt').textContent = buildPrompt();
     const g = (H.ai.gpt || '').trim();
     $('aiOpen').href = /^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(g) ? g : 'https://chatgpt.com/';
     $('aiOpen').textContent = /^https:\/\//.test(g) ? '우리 팀 GPT 열기' : 'ChatGPT 열기';
+  }
+
+  // 참고 이미지 (1장, 이 화면에만 · 자동저장 안 함) → 서버에는 썸네일 [바로 만들기]와 같은 styleRef로 보냄
+  const GEN_URL = 'https://gccardnews.vercel.app/api/generate-image';
+  let aiRef = '', aiBusy = false, aiOutURL = '';
+  function renderRef(){
+    $('aiRef').innerHTML = aiRef
+      ? `<img src="${aiRef}" alt=""><span>이 그림체 · 분위기를 따라 그려요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">바꾸기</button><button class="btn sm" data-ref="clear">빼기</button>`
+      : `<span>이미지를 끌어다 놓거나 <b>Ctrl+V</b>로 붙여 넣어요.<br>에셋 › 배경 이미지에서 내려받은 것도 좋아요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">파일 선택</button>`;
+  }
+  // 서버 제한(500KB) 안으로: 긴 쪽 1024px WebP, 크면 한 번 더 줄임
+  function shrinkRef(src){
+    return new Promise((res, rej) => {
+      const im = new Image();
+      im.onload = () => {
+        let side = 1024, q = .85, url = '';
+        for (let i = 0; i < 4; i++){
+          const k = Math.min(1, side / Math.max(im.width, im.height));
+          const c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
+          c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          url = c.toDataURL('image/webp', q);
+          if (!url.startsWith('data:image/webp')) url = c.toDataURL('image/jpeg', q);
+          if (url.length < 480000) break;
+          side = Math.round(side * .75); q -= .1;
+        }
+        res(url);
+      };
+      im.onerror = rej; im.src = src;
+    });
+  }
+  function setRefFile(f){
+    if (!f || !/^image\//.test(f.type)) return;
+    const r = new FileReader();
+    r.onload = async () => { try { aiRef = await shrinkRef(r.result); renderRef(); updatePrompt(); } catch(e){ toast('이미지를 읽지 못했어요.'); } };
+    r.readAsDataURL(f);
+  }
+  async function aiGenerate(){
+    if (aiBusy) return;
+    if (!(H.ai.topic || '').trim()){ toast('주제를 먼저 적어 주세요.'); $('aiTopic').focus(); return; }
+    aiBusy = true; $('aiGen').disabled = true; $('aiGen').textContent = '만드는 중…';
+    const st = $('aiGenSt'); st.hidden = false; st.className = 'gen-st'; st.textContent = '그리는 중이에요. 30초 안팎 걸려요.';
+    const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
+    try {
+      const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
+        body: JSON.stringify({kind: 'thumb', prompt: buildPrompt(), layout: 'scene', styleRef: aiRef})});
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
+      aiOutURL = data.dataURL; $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false;
+      st.textContent = '완성! 빠른 시안이에요.';
+    } catch(e){
+      st.className = 'gen-st err';
+      st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '만들지 못했어요: ' + (e.message || e);
+    } finally {
+      clearTimeout(timer); aiBusy = false; $('aiGen').disabled = false; $('aiGen').textContent = '바로 만들기';
+    }
   }
 
   // ── 에셋: 로고 · 아이콘 · 컬러 ──
@@ -569,12 +636,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   ];
   let assetsBuilt = false;
   function renderAssets(){
-    const t = H.aTab || 'samples';
+    const t = H.aTab && H.aTab !== 'ai' ? H.aTab : 'samples';   // 'ai'는 메뉴로 옮김 (예전 저장값 대비)
     [...$('aTabs').children].forEach(b => b.classList.toggle('on', b.dataset.t === t));
-    ['samples', 'bgs', 'ai', 'logo', 'color'].forEach(k => { $('a-' + k).hidden = k !== t; });
+    ['samples', 'bgs', 'logo', 'color'].forEach(k => { $('a-' + k).hidden = k !== t; });
     if (t === 'samples') renderSamples();
     if (t === 'bgs') renderBgs();
-    if (t === 'ai') renderAI();
     if (assetsBuilt) return; assetsBuilt = true;
     const logos = [['logoBlue', '영문 로고 · 남색 (썸네일 · 밝은 배경)', '--careBlue-50'], ['logoWhite', '영문 로고 · 흰색 (어두운 배경)', '--careBlue-900'], ['logoTop', '공식 CI 컬러 + 흰 글자 (상단 바)', '--careBlue-900']];
     $('logos').innerHTML = logos.filter(([k]) => A[k]).map(([k, n, bg]) => `<div class="logo"><div class="pv" style="background:var(${bg})"><img src="${A[k]}" alt=""></div><span class="n">${n}</span><button class="btn sm" data-dl="${k}">PNG 내려받기</button></div>`).join('') || '<div class="empty">로고 파일이 없어요.</div>';
@@ -636,7 +702,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     H = load(); I();
     mountTools(); renderTop();
     const v = location.hash.slice(1);
-    go(['home', 'thumb', 'image', 'pdf', 'assets', 'guide'].includes(v) ? v : (H.view || 'home'));
+    go(['home', 'thumb', 'image', 'pdf', 'ai', 'assets', 'guide'].includes(v) ? v : (H.view || 'home'));
 
     $('side').addEventListener('click', e => { const b = e.target.closest('.menu'); if (b) go(b.dataset.view); });
     $('issuePrev').addEventListener('click', () => setIssue(H.issue - 1));
@@ -665,9 +731,25 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       if (lbItem.type === 'thumb'){ go('thumb'); return; }
       const b = TYPES[lbItem.type][1]; if (b){ send('image', {type: 'addBlock', blockType: b}); go('image'); }
     });
-    ['aiUse', 'aiStyle', 'aiTopic', 'aiItems', 'aiGpt'].forEach(id => $(id).addEventListener('input', e => {
-      const k = {aiUse: 'use', aiStyle: 'style', aiTopic: 'topic', aiItems: 'items', aiGpt: 'gpt'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
+    ['aiStyle', 'aiTopic', 'aiItems', 'aiGpt'].forEach(id => $(id).addEventListener('input', e => {
+      const k = {aiStyle: 'style', aiTopic: 'topic', aiItems: 'items', aiGpt: 'gpt'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
     }));
+    $('aiRef').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return;
+      if (b.dataset.ref === 'pick'){ $('aiRefFile').value = ''; $('aiRefFile').click(); }
+      else { aiRef = ''; renderRef(); updatePrompt(); } });
+    $('aiRefFile').addEventListener('change', e => setRefFile(e.target.files[0]));
+    $('aiRef').addEventListener('dragover', e => { e.preventDefault(); $('aiRef').classList.add('over'); });
+    $('aiRef').addEventListener('dragleave', () => $('aiRef').classList.remove('over'));
+    $('aiRef').addEventListener('drop', e => { e.preventDefault(); $('aiRef').classList.remove('over'); setRefFile(e.dataTransfer.files[0]); });
+    document.addEventListener('paste', e => { if (H.view !== 'ai') return;
+      const it = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/')); if (!it) return;
+      e.preventDefault(); setRefFile(it.getAsFile()); });
+    $('aiGen').addEventListener('click', aiGenerate);
+    $('aiOutCopy').addEventListener('click', async () => {
+      try { const blob = await (await fetch(aiOutURL)).blob(); await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]); toast('이미지를 복사했어요. 각 도구에 Ctrl+V로 붙여 넣어 주세요.'); }
+      catch(e){ toast('복사가 막혀 있어요. [PNG 저장]으로 받아 주세요.'); } });
+    $('aiOutSave').addEventListener('click', () => { const a = document.createElement('a'); a.href = aiOutURL;
+      a.download = `AI_${(H.ai.topic || '이미지').trim().slice(0, 20).replace(/[\\/:*?"<>|\s]+/g, '_')}.png`; a.click(); });
     $('aiCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(buildPrompt()); toast('프롬프트를 복사했어요. ChatGPT에 붙여 넣어 주세요.'); } catch(e){ toast('복사가 막혀 있어요. 프롬프트를 직접 선택해서 복사해 주세요.'); } });
     $('logos').addEventListener('click', async e => { const b = e.target.closest('[data-dl]'); if (!b) return; const blob = await (await fetch(A[b.dataset.dl])).blob(); download(blob, `GC케어_${b.dataset.dl}.png`); });
     $('sws').addEventListener('click', async e => { const b = e.target.closest('[data-hex]'); if (!b) return; try { await navigator.clipboard.writeText(b.dataset.hex); toast(`${b.dataset.hex} 복사했어요.`); } catch(err){ toast(b.dataset.hex); } });
