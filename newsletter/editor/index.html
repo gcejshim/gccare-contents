@@ -664,6 +664,7 @@ body.embedded .topbar{background:var(--neutral-0);border-bottom:1px solid var(--
 body.embedded .topbar .brand{display:none}
 body.embedded .topbar .btn:not(.primary){background:var(--neutral-0);border-color:var(--coolNeutral-200);color:var(--neutral-900)}
 body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.embedded .topbar .bsep, body.embedded #btnExportAll{display:none}   /* 셸 상단 [불러오기 · 전체 파일 저장 · 전체 이미지 저장]이 대신함 */
 </style>
 </head>
 <body>
@@ -2221,11 +2222,13 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     download(blob, name);
   }
   let busy = false;
+  // 전체 저장 대상: 나란히(pair)에 쓰인 원본 그래프는 뺌
+  const allOut = () => S.items.filter(o => !o.owner && !S.items.some(p => p.type === 'pair' && (p.data.left === o.id || p.data.right === o.id)));
   async function exportItems(list){
-    if (busy) return;
+    if (busy) return 0;
     list = list.filter(it => !it.fresh);   // 템플릿을 고르기 전 빈 이미지는 저장하지 않음
-    if (!list.length){ toast('저장할 이미지가 없어요. 먼저 이미지 템플릿을 선택해 주세요.'); return; }
-    try { await getImgDir(); } catch(e){ if (e.name === 'AbortError') return; }   // 폴더 고르기를 취소하면 저장하지 않음
+    if (!list.length){ toast('저장할 이미지가 없어요. 먼저 이미지 템플릿을 선택해 주세요.'); return 0; }
+    try { await getImgDir(); } catch(e){ if (e.name === 'AbortError') return 0; }   // 폴더 고르기를 취소하면 저장하지 않음
     busy = true;
     const btns = [$('btnExport'), $('btnExportAll')]; btns.forEach(b => b.disabled = true);
     const res = [];
@@ -2253,6 +2256,7 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
       $('results').innerHTML = res.map((r, i) => `<li class="${r.big ? 'big' : ''}"><code>${esc(r.name)}</code> ${r.w}×${r.h} · ${r.kb}KB${
         r.jpg ? ` — 1MB 초과 · JPG로 저장하면 ${r.jpg.kb}KB<button class="btn xs" data-jpg="${i}">JPG로 저장</button>` : r.big ? ' — 1MB 초과: 사진·화면 이미지를 줄이거나 잘라 주세요' : ''}</li>`).join('');
     }
+    return res.length / 2;   // 이미지 장수 (PC · 모바일 한 쌍 = 1장)
   }
 
   // ── 편집 원본 저장/열기 ──
@@ -2402,14 +2406,14 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
     $('mail').addEventListener('change', refresh);
 
     $('btnExport').addEventListener('click', () => exportItems([view()]));
-    $('btnExportAll').addEventListener('click', () => { const out = S.items.filter(o => !o.owner && !S.items.some(p => p.type === 'pair' && (p.data.left === o.id || p.data.right === o.id))), nOut = out.length, nAll = S.items.filter(o => !o.owner).length; if (confirm(`목록의 ${nOut}장을 PC·모바일로 모두 저장할까요? (파일 ${nOut * 2}개${nOut < nAll ? ' · 나란히에 쓰인 원본 그래프는 빼고' : ''})`)) exportItems(out); });
+    $('btnExportAll').addEventListener('click', () => { const out = allOut(), nOut = out.length, nAll = S.items.filter(o => !o.owner).length; if (confirm(`목록의 ${nOut}장을 PC·모바일로 모두 저장할까요? (파일 ${nOut * 2}개${nOut < nAll ? ' · 나란히에 쓰인 원본 그래프는 빼고' : ''})`)) exportItems(out); });
     $('btnSave').addEventListener('click', () => saveJSON(false));
     $('btnLoad').addEventListener('click', openJSON);
-    document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 's'){ e.preventDefault(); saveJSON(false); } });   // Ctrl+S
+    document.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 's'){ e.preventDefault(); if (document.body.classList.contains('embedded')) notify({type:'saveAll'}); else saveJSON(false); } });   // Ctrl+S
     hdb(0, 'cur').then(h => { if (h) curFile = h; fileStat(); });
     $('fileLoad').addEventListener('change', e => { const f = e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { try { if (applyState(JSON.parse(r.result), '작업 파일을 열었어요.')){ curFile = null; markSaved(f.name); } } catch(err){ toast('파일을 읽을 수 없어요.'); } }; r.readAsText(f); });
-    $('btnSample').addEventListener('click', () => { if (confirm('지금 작업을 지우고 예시(지난 호 내용 · 블록 10종)를 불러올까요?\n필요하면 먼저 [작업 파일 저장]을 눌러 주세요.')){ newDoc(); applyState(sampleState(), '예시를 불러왔어요.'); } });
-    $('btnNew').addEventListener('click', () => { if (confirm('지금 작업을 지우고 새로 시작할까요?\n필요하면 먼저 [작업 파일 저장]을 눌러 주세요.')){ newDoc(); applyState(blankState(), '15호로 새로 시작해요.'); } });
+    $('btnSample').addEventListener('click', () => { if (confirm(hubName('지금 작업을 지우고 예시(지난 호 내용 · 블록 10종)를 불러올까요?\n필요하면 먼저 [작업 파일 저장]을 눌러 주세요.'))){ newDoc(); applyState(sampleState(), '예시를 불러왔어요.'); } });
+    $('btnNew').addEventListener('click', () => { if (confirm(hubName('지금 작업을 지우고 새로 시작할까요?\n필요하면 먼저 [작업 파일 저장]을 눌러 주세요.'))){ newDoc(); applyState(blankState(), '15호로 새로 시작해요.'); } });
     $('btnHelp').addEventListener('click', () => { $('help').hidden = false; });
     $('btnHelpClose').addEventListener('click', () => { $('help').hidden = true; });
     $('help').addEventListener('click', e => { if (e.target === $('help')) $('help').hidden = true; });
@@ -2466,6 +2470,8 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
 
   // ── 메뉴 셸(GC Care Insight Studio)과 연결: 호수 공유 · 저장 기록 전달 · 편집 원본 주고받기 ──
   function notify(m){ if (window.parent !== window) window.parent.postMessage(Object.assign({nl:1, tool:'image'}, m), '*'); }
+  // 셸 안에서는 하단 작업 파일 버튼이 숨으므로 안내 문구를 셸 버튼 이름으로
+  function hubName(s){ return document.body.classList.contains('embedded') ? s.replace(/\[작업 파일 저장\]/g, '[전체 파일 저장]').replace(/\[작업 파일 열기\]/g, '[불러오기]') : s; }
   function addBlock(type){
     if (!BLOCKS[type]) return;
     const c = cur() ? cur().contents : '01';
@@ -2476,12 +2482,14 @@ body.embedded .topbar .btn:not(.primary):hover{border-color:var(--careBlue-500);
   function bridge(){
     if (window.parent === window) return;
     document.body.classList.add('embedded');
+    const tw = document.createTreeWalker($('help'), NodeFilter.SHOW_TEXT); while (tw.nextNode()) tw.currentNode.nodeValue = hubName(tw.currentNode.nodeValue);
     window.addEventListener('message', e => {
       const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ S.issue = m.issue; S.ym = ymOf(m.issue); syncTop(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:S});
       if (m.type === 'setState' && m.state) applyState(m.state, m.msg || '콘텐츠 이미지 작업을 불러왔어요.');
       if (m.type === 'addBlock') addBlock(m.blockType);
+      if (m.type === 'exportAll'){ if (m.dir) imgDir = m.dir; exportItems(allOut()).then(n => notify({type:'exportDone', reqId:m.reqId, n: n || 0})); }   // 셸 [전체 이미지 저장]
       if (m.type === 'newIssue'){ const s = blankState(); s.issue = m.issue; s.ym = ymOf(m.issue); s.items = []; (m.contents || ['01']).forEach(c => s.items.push(Object.assign(newItem('list', c, 1), {fresh: true}))); applyState(s, `${m.issue}호 작업을 새로 시작해요.`); }
     });
     notify({type:'ready', issue:S.issue});

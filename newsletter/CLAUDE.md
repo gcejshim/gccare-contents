@@ -97,6 +97,7 @@ newsletter/
 
 ## 콘텐츠 이미지 편집기 · 통합본 메모
 
+- **저장 버튼(2026-10-12 사용자 지정, 통합본 v1.5):** 상단 = 호 전체 [불러오기 · 전체 파일 저장 · 전체 이미지 저장], 도구 하단 = 지금 한 장 [이 이미지 저장]만 (`body.embedded`에서 작업 파일 열기/저장 · 전체 이미지 저장 숨김, 단독 도구는 그대로). 전체 이미지 저장은 셸이 폴더를 고르고(iframe은 폴더 창 불가, IndexedDB `allImgDir`) 핸들을 `exportAll` 메시지로 넘김 → 도구가 `exportDone{n}` 응답. 숨은 iframe은 그려지지 않아 저장 중엔 그 도구 화면으로 전환. [불러오기]는 nl-issue · nl-thumbs · 썸네일 한 장 · nl-image 모두 받음. 도구 안내 문구는 `hubName()`이 셸 버튼 이름으로 바꿈
 - 상태 `S` = `{v:1, kind:'nl-image', issue, ym, items:[{id, type, contents, no, bg(gray|white|none), fmt(png|jpg), data}], sel, fold}`. 자동저장 `gc-nl-image-v1`, 셸은 `gc-nl-hub-v1`
 - 저장: html2canvas, 흰 배경(투명 영역 없음). 형식 PNG 기본 · JPG(품질 90)는 사진 많을 때. PNG 1MB 초과 시 [JPG로 저장] 버튼
 - 미리보기: PC·모바일 둘 다 기본 표시, PC는 칸에 맞춰 자동 축소, PC 제목줄의 "메일 크기로 보기"(630px) 옵션, 화면별 ▾ 접기 (사용자 지정: 설명 문구는 최소로)

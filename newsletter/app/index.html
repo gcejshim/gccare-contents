@@ -167,8 +167,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   </div>
   <span class="dday" id="dday" hidden></span>
   <span class="sp"></span>
-  <button class="btn" id="btnOpenAll" title="[호 전체 저장]으로 받아 둔 파일을 열어요">불러오기</button>
-  <button class="btn" id="btnSaveAll" title="이번 호의 썸네일 · 콘텐츠 이미지 작업과 체크리스트를 파일 하나로 저장해요">호 전체 저장</button>
+  <button class="btn" id="btnOpenAll" title="[전체 파일 저장]으로 받아 둔 파일을 열어요 (썸네일 · 콘텐츠 이미지 작업 파일도 열려요)">불러오기</button>
+  <button class="btn" id="btnSaveAll" title="이번 호의 썸네일 · 콘텐츠 이미지 작업과 체크리스트를 파일 하나로 저장해요">전체 파일 저장</button>
+  <button class="btn" id="btnExportAllImg" title="이번 호의 썸네일과 콘텐츠 이미지(PC · 모바일)를 모두 PNG로 저장해요">전체 이미지 저장</button>
   <input type="file" id="fileAll" accept=".json,application/json" hidden>
 </header>
 
@@ -188,7 +189,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <!-- 이번 호 -->
   <section class="view" id="v-home"><div class="page">
     <h2 id="homeTitle"></h2>
-    <p class="lead">콘텐츠마다 썸네일 · PC · 모바일 이미지를 만들면 저장할 때 자동으로 체크돼요. 다 만들면 [호 전체 저장]으로 작업 파일을 보관해 두세요.</p>
+    <p class="lead">콘텐츠마다 썸네일 · PC · 모바일 이미지를 만들면 저장할 때 자동으로 체크돼요. 다 만들면 [전체 파일 저장]으로 작업 파일을 보관해 두세요.</p>
     <div class="card">
       <h3>호 정보</h3>
       <div class="row">
@@ -213,7 +214,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
           <li><b>콘텐츠 이미지 생성</b>에서 블록을 골라 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 블록이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 10~14호를 참고해요.</span></li>
           <li>배경 · 일러스트가 필요하면 <b>에셋 › AI로 그리기</b>에서 프롬프트를 만들어 ChatGPT에 붙여 넣어요.</li>
           <li>저장 기록에 <b>1MB 초과</b> 표시가 없는지 확인하고 납품해요.</li>
-          <li><b>[호 전체 저장]</b>으로 작업 파일을 보관해요.</li>
+          <li><b>[전체 이미지 저장]</b>으로 이미지를 받고, <b>[전체 파일 저장]</b>으로 작업 파일을 보관해요.</li>
         </ol>
       </div>
     </div>
@@ -393,6 +394,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (m.type === 'ready'){ t.ready = true; send(tool, {type: 'setIssue', issue: H.issue}); (t.queue || []).splice(0).forEach(q => send(tool, q)); if (tool === 'image') refreshPlan(); }
     if (m.type === 'issueChanged' && m.issue && m.issue !== H.issue){ setIssue(m.issue, tool); }
     if (m.type === 'state' && pending[m.reqId]){ pending[m.reqId](m.state); delete pending[m.reqId]; }
+    if (m.type === 'exportDone' && pending[m.reqId]){ pending[m.reqId](m); delete pending[m.reqId]; }
+    if (m.type === 'saveAll') saveAll();   // 도구 화면에서 Ctrl+S
     if (m.type === 'exported'){
       (m.files || []).forEach(f => { const iss = H.issues[f.issue] = H.issues[f.issue] || blankIssue(f.issue); iss.files[f.name] = Object.assign({t: Date.now()}, f); });
       save(); if (H.view === 'home') renderHome();
@@ -579,7 +582,32 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('sws').innerHTML = COLORS.map(([u, tk, hex]) => `<button class="sw" data-hex="${hex}"><i style="background:${hex}"></i><div><b>${tk}</b><code>${hex}</code><br>${u}</div></button>`).join('');
   }
 
-  // ── 호 전체 저장 / 열기 ──
+  // ── 전체 파일 저장 / 불러오기 · 전체 이미지 저장 ──
+  // 전체 이미지 저장: 폴더는 셸에서 한 번 고르고(도구 iframe에서는 폴더 창을 못 띄움) 썸네일 → 콘텐츠 이미지 순서로 저장
+  async function exportAllImages(){
+    if (!confirm(`${H.issue}호 썸네일과 콘텐츠 이미지(PC · 모바일)를 모두 저장할까요?`)) return;
+    let dir = null;
+    if (window.showDirectoryPicker){
+      const kept = await hdb(0, 'allImgDir');
+      if (kept && await hOK(kept)) dir = kept;
+      else { try { dir = await showDirectoryPicker({id: 'nl-images', mode: 'readwrite'}); hdb(1, 'allImgDir', dir); } catch(e){ if (e.name === 'AbortError') return; } }
+    }
+    const b = $('btnExportAllImg'), label = b.textContent, back = H.view; b.disabled = true; b.textContent = '저장 중…';
+    try {
+      // 숨은 화면(display:none)의 iframe은 그려지지 않으므로 그 도구 화면을 연 상태에서 저장
+      const run = (tool, d) => new Promise(res => {
+        go(tool); const id = Math.random().toString(36).slice(2); pending[id] = res;
+        // 개발본(index.html 직접 열기)은 도구가 다른 출처라 폴더를 넘기면 메시지가 도착하지 않음 → 그때는 폴더 없이 보내 다운로드로 저장
+        let same = false; try { same = !!TOOLS[tool].el.contentDocument; } catch(e){}
+        try { send(tool, {type: 'exportAll', reqId: id, dir: same ? d : null}); } catch(e){ send(tool, {type: 'exportAll', reqId: id}); }
+        setTimeout(() => { if (pending[id]){ delete pending[id]; res(null); } }, 600000);
+      });
+      const th = await run('thumb', dir), im = await run('image', dir);
+      go(back);
+      const nTh = (th && th.n) || 0, nIm = (im && im.n) || 0;
+      toast(nTh + nIm ? `${H.issue}호 썸네일 ${nTh}장 · 콘텐츠 이미지 ${nIm}장(PC · 모바일 파일 ${nIm * 2}개)을 저장했어요.${dir ? ` (${dir.name} 폴더)` : ''}` : '저장할 이미지가 없어요.', 4000);
+    } finally { b.disabled = false; b.textContent = label; }
+  }
   async function saveAll(){
     const [thumb, image] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState')]);
     const data = {v: 1, kind: 'nl-issue', issue: H.issue, ym: ymOf(H.issue), savedAt: new Date().toISOString(), hub: I(), thumb, image};
@@ -588,7 +616,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   }
   function openAll(text){
     let d; try { d = JSON.parse(text); } catch(e){ toast('파일을 읽을 수 없어요.'); return; }
-    if (!d || d.kind !== 'nl-issue'){ toast('[호 전체 저장]으로 만든 파일이 아니에요. 콘텐츠 이미지 작업 파일은 그 화면의 [작업 파일 열기]로 열어 주세요.', 4000); return; }
+    // 도구별 작업 파일(예전 [작업 파일 저장] 파일)도 받아서 그 도구로 보냄
+    if (d && d.kind === 'nl-thumbs' || d && !d.kind && (d.title !== undefined || d.preset !== undefined)){ send('thumb', {type: 'setState', state: d, msg: '썸네일 작업 파일을 불러왔어요.'}); go('thumb'); return; }
+    if (d && d.kind === 'nl-image'){ send('image', {type: 'setState', state: d, msg: '콘텐츠 이미지 작업 파일을 불러왔어요.'}); go('image'); return; }
+    if (!d || d.kind !== 'nl-issue'){ toast('작업 파일이 아니에요. [전체 파일 저장]으로 만든 파일을 열어 주세요.', 4000); return; }
     H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); setIssue(d.issue);
     if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: `${d.issue}호 썸네일 작업을 불러왔어요.`});
     if (d.image) send('image', {type: 'setState', state: d.image, msg: `${d.issue}호 콘텐츠 이미지 작업을 불러왔어요.`});
@@ -616,6 +647,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('contents').addEventListener('input', e => { const c = e.target.dataset.title; if (c){ I().contents[c].title = e.target.value; save(); } });
     $('contents').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.no) send('thumb', {type: 'setNo', no: b.dataset.no}); go(b.dataset.go); });
     $('btnSaveAll').addEventListener('click', saveAll);
+    $('btnExportAllImg').addEventListener('click', exportAllImages);
     $('btnOpenAll').addEventListener('click', () => { $('fileAll').value = ''; $('fileAll').click(); });
     $('fileAll').addEventListener('change', e => { const f = e.target.files[0]; if (f) f.text().then(openAll); });
 
