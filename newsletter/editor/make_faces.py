@@ -19,6 +19,8 @@ JS = os.path.join(HERE, 'assets-editor.js')
 FACES = [   # (파일, 키)
     ('face_d_woman20.png', 'faceWoman20'),
     ('face_f_woman40.png', 'faceWoman40'),
+    ('face_g_man40_work.png', 'faceMan40Work'),
+    ('face_h_man50.png', 'faceMan50'),
     ('face_j_doctor.png', 'faceDoctor'),
     ('face_k_nurse.png', 'faceNurse'),
 ]
