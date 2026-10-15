@@ -2433,8 +2433,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     howAuto = V => { if (V.id === howLast) return; howLast = V.id; if (V.src) setHow('skill'); else if (V.fresh){ setHow('tpl'); openPick(); } };
     howAuto(view());
     // 스킬 결과 칸: 붙여 넣으면 들어올 이미지 목록(작은 PC 그림 · 파일 이름 · 새로 추가 / 바뀜)을 바로 보여 주고, [넣기]로 넣음
-    const skillList = raw => { const txt = String(raw).trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!txt) return null;
-      let s; try { s = JSON.parse(txt); } catch(_){ return []; }
+    const skillList = raw => { const txt = cleanJSON(raw); if (!txt) return null;
+      let s; try { s = parseLoose(txt); } catch(_){ return []; }
       return s && (s.kind === 'nl-block' || s.kind === 'nl-blocks') ? (s.kind === 'nl-block' ? [s] : (s.items || [])) : []; };
     const skillPv = () => {
       const raw = $('skillTxt').value, list = skillList(raw), box = $('skillPv');
@@ -2526,9 +2526,17 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   }
 
   // 붙여넣은 글자 읽기: 스킬 결과(nl-block · nl-blocks)면 블록 추가, 편집 원본이면 바꿀지 묻기. 읽었으면 true
+  // 붙여 넣은 JSON 읽기: ``` 감싸기 · 앞뒤 설명 · BOM · 특수 공백을 걷어 내고, 그래도 안 되면 둥근 따옴표(맥 · 문서 복사)를 곧은 따옴표로
+  function cleanJSON(raw){
+    let t = String(raw).replace(/^﻿/, '').replace(/[​-‍⁠]/g, '').replace(/ /g, ' ').trim().replace(/^```(json)?\s*|\s*```$/g, '');
+    const a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a > 0 || (b >= 0 && b < t.length - 1)) t = t.slice(a, b + 1);
+    return t;
+  }
+  function parseLoose(t){ try { return JSON.parse(t); } catch(e){ return JSON.parse(t.replace(/[“”„]/g, '"').replace(/[‘’]/g, "'")); } }
   function takeJSON(raw){
-    const txt = String(raw).trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!txt || txt[0] !== '{') return false;
-    let s; try { s = JSON.parse(txt); } catch(err){ return false; }
+    const head = String(raw).replace(/^﻿/, '').trim(); if (!/^(```(json)?\s*)?\{/.test(head)) return false;
+    const txt = cleanJSON(raw);
+    let s; try { s = parseLoose(txt); } catch(err){ return false; }
     if (s && (s.kind === 'nl-block' || s.kind === 'nl-blocks')){ pasteBlocks(s.kind === 'nl-block' ? [s] : (s.items || []), txt); return true; }
     if (valid(s)){ if (confirm('붙여넣은 작업 내용으로 바꿀까요?')) applyState(s, '붙여넣은 내용으로 바꿨어요.'); return true; }
     return false;

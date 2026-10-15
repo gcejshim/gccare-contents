@@ -977,9 +977,15 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       Object.values(BOOK).forEach(s => s.issue = o.issue);
     }
   }
+  // 붙여 넣은 JSON 읽기: ``` 감싸기 · 앞뒤 설명 · BOM · 특수 공백을 걷어 내고, 그래도 안 되면 둥근 따옴표(맥 · 문서 복사)를 곧은 따옴표로
+  function parseLoose(raw){
+    let t = String(raw).replace(/^﻿/, '').replace(/[​-‍⁠]/g, '').replace(/ /g, ' ').trim().replace(/^```(json)?\s*|\s*```$/g, '');
+    const a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a > 0 || (b >= 0 && b < t.length - 1)) t = t.slice(a, b + 1);
+    try { return JSON.parse(t); } catch(e){ return JSON.parse(t.replace(/[“”„]/g, '"').replace(/[‘’]/g, "'")); }
+  }
   function loadState(text, msg){
     try {
-      const d = JSON.parse(text);
+      const d = parseLoose(text);
       if (!d || d.v !== 1) throw 0;
       putData(d); syncForm(); refresh(); if (msg) toast(msg);
       return true;
@@ -1056,8 +1062,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       if (it) { e.preventDefault(); readImage(it.getAsFile()); return; }
       if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
       // Claude가 만들어 준 작업 내용(JSON 텍스트) 붙여넣기
-      const text = (e.clipboardData?.getData('text') || '').trim().replace(/^```(json)?\s*|\s*```$/g, '');
-      if (text.startsWith('{')) loadState(text, 'Claude 작업 내용을 불러왔어요. 이미지만 넣으면 돼요.');
+      const text = (e.clipboardData?.getData('text') || '').trim();
+      if (/^(```(json)?\s*)?\{/.test(text.replace(/^﻿/, ''))) loadState(text, 'Claude 작업 내용을 불러왔어요. 이미지만 넣으면 돼요.');
     });
     // 화면 어디에 놓아도 이미지로 받기 (크롬이 이미지를 새 화면으로 여는 것 방지)
     document.addEventListener('dragover', e => e.preventDefault());
@@ -1120,7 +1126,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('btnSkill').addEventListener('click', () => { $('skillText').value = ''; $('skillBox').hidden = false; $('skillText').focus(); });
     $('skillClose').addEventListener('click', () => { $('skillBox').hidden = true; });
     $('skillApply').addEventListener('click', () => {
-      const text = $('skillText').value.trim().replace(/^```(json)?\s*|\s*```$/g, '');
+      const text = $('skillText').value.trim();
       if (!text){ toast('붙여 넣은 내용이 없어요.'); return; }
       if (loadState(text, 'Claude 작업 내용을 넣었어요. [✦ 이미지 만들기]를 눌러 보세요.')) $('skillBox').hidden = true;
     });
