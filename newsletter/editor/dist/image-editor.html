@@ -303,6 +303,17 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   --fs-hero:28px;--fs-title:22px;--fs-body:18px;--fs-sub:16px;--fs-cap:14px;--fs-num:22px;--fs-val:13px;--fs-valL:20px;--pad:24px;--px:24px;--r:16px}
 .nl-mo{width:350px;--fs-hero:22px;--fs-title:18px;--fs-body:16px;--fs-sub:14px;--fs-cap:12px;--fs-num:18px;--fs-val:10px;--fs-valL:16px;--pad:16px;--px:16px;--r:14px}
 .nl.bg-white{background:var(--neutral-0)}
+/* 로고 (블록 설정 · 영문 GC Care): 상단은 제목 줄 오른쪽(제목으로 시작하는 블록) 또는 맨 위 한 줄, 하단은 맨 아래 오른쪽 */
+.nl.has-logo{position:relative}
+.nl .nl-logo{display:block;height:22px;width:auto}
+.nl-mo .nl-logo{height:15px}
+.nl .nl-logo.abs{position:absolute;top:calc(var(--pad) + 5px);right:var(--pad)}
+.nl.bg-none .nl-logo.abs{top:5px;right:16px}
+.nl.has-logo .nl-logo.abs ~ .blk-title{padding-right:130px}   /* 템플릿 제목이 길어도 로고와 겹치지 않게 */
+.nl .nl-logo-row{display:flex;justify-content:flex-end}
+.nl .nl-logo-row.top{margin-bottom:12px} .nl .nl-logo-row.bottom{margin-top:16px}
+.nl-mo .nl-logo-row.bottom{margin-top:12px}
+.nl.bg-none .nl-logo-row{padding:12px 16px}
 .nl.bg-none{padding:0;background:var(--neutral-0)}
 .nl *{box-sizing:border-box}
 .nl .hl{font-style:normal;font-weight:700;color:var(--hl,var(--careBlue-500))}
@@ -779,6 +790,9 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       <div class="fgrid">
         <div class="field"><label>바탕</label>
           <div class="seg" id="itBg"><button data-v="gray">회색 바탕</button><button data-v="white">흰 바탕</button><button data-v="none">여백 없음</button></div>
+        </div>
+        <div class="field"><label>로고</label>
+          <div class="seg" id="itLogo"><button data-v="none">없음</button><button data-v="top">상단</button><button data-v="bottom">하단</button></div>
         </div>
         <div class="field"><label>저장 형식</label>
           <div class="seg" id="itFmt"><button data-v="png">PNG (글자·표·차트)</button><button data-v="jpg">JPG (사진이 많을 때)</button></div>
@@ -1825,7 +1839,15 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   function renderItem(it, m){
     const B = BLOCKS[it.type];
     const bgCls = B.bg === 'hero' ? 'hero' + (['grad', 'white', 'gray', 'navy'].includes(it.data.bgStyle) ? ' ' + it.data.bgStyle : '') : B.bg === 'steps' ? 'steps' : B.bg === 'raw' ? 'raw' : B.bg === 'cta' ? 'cta' : 'bg-' + (it.bg || 'gray');
-    return `<div class="nl nl-${m} t-${it.type} ${bgCls}${it.data.tone === 'blue' ? ' tone-blue' : ''}">${B.render(it.data, m, it)}</div>`;
+    let body = B.render(it.data, m, it);
+    const lg = !B.bg && (it.logo === 'top' || it.logo === 'bottom') && A.logoBlue ? it.logo : '';
+    if (lg){
+      // PC에서 제목으로 시작하는 블록(직접 만든 블록 포함)은 제목 줄 오른쪽에, 아니면 맨 위 한 줄로 (겹치지 않게)
+      const titled = lg === 'top' && m === 'pc' && (it.type === 'html' || /^\s*<div class="blk-title/.test(body));   // 모바일은 폭이 좁아 제목 위 한 줄로
+      const img = `<img class="nl-logo${titled ? ' abs' : ''}" src="${A.logoBlue}" alt="GC Care">`;
+      body = lg === 'bottom' ? body + `<div class="nl-logo-row bottom">${img}</div>` : titled ? img + body : `<div class="nl-logo-row top">${img}</div>` + body;
+    }
+    return `<div class="nl nl-${m} t-${it.type} ${bgCls}${lg ? ' has-logo' : ''}${it.data.tone === 'blue' ? ' tone-blue' : ''}">${body}</div>`;
   }
   let raf = 0;
   function refresh(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(() => { renderPreview(); renderList(); renderLint(); save(); fileStat(); }); }
@@ -1987,7 +2009,9 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     $('itContents').value = V.contents; $('itNo').value = parseInt(V.no, 10) || 1;
     $('itBg').closest('.field').hidden = !!BLOCKS[V.type].bg || !!side;
     $('itFmt').closest('.field').hidden = !!side;
+    $('itLogo').closest('.field').hidden = !!BLOCKS[V.type].bg || !!side;   // 화면 소개 · 신청 배너 등은 블록 안에 로고 칸이 따로 있음
     [...$('itBg').children].forEach(b => b.classList.toggle('on', b.dataset.v === (V.bg || 'gray')));
+    [...$('itLogo').children].forEach(b => b.classList.toggle('on', b.dataset.v === (V.logo || 'none')));
     [...$('itFmt').children].forEach(b => b.classList.toggle('on', b.dataset.v === ext(V)));
   }
 
@@ -2490,6 +2514,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     $('itFmt').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view().fmt = b.dataset.v; buildForm(); refresh(); });
     $('results').addEventListener('click', e => { const b = e.target.closest('[data-jpg]'); if (!b) return; const r = lastRes[+b.dataset.jpg]; if (r && r.jpg){ saveImg(r.jpg.blob, r.jpg.name); toast(`저장했어요: ${r.jpg.name} (${r.jpg.kb}KB) · 같은 이름의 PNG는 지워 주세요`, 4000); } });
     $('itBg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view().bg = b.dataset.v; buildForm(); refresh(); });
+    $('itLogo').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; const V = view(); if (b.dataset.v === 'none') delete V.logo; else V.logo = b.dataset.v; buildForm(); refresh(); });
     $('issue').addEventListener('input', e => { const n = parseInt(e.target.value, 10); if (n > 0){ S.issue = n; S.ym = ymOf(n); $('ym').value = S.ym; refresh(); notify({type:'issueChanged', issue:n}); } });
     document.querySelectorAll('[data-fold]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.fold; S.fold = S.fold || {}; S.fold[k] = !S.fold[k]; refresh(); }));
     let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(renderPreview, 120); });
@@ -2564,6 +2589,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         if (g && typeof g === 'object' && PAIR_OK.includes(g.type)){ const c = Object.assign(newItem(g.type, it.contents, 0), {owner: it.id}); c.data = Object.assign(BLOCKS[g.type].sample(), g.data || {}); S.items.push(c); it.data[side] = c.id; }
         else if (typeof g !== 'string') it.data[side] = ''; });
       if (b.bg && !BLOCKS[b.type].bg) it.bg = b.bg;
+      if ((b.logo === 'top' || b.logo === 'bottom') && !BLOCKS[b.type].bg) it.logo = b.logo;
       if (b.fmt === 'jpg') it.fmt = 'jpg';
       if (old){   // 기존 이미지 자리에 교체 (그 이미지 전용 그래프도 같이 지움)
         S.items = S.items.filter(o => o.owner !== old.id); const at = S.items.indexOf(old);
