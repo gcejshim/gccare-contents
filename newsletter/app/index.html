@@ -32,7 +32,7 @@ a{color:var(--careBlue-500)}
 /* ── 상단 바 ── */
 .topbar{position:fixed;inset:0 0 auto 0;height:var(--top);z-index:20;display:flex;align-items:center;gap:14px;padding:0 20px;
   background:radial-gradient(ellipse 38% 180% at 58% 50%, rgba(10,194,98,.22), rgba(10,194,98,0) 70%), radial-gradient(ellipse 30% 160% at 20% 50%, rgba(47,116,235,.25), rgba(47,116,235,0) 70%), var(--careBlue-900);color:var(--neutral-0)}
-.brand{display:flex;align-items:center;gap:12px;width:calc(var(--side) - 20px)}
+.brand{display:flex;align-items:center;gap:12px;flex:none;min-width:calc(var(--side) - 20px);padding-right:12px}   /* 이름이 길면 칸이 같이 넓어짐 (호수 칸에 붙지 않게) */
 .brand img{height:18px;width:auto;display:block}
 .brand span{width:1px;height:14px;background:rgba(255,255,255,.3)}
 .brand h1{font-size:15px;font-weight:600;margin:0;white-space:nowrap}
