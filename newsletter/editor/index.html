@@ -1596,6 +1596,16 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   // ── 직접 만든 블록(HTML)의 data- 표시: 미리보기에서 글자 · 숫자 · 막대 · 색을 고치게 함 (규격: docs/HTML블록_data속성_규격.md) ──
   const hkNum = s => { const n = parseFloat(String(s == null ? '' : s).replace(/,/g, '')); return isNaN(n) ? null : n; };
   const hkSel = k => `[data-key="${CSS.escape(k)}"]`;
+  // 스킬 결과를 같은 이미지에 다시 넣을 때: 도구에서 바꾼 색(data-ckey='c토큰'인데 data-color가 다른 것)을 새 HTML의 같은 ckey에 옮김
+  function hkKeepColors(od, nd){
+    ['html', 'htmlMo'].forEach(f => {
+      if (!od[f] || !nd[f]) return; const map = {}, t = document.createElement('template'); t.innerHTML = od[f];
+      t.content.querySelectorAll('[data-ckey][data-color]').forEach(el => { const k = el.dataset.ckey; if (/^c[\w-]+$/.test(k) && el.dataset.color !== '--' + k.slice(1)) map[k] = el.dataset.color; });
+      if (!Object.keys(map).length) return; const n = document.createElement('template'); n.innerHTML = nd[f];
+      n.content.querySelectorAll('[data-ckey]').forEach(el => { const c = map[el.dataset.ckey]; if (c) el.setAttribute('data-color', c); });
+      nd[f] = n.innerHTML;
+    });
+  }
   // 그릴 때: 막대 높이 · 따라가는 요소 위치 · 눈금 · 색을 계산하고, 고칠 수 있는 요소에 미리보기 편집 표시(data-e)를 붙임
   function hkRender(html){
     if (!/data-(key|ckey|bar|max-key|color|stack)/.test(html)) return html;   // 표시가 없는 예전 HTML은 그대로
@@ -2394,8 +2404,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     const skillPv = () => {
       const raw = $('skillTxt').value, list = skillList(raw), box = $('skillPv');
       if (raw.trim() && view().src && raw.trim() === view().src.trim()){   // 지금 이미지를 만든 소스 → 다시 넣을 필요 없음
-        $('btnSkillClear').hidden = true; $('btnSkillOk').disabled = true;
-        box.innerHTML = '<div class="sp-h">이 이미지를 만든 스킬 결과예요. 넣은 뒤에 고친 내용은 여기에 반영되지 않아요.</div>'; return; }
+        $('btnSkillClear').hidden = false; $('btnSkillOk').disabled = true;
+        box.innerHTML = '<div class="sp-h">이 이미지를 만든 스킬 결과예요. 새 결과를 붙여 넣으면 통째로 바뀌어요. (도구에서 바꾼 색은 새 결과에도 그대로 남아요)</div>'; return; }
       $('btnSkillClear').hidden = !raw.trim(); $('btnSkillOk').disabled = !(list && list.some(b => b && BLOCKS[b.type]));
       if (!list){ box.innerHTML = ''; return; }
       const ok = list.filter(b => b && BLOCKS[b.type]);
@@ -2409,6 +2419,10 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         + (ok.length < list.length ? `<div class="sp-e">알 수 없는 ${list.length - ok.length}개는 빼고 넣어요.</div>` : '');
     };
     $('skillTxt').addEventListener('input', skillPv);
+    skillPv();   // 처음 열 때 이미 채워진 칸도 버튼 · 안내를 맞춤
+    // 칸에 지금 이미지의 결과가 들어 있으면 붙여넣기는 이어 붙이지 않고 통째로 바꿈 (예전엔 중간에 끼어 들어가 읽을 수 없었음)
+    $('skillTxt').addEventListener('paste', e => { const ta = e.target, cur0 = (view().src || '').trim(); if (!cur0 || ta.value.trim() !== cur0) return;
+      const t = (e.clipboardData || window.clipboardData).getData('text'); if (!t) return; e.preventDefault(); ta.value = t; ta.dispatchEvent(new Event('input')); });
     $('btnSkillClear').addEventListener('click', () => { $('skillTxt').value = ''; skillPv(); });
     $('btnSkillOk').addEventListener('click', () => {
       if (takeJSON($('skillTxt').value)) skillPv();
@@ -2501,6 +2515,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       it.data = Object.assign(BLOCKS[b.type].sample(), b.data || {});
       if (src) it.src = src;   // 붙여 넣은 스킬 결과 원문 (② 스킬 칸에 계속 보여 줌)
       if (b.type === 'html') hkUpgrade(it.data);   // 편집 표시가 없는 스킬 결과도 고칠 수 있게
+      if (b.type === 'html' && old && old.type === 'html') hkKeepColors(old.data, it.data);   // 다시 넣어도 도구에서 바꾼 색은 유지
       // 그래프 2개 나란히: left · right에 {type, data}로 그래프를 직접 담아 오면 이 이미지 전용 그래프(owner)로 만듦
       if (b.type === 'pair') ['left', 'right'].forEach(side => { const g = (b.data || {})[side];
         if (g && typeof g === 'object' && PAIR_OK.includes(g.type)){ const c = Object.assign(newItem(g.type, it.contents, 0), {owner: it.id}); c.data = Object.assign(BLOCKS[g.type].sample(), g.data || {}); S.items.push(c); it.data[side] = c.id; }
