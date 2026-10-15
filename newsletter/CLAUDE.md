@@ -2,7 +2,7 @@
 
 디자이너 대신 **운영자가 직접** 뉴스레터 이미지를 만들 수 있게 하는 도구 모음. 카드뉴스 편집기(`../cards/cardnews_editor_v1.0.html`) 구조를 응용한 단일 HTML 도구 + claude.ai 스킬.
 
-> **현재 단계 (2026-10-02, v1.4): 프로토타입 → 팀장 보고 → 상세 구축.** git은 **main 하나로만** 작업(브랜치 만들지 않음, 사용자 지정). 통합본 `app/dist/gccare-insight-studio.html`(AX Insight Studio, 2026-10-15 이름 변경 · 예전 GC Care Insight Studio · newsletter-maker.html)이 최신 (**파일 이름 고정**, 버전은 왼쪽 아래 표시 · README 버전 표). 다음 할 일은 맨 아래 "진행 순서" 참고.
+> **현재 단계 (2026-10-02, v1.4): 프로토타입 → 팀장 보고 → 상세 구축.** git은 **main 하나로만** 작업(브랜치 만들지 않음, 사용자 지정). 통합본 `app/dist/gccare-insight-studio.html`(AX Studio · Insight, 2026-10-15 이름 변경 · 예전 GC Care Insight Studio · newsletter-maker.html)이 최신 (**파일 이름 고정**, 버전은 왼쪽 아래 표시 · README 버전 표). 다음 할 일은 맨 아래 "진행 순서" 참고.
 
 ## 산출물 규격 (확정)
 
@@ -61,7 +61,7 @@ newsletter/
 │  ├─ index.html       개발본. 블록 정의는 BLOCKS (list·rank·hbar·table·hero·steps·vbar·stack·line·donut·html·raw·compare)
 │  ├─ assets-editor.js 한글 로고(logoKoBlue/White) · 상단 바 한글 CI(logoTopKo)
 │  └─ build.py         → dist/image-editor.html (이름 고정 · thumbnail/vendor · assets.js 공유)
-├─ app/                통합본 "AX Insight Studio" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF 준비 중 · 에셋 · 가이드)
+├─ app/                통합본 "AX Studio · Insight" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF 준비 중 · 에셋 · 가이드)
 │  ├─ index.html       개발본. 두 도구를 iframe으로 띄우고 postMessage로 호수 공유 · 저장 기록 · 호 전체 저장/열기
 │  ├─ make_samples.py  10~14호 완성 이미지 → samples.js (에셋 › 샘플 모아보기, 2배 WebP). 회사 PC 월별 폴더 또는 `--figma DIR`(Figma 2배 PNG, 파일명=노드 ID, 매핑은 FIGMA 딕셔너리). 11호 contents01_p03 · contents02_p01은 Figma에 납품본이 없어 예전 JPG 유지
 │  └─ build.py         → dist/gccare-insight-studio.html (이름 고정 · 폰트·라이브러리는 한 번만 넣고 blob URL로 두 도구가 공유, 약 5.8MB)

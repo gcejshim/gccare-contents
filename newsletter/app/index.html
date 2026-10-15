@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AX Insight Studio</title>
+<title>AX Studio · Insight</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="../thumbnail/vendor/lucide.min.js"></script>
 <script src="../thumbnail/assets.js"></script>
@@ -171,7 +171,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <body>
 
 <header class="topbar">
-  <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>AX Insight Studio</h1></div>
+  <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>AX Studio · Insight</h1></div>
   <div class="issue" title="호수를 바꾸면 썸네일 · 콘텐츠 이미지 도구에 같이 적용돼요">
     <button id="issuePrev" aria-label="이전 호">◀</button><b id="issueNo"></b><small id="issueYm"></small><button id="issueNext" aria-label="다음 호">▶</button>
   </div>
@@ -193,7 +193,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <button class="menu" data-view="ai" data-icon="Sparkles">AI로 그리기</button>
   <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
   <button class="menu" data-view="guide" data-icon="BookOpen">가이드</button>
-  <div class="foot">AX Insight Studio <span id="ver">개발본</span><br>작업은 이 브라우저에 자동저장돼요</div>
+  <div class="foot">AX Studio · Insight <span id="ver">개발본</span><br>작업은 이 브라우저에 자동저장돼요</div>
 </nav>
 
 <main class="main">
@@ -695,7 +695,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // ── 시작 ──
   function init(){
     A = window.NL_ASSETS || A;
-    const top = A.logoTop || A.logoTopKo; if (top) $('topLogo').src = top; else $('topLogo').remove();   // 상단 바: GC Care CI + AX Insight Studio
+    const top = A.logoTop || A.logoTopKo; if (top) $('topLogo').src = top; else $('topLogo').remove();   // 상단 바: GC Care CI + AX Studio · Insight
     if (PACK) $('ver').textContent = 'v' + PACK.version;
     document.querySelectorAll('.menu').forEach(b => b.insertAdjacentHTML('afterbegin', svg(b.dataset.icon)));
     document.querySelectorAll('[data-icon]:not(.menu)').forEach(el => { el.outerHTML = svg(el.dataset.icon); });
