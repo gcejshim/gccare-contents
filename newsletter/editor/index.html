@@ -273,6 +273,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl.has-logo{position:relative}
 .nl .nl-logo{display:block;height:22px;width:auto}
 .nl-mo .nl-logo{height:15px}
+.nl .nl-logo.color{height:17px} .nl-mo .nl-logo.color{height:12px}   /* 컬러 로고는 심볼이 커서 원본(13·자료실 이미지) 크기에 맞춰 작게 */
+.nl .nl-logo.color.abs{top:calc(var(--pad) + 8px)}
 .nl .nl-logo.abs{position:absolute;top:calc(var(--pad) + 5px);right:var(--pad)}
 .nl.bg-none .nl-logo.abs{top:5px;right:16px}
 .nl.has-logo .nl-logo.abs ~ .blk-title{padding-right:130px}   /* 템플릿 제목이 길어도 로고와 겹치지 않게 */
@@ -1814,7 +1816,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     if (lg){
       // PC에서 제목으로 시작하는 블록(직접 만든 블록 포함)은 제목 줄 오른쪽에, 아니면 맨 위 한 줄로 (겹치지 않게)
       const titled = lg === 'top' && m === 'pc' && (it.type === 'html' || /^\s*<div class="blk-title/.test(body));   // 모바일은 폭이 좁아 제목 위 한 줄로
-      const img = `<img class="nl-logo${titled ? ' abs' : ''}" src="${lgSrc}" alt="GC Care">`;
+      const img = `<img class="nl-logo${it.logoStyle === 'mono' || !A.logoColor ? '' : ' color'}${titled ? ' abs' : ''}" src="${lgSrc}" alt="GC Care">`;
       body = lg === 'bottom' ? body + `<div class="nl-logo-row bottom">${img}</div>` : titled ? img + body : `<div class="nl-logo-row top">${img}</div>` + body;
     }
     return `<div class="nl nl-${m} t-${it.type} ${bgCls}${lg ? ' has-logo' : ''}${it.data.tone === 'blue' ? ' tone-blue' : ''}">${body}</div>`;
