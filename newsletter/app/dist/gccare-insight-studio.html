@@ -140,8 +140,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .icons svg{width:24px;height:24px;color:var(--careBlue-500)}
 .icons code{font-size:10px}
 .sws{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.sw{border:1px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;cursor:pointer;background:var(--neutral-0);text-align:left;padding:0}
-.sw i{display:block;height:56px}
+.sw{border:1px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;cursor:pointer;background:var(--neutral-0);text-align:left;padding:0;display:flex;flex-direction:column;justify-content:flex-start}   /* 버튼은 내용을 세로 가운데 놓음 → 키가 큰 줄에서 색 칸 위에 흰 띠가 생기던 문제 */
+.sw i{display:block;flex:none;height:56px}
 .sw div{padding:8px 10px;font-size:12px;line-height:1.45}
 .sw div b{display:block;font-size:12px}
 .sw div code{font-size:11px;background:none;padding:0;color:var(--coolNeutral-600)}
