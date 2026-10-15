@@ -141,24 +141,10 @@
 - 바깥 폭은 지정하지 않는다(블록 폭에 맞춰짐). `width:100%`, flex · grid로 배치한다. 고정 px 폭은 칸 하나 정도만.
 - 바탕은 블록 설정(`bg`)이 깔아 주므로, 카드가 필요하면 `background:#fff;border-radius:16px;padding:28px 32px`처럼 안에서 만든다.
 
-**글자 (Pretendard는 편집기가 넣어 줌 — `font-family` 쓰지 않기)**
-| | PC | 모바일 |
-|---|---|---|
-| 큰 헤드라인 | 28 Bold | 20~22 Bold |
-| 블록 제목 | 22 Bold | 18 Bold |
-| 본문 | 18 · 16 Medium(500) | 16 · 14 Medium |
-| 가장 작은 글자 | 14 | 12 |
-- 기본 글자색은 `#111111`(따로 지정하지 않으면 됨). 회색 보조 글자는 `var(--coolNeutral-600)`.
+**글자 · 색 · 모양은 `references/design-system.md`를 따른다.** HTML에서 지킬 것만:
+- `font-family`는 쓰지 않는다(Pretendard는 편집기가 넣어 줌). 기본 글자색은 지정하지 않으면 `#111111`.
+- 색은 `var(--이름)`(예: `var(--careBlue-900)`)으로만 쓴다. 토큰 밖 hex는 흰색 `#fff`와 그림자 `rgba(3,21,82,.06)`만.
 - 줄 간격 1.5~1.65, `word-break:keep-all`은 편집기가 이미 적용.
-
-**색 (토큰만 · `var(--이름)`으로 쓰기)**
-- 블루 기본: `--careBlue-900`(남색 헤더·강조) `--careBlue-700` `--careBlue-500`(배지·아이콘) `--careBlue-400` `--careBlue-200` `--careBlue-100`(연파랑 배경) `--careBlue-50` `--careBlue-10`
-- 그린은 포인트만: `--careGreen-500`(강조 숫자·단어) `--careGreen-700` `--careGreen-10`
-- 뉴트럴: `--coolNeutral-50`(바탕) `--coolNeutral-100`(구분선) `--coolNeutral-600`(보조 글자) `--neutral-100`(#e6e6e6 표 선)
-- 경고: `--careRed-500`, 주의 배경 `--careOrange-50`
-- 흰색 `#fff`, 그림자 `rgba(3,21,82,.06)`은 써도 됨. 그 밖의 hex는 쓰지 않는다.
-- 편집기에 있는 토큰 전체 (이 밖의 이름은 색이 안 나옴): careBlue 10·50·100·200·300·400·500·600·700·800·900 / careGreen 10·50·100·300·400·500·600·700·800 / careRed 50·100·200·300·400·500·600 / careOrange 50·100·200·300·400·500·600 / careYellow 100·200·300·500 / coolNeutral 50·100·200·300·400·500·600·800 / neutral 0·100·500·600·700·900
-- 어두운 바탕 위 흰 제목은 `font-weight:600`.
 
 **아이콘**: `<i data-icon="Users" data-color="--careBlue-500" data-size="22"></i>` → 편집기가 Lucide 아이콘으로 바꿔 줌. 원 안 아이콘이면 바깥 `span`에 배경·크기를 준다.
 
