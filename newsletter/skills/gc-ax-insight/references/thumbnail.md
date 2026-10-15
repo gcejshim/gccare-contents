@@ -6,8 +6,8 @@
 
 1. 기획안에서 **호수**(예: 15호)와 콘텐츠 목록(01 메인, 02 · 03 서브)을 찾는다. 호수가 없으면 물어본다. 참고: 14호=2026년 9월, 15호=2026년 10월, 이후 한 달에 한 호씩.
 2. 콘텐츠마다 아래 규칙으로 JSON을 하나씩 만든다.
-3. 콘텐츠마다 **JSON 코드 블록 하나**와 **이미지 프롬프트**를 준다. 파일을 만들 수 있으면 `(15호)01.작업.json`처럼 파일로도 준다.
-4. 마지막에 사용 방법 한 줄을 붙인다: "썸네일 도구를 열고 JSON을 복사해 Ctrl+V로 붙여넣은 뒤, 이미지를 넣고 [이 이미지 저장]을 누르세요. 콘텐츠마다 붙여넣으면 01 · 02 · 03 자리에 각각 들어가고, [작업 파일 저장]으로 한 호 썸네일을 한 파일에 보관할 수 있어요."
+3. 콘텐츠마다 **JSON 코드 블록 하나**를 준다(그릴 것 `gen.desc`가 안에 들어 있다). 파일을 만들 수 있으면 `(15호)01.작업.json`처럼 파일로도 준다.
+4. 마지막에 사용 방법 한 줄을 붙인다: "뉴스레터 썸네일 메뉴 위쪽 [Claude 스킬 결과 넣기]에 붙여 넣고 [넣기] → [✦ 이미지 만들기]를 누른 뒤 [이 이미지 저장]을 누르세요. 콘텐츠마다 붙여넣으면 01 · 02 · 03 자리에 각각 들어가고, [작업 파일 저장]으로 한 호 썸네일을 한 파일에 보관할 수 있어요."
 
 기획안의 문구를 임의로 바꾸지 않는다. 줄바꿈과 강조만 정하고, 3줄에 도저히 안 들어가면 줄이기 전에 원문과 줄인 안을 함께 보여주고 고르게 한다.
 
@@ -29,7 +29,8 @@
     {"icon": "User", "label": "결과 확인"},
     {"icon": "MessageCircle", "label": "사후관리"},
     {"icon": "TrendingUp", "label": "건강관리 계획"}
-  ]
+  ],
+  "gen": {"desc": "청진기와 검진 결과지, 초록 체크 배지"}
 }
 ```
 
@@ -37,6 +38,7 @@
 - `issue`: 호수 숫자, `no`: "01" · "02" · "03"
 - `image`: 항상 `null` (이미지는 운영자가 도구에서 넣는다)
 - `img`: 항상 `{"scale":100,"x":0,"y":0}`
+- `gen.desc`: 썸네일 메뉴 「무엇을 그릴까요?」 칸에 들어가는 한 줄 (아래 '그릴 것' 규칙)
 
 ## 타이틀 규칙
 
@@ -72,25 +74,24 @@
   `User` 사람 · `Users` 사람들 · `FileText` 문서 · `ClipboardCheck` 체크리스트 · `HeartPulse` 건강 · `Stethoscope` 진료 · `Hospital` 병원 · `CalendarCheck` 일정 · `ShieldCheck` 안전 · `Activity` 활동 · `TrendingUp` 상승 · `ChartColumn` 차트 · `MessageCircle` 상담 · `Building2` 회사 · `Footprints` 걷기 · `Pill` 약 · `Bell` 알림 · `CircleCheck` 완료 · `Search` 확인 · `Smartphone` 앱 · `Clock` 시간 · `Target` 목표
 - `chips` 배열은 항상 3개를 채운다(안 쓰는 칸은 label을 빈 문자열로).
 
-## 이미지 프롬프트 제안
+## 그릴 것 (`gen.desc`)
 
-콘텐츠마다 이미지 생성용 프롬프트를 **영문 1개 + 한글 설명 1줄**로 준다. 레이아웃에 맞춰 쓴다.
+썸네일 메뉴의 **[✦ 이미지 만들기]**가 이 한 줄로 그림을 그린다. 그림체 · 배치 · 색 규칙은 도구가 붙이므로 여기에는 **무엇을 그릴지만** 한국어로 짧게 쓴다.
 
-- 공통: `soft 3D clay style, blue tone palette with one small green accent, soft studio lighting, clean, no text, no letters, no numbers, no logos`
-- `scene`: 뒤에 `wide 16:9 composition, main object on the right third, empty soft light-blue background on the left two-thirds for text` 추가
-- `object`: 뒤에 `single object, isolated, transparent background` 추가
-- `photo`: 헬스케어 관련 실사 사진(검진센터·상담·사내 건강관리 장면, 검진 결과지·청진기 같은 사물). 인물은 가상 인물만, 한국인(동양인)으로 쓴다(3D 캐릭터도 동일). 실제 인터뷰·고객사 인물은 생성하지 말고 실제 사진을 붙여넣으라고 안내한다.
+- **구체적인 물건 이름**으로 쓴다. 개념어(안전 · 보안 · 알림)를 쓰면 안전모 · 자물쇠 · 종처럼 그대로 물건이 되므로, 주제를 보여 줄 물건을 직접 고른다.
+- **중심 물건 1개 + 보조 1~2개**. 예: "청진기와 검진 결과지, 초록 체크 배지"
+- 그림 속 글자는 기본으로 없다. 꼭 필요하면 **따옴표 안 글자만** 들어간다(예: 책자 제목 "안전보건 공시").
+- 인물이 필요하면 "3D 캐릭터 직원이 노트북 앞에서 고민"처럼 장면으로 쓴다. 실제 인터뷰 · 고객사 인물은 그리지 않고, `layout`을 `photo`로 두고 `desc`는 빈 문자열 + "실제 사진을 붙여 넣어 주세요"라고 안내한다.
+- 완성본은 [✦ 이미지 만들기] 결과로 쓰고, 마음에 안 들면 desc를 고쳐 다시 만든다.
 
-썸네일 메뉴의 **[✦ 이미지 만들기]**도 함께 안내한다. 배경 색상과 레이아웃을 고르고 그릴 것을 적으면 시안을 바로 만들어 준다. 완성본은 ChatGPT에서 만들어 붙여넣는다.
-
-**이미지에는 절대 글자를 넣지 않는다.** 글자는 도구가 올린다.
+**이미지에는 절대 글자를 넣지 않는다**(따옴표 글자 예외). 타이틀 · 칩 글자는 도구가 올린다.
 
 ## 예시 (14호, 실제 발행본)
 
 ```json
-{"v":1,"issue":14,"no":"01","title":"검진결과가\n나왔습니다.\n무엇을 해야 할까요?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":true,"chips":[{"icon":"User","label":"결과 확인"},{"icon":"MessageCircle","label":"사후관리"},{"icon":"TrendingUp","label":"건강관리 계획"}]}
+{"v":1,"issue":14,"no":"01","title":"검진결과가\n나왔습니다.\n무엇을 해야 할까요?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":true,"chips":[{"icon":"User","label":"결과 확인"},{"icon":"MessageCircle","label":"사후관리"},{"icon":"TrendingUp","label":"건강관리 계획"}],"gen":{"desc":"검진 결과지를 든 손, 청진기"}}
 ```
 
 ```json
-{"v":1,"issue":14,"no":"02","title":"걷기 챌린지,\n더 오래 참여하고\n더 쉽게 운영하려면?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":false,"chips":[{"icon":"Footprints","label":""},{"icon":"Smartphone","label":""},{"icon":"TrendingUp","label":""}]}
+{"v":1,"issue":14,"no":"02","title":"걷기 챌린지,\n더 오래 참여하고\n더 쉽게 운영하려면?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":false,"chips":[{"icon":"Footprints","label":""},{"icon":"Smartphone","label":""},{"icon":"TrendingUp","label":""}],"gen":{"desc":"걸음 수 앱 휴대폰과 흰 · 파랑 운동화"}}
 ```
