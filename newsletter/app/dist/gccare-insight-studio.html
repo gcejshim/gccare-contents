@@ -717,7 +717,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     H = load(); I();
     mountTools(); renderTop();
     const v = location.hash.slice(1);
-    go(['home', 'thumb', 'image', 'pdf', 'ai', 'assets', 'guide'].includes(v) ? v : (H.view || 'home'));
+    go(['home', 'thumb', 'image', 'pdf', 'ai', 'assets', 'guide'].includes(v) ? v : 'home');   // 새로 열면 항상 이번 호부터 (사용자 지정 10/15). 새로고침은 주소의 메뉴 유지
 
     $('side').addEventListener('click', e => { const b = e.target.closest('.menu'); if (b) go(b.dataset.view); });
     $('issuePrev').addEventListener('click', () => setIssue(H.issue - 1));
