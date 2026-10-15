@@ -100,6 +100,7 @@ newsletter/
 
 - **저장 버튼(2026-10-12 사용자 지정, 통합본 v1.5):** 상단 = 호 전체 [불러오기 · 전체 파일 저장 · 전체 이미지 저장], 도구 하단 = 지금 한 장 [이 이미지 저장]만 (`body.embedded`에서 작업 파일 열기/저장 · 전체 이미지 저장 숨김, 단독 도구는 그대로). 전체 이미지 저장은 셸이 폴더를 고르고(iframe은 폴더 창 불가, IndexedDB `allImgDir`) 핸들을 `exportAll` 메시지로 넘김 → 도구가 `exportDone{n}` 응답. 숨은 iframe은 그려지지 않아 저장 중엔 그 도구 화면으로 전환. [불러오기]는 nl-issue · nl-thumbs · 썸네일 한 장 · nl-image 모두 받음. 도구 안내 문구는 `hubName()`이 셸 버튼 이름으로 바꿈
 - **기본 호(2026-10-15 사용자 지정):** 처음 여는 브라우저(통합본 자동저장 `gc-nl-hub-v1` 없음)는 `app/build.py`의 `DEFAULT_ISSUE`(지금 15호 `_전체.json`)로 시작. 지난 호 예시(썸네일 14호 버튼 · 편집기 블록 10종)는 화면에서 뺌. 새 호가 완성되면 `DEFAULT_ISSUE` 경로만 바꿔 다시 빌드. 통합본은 새로 열면 항상 이번 호 화면
+- **호 > 콘텐츠 계층(2026-10-15 사용자 지정):** 통합본 상단 ◀ ▶(`switchIssue`)로 호를 옮기면 지금 호의 썸네일 · 콘텐츠 이미지 상태를 IndexedDB(`gc-nl-handles` › `work:호수`)에 보관하고 옮겨 간 호 것을 꺼냄(없으면 `blankIssue` → 빈 상태). 도구 안 호수 칸은 통합본에서 잠금(이름표만 바뀌던 문제)
 - ② 만드는 방법 자동 전환: 이미지를 옮길 때 `src`(스킬로 만든) → 스킬 쪽, `fresh`(빈 이미지) → 템플릿 + 목록 펼침, 그 밖은 마지막 선택(사용자가 누른 탭만 기억)
 - 상태 `S` = `{v:1, kind:'nl-image', issue, ym, items:[{id, type, contents, no, bg(gray|white|none), fmt(png|jpg), data}], sel, fold}`. 자동저장 `gc-nl-image-v1`, 셸은 `gc-nl-hub-v1`
 - 저장: html2canvas, 흰 배경(투명 영역 없음). 형식 PNG 기본 · JPG(품질 90)는 사진 많을 때. PNG 1MB 초과 시 [JPG로 저장] 버튼

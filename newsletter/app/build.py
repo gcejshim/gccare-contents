@@ -5,7 +5,7 @@
 """
 import base64, json, os, re
 
-VERSION = '1.9'
+VERSION = '2.0'
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 TH = os.path.join(ROOT, 'thumbnail'); ED = os.path.join(ROOT, 'editor')

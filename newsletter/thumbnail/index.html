@@ -444,6 +444,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (S.issue !== issue0) notify({type:'issueChanged', issue:S.issue});
   }
   function undoBtns(){ $('btnUndo').disabled = !past.length && !(hT && hNow); $('btnRedo').disabled = !future.length; }
+  function hReset(){ clearTimeout(hT); hT = 0; past = []; future = []; hNow = null; undoBtns(); }
 
   function autosave(){
     hMark();
@@ -1189,9 +1190,12 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function bridge(){
     if (window.parent === window) return;
     document.body.classList.add('embedded');
+    { const iss = $('issue'); iss.readOnly = true; iss.title = '호수는 위쪽 ◀ ▶에서 바꿔요 (호마다 작업이 따로 있어요)'; iss.style.background = 'var(--coolNeutral-50)'; }   // 호 > 콘텐츠: 통합본에선 상단에서만 호를 바꿈
     const tw = document.createTreeWalker($('help'), NodeFilter.SHOW_TEXT); while (tw.nextNode()) tw.currentNode.nodeValue = hubName(tw.currentNode.nodeValue);
     window.addEventListener('message', e => {
       const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
+      if (m.type === 'blankIssue' && m.issue){ BOOK = {}; S = BOOK['01'] = Object.assign(DEFAULT(), {issue: m.issue, no: '01'}); syncForm(); refresh(); hReset(); }   // 작업한 적 없는 호로 옮김 → 빈 썸네일
+      if (m.type === 'setState' && m.state) setTimeout(hReset, 0);   // 다른 호 작업으로 바뀜 → 되돌리기 기록 새로
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ Object.values(BOOK).forEach(s => s.issue = m.issue); syncForm(); refresh(); }
       if (m.type === 'setNo' && NOS.includes(m.no)){ useSlot(m.no); syncForm(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:bookData()});

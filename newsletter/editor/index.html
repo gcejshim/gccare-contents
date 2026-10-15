@@ -1777,6 +1777,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     if (S.issue !== issue0) notify({type:'issueChanged', issue:S.issue});
   }
   function undoBtns(){ $('btnUndo').disabled = !past.length && !(hT && hNow); $('btnRedo').disabled = !future.length; }
+  function hReset(){ clearTimeout(hT); hT = 0; past = []; future = []; hNow = null; undoBtns(); }
 
   function save(){
     hMark(); undoBtns();
@@ -2545,9 +2546,12 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   function bridge(){
     if (window.parent === window) return;
     document.body.classList.add('embedded');
+    { const iss = $('issue'); iss.readOnly = true; iss.title = '호수는 위쪽 ◀ ▶에서 바꿔요 (호마다 작업이 따로 있어요)'; iss.style.background = 'var(--coolNeutral-50)'; }   // 호 > 콘텐츠: 통합본에선 상단에서만 호를 바꿈
     const tw = document.createTreeWalker($('help'), NodeFilter.SHOW_TEXT); while (tw.nextNode()) tw.currentNode.nodeValue = hubName(tw.currentNode.nodeValue);
     window.addEventListener('message', e => {
       const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
+      if (m.type === 'blankIssue' && m.issue){ applyState(Object.assign(blankState(), {issue: m.issue, ym: ymOf(m.issue)}), ''); hReset(); }   // 작업한 적 없는 호로 옮김 → 빈 상태
+      if (m.type === 'setState' && m.state) setTimeout(hReset, 0);   // 다른 호 작업으로 바뀜 → 되돌리기 기록 새로
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ S.issue = m.issue; S.ym = ymOf(m.issue); syncTop(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:S});
       if (m.type === 'setState' && m.state) applyState(m.state, m.msg == null ? '콘텐츠 이미지 작업을 불러왔어요.' : m.msg);

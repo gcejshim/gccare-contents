@@ -429,6 +429,18 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     Object.keys(TOOLS).forEach(k => { if (k !== from) send(k, {type: 'setIssue', issue: n}); });
     renderTop(); if (H.view === 'home') renderHome();
   }
+  // 호 옮기기(◀ ▶): 썸네일 · 콘텐츠 이미지 작업은 호마다 따로 — 지금 호 작업을 브라우저(IndexedDB)에 보관하고, 옮겨 간 호 작업을 꺼냄. 없으면 빈 상태 (사용자 지정 10/15)
+  let switching = false;
+  async function switchIssue(n){
+    n = Math.max(1, n | 0); if (switching || n === H.issue) return; switching = true;
+    try {
+      const [thumb, image] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState')]);
+      if (thumb || image) await hdb(1, 'work:' + H.issue, {thumb, image});
+      const w = await hdb(0, 'work:' + n);
+      ['thumb', 'image'].forEach(k => send(k, w && w[k] ? {type: 'setState', state: w[k], msg: ''} : {type: 'blankIssue', issue: n}));
+      setIssue(n);
+    } finally { switching = false; }
+  }
   function renderTop(){
     $('issueNo').textContent = `뉴스레터 ${H.issue}호`;   // 앞의 이름은 불러온 콘텐츠 종류 (나중에 '보건관리 14호'처럼) const ym = ymOf(H.issue); $('issueYm').textContent = `${ym.slice(0, 4)}.${ym.slice(4)}`;
     const due = I().due, dd = $('dday');
@@ -711,8 +723,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     go(['home', 'thumb', 'image', 'pdf', 'ai', 'assets', 'guide'].includes(v) ? v : 'home');   // 새로 열면 항상 이번 호부터 (사용자 지정 10/15). 새로고침은 주소의 메뉴 유지
 
     $('side').addEventListener('click', e => { const b = e.target.closest('.menu'); if (b) go(b.dataset.view); });
-    $('issuePrev').addEventListener('click', () => setIssue(H.issue - 1));
-    $('issueNext').addEventListener('click', () => setIssue(H.issue + 1));
+    $('issuePrev').addEventListener('click', () => switchIssue(H.issue - 1));
+    $('issueNext').addEventListener('click', () => switchIssue(H.issue + 1));
     $('due').addEventListener('change', e => { I().due = e.target.value; save(); renderTop(); });
     $('memo').addEventListener('input', e => { I().memo = e.target.value; save(); });
     $('btnC3').addEventListener('click', () => { I().c3 = !I().c3; save(); renderHome(); });
