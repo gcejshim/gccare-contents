@@ -1,0 +1,6 @@
+# Vercel(gccardnews)에는 이미지 서버 함수만 필요 — 나머지(카드뉴스 · 뉴스레터 · 이미지)는 GitHub Pages가 맡음
+# 무료 플랜 배포 저장 공간(10GB)이 푸시마다 저장소 전체(약 300MB)로 차던 문제 (2026-10-15)
+/*
+!/api
+!/package.json
+!/vercel.json
