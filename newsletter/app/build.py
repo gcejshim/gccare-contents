@@ -5,7 +5,7 @@
 """
 import base64, json, os, re
 
-VERSION = '1.8'
+VERSION = '1.9'
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 TH = os.path.join(ROOT, 'thumbnail'); ED = os.path.join(ROOT, 'editor')
@@ -72,7 +72,10 @@ shell = sub1(r'<link rel="stylesheet" href="[^"]*pretendard[^"]*">\n', '', shell
 for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="\.\./thumbnail/refs\.js"></script>\n',r'<script src="samples\.js"></script>\n']:
     shell = sub1(pat, '', shell, 'shell lib')
 data = json.dumps({'version': VERSION, 'tools': tools, 'libs': libs, 'fonts': fonts}, ensure_ascii=False).replace('<', '\\u003c')
-pack = '<script>window.__NL_DATA=' + data + ';</script>\n<script>' + BOOT + '</script>\n'
+# 기본 호: 처음 여는 브라우저에 채워 줄 최신 완성 호 (issues/NN/work/*_전체.json)
+DEFAULT_ISSUE = os.path.join(ROOT, 'issues', '15', 'work', '202610_뉴스레터_15호_전체.json')
+default_issue = read(DEFAULT_ISSUE).replace('<', '\\u003c')
+pack = '<script>window.__NL_DATA=' + data + ';</script>\n<script>window.NL_DEFAULT_ISSUE=' + default_issue + ';</script>\n<script>' + BOOT + '</script>\n'
 shell = shell.replace('</head>', pack + '</head>', 1)
 shell = shell.replace('<title>AX Studio · Insight</title>', f'<title>AX Studio · Insight v{VERSION}</title>')
 os.makedirs(os.path.join(HERE, 'dist'), exist_ok=True)

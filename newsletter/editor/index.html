@@ -673,7 +673,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
 <header class="topbar">
   <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>뉴스레터 이미지 만들기</h1></div>
-  <button class="btn sm" id="btnSample" title="지난 호 실제 내용으로 블록 10종 예시를 불러와요">예시: 블록 10종</button>
+  <button class="btn sm" id="btnSample" title="지난 호 실제 내용으로 블록 10종 예시를 불러와요" hidden>예시: 블록 10종</button>   <!-- 지난 호 예시는 화면에서 뺌 (사용자 지정 10/15) -->
   <button class="btn sm" id="btnNew">새로 만들기</button>
   <button class="btn sm" id="btnHelp">사용법</button>
   <span class="sp"></span>
@@ -793,7 +793,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       <li><b>저장 형식</b>은 기본 PNG예요. 사진·화면 캡처가 큰 이미지만 JPG로 바꿔요. PNG가 1MB를 넘으면 자동 점검 아래에 <b>[JPG로 저장]</b> 버튼이 나와요.</li>
       <li>나중에 고치려면 <b>[작업 파일 저장]</b> (.json) → <b>[작업 파일 열기]</b></li>
     </ol>
-    <p class="hint">작업 내용은 이 브라우저에 자동저장돼요. 처음이라면 [예시: 블록 10종]을 눌러 보고 고쳐 보는 게 가장 빨라요.</p>
+    <p class="hint">작업 내용은 이 브라우저에 자동저장돼요. 처음이라면 ② 만드는 방법에서 템플릿을 하나 골라 내용을 바꿔 보는 게 가장 빨라요.</p>
     <div style="text-align:right;margin-top:16px"><button class="btn primary" id="btnHelpClose">확인</button></div>
   </div>
 </div>
@@ -1911,8 +1911,10 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     return '';
   }
 
+  let howAuto = null, howLast = null;   // ② 만드는 방법 자동 전환 (init에서 정함)
   function buildForm(){
     const it = cur(), V = view(), B = BLOCKS[it.type];
+    if (howAuto) setTimeout(() => howAuto(view()), 0);
     if (B.norm) B.norm(it.data);
     // ② 스킬 칸: 스킬로 넣은 이미지면 그때 붙여 넣은 소스를 그대로 보여 줌 (붙여 넣다 만 글은 지우지 않음)
     const sk = $('skillTxt'), skIn = sk.value.trim();
@@ -2355,7 +2357,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   // ── 초기화 ──
   function init(){
     const top = A.logoTopKo || A.logoTop; if (top) $('topLogo').src = top; else $('topLogo').remove();
-    S = load() || sampleState(); S.fold = S.fold || {}; delete S.mode; S.items.forEach(it => { it.fmt = it.fmt === 'jpg' ? 'jpg' : 'png'; if (it.type === 'hero' && typeof it.data.logo === 'boolean') it.data.logo = it.data.logo ? 'ko' : 'none'; });
+    S = load() || blankState();   // 처음엔 빈 상태 (지난 호 예시 X, 통합본은 기본 호를 채워 줌) S.fold = S.fold || {}; delete S.mode; S.items.forEach(it => { it.fmt = it.fmt === 'jpg' ? 'jpg' : 'png'; if (it.type === 'hero' && typeof it.data.logo === 'boolean') it.data.logo = it.data.logo ? 'ko' : 'none'; });
     // 만든 이미지와 같은 번호인 빈 새 이미지는 정리 (빈 이미지가 만든 이미지를 가리던 문제)
     { const sel = S.items[S.sel], real = o => !o.owner && !o.fresh;
       S.items = S.items.filter(o => !(o.fresh && S.items.some(x => real(x) && x.contents === o.contents && pad2(x.no) === pad2(o.no))));
@@ -2377,11 +2379,14 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     $('btnPick').addEventListener('click', () => { if ($('tPop').hidden) openPick(); else closePick(); try { localStorage.setItem('gc-nl-tpick-open', $('tPop').hidden ? '0' : '1'); } catch(_){} });
     setTimeout(() => { try { if (localStorage.getItem('gc-nl-tpick-open') === '1') openPick(); } catch(_){} }, 0);   // 지난번에 펼쳐 두었으면 펼친 채로
     // ② 만드는 방법: 템플릿(기본) / Claude 스킬 — 고른 쪽만 보임, 마지막 선택 기억
-    const setHow = h => { $('howSkill').hidden = h !== 'skill'; $('howTpl').hidden = h !== 'tpl';
-      $('howSeg').querySelectorAll('[data-how]').forEach(b => b.classList.toggle('on', b.dataset.how === h)); try { localStorage.setItem('gc-nl-how', h); } catch(_){} };
-    $('howSeg').addEventListener('click', e => { const b = e.target.closest('[data-how]'); if (b) setHow(b.dataset.how); });
+    const setHow = (h, keep) => { $('howSkill').hidden = h !== 'skill'; $('howTpl').hidden = h !== 'tpl';
+      $('howSeg').querySelectorAll('[data-how]').forEach(b => b.classList.toggle('on', b.dataset.how === h)); if (keep) try { localStorage.setItem('gc-nl-how', h); } catch(_){} };
+    $('howSeg').addEventListener('click', e => { const b = e.target.closest('[data-how]'); if (b) setHow(b.dataset.how, true); });
     let how0 = 'tpl'; try { how0 = localStorage.getItem('gc-nl-how') === 'skill' ? 'skill' : 'tpl'; } catch(_){}
     setHow(how0);
+    // 이미지를 옮겨 갈 때: 스킬로 만든 이미지 → 스킬 쪽, 빈 이미지 → 템플릿 쪽 + 목록 펼침 (사용자 지정 10/15). 템플릿으로 만든 이미지는 마지막 선택 그대로
+    howAuto = V => { if (V.id === howLast) return; howLast = V.id; if (V.src) setHow('skill'); else if (V.fresh){ setHow('tpl'); openPick(); } };
+    howAuto(view());
     // 스킬 결과 칸: 붙여 넣으면 들어올 이미지 목록(작은 PC 그림 · 파일 이름 · 새로 추가 / 바뀜)을 바로 보여 주고, [넣기]로 넣음
     const skillList = raw => { const txt = String(raw).trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!txt) return null;
       let s; try { s = JSON.parse(txt); } catch(_){ return []; }
@@ -2530,7 +2535,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ S.issue = m.issue; S.ym = ymOf(m.issue); syncTop(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:S});
-      if (m.type === 'setState' && m.state) applyState(m.state, m.msg || '콘텐츠 이미지 작업을 불러왔어요.');
+      if (m.type === 'setState' && m.state) applyState(m.state, m.msg == null ? '콘텐츠 이미지 작업을 불러왔어요.' : m.msg);
       if (m.type === 'addBlock') addBlock(m.blockType);
       if (m.type === 'exportAll'){ if (m.dir) imgDir = m.dir; exportItems(allOut()).then(n => notify({type:'exportDone', reqId:m.reqId, n: n || 0})); }   // 셸 [전체 이미지 저장]
       if (m.type === 'newIssue'){ const s = blankState(); s.issue = m.issue; s.ym = ymOf(m.issue); s.items = []; (m.contents || ['01']).forEach(c => s.items.push(Object.assign(newItem('list', c, 1), {fresh: true}))); applyState(s, `${m.issue}호 작업을 새로 시작해요.`); }

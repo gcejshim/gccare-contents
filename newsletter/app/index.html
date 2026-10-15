@@ -699,8 +699,14 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (PACK) $('ver').textContent = 'v' + PACK.version;
     document.querySelectorAll('.menu').forEach(b => b.insertAdjacentHTML('afterbegin', svg(b.dataset.icon)));
     document.querySelectorAll('[data-icon]:not(.menu)').forEach(el => { el.outerHTML = svg(el.dataset.icon); });
+    const fresh = localStorage.getItem(KEY) == null;   // 이 브라우저에서 처음 여는지 (작업 기록 없음)
     H = load(); I();
     mountTools(); renderTop();
+    // 처음 열면 기본 호(빌드 때 넣은 15호 완성본)를 채워서 시작 — 지난 호 예시 대신 (사용자 지정 10/15)
+    if (fresh && window.NL_DEFAULT_ISSUE){ const d = window.NL_DEFAULT_ISSUE;
+      H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); H.issue = d.issue; save(); renderTop();
+      if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: ''});
+      if (d.image) send('image', {type: 'setState', state: d.image, msg: ''}); }
     const v = location.hash.slice(1);
     go(['home', 'thumb', 'image', 'pdf', 'ai', 'assets', 'guide'].includes(v) ? v : 'home');   // 새로 열면 항상 이번 호부터 (사용자 지정 10/15). 새로고침은 주소의 메뉴 유지
 
