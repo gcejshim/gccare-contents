@@ -1,0 +1,283 @@
+<title>AX Studio · Insight</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* 레이아웃: 남색 머리 띠 + 흰 본문 한 단(최대 880px), 섹션은 제목 왼쪽 라벨 / 내용 오른쪽 */
+:root{
+  --bg:#ffffff; --surface:#f7f7fb; --line:#e8eaef;
+  --fg:#111111; --muted:#5b6070;
+  --navy:#031552; --blue:#2f74eb; --blue-soft:#d6eaff;
+  --green:#0ac262; --green-deep:#007541; --green-soft:#f5fff8;
+  --on-navy:#ffffff; --on-navy-muted:#b7c4e6;
+  --f-body:"Pretendard","IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0c1122; --surface:#141b33; --line:#25304f;
+  --fg:#eef1f8; --muted:#a2abc4;
+  --navy:#06123d; --blue:#6aa2ff; --blue-soft:#1b2c55;
+  --green:#3ad68a; --green-deep:#6fe3a8; --green-soft:#10291f;
+  --on-navy:#ffffff; --on-navy-muted:#9fb0dc; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0c1122; --surface:#141b33; --line:#25304f;
+  --fg:#eef1f8; --muted:#a2abc4;
+  --navy:#06123d; --blue:#6aa2ff; --blue-soft:#1b2c55;
+  --green:#3ad68a; --green-deep:#6fe3a8; --green-soft:#10291f;
+  --on-navy:#ffffff; --on-navy-muted:#9fb0dc; color-scheme:dark}
+
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.7;letter-spacing:-0.01em}
+.wrap{max-width:880px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{text-wrap:balance;margin:0;line-height:1.3}
+p{margin:0}
+ul{margin:0;padding-left:1.2em}
+li+li{margin-top:4px}
+b{font-weight:600}
+code{font-family:var(--f-mono);font-size:.86em;background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:0 5px}
+
+/* 머리 띠 */
+.top{background:var(--navy);color:var(--on-navy)}
+.top .wrap{padding-block:56px 48px;display:grid;gap:18px}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.08em;color:var(--on-navy-muted)}
+.top h1{font-size:clamp(30px,5vw,42px);font-weight:700;letter-spacing:-0.02em}
+.top h1 span{color:var(--green)}
+.lede{font-size:18px;max-width:40em;color:var(--on-navy)}
+.meta{display:flex;flex-wrap:wrap;gap:8px;font-size:13px}
+.meta span{border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 12px;color:var(--on-navy-muted)}
+
+/* 섹션 */
+main .wrap{display:grid;gap:0;padding-block:24px 64px}
+section{display:grid;grid-template-columns:160px minmax(0,1fr);gap:24px;padding-block:36px;border-top:1px solid var(--line)}
+section:first-child{border-top:0}
+section>h2{font-size:15px;font-weight:700;color:var(--blue);padding-top:3px}
+.body{display:grid;gap:16px;min-width:0}
+.body>h3{font-size:22px;font-weight:700}
+.note{font-size:14px;color:var(--muted)}
+
+/* 목적 3가지 */
+.why{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.why div{background:var(--surface);border-radius:10px;padding:16px;display:grid;gap:6px;align-content:start}
+.why b{font-size:16px}
+.why p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* 작업 흐름 */
+.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;list-style:none;padding:0;counter-reset:s}
+.flow li{margin:0;padding:14px 14px 14px 0;border-top:3px solid var(--blue);display:grid;gap:4px;align-content:start;counter-increment:s}
+.flow li:last-child{border-top-color:var(--green)}
+.flow li::before{content:counter(s);font-family:var(--f-mono);font-size:13px;color:var(--blue)}
+.flow li:last-child::before{color:var(--green-deep)}
+.flow b{font-size:15px}
+.flow span{font-size:13px;color:var(--muted);line-height:1.5}
+
+/* 메뉴 */
+.menu{display:flex;flex-wrap:wrap;gap:8px}
+.menu span{border:1px solid var(--line);border-radius:8px;padding:6px 12px;font-size:14px;font-weight:500}
+.menu span.soon{color:var(--muted);border-style:dashed}
+
+/* 기능 목록 */
+.feat{display:grid;gap:22px}
+.feat article{display:grid;gap:8px}
+.feat h4{margin:0;font-size:17px;font-weight:700;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.tag{font-size:12px;font-weight:600;color:var(--green-deep);background:var(--green-soft);border-radius:4px;padding:1px 7px}
+.feat ul{font-size:15px}
+
+/* 표 */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{background:var(--surface);font-weight:600;white-space:nowrap}
+td.n{white-space:nowrap;font-family:var(--f-mono);font-size:13px}
+
+/* 성과 숫자 */
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.stats div{border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:4px;align-content:start}
+.stats strong{font-size:30px;font-weight:700;color:var(--navy);line-height:1.2;font-variant-numeric:tabular-nums}
+.stats span{font-size:14px;color:var(--muted);line-height:1.5}
+
+/* 결정 / 다음 */
+.decide{display:grid;gap:10px}
+.decide div{border-left:3px solid var(--blue);padding:2px 0 2px 14px;display:grid;gap:2px}
+.decide p{font-size:14px;color:var(--muted)}
+ol.next{margin:0;padding-left:1.3em}
+
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .stats strong{color:var(--blue)}}
+:root[data-theme="dark"] .stats strong{color:var(--blue)}
+
+@media (max-width:720px){
+  section{grid-template-columns:minmax(0,1fr);gap:12px;padding-block:28px}
+  .why,.stats{grid-template-columns:minmax(0,1fr)}
+  .flow{grid-template-columns:repeat(2,minmax(0,1fr));row-gap:12px}
+}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="eyebrow">GC케어 · 인사이트 콘텐츠 제작</div>
+    <h1>AX Studio · <span>Insight</span></h1>
+    <p class="lede">뉴스레터, 보건관리 자료실 같은 회사 인사이트 콘텐츠를 운영자가 직접 제작할 수 있는 공간입니다.</p>
+    <div class="meta"><span>2026년 10월 15일 기준</span><span>v1.0</span></div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+
+<section>
+  <h2>목적</h2>
+  <div class="body">
+    <h3>기획안만 있으면 같은 품질의 콘텐츠를 바로</h3>
+    <p>GC케어 홈페이지의 뉴스레터와 보건관리 자료실은 HR·보건 담당자에게 건강 데이터와 트렌드를 전하는 회사의 인사이트 채널입니다. Insight Studio는 IPR팀 기획안을 받아 썸네일과 콘텐츠 이미지(PC·모바일)를 회사 디자인 기준에 맞게 만들고, 규격과 파일명까지 맞춰 저장하는 데까지를 한곳에서 처리합니다.</p>
+    <div class="why">
+      <div><b>운영자가 직접 제작</b><p>템플릿에 내용만 넣으면 PC·모바일 이미지가 함께 완성됩니다.</p></div>
+      <div><b>일정한 품질</b><p>DS 컬러·타이포, 지난 호 원본 디자인을 템플릿에 담아 호마다 톤이 같습니다.</p></div>
+      <div><b>빠른 제작</b><p>Claude 스킬이 기획안을 작업 내용으로 바꿔 주고, 호 전체를 한 번에 저장합니다.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>작업 흐름</h2>
+  <div class="body">
+    <ol class="flow">
+      <li><b>기획안</b><span>IPR팀 기획안(PPT·PDF·문서). 차트 수치도 여기에 있음</span></li>
+      <li><b>Claude 스킬</b><span>기획안 → 썸네일·콘텐츠 이미지 작업 내용(JSON)</span></li>
+      <li><b>AX Studio · Insight</b><span>Ctrl+V로 붙여넣고 글자·색·이미지 다듬기, 자동 점검</span></li>
+      <li><b>저장</b><span>규격 배율·파일명 규칙대로 호 전체 이미지를 한 번에</span></li>
+    </ol>
+    <p class="note">파일 하나(HTML)로 동작하고 서버 설치가 필요 없습니다. 크롬·엣지에서 열면 되고, 인터넷이 없어도 씁니다(AI 이미지 생성만 인터넷 필요).</p>
+  </div>
+</section>
+
+<section>
+  <h2>메뉴 구성</h2>
+  <div class="body">
+    <div class="menu">
+      <span>이번 호</span><span>썸네일</span><span>콘텐츠 이미지</span><span>AI로 그리기</span><span>에셋</span><span>가이드</span><span class="soon">PDF · 준비 중</span>
+    </div>
+    <p class="note">호수를 한 번 정하면 모든 메뉴에 같이 적용되고, 저장한 파일은 「이번 호」 체크리스트에 자동으로 표시됩니다.</p>
+  </div>
+</section>
+
+<section>
+  <h2>만든 기능</h2>
+  <div class="body feat">
+    <article>
+      <h4>썸네일 만들기</h4>
+      <ul>
+        <li>타이틀 입력(강조는 <code>[대괄호]</code>), 배경 6종 + 스포이트로 직접 색 지정, 레이아웃 3종(장면형·오브젝트형·사진형)</li>
+        <li>이미지는 끌어다 놓기·클릭·붙여넣기. 배경 밝기에 따라 글자색 자동</li>
+        <li>자동 점검: 글자 대비(WCAG 큰 글씨 3:1 기준) 등 문제를 한 줄로 안내하고 해결법 제시</li>
+        <li>콘텐츠 번호(01·02·03)를 바꾸면 한 호의 썸네일을 차례로 작업</li>
+      </ul>
+    </article>
+    <article>
+      <h4>콘텐츠 이미지 <span class="tag">템플릿 21종</span></h4>
+      <ul>
+        <li>8개 묶음: 표 · 막대 그래프 · 선·원 그래프 · 리스트·카드 · 인용·인터뷰 · 숫자·흐름 · 화면·사진 · 직접 만들기</li>
+        <li>지난 10~14호 Figma 원본을 기준으로 재현(표·순위 막대·단계 흐름·큰 숫자·CTA 배너 등)</li>
+        <li>차트는 이미지가 아닌 HTML로 그려 저장해도 선명. 색·축·기준선·강조 방식·변화량 배지 지정</li>
+        <li>미리보기에서 글자·숫자를 바로 클릭해 수정, 글자 색 도구(블루·그린·빨강), 아이콘 93개</li>
+        <li>PC와 모바일을 함께 미리보기, 메일 크기(630px)로도 확인</li>
+        <li>템플릿에 없는 형태는 Claude 스킬로 「직접 만든 블록」을 만들어 붙여넣기</li>
+      </ul>
+    </article>
+    <article>
+      <h4>AI로 그리기 <span class="tag">10월 새 메뉴</span></h4>
+      <ul>
+        <li>배경색·이미지 유형(3D 배경 포함·3D 오브젝트·실사·실사 오브젝트)·그릴 것을 고르면 프롬프트를 자동으로 만들어 바로 생성</li>
+        <li>참고 이미지 19장(지난 호 썸네일 배경 + 보건관리 자료실)에서 지금 조건에 맞는 것을 추천해 함께 첨부 → 톤 유지</li>
+        <li>[AI 이미지 생성] 버튼 하나로 도구 안에서 바로 생성(외부 ChatGPT 작업 없음)</li>
+        <li>인터뷰용 3D 얼굴 9개(20~50대, 사무직·현장직·의사·간호사)</li>
+      </ul>
+    </article>
+    <article>
+      <h4>호 단위 관리·저장</h4>
+      <ul>
+        <li>상단 버튼은 호 전체: [불러오기 · 전체 파일 저장 · 전체 이미지 저장]</li>
+        <li>전체 이미지 저장 한 번이면 썸네일 + 콘텐츠 이미지 PC·모바일이 폴더에 파일명 규칙대로 저장</li>
+        <li>화면 아래 [이 이미지 저장]은 지금 보는 한 장. 작업 내용은 브라우저에 자동 저장</li>
+      </ul>
+    </article>
+    <article>
+      <h4>에셋·가이드</h4>
+      <ul>
+        <li>지난 10~14호 완성 이미지 모아보기(샘플), 썸네일 배경 이미지, 로고·아이콘</li>
+        <li>제작 규격과 사용법 안내</li>
+      </ul>
+    </article>
+    <article>
+      <h4>Claude 스킬 2종 <span class="tag">claude.ai에 등록</span></h4>
+      <ul>
+        <li><b>gc-newsletter-thumbnail</b> · 기획안을 썸네일 작업 내용(JSON)으로 바꾸고 이미지 프롬프트 제안</li>
+        <li><b>gc-newsletter-block</b> · 기획안을 콘텐츠 이미지 블록으로 바꿈. 한 장씩 미리 보여 주고 확인받은 뒤 전달, 맞는 템플릿이 없으면 직접 만든 블록(HTML) 생성</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<section>
+  <h2>산출물 규격</h2>
+  <div class="body">
+    <div class="tbl"><table>
+      <thead><tr><th>산출물</th><th>작업 크기</th><th>저장</th><th>비고</th></tr></thead>
+      <tbody>
+        <tr><td>PC 이미지</td><td class="n">폭 900</td><td class="n">2배 · 1800px</td><td>메일에서는 630px로 줄어 보여 본문 최소 18px</td></tr>
+        <tr><td>모바일 이미지</td><td class="n">폭 350</td><td class="n">3배 · 1050px</td><td>타이틀 16·18 / 본문 14·16</td></tr>
+        <tr><td>썸네일</td><td class="n">399×231</td><td class="n">3배 · 1197×693</td><td><code>(N호)NN.제목.png</code></td></tr>
+        <tr><td>PDF</td><td class="n">A4 900×1273</td><td class="n">벡터</td><td>준비 중</td></tr>
+      </tbody>
+    </table></div>
+    <p class="note">파일명은 기존 규칙 그대로 <code>YYYYMM_contentsNN_pNN.png</code>(PC), <code>_mNN.png</code>(모바일).</p>
+  </div>
+</section>
+
+<section>
+  <h2>성과</h2>
+  <div class="body">
+    <div class="stats">
+      <div><strong>15호</strong><span>10월 14일 게시분을 이 도구로 실제 제작</span></div>
+      <div><strong>약 78%</strong><span>지난 10~14호 콘텐츠 이미지 32장 중 템플릿만으로 만들 수 있는 비율</span></div>
+      <div><strong>14호 재현</strong><span>원본과 나란히 비교해 거의 같게 나오는 것을 확인</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>버전 이력</h2>
+  <div class="body">
+    <div class="tbl"><table>
+      <thead><tr><th>날짜</th><th>버전</th><th>주요 내용</th></tr></thead>
+      <tbody>
+        <tr><td class="n">10.13~15</td><td class="n">—</td><td>AI로 그리기 메뉴 분리, 참고 이미지 첨부, 인터뷰 얼굴 9개, 썸네일 참고 이미지 +3</td></tr>
+        <tr><td class="n">10.12</td><td class="n">v1.5</td><td>저장 버튼 정리, 상단 [전체 이미지 저장] 추가</td></tr>
+        <tr><td class="n">10.11</td><td class="n">—</td><td>이름 변경(GC Care Insight Studio), 썸네일 참고 이미지 16장</td></tr>
+        <tr><td class="n">10.07~08</td><td class="n">—</td><td>Claude 스킬로 만들기 패널, 썸네일 한 호 묶음 작업, AI 이미지 유형 4종</td></tr>
+        <tr><td class="n">10.02</td><td class="n">v1.4</td><td>템플릿 21종·8묶음, 색 선택, 아이콘 고르기, 글자 색 도구, 썸네일 이미지 만들기</td></tr>
+        <tr><td class="n">10.01</td><td class="n">v1.1</td><td>통합본(메뉴) 첫 프로토타입, 콘텐츠 이미지 템플릿 13종</td></tr>
+        <tr><td class="n">~09월</td><td class="n">v0.1~1.0</td><td>썸네일 도구, 배경·레이아웃, 스킬 연동, 자동 점검</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+</section>
+
+<section>
+  <h2>정해야 할 것</h2>
+  <div class="body decide">
+    <div><b>AI 이미지 생성 화질</b><p>비용 때문에 저화질로 쓰고 있어 품질이 지난 호보다 낮을 수 있습니다. 도구 안 생성으로 일원화했으므로 화질 단계를 올릴지 결정 필요. 지금 장당 약 ₩35.</p></div>
+    <div><b>계속 둔다면 서버·키 분리</b><p>카드뉴스와 함수를 나누고 뉴스레터 전용 키 사용, 사용 기록을 남겨 월별 비용 확인.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>다음 단계</h2>
+  <div class="body">
+    <ol class="next">
+      <li>16호 제작에 계속 쓰면서 템플릿 보완(반복되는 형태는 정식 템플릿으로)</li>
+      <li>보건관리 자료실 콘텐츠로 확장</li>
+      <li>PDF 템플릿(A4 여러 장, 영업·게시판용)</li>
+    </ol>
+  </div>
+</section>
+
+</div>
+</main>
