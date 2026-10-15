@@ -727,8 +727,13 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (PACK) $('ver').textContent = 'v' + PACK.version;
     document.querySelectorAll('.menu').forEach(b => b.insertAdjacentHTML('afterbegin', svg(b.dataset.icon)));
     document.querySelectorAll('[data-icon]:not(.menu)').forEach(el => { el.outerHTML = svg(el.dataset.icon); });
-    const fresh = localStorage.getItem(KEY) == null;   // 이 브라우저에서 처음 여는지 (작업 기록 없음)
+    // 처음 여는지 · v1.0 기준점을 아직 안 맞췄는지 (v1.0 전 버전에서 호를 옮기며 꼬인 기록 — 14호 칸에 15호 내용 — 을 한 번 정리)
+    let base = null; try { base = localStorage.getItem('gc-nl-base'); } catch(_){}
+    const fresh = localStorage.getItem(KEY) == null || base !== '1.0';
     H = load(); I();
+    if (fresh && base !== '1.0' && localStorage.getItem(KEY) != null){   // 예전 기록이 있는 브라우저: 호 정보 · 호별 보관 작업을 비우고 기본 호로
+      H.issues = {}; for (let n = 1; n <= 60; n++) hdb(1, 'work:' + n, null); }
+    try { localStorage.setItem('gc-nl-base', '1.0'); } catch(_){}
     mountTools(); renderTop();
     // 처음 열면 기본 호(빌드 때 넣은 15호 완성본)를 채워서 시작 — 지난 호 예시 대신 (사용자 지정 10/15)
     if (fresh && window.NL_DEFAULT_ISSUE){ const d = window.NL_DEFAULT_ISSUE;
