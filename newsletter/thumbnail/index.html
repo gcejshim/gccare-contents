@@ -900,7 +900,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       const url = await shrink(data.dataURL);
       gens.unshift({url, layout}); if (gens.length > 6) gens.pop();
       useGen(gens[0]);
-      st.textContent = '완성! 빠른 시안이에요.';
+      st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15) — 만든 이미지가 바로 들어가는 것으로 충분
     } catch(e){
       st.className = 'gen-status err';
       st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '만들지 못했어요: ' + (e.message || e);
