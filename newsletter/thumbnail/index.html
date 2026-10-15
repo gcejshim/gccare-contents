@@ -102,6 +102,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-bg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--neutral-600)}
 .gen-bg i{width:22px;height:22px;border-radius:6px;border:1px solid var(--coolNeutral-200);flex:none}
 .gen-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* AI 이미지 버튼: 이 카드의 주 동작이라 크게 + 블루→그린 그라데이션 + 반짝이 아이콘 (2026-10-15 사용자 결정) */
+#btnGen{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;min-width:220px;padding:0 22px;font-size:15px;font-weight:700;border-radius:10px;border:0;background:linear-gradient(90deg,var(--careBlue-500),var(--careGreen-500));box-shadow:0 4px 14px rgba(47,116,235,.3)}
+#btnGen:hover{background:linear-gradient(90deg,var(--careBlue-600),var(--careGreen-600))}
+#btnGen:disabled{opacity:.6}
 .gen-act a.btn{display:inline-flex;align-items:center;text-decoration:none;color:inherit}
 #genPrompt{min-height:220px;font-size:13px;background:var(--coolNeutral-50)}
 .gen-chars{display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--neutral-600)}
@@ -293,11 +297,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         </div>
         <div class="hint" id="genHint" style="margin:0"></div>
         <div class="gen-chars" id="genChars" hidden></div>
-        <div class="field" hidden><label>프롬프트</label>   <!-- 2026-10-15 ChatGPT 흐름 안 씀: 프롬프트는 안에서만 만들어 [AI 이미지 생성]으로 보냄 -->
+        <div class="field" hidden><label>프롬프트</label>   <!-- 2026-10-15 ChatGPT 흐름 안 씀: 프롬프트는 안에서만 만들어 [이미지 만들기]로 보냄 -->
           <textarea id="genPrompt" spellcheck="false"></textarea>
         </div>
         <div class="gen-act">
-          <button class="btn primary" id="btnGen">AI 이미지 생성</button>
+          <button class="btn primary" id="btnGen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/></svg><span>이미지 만들기</span></button>
           <button class="btn" id="btnGenCopy" hidden>프롬프트 복사</button>
           <a class="btn" href="https://chatgpt.com/" target="_blank" rel="noopener" hidden>ChatGPT 열기</a>
           <span class="gen-status" id="genStatus"></span>
@@ -316,7 +320,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       <li><b>호수와 콘텐츠 번호</b>를 확인해요. 저장 파일명에 그대로 들어가요.</li>
       <li><b>타이틀</b>을 기획안대로 입력해요. 엔터로 줄을 나누면 그대로 보여요. 3줄 이내를 권장해요.<br>강조할 단어는 <b>[대괄호]</b>로 감싸면 강조색이 돼요.</li>
       <li><b>배경 색상</b>을 골라요. 글자색과 로고는 자동으로 맞춰져요.<br>이미지 배경과 색을 딱 맞춰야 할 때만 <b>[색 찍기]</b>로 이미지나 화면의 색을 스포이트로 찍어 써요.</li>
-      <li><b>이미지</b>를 넣어요. 끌어다 놓기, 클릭해서 선택, Ctrl+V 붙여넣기 모두 돼요. 새로 그려야 하면 <b>AI 이미지 생성하기</b>에서 배경색 · 유형 · 그릴 것을 고르고 <b>[AI 이미지 생성]</b>을 눌러요. 실제 인터뷰 사진은 그대로 붙여넣어 주세요.
+      <li><b>이미지</b>를 넣어요. 끌어다 놓기, 클릭해서 선택, Ctrl+V 붙여넣기 모두 돼요. 새로 그려야 하면 <b>AI 이미지 생성하기</b>에서 배경색 · 유형 · 그릴 것을 고르고 <b>[이미지 만들기]</b>를 눌러요. 실제 인터뷰 사진은 그대로 붙여넣어 주세요.
         <ul>
           <li><b>장면형</b>: 배경까지 있는 이미지. 왼쪽이 비어 있는 이미지가 좋아요.</li>
           <li><b>오브젝트형</b>: 배경이 투명한 PNG</li>
@@ -615,7 +619,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       }
       if (S.preset === 'custom') add('info','guide',`직접 고른 배경 ${S.customBg}`,'이미지 색과 맞출 때만 사용','브랜드 톤을 위해 평소에는 기본 색상을 써요.');
     }
-    if (!S.image) add('info','tip','이미지가 없어요','아래 [AI 이미지 생성]으로 만들거나 사진을 붙여넣으세요 (없어도 저장 가능)','');
+    if (!S.image) add('info','tip','이미지가 없어요','아래 [이미지 만들기]로 만들거나 사진을 붙여넣으세요 (없어도 저장 가능)','');
     if (S.chipsOn){
       const labels = S.chips.map(x => x.label.trim()).filter(Boolean);
       if (!labels.length) add('warn','tip','칩 내용이 없어요','문구를 넣거나 칩을 끄세요','빈 칩은 표시되지 않아요.');
@@ -882,7 +886,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const prompt = $('genPrompt').value.trim();
     if (!prompt){ toast('프롬프트가 비어 있어요.'); return; }
     const {chars, layout, ref} = buildPrompt();
-    generating = true; $('btnGen').disabled = true; $('btnGen').textContent = '만드는 중…';
+    generating = true; $('btnGen').disabled = true; $('btnGen').lastChild.textContent = '만드는 중…';
     const st = $('genStatus'); st.className = 'gen-status'; st.textContent = '그리는 중이에요. 30초 안팎 걸려요.';
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
@@ -901,7 +905,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       st.className = 'gen-status err';
       st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '만들지 못했어요: ' + (e.message || e);
     } finally {
-      clearTimeout(timer); generating = false; $('btnGen').disabled = false; $('btnGen').textContent = 'AI 이미지 생성';
+      clearTimeout(timer); generating = false; $('btnGen').disabled = false; $('btnGen').lastChild.textContent = gens.length ? '다시 만들기' : '이미지 만들기';
     }
   }
   function useGen(g){
