@@ -6,7 +6,7 @@ import base64
 import os
 import re
 
-VERSION = '1.6'
+VERSION = '1.7'
 HERE = os.path.dirname(os.path.abspath(__file__))
 SHARED = os.path.join(HERE, '..', 'thumbnail')
 

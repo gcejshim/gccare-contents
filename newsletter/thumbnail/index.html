@@ -41,6 +41,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .topbar .sp{flex:1}
 .btn{height:36px;padding:0 14px;border:1px solid var(--coolNeutral-200);border-radius:8px;background:var(--neutral-0);cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap}
 .btn:hover{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn.ico{width:36px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.btn.ico:disabled:hover{border-color:var(--coolNeutral-200);color:inherit}
 .btn.primary{background:var(--careBlue-500);border-color:var(--careBlue-500);color:var(--neutral-0);font-weight:600}
 .btn.primary:hover{background:var(--careBlue-600);color:var(--neutral-0)}
 .btn.sm{height:30px;padding:0 10px;font-size:13px}
@@ -105,7 +108,19 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-chars[hidden]{display:none}
 .gen-chars img{width:72px;height:40px;object-fit:cover;border-radius:6px;border:1px solid var(--coolNeutral-100)}
 /* 참고 이미지: 지금 배경색 · 이미지 유형에 맞는 것을 '추천'으로 앞에 */
-.gen-refs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 6px}
+.gen-refs{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin;scrollbar-color:var(--neutral-500) var(--coolNeutral-100)}
+/* 참고 이미지 줄: 맥에서도 스크롤바가 늘 보이게 + 양 끝 ‹ › 화살표(더 있을 때만) */
+.gen-refs::-webkit-scrollbar{height:8px}
+.gen-refs::-webkit-scrollbar-track{background:var(--coolNeutral-100);border-radius:999px}
+.gen-refs::-webkit-scrollbar-thumb{background:var(--neutral-500);border-radius:999px}
+.gen-refs::-webkit-scrollbar-thumb:hover{background:var(--careBlue-500)}
+.gen-rwrap{position:relative}
+.gen-rarr{position:absolute;top:0;height:68px;width:44px;border:0;padding:0;cursor:pointer;display:flex;align-items:center;z-index:2;background:none}
+.gen-rarr.l{left:0;justify-content:flex-start;background:linear-gradient(to right,var(--neutral-0) 45%,transparent)}
+.gen-rarr.r{right:0;justify-content:flex-end;background:linear-gradient(to left,var(--neutral-0) 45%,transparent)}
+.gen-rarr i{width:28px;height:28px;border-radius:50%;background:var(--neutral-0);border:1px solid var(--coolNeutral-200);color:var(--neutral-900);font-style:normal;font-size:18px;line-height:25px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.gen-rarr:hover i{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+.gen-rarr[hidden]{display:none}
 .gen-refs button{position:relative;flex:none;width:104px;height:60px;padding:0;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;cursor:pointer;background:var(--coolNeutral-50);font-size:12px;color:var(--neutral-600)}
 .gen-refs button img{width:100%;height:100%;object-fit:cover;display:block}
 .gen-refs button.on{outline:2px solid var(--careBlue-500);outline-offset:2px}
@@ -187,6 +202,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   <span class="sp"></span>
   <button class="btn" id="btnLoad" title="저장해 둔 작업 파일(.json)을 열어요">작업 파일 열기</button>
   <button class="btn" id="btnSave" title="이번 호 썸네일(01 · 02 · 03)을 파일 하나로 저장해요">작업 파일 저장</button>
+  <button class="btn ico" id="btnUndo" title="되돌리기 (Ctrl+Z · ⌘Z)" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
+  <button class="btn ico" id="btnRedo" title="다시 하기 (Ctrl+Shift+Z · ⌘⇧Z)" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
   <button class="btn primary" id="btnExport" title="지금 보고 있는 썸네일 한 장을 3배(1197×693) PNG로 저장해요">이 이미지 저장</button>
   <button class="btn" id="btnExportAll" title="이번 호에서 작업한 썸네일을 모두 PNG로 저장해요">전체 이미지 저장</button>
   <input type="file" id="fileLoad" accept=".json,application/json" hidden>
@@ -269,7 +286,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           </div>
         </div>
         <div class="field"><label>참고 이미지 <small style="font-weight:400;color:var(--neutral-500)">참고 이미지를 선택하면 그 스타일에 맞추어 이미지가 그려져요</small></label>
-          <div class="gen-refs" id="genRefs"></div>
+          <div class="gen-rwrap"><button type="button" class="gen-rarr l" id="genRefL" title="앞으로" hidden><i>‹</i></button><div class="gen-refs" id="genRefs"></div><button type="button" class="gen-rarr r" id="genRefR" title="더 보기" hidden><i>›</i></button></div>
           <div class="gen-refnow" id="genRefNow"></div>
           <div class="ref-peek" id="refPeek" hidden><img alt=""><b></b><span></span></div>
         </div>
@@ -398,7 +415,36 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // ── 자동저장 (localStorage, 실패해도 동작) ──
   const KEY = 'gc-nl-thumb-v1';
   let saveTimer = null, warnedQuota = false;
+  // ── 되돌리기 (Ctrl+Z · 다시 하기 Ctrl+Shift+Z / Ctrl+Y) ──
+  // 고칠 때마다 autosave에서 기록. 타이핑 · 이미지 위치 슬라이더는 0.7초 멈춘(손을 뗀) 지점을 한 단계로 묶음. 콘텐츠 번호 이동은 단계로 치지 않음
+  // 같은 이미지(data: 주소)는 한 번만 보관하고 단계에는 번호만 넣음
+  const UNDO_MAX = 50, imgPool = [], imgIdx = new Map();
+  let past = [], future = [], hNow = null, hT = 0;
+  function hKey(){
+    const d = bookData(), s = {issue: d.issue, items: d.items.filter(used)};
+    return JSON.stringify(s, (k, v) => { if (typeof v !== 'string' || v.length < 2000 || v.slice(0, 5) !== 'data:') return v;
+      let i = imgIdx.get(v); if (i == null){ i = imgPool.push(v) - 1; imgIdx.set(v, i); } return '\u0000img:' + i; });
+  }
+  function hParse(k){ return JSON.parse(k, (_, v) => typeof v === 'string' && v.slice(0, 5) === '\u0000img:' ? imgPool[+v.slice(5)] : v); }
+  function hCommit(){ clearTimeout(hT); hT = 0; const k = hKey();
+    if (!hNow){ hNow = {k, no: S.no}; return; }
+    if (k === hNow.k){ hNow.no = S.no; return; }
+    past.push(hNow); if (past.length > UNDO_MAX) past.shift(); future = []; hNow = {k, no: S.no}; }
+  function hMark(){ clearTimeout(hT); hT = setTimeout(() => { hCommit(); undoBtns(); }, 700); undoBtns(); }
+  function hGo(dir){
+    if (hT) hCommit(); if (!hNow) return;
+    const from = dir < 0 ? past : future, to = dir < 0 ? future : past;
+    if (!from.length){ toast(dir < 0 ? '더 되돌릴 게 없어요.' : '다시 할 게 없어요.'); return; }
+    const at = dir < 0 ? hNow.no : null, e = from.pop(); to.push(hNow); hNow = e;
+    const s = hParse(e.k), issue0 = S.issue;
+    putData({v:1, kind:'nl-thumbs', issue: s.issue, cur: at || e.no, items: s.items});
+    promptEdited = false; syncForm(); hNow.k = hKey(); refresh(); undoBtns();
+    if (S.issue !== issue0) notify({type:'issueChanged', issue:S.issue});
+  }
+  function undoBtns(){ $('btnUndo').disabled = !past.length && !(hT && hNow); $('btnRedo').disabled = !future.length; }
+
   function autosave(){
+    hMark();
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       const d = bookData();
@@ -791,6 +837,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
   const gens = [];   // 이번에 바로 만든 이미지 후보 (새로고침하면 사라짐)
   let generating = false, promptEdited = false;
+  // 참고 이미지 줄 양 끝 화살표: 그쪽으로 더 볼 게 있을 때만 보임
+  function refArrows(){ const r = $('genRefs'); if (!r) return; const max = r.scrollWidth - r.clientWidth;
+    $('genRefL').hidden = r.scrollLeft <= 2; $('genRefR').hidden = r.scrollLeft >= max - 2; }
   function syncGen(){
     const P = presetOf();
     $('genBgChip').style.background = tok(P.bg);
@@ -803,6 +852,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
     $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>` + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
+    refArrows();
     $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <button class="btn sm" data-refdl>내려받기</button> <span>· ChatGPT에는 프롬프트와 이 이미지를 같이 올려 주세요</span>` : '';
     $('genChars').hidden = !chars.length;
     $('genChars').innerHTML = chars.length ? '캐릭터 감지:' + chars.map(c => {
@@ -1019,6 +1069,12 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('genPrompt').addEventListener('input', () => { promptEdited = true; });
     // 참고 이미지 고르기 · 내려받기 (ChatGPT에 같이 올릴 파일)
     const refDownload = r => { const a = document.createElement('a'); a.href = r.src; a.download = `참고이미지_${r.id}.webp`; a.click(); };
+    // 참고 이미지 줄 넘기기: ‹ › 버튼 · 마우스 휠(세로 휠도 옆으로)
+    $('genRefL').addEventListener('click', () => $('genRefs').scrollBy({left: -$('genRefs').clientWidth * 0.8, behavior: 'smooth'}));
+    $('genRefR').addEventListener('click', () => $('genRefs').scrollBy({left: $('genRefs').clientWidth * 0.8, behavior: 'smooth'}));
+    $('genRefs').addEventListener('scroll', refArrows);
+    $('genRefs').addEventListener('wheel', e => { const r = $('genRefs'); if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || r.scrollWidth <= r.clientWidth) return; e.preventDefault(); r.scrollLeft += e.deltaY; }, {passive: false});
+    if (window.ResizeObserver) new ResizeObserver(refArrows).observe($('genRefs')); else window.addEventListener('resize', refArrows);   // 접혀 있다 펼쳐질 때도 다시 계산
     $('genRefs').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return; S.gen.ref = b.dataset.ref; promptEdited = false; syncGen(); autosave(); });
     // 마우스를 올리면 오른쪽(자리가 없으면 왼쪽)에 크게 미리보기
     $('genRefs').addEventListener('mouseover', e => {
@@ -1109,6 +1165,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       finally { S = keep; btns.forEach((b, i) => { b.disabled = false; b.textContent = labels[i]; }); $('exportHost').innerHTML = ''; }
     }
     $('btnExport').addEventListener('click', () => exportThumbs([S]));
+    // 되돌리기 · 다시 하기: 입력칸에 커서가 있어도 도구 기록으로. 프롬프트 칸은 저장 대상이 아니라 브라우저 기본 그대로
+    $('btnUndo').addEventListener('click', () => hGo(-1)); $('btnRedo').addEventListener('click', () => hGo(1));
+    document.addEventListener('keydown', e => { if (!(e.ctrlKey || e.metaKey) || e.altKey) return; const k = e.key.toLowerCase();
+      if ((k !== 'z' && k !== 'y') || e.target.id === 'genPrompt') return;
+      e.preventDefault(); hGo(k === 'y' || e.shiftKey ? 1 : -1); });
     $('btnExportAll').addEventListener('click', () => {
       const list = NOS.map(n => BOOK[n]).filter(s => s && used(s));
       if (!list.length){ toast('저장할 썸네일이 없어요. 먼저 타이틀이나 이미지를 넣어 주세요.'); return; }

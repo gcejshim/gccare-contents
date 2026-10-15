@@ -6,7 +6,7 @@ import base64
 import os
 import re
 
-VERSION = '1.5'
+VERSION = '1.6'
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 
