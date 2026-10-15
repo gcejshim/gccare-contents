@@ -630,7 +630,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
       aiOutURL = data.dataURL; $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false;
-      st.textContent = '완성! 빠른 시안이에요.';
+      st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15)
     } catch(e){
       st.className = 'gen-st err';
       st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '만들지 못했어요: ' + (e.message || e);
