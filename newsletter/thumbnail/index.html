@@ -509,7 +509,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const key = color + dir; if (fadeVCache[key]) return fadeVCache[key];
     const v = dir !== 'hr', c = document.createElement('canvas'); c.width = v ? 1 : 256; c.height = v ? 256 : 1;
     const x = c.getContext('2d'), g = dir === 'v' ? x.createLinearGradient(0, 0, 0, 256) : dir === 'vr' ? x.createLinearGradient(0, 256, 0, 0) : x.createLinearGradient(256, 0, 0, 0);
-    g.addColorStop(0, rgba(color, 1)); g.addColorStop(0.08, rgba(color, 1)); g.addColorStop(0.9, rgba(color, 0)); g.addColorStop(1, rgba(color, 0));
+    // 위 · 아래 · 오른쪽 흐림도 왼쪽과 같은 부드러운 곡선(smootherstep) — 2026-10-18 사용자: 아래쪽도 서서히
+    for (let i = 0; i <= 40; i++){ const t = i / 40, e = t * t * t * (t * (t * 6 - 15) + 10); g.addColorStop(t, rgba(color, 1 - e)); }
     x.fillStyle = g; x.fillRect(0, 0, c.width, c.height);
     return (fadeVCache[key] = c.toDataURL('image/png'));
   }
@@ -627,7 +628,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         if (sx > 0) imgHTML += `<div class="t-fade fd-solid" style="left:0;width:${sx}px;background:${bg}"></div>`;
         if (fk > 0) imgHTML += `<img class="t-fade fd-grad" src="${fadeURL(bg)}" style="left:${Math.max(0, sx - 1)}px;width:${Math.round(W * 0.26 * fk * wide)}px;height:${H}px" alt="">`;
         // 크기를 줄이거나 옮겨 그림 테두리가 드러나면: 바깥은 배경색, 경계는 배경색으로 흐려 이어 줌 (2026-10-18)
-        const L0 = p.left, T0 = p.top, R0 = p.left + p.w, B0 = p.top + p.h, fw = Math.round(W * 0.1), fh = Math.round(H * 0.16);
+        const L0 = p.left, T0 = p.top, R0 = p.left + p.w, B0 = p.top + p.h, fw = Math.round(W * 0.16), fh = Math.round(H * 0.28);   // 테두리 흐림도 더 길게
         if (R0 < W - 0.5){
           imgHTML += `<img class="t-fade" src="${fadeVURL(bg, 'hr')}" style="left:${Math.round(R0 - fw)}px;width:${fw}px;height:${H}px" alt="">`;
           imgHTML += `<div class="t-fade" style="left:${Math.floor(R0)}px;width:${Math.ceil(W - R0) + 1}px;background:${bg}"></div>`;
