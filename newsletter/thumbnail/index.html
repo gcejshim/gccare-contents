@@ -321,7 +321,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         <input type="file" id="myRefFile" accept="image/*" hidden><input type="file" id="editRefFile" accept="image/*" hidden>
         <div class="gen-edit" id="genEdit" hidden>   <!-- 2026-10-18 지금 이미지에서 적은 부분만 고치기 -->
           <label>만들어진 이미지 수정하기 <span>· 지금 썸네일에 들어간 이미지에서 적은 부분만 바꿔요</span></label>
-          <div class="gen-edit-row"><button type="button" class="btn edit-ref" id="editRef" title="이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)">＋ 참고 이미지</button><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 참고 이미지의 노트북처럼 바꿔 줘"><button class="btn" id="btnEdit">수정하기</button></div>
+          <div class="gen-edit-row"><button type="button" class="btn edit-ref" id="editRef" title="이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)">＋ 이미지 첨부</button><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 첨부한 이미지의 노트북처럼 바꿔 줘"><button class="btn" id="btnEdit">수정하기</button></div>
         </div>
       </div>
     </div>
@@ -794,8 +794,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   async function addMyRef(file){
     if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
     try { const src = await refSmall(await readAsURL(file)), id = 'my' + Date.now();
-      myRefs.unshift({id, name:'내 이미지', src, desc:'', mine:true, rec:false}); if (myRefs.length > 4) myRefs.pop();
-      S.gen.ref = id; promptEdited = false; syncGen(); toast('내 이미지를 참고 이미지로 골랐어요.');
+      myRefs.unshift({id, name:'첨부한 이미지', src, desc:'', mine:true, rec:false}); if (myRefs.length > 4) myRefs.pop();
+      S.gen.ref = id; promptEdited = false; syncGen(); toast('첨부한 이미지를 참고 이미지로 골랐어요.');
     } catch(e){ toast('이미지를 읽지 못했어요.'); }
   }
   function curRef(){
@@ -943,8 +943,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!promptEdited) $('genPrompt').value = text;
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
     $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>`
-      + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (여기로 끌어다 놓아도 돼요)">＋<br>내 이미지</button>`
-      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="내 이미지"><img src="${r.src}" alt=""><span class="rk mine">내 이미지</span></button>`).join('') + refList().map(r =>
+      + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (여기로 끌어다 놓아도 돼요)">＋<br>이미지 첨부</button>`
+      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span></button>`).join('') + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
     $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· 이 그림체에 맞춰 그려요</span>` : '';
@@ -1012,8 +1012,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   }
   let editRef = '';   // 수정할 때 같이 보낼 참고 이미지 (선택)
   function showEditRef(){ const b = $('editRef'); b.classList.toggle('has', !!editRef);
-    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>참고 빼기</span>` : '＋ 참고 이미지';
-    b.title = editRef ? '눌러서 참고 이미지 빼기' : '이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)'; }
+    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>첨부 빼기</span>` : '＋ 이미지 첨부';
+    b.title = editRef ? '눌러서 첨부한 이미지 빼기' : '이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)'; }
   async function setEditRef(file){
     if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
     try { editRef = await toEditSize(await readAsURL(file)); showEditRef(); } catch(e){ toast('이미지를 읽지 못했어요.'); }
