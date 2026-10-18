@@ -103,6 +103,22 @@ function buildThumbContent({ prompt, charRefs, styleRef }) {
   return content;
 }
 
+// 썸네일 · AI로 그리기 [고치기] — 지금 이미지를 그대로 두고 적은 부분만 바꿈 (2026-10-18)
+// image: 고칠 이미지(data URL, 도구에서 긴 쪽 1536px로 줄여 보냄), prompt: 바꿀 점 한 줄
+const isEditImage = (u) => /^data:image\/(webp|png|jpeg);base64,/.test(u || '') && u.length < 4000000;
+function buildEditContent({ prompt, image }) {
+  return [
+    { type: 'input_image', image_url: image },
+    { type: 'input_text', text:
+      `Edit the attached image. Change only this: ${prompt}
+
+` +
+      'Keep everything else exactly the same — composition, camera angle, object positions and sizes, colors, lighting, rendering style and the background color. ' +
+      'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. ' +
+      'Output the full edited image at the same aspect ratio.' }
+  ];
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -137,6 +153,14 @@ module.exports = async function handler(req, res) {
       quality = 'low';   // 2026-10-18 gpt-image-2로 바꾸고 low부터 시험 (gpt-image-1 low는 참고 이미지를 넣어도 품질이 떨어졌음 · 부족하면 medium)
       size = body.layout === 'object' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
+    } else if (kind === 'edit') {
+      if (!isEditImage(body.image)) {
+        res.status(400).json({ error: '고칠 이미지가 없거나 너무 커요.' });
+        return;
+      }
+      content = buildEditContent(body);
+      quality = 'low';   // 썸네일과 같은 품질
+      size = '1536x1024';
     } else if (kind === 'header') {
       content = buildHeaderContent(body);
       size = '1024x1024';
@@ -159,7 +183,7 @@ module.exports = async function handler(req, res) {
     const envKeys = kind === 'header'
       ? ['HEADER_PROMPT_A', 'HEADER_PROMPT_B']
       : ['SECTION_STYLE', 'SECTION_PROMPT', 'SECTION_GUIDELINE_MALE', 'SECTION_GUIDELINE_FEMALE'];
-    const envInfo = kind === 'thumb' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
+    const envInfo = kind === 'thumb' || kind === 'edit' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
     res.status(500).json({ error: `[사용된 키: ${usedKey}]${envInfo} ` + (e.message || String(e)) });
   }
 };
