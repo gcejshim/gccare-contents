@@ -168,7 +168,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 #pvPc [data-ic],#pvMo [data-ic]{cursor:pointer}
 #pvPc [data-ic]:hover,#pvMo [data-ic]:hover{outline:1.5px dashed var(--careBlue-400);outline-offset:2px}
 .nl .emo{line-height:1;display:inline-block}
-.nl .tb .c0i.emo{background:none}
+.nl .tb .c0i.emo{background:none;width:33px;height:33px}   /* 이모지 1.5배 */
+.nl-mo .tb .c0i.emo{width:27px;height:27px}
 
 .icbtn .sw{width:16px;height:16px;border-radius:4px;border:1px solid var(--coolNeutral-200)}
 .icbtn .sw.auto{background:repeating-linear-gradient(45deg,var(--coolNeutral-100) 0 3px,var(--neutral-0) 3px 6px)}
@@ -1014,7 +1015,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
           const k = i - (d.firstCol ? 1 : 0), cnt = n - 1 - (d.firstCol ? 1 : 0); const j = cnt <= 1 ? 1 : Math.round(k * (Math.min(cnt, mid.length) - 1) / (cnt - 1));
           return ` style="background:var(${mid[Math.min(j, mid.length - 1)]})"`; };
         const icons = String(d.icons || '').split('\n').map(s => s.trim());
-        const icSize = m === 'mo' ? 11 : 13;
+        const icSize = (m === 'mo' ? 11 : 13) * (d.iconStyle === 'emoji' ? 1.5 : 1);   // 이모지는 원 배경이 없어 작아 보임 → 1.5배 (2026-10-18 사용자)
         const bds = String(d.badges || '').split('\n').map(x => x.trim());
         const c0 = (s, r) => { if (d.badge) return `<span class="tb-bd bd-${BADGE[bds[r]] || 'blue'}"${EC('rows', r, 0)}>${cell(s)}</span>`; const ic = d.firstCol && icons[r] ? icAny(icons[r], d.iconStyle, css('--neutral-0'), icSize, 2.4) : '';
           return ic ? `<span class="c0w"><span class="c0i${d.iconStyle === 'emoji' ? ' emo' : ''}" data-ic="@icons.${r}" data-none="1">${ic}</span><span${EC('rows', r, 0)}>${cell(s)}</span></span>` : `<span${EC('rows', r, 0)}>${cell(s)}</span>`; };
