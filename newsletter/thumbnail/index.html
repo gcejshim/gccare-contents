@@ -576,9 +576,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   }
   // 이미지 배치: 기준 크기 × 배율, x/y는 -100(왼/위 맞춤) ~ 100(오른/아래 맞춤)
   // ±100을 넘으면 그 끝에서 영역 크기만큼 더 밀어냄(±200 = 영역 한 칸 더) → 100%여도 움직일 수 있음
+  // 좌우 · 상하 막대: -100~100은 끝에서 끝까지, 그 밖은 같은 방향으로 계속 밀기
+  // (2026-10-18 사용자: 100을 넘으면 되돌아감 — 이미지가 틀보다 클 때 넘친 부분이 반대 방향으로 더해지던 문제)
   function slide(v, slack, size){
-    const a = Math.max(-100, Math.min(100, v));
-    return slack * (0.5 + a / 200) + (v - a) / 100 * size;
+    const a = Math.max(-100, Math.min(100, v)), dir = slack < 0 ? -1 : 1;
+    return slack * (0.5 + a / 200) + dir * (v - a) / 100 * size;
   }
   function placeImage(meta){
     const s = S.img.scale / 100;
