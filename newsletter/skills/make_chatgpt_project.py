@@ -18,12 +18,15 @@ body = body.replace('`references/', '`')                               # 프로�
 
 head = """이 프로젝트는 GC케어 뉴스레터 제작 도구 'GC AX Studio · Insight'용이다. 이 프로젝트의 모든 대화에서 아래 지침을 따른다.
 기획안(PDF · PPT · 엑셀 · 문서 · 붙여넣은 글)이나 이미지를 받으면, 프로젝트 파일 thumbnail.md · content.md · design-system.md를 읽고 그 규칙대로 결과를 만든다. 답은 한국어로 한다.
+**썸네일**을 요청하면 썸네일 JSON을 준 뒤, thumbnail-image.md 규칙대로 **그림도 이미지 생성으로 바로 만든다**(콘텐츠마다 한 장씩, 그림에는 타이틀 · 칩 · 로고를 넣지 않음).
 
 """
 open(os.path.join(OUT, '프로젝트_지침.txt'), 'w', encoding='utf-8').write(head + body)
 
 for f in ('content.md', 'design-system.md', 'thumbnail.md'):
     shutil.copyfile(os.path.join(SKILL, 'references', f), os.path.join(OUT, f))
+# ChatGPT 프로젝트에만 있는 파일 (Claude 스킬은 그림을 못 그림): 썸네일 그림 규칙
+shutil.copyfile(os.path.join(HERE, 'chatgpt-extra', 'thumbnail-image.md'), os.path.join(OUT, 'thumbnail-image.md'))
 
 n = len(head + body)
-print(f'chatgpt-project/  지침 {n}자 + 파일 3개')
+print(f'chatgpt-project/  지침 {n}자 + 파일 4개')
