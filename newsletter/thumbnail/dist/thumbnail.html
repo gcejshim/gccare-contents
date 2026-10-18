@@ -1010,7 +1010,18 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 2026-10-18 사용자: 주변 물건이 너무 많음(떠 있는 하트 · 십자 · 체크 · 구슬) → 개수 규칙을 맨 앞 · 끝에
     const MINE = !(curRef() || {}).mine ? '' : desc ? ' 첨부한 참고 이미지의 그림체 · 구도 · 색감을 따르되, 그리는 내용은 그릴 내용에 적은 대로.' : ' 첨부한 참고 이미지를 거의 그대로(물건 · 배치 · 색감 · 그림체) 다시 그린다.';
     const FEW = ' 물건은 모두 합쳐 3개 이하(중심 1 + 보조 최대 2). 주변에 떠 있는 작은 아이콘 · 배지 · 하트 · 십자 · 체크 · 구슬 · 반짝이 · 말풍선은 하나도 넣지 않는다.';
-    return {text: ['[가장 중요] ' + KO_RULE + NO_SITE + FEW + MINE, '', ...L, '', '[다시 한 번] ' + KO_RULE + NO_SITE + FEW + MINE].join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
+    // 2026-10-18 사용자: 라벨 영어 · 물건 5개 — 긴 한글 규칙 속에 묻힘 → 가장 중요한 규칙을 짧은 영어로 맨 앞 · 맨 끝에 (그림 모델은 짧은 영어를 가장 잘 따름)
+    const mineR = (curRef() || {}).mine;
+    const CRIT = [
+      quoted.length ? `TEXT: The only text allowed in the whole image is exactly: "${quoted.join('", "')}" (Korean stays Korean Hangul). No other text.`
+        : 'TEXT: Absolutely no text, letters or numbers anywhere in the image.',
+      'All product labels, packaging, bottles, boxes, bags, screens and documents must be blank (plain color or simple gray lines) — never English words such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
+      'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). No decorative plants, no extra props, no floating icons.',
+      `LAYOUT: the left 55-60% is empty plain background ${bg}; every object stays inside the right 40-45% and never crosses into the left side.`,
+      NO_SITE ? 'No hard hats, helmets, safety vests, construction sites or warning signs (this is about employee health care).' : '',
+      mineR ? (desc ? 'Follow the attached reference image for style, composition and colors; draw the subject described below.' : 'Recreate the attached reference image almost exactly (objects, layout, colors, style).') : ''
+    ].filter(Boolean).join('\n');
+    return {text: ['[CRITICAL RULES]', CRIT, '', ...L, '', '[CRITICAL RULES — again]', CRIT].join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
   }
 
   const gens = [];   // 이번에 바로 만든 이미지 후보 (새로고침하면 사라짐)
