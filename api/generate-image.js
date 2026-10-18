@@ -119,6 +119,7 @@ function buildEditContent({ prompt, image, ref }) {
       `Edit the first attached image. Change only this: ${prompt}\n\n` +
       (hasRef ? 'The second attached image is a reference the user attached for this change ("참고 이미지"). Use it only for what the request asks (shape, color, style or layout). Do not copy its logos or text.\n\n' : '') +
       'Keep everything else exactly the same — composition, camera angle, object positions and sizes, colors, lighting, rendering style and the background color. ' +
+      'Any changed or newly added object must match the main object: same camera angle and perspective, proportional size (supporting objects about 30-50% of the main object), same lighting direction, and sit on the same floor with a soft contact shadow — the result must look like one coherent scene, not stickers. ' +
       'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. ' +
       'Output the full edited image at the same aspect ratio.' }
   ];
