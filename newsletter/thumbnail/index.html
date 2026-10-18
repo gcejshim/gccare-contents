@@ -566,9 +566,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         imgHTML += `<div class="t-fade" style="left:0;width:${Math.floor(p.rx)}px;background:${bg}"></div>`;
       } else if (S.layout === 'scene' && S.sceneBlend){
         // AI가 배경색을 정확히 못 맞춰도 글자 쪽(왼쪽)은 고른 배경색으로 자연스럽게 이어줌
-        const sx = Math.round(W * 0.3);
+        // 2026-10-18: 덮는 범위가 60%까지라 가운데 가까이 그린 물건 왼쪽이 가려짐 → 타이틀 자리(약 42%)까지만
+        const sx = Math.round(W * 0.24);
         imgHTML += `<div class="t-fade" style="left:0;width:${sx}px;background:${bg}"></div>`;
-        imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${sx - 1}px;width:${Math.round(W * 0.3)}px;height:${H}px" alt="">`;
+        imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${sx - 1}px;width:${Math.round(W * 0.18)}px;height:${H}px" alt="">`;
       }
     }
 
