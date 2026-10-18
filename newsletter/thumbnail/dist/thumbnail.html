@@ -355,7 +355,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         <input type="file" id="myRefFile" accept="image/*" hidden><input type="file" id="editRefFile" accept="image/*" hidden>
         <div class="gen-edit" id="genEdit" hidden>   <!-- 2026-10-18 지금 이미지에서 적은 부분만 고치기 -->
           <label>만들어진 이미지 수정하기 <span>· 지금 썸네일에 들어간 이미지에서 적은 부분만 바꿔요</span></label>
-          <div class="gen-edit-row"><button type="button" class="btn edit-ref" id="editRef" title="이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)">＋ 이미지 첨부</button><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 첨부한 이미지의 노트북처럼 바꿔 줘"><button class="btn" id="btnEdit">수정하기</button></div>
+          <div class="gen-edit-row"><button type="button" class="btn edit-ref" id="editRef" title="이 이미지를 참고해서 수정해요 (끌어다 놓거나 Ctrl+V 해도 돼요)">＋ 이미지 첨부</button><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 첨부한 이미지의 노트북처럼 바꿔 줘"><button class="btn" id="btnEdit">수정하기</button></div>
         </div>
       </div>
     </div>
@@ -1015,7 +1015,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!promptEdited) $('genPrompt').value = text;
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
     $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>`
-      + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (여기로 끌어다 놓아도 돼요)">＋<br>이미지 첨부</button>`
+      + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">＋<br>이미지 첨부</button>`
       + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span></button>`).join('') + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
@@ -1082,10 +1082,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         const u = c.toDataURL('image/webp', 0.9); res(u.startsWith('data:image/webp') ? u : c.toDataURL('image/png')); };
       im.onerror = rej; im.src = src; });
   }
+  let pasteTo = '';   // 'ref' = 참고 이미지 줄 위, 'edit' = 수정하기 줄 위 (붙여넣기 첨부)
   let editRef = '';   // 수정할 때 같이 보낼 참고 이미지 (선택)
   function showEditRef(){ const b = $('editRef'); b.classList.toggle('has', !!editRef);
     b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>첨부 빼기</span>` : '＋ 이미지 첨부';
-    b.title = editRef ? '눌러서 첨부한 이미지 빼기' : '이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)'; }
+    b.title = editRef ? '눌러서 첨부한 이미지 빼기' : '이 이미지를 참고해서 수정해요 (끌어다 놓거나 Ctrl+V 해도 돼요)'; }
   async function setEditRef(file){
     if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
     try { editRef = await toEditSize(await readAsURL(file)); showEditRef(); } catch(e){ toast('이미지를 읽지 못했어요.'); }
@@ -1288,6 +1289,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     document.addEventListener('paste', e => {
       // 이미지는 커서 위치와 상관없이 항상 받음
       const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith('image/'));
+      // 2026-10-18: [＋ 이미지 첨부] 자리에 마우스를 올렸거나 수정 칸을 누른 상태면 첨부로
+      const tgt = pasteTo || (document.activeElement && document.activeElement.id === 'genEditText' ? 'edit' : '');
+      if (it && tgt === 'ref') { e.preventDefault(); addMyRef(it.getAsFile()); return; }
+      if (it && tgt === 'edit') { e.preventDefault(); setEditRef(it.getAsFile()); return; }
       if (it) { e.preventDefault(); readImage(it.getAsFile()); return; }
       if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
       // Claude가 만들어 준 작업 내용(JSON 텍스트) 붙여넣기
@@ -1347,6 +1352,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     });
     $('btnGen').addEventListener('click', generate);
     $('btnEdit').addEventListener('click', editImage);
+    [['genRefs', 'ref'], ['genEdit', 'edit']].forEach(([id, v]) => {
+      $(id).addEventListener('mouseenter', () => { pasteTo = v; });
+      $(id).addEventListener('mouseleave', () => { if (pasteTo === v) pasteTo = ''; });
+    });
     $('editRef').addEventListener('click', () => { if (editRef){ editRef = ''; showEditRef(); } else { $('editRefFile').value = ''; $('editRefFile').click(); } });
     $('editRefFile').addEventListener('change', e => setEditRef(e.target.files[0]));
     ['dragover', 'dragenter'].forEach(ev => $('genEdit').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
