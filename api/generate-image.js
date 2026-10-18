@@ -102,6 +102,8 @@ function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
     ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition. If the requested subject appears in it, you may follow its shape. Do not copy its logos or text.)'
     : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition only — do not copy its objects, people or text.)';
   if (chars.length) note += `\n\n(The ${ref ? 'next' : 'attached'} image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)`;
+  // 2026-10-18: 신문 · 머그컵 등에 영어가 자꾸 나옴 → 적은 글자 말고는 글자 금지, 특히 영어
+  note += '\n\n(TEXT RULE: Render no text except the exact words the prompt explicitly asks for, written exactly as given — Korean stays Korean Hangul. Never invent English or any Latin-letter headlines, labels or body text on newspapers, documents, mugs or signs; draw gray lines instead.)';
   content.push({ type: 'input_text', text: prompt + note });
   return content;
 }
@@ -120,7 +122,7 @@ function buildEditContent({ prompt, image, ref }) {
       (hasRef ? 'The second attached image is a reference the user attached for this change ("참고 이미지"). Use it only for what the request asks (shape, color, style or layout). Do not copy its logos or text.\n\n' : '') +
       'Keep everything else exactly the same — composition, camera angle, object positions and sizes, colors, lighting, rendering style and the background color. ' +
       'Any changed or newly added object must match the main object: same camera angle and perspective, proportional size (supporting objects about 30-50% of the main object), same lighting direction, and sit on the same floor with a soft contact shadow — the result must look like one coherent scene, not stickers. ' +
-      'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. ' +
+      'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. Never add English or Latin-letter text unless the request explicitly asks for those exact words. ' +
       'Output the full edited image at the same aspect ratio.' }
   ];
 }

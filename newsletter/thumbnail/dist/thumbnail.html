@@ -915,7 +915,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     } else if (type === 'photo'){
       // 실사: 인물 · 장면은 오른쪽, 타이틀은 왼쪽 아래 (11호 KB국민은행 · 9호 검진대행사)
       L.push('- 가로 3:2 (1536×1024). 썸네일로 쓸 때 위아래가 조금 잘린다.');
-      L.push('- 인물 · 장면은 오른쪽에 둔다. 왼쪽 아래는 타이틀이 들어갈 자리이므로 비운다.');
+      L.push('- 왼쪽 55~60%는 물건 · 인물 없이 배경색에 가까운 톤만 둔다 (타이틀 · 로고 자리). 물건 · 인물이 왼쪽으로 넘어오지 않게 한다.');   // 2026-10-18: 실사에 빠져 있어 신문이 타이틀과 겹침
+      L.push('- 인물 · 물건 · 장면은 오른쪽 40~45%에 모으고, 둘레에 배경 여백을 넉넉히 둔다.');
       L.push('- 왼쪽으로 갈수록 배경색에 가까운 톤으로 자연스럽게 어두워지는 그라데이션을 준다.');
     } else {
       // 지난 호 썸네일 기준: 물건은 오른쪽 아래에 모이고, 가장자리에서 잘려 나가도 됨
@@ -940,8 +941,12 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         if (t) quoted.push(t);
       }
     }
-    if (quoted.length) L.push(`- 그릴 내용에 적은 글자(${quoted.map(q => `"${q}"`).join(', ')})만 해당 물건 위에 한글 그대로 정확하고 또렷하게 넣는다. 영어로 바꾸거나 번역하지 않는다. 그 밖의 글자 · 숫자 · 영어는 넣지 않고, 나머지 화면 · 문서는 막대 · 줄 · 아이콘 모양으로만 표현한다.`);
-    else L.push('- 이미지 안에는 어떤 글자 · 숫자 · 영어도 넣지 않는다. 휴대폰 화면 · 문서는 막대 · 줄 · 아이콘 모양으로만 표현한다.');
+    // 2026-10-18 사용자: 영어가 자꾸 나옴(신문 · 머그컵 · 공지문) → 한글만 · 영어 금지를 맨 앞 · 본문 · 맨 끝에
+    const KO_RULE = quoted.length
+      ? `이미지 속 글자는 그릴 내용에 적은 "${quoted.join('", "')}"만, 적힌 그대로(한글은 한글, 영어는 영어) 쓴다. 그 밖의 영어 · 로마자 · 가짜 글자는 어디에도 넣지 않는다.`   // 영어는 직접 적었을 때만
+      : '이미지 속에는 글자를 넣지 않는다. 특히 영어 · 로마자 · 가짜 글자는 절대 넣지 않는다.';
+    if (quoted.length) L.push(`- 그릴 내용에 적은 글자(${quoted.map(q => `"${q}"`).join(', ')})만 해당 물건 위에 적힌 그대로 정확하고 또렷하게 넣는다. 한글을 영어로 바꾸거나 번역하지 않는다.`);
+    L.push('- 신문 · 문서 · 책자 · 화면 · 머그컵 · 표지판 · 라벨의 나머지 글자 자리는 글자 대신 회색 줄 · 막대 · 아이콘으로만 표현한다. 그릴 내용에 직접 적지 않은 영어 제목 · 영어 기사 · 영어 문구(예: HEALTH, SAFETY, ANNOUNCEMENT)는 절대 넣지 않는다.');
     L.push('- 주제 이해에 필요하지 않은 수치나 사실은 지어내지 않는다.');
 
     if (ref || chars.length){
@@ -962,7 +967,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         L.push('- 캐릭터 이미지의 주제나 물건(장기 · 음식 · 글자 등)이 이번 이미지에 따라오지 않게 한다.');
       }
     }
-    return {text: L.join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
+    return {text: ['[가장 중요] ' + KO_RULE, '', ...L, '', '[다시 한 번] ' + KO_RULE].join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
   }
 
   const gens = [];   // 이번에 바로 만든 이미지 후보 (새로고침하면 사라짐)
