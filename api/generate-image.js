@@ -6,6 +6,8 @@
 // (Hobby 플랜에서는 이 값이 무시되고 여전히 짧게 제한될 수 있음 — 실제 배포 후 테스트 필요)
 module.exports.config = { maxDuration: 60 };
 
+const IMAGE_MODEL = 'gpt-image-2';
+
 async function callOpenAIImage({ apiKey, content, size, background, quality = 'low' }) {
   const resp = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
@@ -16,8 +18,8 @@ async function callOpenAIImage({ apiKey, content, size, background, quality = 'l
     body: JSON.stringify({
       model: 'gpt-4o',
       input: [{ role: 'user', content }],
-      // 투명 배경은 기본 이미지 모델이 지원하지 않아 gpt-image-1을 지정
-      tools: [{ type: 'image_generation', quality, size, ...(background ? { background, model: 'gpt-image-1' } : {}) }]
+      // 이미지 모델은 직접 지정 (gpt-image-1은 2026-10-23 종료 → gpt-image-2. 투명 배경은 gpt-image-2 미리보기 기능)
+      tools: [{ type: 'image_generation', model: IMAGE_MODEL, quality, size, ...(background ? { background } : {}) }]
     })
   });
 
@@ -131,7 +133,7 @@ module.exports = async function handler(req, res) {
     let content, size, background, quality;
     if (kind === 'thumb') {
       content = buildThumbContent(body);
-      quality = 'medium';   // 2026-10-18 low는 참고 이미지를 넣어도 품질이 떨어져 medium으로 (같은 프롬프트 · 참고 이미지로 비교 시험)
+      quality = 'low';   // 2026-10-18 gpt-image-2로 바꾸고 low부터 시험 (gpt-image-1 low는 참고 이미지를 넣어도 품질이 떨어졌음 · 부족하면 medium)
       size = body.layout === 'object' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
     } else if (kind === 'header') {

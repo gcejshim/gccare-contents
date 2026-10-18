@@ -895,7 +895,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!prompt){ toast('프롬프트가 비어 있어요.'); return; }
     const {chars, layout, ref} = buildPrompt();
     generating = true; $('btnGen').disabled = true; $('btnGen').lastChild.textContent = '만드는 중…';
-    const st = $('genStatus'); st.className = 'gen-status'; st.textContent = '그리는 중이에요. 1분 안팎 걸려요.';
+    const st = $('genStatus'); st.className = 'gen-status'; st.textContent = '그리는 중이에요. 30초~1분 걸려요.';
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
