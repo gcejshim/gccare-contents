@@ -292,7 +292,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <div class="card">
           <h3>프롬프트<span class="sp"></span><button class="btn sm" id="aiCopy">복사</button><a class="btn sm" id="aiOpen" target="_blank" rel="noopener">ChatGPT 열기</a><button class="btn sm primary" id="aiGen">바로 만들기</button></h3>
           <div class="prompt" id="aiPrompt"></div>
-          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 공용 서버로 30초 안팎에 그려요(빠른 시안 품질). 완성본은 프롬프트를 복사해 ChatGPT에서 만들고, 참고 이미지가 있으면 같이 첨부해요.</p>
+          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 공용 서버로 1분 안팎에 그려요(중간 품질). 완성본은 프롬프트를 복사해 ChatGPT에서 만들고, 참고 이미지가 있으면 같이 첨부해요.</p>
           <p class="gen-st" id="aiGenSt" hidden></p>
           <div class="ai-out" id="aiOut" hidden>
             <img id="aiOutImg" alt="">
@@ -619,7 +619,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (aiBusy) return;
     if (!(H.ai.topic || '').trim()){ toast('주제를 먼저 적어 주세요.'); $('aiTopic').focus(); return; }
     aiBusy = true; $('aiGen').disabled = true; $('aiGen').textContent = '만드는 중…';
-    const st = $('aiGenSt'); st.hidden = false; st.className = 'gen-st'; st.textContent = '그리는 중이에요. 30초 안팎 걸려요.';
+    const st = $('aiGenSt'); st.hidden = false; st.className = 'gen-st'; st.textContent = '그리는 중이에요. 1분 안팎 걸려요.';
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,

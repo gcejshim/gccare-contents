@@ -131,7 +131,7 @@ module.exports = async function handler(req, res) {
     let content, size, background, quality;
     if (kind === 'thumb') {
       content = buildThumbContent(body);
-      quality = 'low';   // 참고 이미지(styleRef)를 넣으면 low로도 충분한지 시험 (2026-10-12, medium은 10/8 시험값)
+      quality = 'medium';   // 2026-10-18 low는 참고 이미지를 넣어도 품질이 떨어져 medium으로 (같은 프롬프트 · 참고 이미지로 비교 시험)
       size = body.layout === 'object' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
     } else if (kind === 'header') {
