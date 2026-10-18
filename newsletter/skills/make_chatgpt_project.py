@@ -28,5 +28,34 @@ for f in ('content.md', 'design-system.md', 'thumbnail.md'):
 # ChatGPT 프로젝트에만 있는 파일 (Claude 스킬은 그림을 못 그림): 썸네일 그림 규칙
 shutil.copyfile(os.path.join(HERE, 'chatgpt-extra', 'thumbnail-image.md'), os.path.join(OUT, 'thumbnail-image.md'))
 
+# 참고 이미지 (도구는 19장을 자동 추천해 같이 보냄 → 프로젝트에는 배경색 · 그림체별 대표 11장, 파일 이름에 배경색 · 그림체)
+from PIL import Image
+REFS_DIR = os.path.join(HERE, '..', 'thumbnail', 'assets', 'refs')
+meta = {}
+for m in re.finditer(r"\('([^']+)', '([^']+)', \[([^\]]*)\], '(\w+)',\s*'([^']*)'\)", open(os.path.join(HERE, '..', 'thumbnail', 'make_refs.py'), encoding='utf-8').read()):
+    meta[m.group(1)] = (m.group(2), [x.strip(" '") for x in m.group(3).split(',')], m.group(4), m.group(5))
+PICK = ['13_01_하반기건강검진', '10_01_데이터리포트', '12_02_폭염', '12_01_당떨어지는기분', '14_02_걷기챌린지', '14_01_검진결과',
+        '13_02_담당자고민', '11_03_과태료', '자료실_건강증진', '자료실_응급처치', '11_01_KB국민은행']
+TYPE = {'obj3d': '3D', 'scene3d': '3D', 'mockup': '3D', 'flat': '3D', 'photo': '실사'}
+RD = os.path.join(OUT, '참고이미지'); os.makedirs(RD, exist_ok=True)
+for f in os.listdir(RD): os.remove(os.path.join(RD, f))
+rows = []
+for fid in PICK:
+    name, bg, typ, desc = meta[fid]
+    fn = f"참고_{bg[0]}_{TYPE.get(typ, '3D')}_{name.replace(' ', '').replace('·', '')}.jpg"
+    Image.open(os.path.join(REFS_DIR, fid + '.png')).convert('RGB').save(os.path.join(RD, fn), 'JPEG', quality=86)
+    rows.append(f"| {fn} | {', '.join(bg)} | {TYPE.get(typ, '3D')} | {desc} |")
+img_md = open(os.path.join(OUT, 'thumbnail-image.md'), encoding='utf-8').read()
+img_md += """
+## 참고 이미지 (프로젝트 파일 '참고_….jpg')
+그림을 만들 때 **썸네일 배경색(preset) · 그림체에 맞는 참고 이미지 1장**을 골라 함께 참고한다(파일 이름 = 참고_배경색_그림체_주제). 어느 것을 골랐는지 한 줄로 알려 준다.
+- 참고 이미지에서는 **배치 · 구도 · 색 분위기만** 따른다. 재질 · 조명은 위 '그림체'(스튜디오 프리미엄 3D)를 따르고, 물건 · 글자는 따라 그리지 않는다.
+- 사용자가 대화에 이미지를 첨부하면 **첨부 이미지가 우선**이다(위 '참고 이미지를 첨부했을 때').
+
+| 파일 | 어울리는 배경 | 그림체 | 모습 |
+|---|---|---|---|
+""" + '\n'.join(rows) + '\n'
+open(os.path.join(OUT, 'thumbnail-image.md'), 'w', encoding='utf-8').write(img_md)
+
 n = len(head + body)
-print(f'chatgpt-project/  지침 {n}자 + 파일 4개')
+print(f'chatgpt-project/  지침 {n}자 + 파일 4개 + 참고 이미지 {len(PICK)}장')
