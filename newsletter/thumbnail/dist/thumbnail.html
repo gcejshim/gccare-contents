@@ -293,6 +293,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         <div class="slider"><span>크기</span><input type="range" id="imgScale" min="30" max="250"><output id="oScale"></output></div>
         <div class="slider"><span>좌우</span><input type="range" id="imgX" min="-200" max="200"><output id="oX"></output></div>
         <div class="slider"><span>상하</span><input type="range" id="imgY" min="-200" max="200"><output id="oY"></output></div>
+        <div class="slider" title="글씨 쪽(왼쪽)으로 갈수록 배경색으로 흐려지는 정도 · 0이면 끔"><span>흐림</span><input type="range" id="imgFade" min="0" max="200"><output id="oFade"></output></div>
       </div>
     </div>
 
@@ -610,17 +611,17 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     let imgHTML = '';
     if (meta){
-      const p = placeImage(meta);
+      const p = placeImage(meta), fk = (S.img.fade ?? 100) / 100;   // 흐림 막대 (0 = 끔, 100 = 기본, 200 = 두 배)
       imgHTML = `<img class="t-img" src="${S.image}" style="left:${p.left}px;top:${p.top}px;width:${p.w}px;height:${p.h}px" alt="">`;
       if (S.layout === 'photo'){
-        imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.22)}px;height:${H}px" alt="">`;
+        if (fk > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.22 * fk)}px;height:${H}px" alt="">`;
         imgHTML += `<div class="t-fade" style="left:0;width:${Math.floor(p.rx)}px;background:${bg}"></div>`;
       } else if (S.layout === 'scene' && S.sceneBlend){
         // AI가 배경색을 정확히 못 맞춰도 글자 쪽(왼쪽)은 고른 배경색으로 자연스럽게 이어줌
         // 2026-10-18: 덮는 범위가 60%까지라 가운데 가까이 그린 물건 왼쪽이 가려짐 → 타이틀 자리(약 42%)까지만
-        const sx = Math.round(W * 0.24);
-        imgHTML += `<div class="t-fade" style="left:0;width:${sx}px;background:${bg}"></div>`;
-        imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${sx - 1}px;width:${Math.round(W * 0.18)}px;height:${H}px" alt="">`;
+        const sx = Math.round(W * 0.24 * Math.min(fk, 1.6));
+        if (sx > 0) imgHTML += `<div class="t-fade" style="left:0;width:${sx}px;background:${bg}"></div>`;
+        if (fk > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.max(0, sx - 1)}px;width:${Math.round(W * 0.18 * fk)}px;height:${H}px" alt="">`;
         // 크기를 줄이거나 옮겨 그림 테두리가 드러나면: 바깥은 배경색, 경계는 배경색으로 흐려 이어 줌 (2026-10-18)
         const L0 = p.left, T0 = p.top, R0 = p.left + p.w, B0 = p.top + p.h, fw = Math.round(W * 0.1), fh = Math.round(H * 0.16);
         if (R0 < W - 0.5){
@@ -743,7 +744,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('layoutHint').textContent = LAYOUT_HINT[S.layout];
     $('imgRow').hidden = $('imgCtrls').hidden = !S.image;
     if (S.image) $('imgThumb').src = S.image;
-    [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY','']].forEach(([id,k,o,u]) => { $(id).value = S.img[k]; $(o).textContent = S.img[k] + u; });
+    [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY',''],['imgFade','fade','oFade','%']].forEach(([id,k,o,u]) => { const v = S.img[k] ?? (k === 'fade' ? 100 : 0); $(id).value = v; $(o).textContent = v + u; });
     $('chipsOn').checked = S.chipsOn;
     buildChipEditors();
     document.querySelectorAll('#genStyle button').forEach(b => b.classList.toggle('on', b.dataset.v === S.gen.style));
@@ -1194,7 +1195,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       }
       syncForm(); refresh();
     });
-    [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY','']].forEach(([id,k,o,u]) =>
+    [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY',''],['imgFade','fade','oFade','%']].forEach(([id,k,o,u]) =>
       $(id).addEventListener('input', e => { S.img[k] = +e.target.value; $(o).textContent = S.img[k] + u; refresh(); }));
     $('chipsOn').addEventListener('change', e => { S.chipsOn = e.target.checked; buildChipEditors(); refresh(); });
     $('chipEditors').addEventListener('input', e => { const t = e.target; if (t.dataset.ci == null) return; S.chips[+t.dataset.ci][t.dataset.k] = t.value; refresh(); });
