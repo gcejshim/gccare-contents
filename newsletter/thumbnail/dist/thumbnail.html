@@ -842,6 +842,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       S.gen.ref = id; promptEdited = false; syncGen(); toast('첨부한 이미지를 참고 이미지로 골랐어요.');
     } catch(e){ toast('이미지를 읽지 못했어요.'); }
   }
+  // 실제 인물이 나오는 지난 호 사진(9 · 11호 인터뷰)은 그림 모델에 보내지 않음 — 글 규칙으로는 얼굴 베끼기를 못 막음 (2026-10-18)
+  const realPerson = r => !!r && !r.mine && /인물/.test(r.desc || '');
   function curRef(){
     if (S.gen.ref === 'none') return null;
     const L = refList();
@@ -999,7 +1001,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           L.push('- 그릴 내용에 적은 대상이 참고 이미지에 있으면 그 모양을 참고해도 된다. 참고 이미지의 로고 · 글자는 따라 그리지 않는다.');
           L.push('- 참고 이미지에 완성된 타이틀 · 문구 · 로고 · 칩이 들어 있어도 모두 무시한다. 그 글자를 옮겨 쓰지 않고, 글자가 있던 자리는 빈 배경으로 둔다(왼쪽은 타이틀 자리).');   // 2026-10-18 사용자: 완성 썸네일을 참고로 넣을 때
         } else {
-          L.push('- 첨부한 참고 이미지(우리 뉴스레터 지난 호 썸네일 배경)에서는 배치 · 구도 · 색 분위기만 참고한다. 재질 · 조명은 위 [스타일]을 따른다(지난 호보다 더 세련되게). 참고 이미지에 떠 있는 카드 · 배지 · 아이콘이 있어도 따라 그리지 않는다.');
+          if (realPerson(ref)) L.push(`- 참고 분위기(사진은 첨부하지 않음): ${ref.desc} 인물은 비슷한 분위기(나이대 · 직군 · 옷차림)의 다른 가상의 한국인으로 그린다.`);
+          else L.push('- 첨부한 참고 이미지(우리 뉴스레터 지난 호 썸네일 배경)에서는 배치 · 구도 · 색 분위기만 참고한다. 재질 · 조명은 위 [스타일]을 따른다(지난 호보다 더 세련되게). 참고 이미지에 떠 있는 카드 · 배지 · 아이콘이 있어도 따라 그리지 않는다.');
           L.push(`- 참고 이미지 모습: ${ref.desc}`);
           L.push('- 참고 이미지의 물건 · 인물 · 글자는 따라 그리지 않는다. 대상은 이번 주제로 새로 정한다.');
           if (/인물/.test(ref.desc || '')) L.push('- 참고 이미지 속 사람은 실제 인물이다. 얼굴 · 머리 모양 · 옷을 절대 따라 그리지 않고, 완전히 다른 가상의 인물로 그린다.');
@@ -1050,7 +1053,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}${r.id === justAdded ? ' just' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
-    $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· ${ref.mine ? (S.gen.desc.trim() ? '이 이미지를 참고해 적은 내용대로 그려요' : '이 이미지를 거의 그대로 그려요 (무엇을 그릴까요?에 적으면 참고만 해요)') : '이 그림체에 맞춰 그려요'}</span>` : '';
+    $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· ${realPerson(ref) ? '실제 인물 사진이라 사진은 보내지 않고 분위기 설명만 참고해요' : ref.mine ? (S.gen.desc.trim() ? '이 이미지를 참고해 적은 내용대로 그려요' : '이 이미지를 거의 그대로 그려요 (무엇을 그릴까요?에 적으면 참고만 해요)') : '이 그림체에 맞춰 그려요'}</span>` : '';
     $('genChars').hidden = !chars.length;
     $('genChars').innerHTML = chars.length ? '캐릭터 감지:' + chars.map(c => {
       const k = c.gender === 'female' ? 'charFemale' : 'charMale';
@@ -1171,7 +1174,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         // 2026-10-18 사용자: 첨부 + 그릴 내용 비움이면 새로 그리지 말고 첨부 이미지를 고쳐서(글자 · 로고만 지움) 톤 · 물건 · 구도를 그대로
         body: JSON.stringify(ref && ref.mine && !S.gen.desc.trim()
           ? {kind:'edit', image: ref.src, prompt: copyEdit((tok(presetOf().bg) || '#f0f8ff').toUpperCase())}
-          : {kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref ? ref.src : '', styleRefMine: ref && ref.mine ? 'style' : ''})});
+          : {kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref && !realPerson(ref) ? ref.src : '', styleRefMine: ref && ref.mine ? 'style' : ''})});
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL){
         const msg = data.error || `서버 응답 오류 (${resp.status})`;
