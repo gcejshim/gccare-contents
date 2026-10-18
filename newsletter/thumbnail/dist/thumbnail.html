@@ -551,7 +551,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (fadeCache[color]) return fadeCache[color];
     const c = document.createElement('canvas'); c.width = 256; c.height = 1;
     const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 256, 0);
-    g.addColorStop(0, rgba(color, 1)); g.addColorStop(0.08, rgba(color, 1)); g.addColorStop(0.9, rgba(color, 0)); g.addColorStop(1, rgba(color, 0));
+    // 2026-10-18 사용자: 경계가 너무 뚜렷 → 직선 대신 부드러운 곡선(smoothstep)으로 서서히
+    for (let i = 0; i <= 20; i++){ const t = i / 20, e = t * t * (3 - 2 * t); g.addColorStop(t, rgba(color, 1 - e)); }
     x.fillStyle = g; x.fillRect(0, 0, 256, 1);
     return (fadeCache[color] = c.toDataURL('image/png'));
   }
@@ -602,7 +603,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       rx = W * 0.42; rw = W - rx;
       const k = Math.min(rw / meta.w, rh / meta.h); w = meta.w * k * s; h = meta.h * k * s;
     } else {
-      rx = W * 0.48; rw = W - rx;
+      rx = W * 0.30; rw = W - rx;   // 사진 시작 위치 48% → 30% (2026-10-18 사용자: 사진을 더 크게)
       const k = Math.max(rw / meta.w, rh / meta.h); w = meta.w * k * s; h = meta.h * k * s;
     }
     return { left: rx + slide(S.img.x, rw - w, rw), top: ry + slide(S.img.y, rh - h, rh), w, h, rx };
@@ -626,14 +627,15 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       const p = placeImage(meta), fk = (S.img.fade ?? 100) / 100;   // 흐림 막대 (0 = 끔, 100 = 기본, 200 = 두 배)
       imgHTML = `<img class="t-img" src="${S.image}" style="left:${p.left}px;top:${p.top}px;width:${p.w}px;height:${p.h}px" alt="">`;
       if (S.layout === 'photo'){
-        if (fk > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.22 * fk)}px;height:${H}px" alt="">`;
+        if (fk > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.34 * fk)}px;height:${H}px" alt="">`;   // 흐림 폭 22% → 34% (부드럽게)
         imgHTML += `<div class="t-fade" style="left:0;width:${Math.floor(p.rx)}px;background:${bg}"></div>`;
       } else if (S.layout === 'scene' && S.sceneBlend){
         // AI가 배경색을 정확히 못 맞춰도 글자 쪽(왼쪽)은 고른 배경색으로 자연스럽게 이어줌
         // 2026-10-18: 덮는 범위가 60%까지라 가운데 가까이 그린 물건 왼쪽이 가려짐 → 타이틀 자리(약 42%)까지만
+        const wide = S.gen && S.gen.style === 'photo' ? 1.35 : 1;   // 실사 AI 그림은 경계가 생기기 쉬워 흐림을 더 넓게
         const sx = Math.round(W * 0.24 * Math.min(fk, 1.6));
         if (sx > 0) imgHTML += `<div class="t-fade" style="left:0;width:${sx}px;background:${bg}"></div>`;
-        if (fk > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.max(0, sx - 1)}px;width:${Math.round(W * 0.18 * fk)}px;height:${H}px" alt="">`;
+        if (fk > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.max(0, sx - 1)}px;width:${Math.round(W * 0.26 * fk * wide)}px;height:${H}px" alt="">`;
         // 크기를 줄이거나 옮겨 그림 테두리가 드러나면: 바깥은 배경색, 경계는 배경색으로 흐려 이어 줌 (2026-10-18)
         const L0 = p.left, T0 = p.top, R0 = p.left + p.w, B0 = p.top + p.h, fw = Math.round(W * 0.1), fh = Math.round(H * 0.16);
         if (R0 < W - 0.5){
@@ -960,7 +962,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       L.push('- 가로 3:2 (1536×1024). 썸네일로 쓸 때 위아래가 조금 잘린다.');
       L.push('- 왼쪽 55~60%는 물건 · 인물 없이 배경색에 가까운 톤만 둔다 (타이틀 · 로고 자리). 물건 · 인물이 왼쪽으로 넘어오지 않게 한다.');   // 2026-10-18: 실사에 빠져 있어 신문이 타이틀과 겹침
       L.push('- 인물 · 물건 · 장면은 오른쪽 40~45%에 모으고, 둘레에 배경 여백을 넉넉히 둔다.');
-      L.push('- 왼쪽으로 갈수록 배경색에 가까운 톤으로 자연스럽게 어두워지는 그라데이션을 준다.');
+      L.push('- 왼쪽으로 갈수록 배경색에 가까운 톤으로 아주 천천히 자연스럽게 이어지게 한다. 화면을 반으로 나누거나 세로 경계선이 생기면 안 된다.');
     } else {
       // 지난 호 썸네일 기준: 물건은 오른쪽 아래에 모이고, 가장자리에서 잘려 나가도 됨
       L.push('- 가로 3:2 (1536×1024). 썸네일로 쓸 때 위아래가 조금 잘린다.');
@@ -1026,6 +1028,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       'All product labels, packaging, bottles, boxes, bags, screens and documents must be blank (plain color or simple gray lines) — never English words such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
       'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). No decorative plants, no extra props, no floating icons.',
       `LAYOUT: the left 55-60% is empty plain background ${bg}; every object stays inside the right 40-45% and never crosses into the left side.`,
+      'ONE CONTINUOUS SCENE: no split panel, no hard vertical edge or seam — the background color flows smoothly and gradually from the left into the scene on the right.',
       ref && !ref.mine && /인물/.test(ref.desc || '') ? 'PEOPLE: the person in the reference photo is a real person — never copy their face, hair or outfit; draw a completely different fictional Korean person.' : '',
       NO_SITE ? 'No hard hats, helmets, safety vests, construction sites or warning signs (this is about employee health care).' : '',
       mineR ? (desc ? 'Follow the attached reference image for style, composition and colors; draw the subject described below.' : 'Recreate the attached reference image almost exactly (objects, layout, colors, style).') : ''
