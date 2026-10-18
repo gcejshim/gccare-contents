@@ -552,7 +552,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const c = document.createElement('canvas'); c.width = 256; c.height = 1;
     const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 256, 0);
     // 2026-10-18 사용자: 경계가 너무 뚜렷 → 직선 대신 부드러운 곡선(smoothstep)으로 서서히
-    for (let i = 0; i <= 20; i++){ const t = i / 20, e = t * t * (3 - 2 * t); g.addColorStop(t, rgba(color, 1 - e)); }
+    // 시작 · 끝 모두 기울기 0(smootherstep) → 단색에서 흐림으로, 흐림에서 그림으로 넘어가는 곳에 선이 안 보임
+    for (let i = 0; i <= 40; i++){ const t = i / 40, e = t * t * t * (t * (t * 6 - 15) + 10); g.addColorStop(t, rgba(color, 1 - e)); }
     x.fillStyle = g; x.fillRect(0, 0, 256, 1);
     return (fadeCache[color] = c.toDataURL('image/png'));
   }
@@ -698,7 +699,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (tt && grad && meta && fk > 0){
       const tb = th.getBoundingClientRect(), lns = [...tt.querySelectorAll('.ln')];
       const right = Math.max(...(lns.length ? lns : [tt]).map(l => l.getBoundingClientRect().right)) - tb.left, left = tt.getBoundingClientRect().left - tb.left;
-      const k = tb.width ? W / tb.width : 1, mid = Math.round((left + (right - left) * 0.5) * k * Math.min(fk, 1.6));
+      const k = tb.width ? W / tb.width : 1, mid = Math.round((left + (right - left) * 0.3) * k * Math.min(fk, 1.6));   // 2026-10-18 사용자: 딱 떨어지지 않게 — 단색은 타이틀 30% 지점까지만, 나머지는 긴 흐림
       if (mid > 0 && right > left){
         const solid = th.querySelector('.fd-solid'), cur = parseFloat(grad.style.left) || 0;
         if (S.layout !== 'photo' || mid < cur){ if (solid) solid.style.width = mid + 'px'; grad.style.left = Math.max(0, mid - 1) + 'px'; }
@@ -706,7 +707,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       // 이미지 주인공(물건 · 인물)이 시작하는 곳까지 흐림 → 빈 배경은 충분히 덮고 주인공은 가리지 않음 (흐림 막대 비율은 그대로)
       if (meta.subj != null){
         const p2 = placeImage(meta), sxPx = p2.left + meta.subj * p2.w, gl = parseFloat(grad.style.left) || 0;
-        const want = Math.max(W * 0.08, (sxPx - gl) * Math.min(fk, 1.6));
+        const want = Math.max(W * 0.3, (sxPx - gl) * Math.min(fk, 1.6));   // 흐림은 최소 30% 폭으로 길게
         grad.style.width = Math.round(Math.min(W * 0.45, want)) + 'px';
       }
       if (meta.edge != null){   // 반으로 나뉜 그림: 경계선 + 6%까지 흐림을 늘려 선을 덮음
