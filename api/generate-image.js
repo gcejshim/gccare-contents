@@ -19,9 +19,8 @@ async function callOpenAIImage({ apiKey, content, size, background, quality = 'l
       model: 'gpt-4o',
       input: [{ role: 'user', content }],
       // 이미지 모델은 직접 지정 (gpt-image-1은 2026-10-23 종료 → gpt-image-2. 투명 배경은 gpt-image-2 미리보기 기능)
-      // 2026-10-18 시험: gpt-image-2는 이 방식(Responses)에서 'Transparent background is not supported for this model' →
-      // 투명 배경만 종료(10/23) 전까지 gpt-image-1로. 그 전에 투명 배경 대안으로 바꿔야 함
-      tools: [{ type: 'image_generation', model: background ? 'gpt-image-1' : IMAGE_MODEL, quality, size, ...(background ? { background } : {}) }]
+      // 투명 배경은 gpt-image-2에서 'not supported' (2026-10-18 시험) → 썸네일 오브젝트형(투명)은 도구에서 뺌
+      tools: [{ type: 'image_generation', model: IMAGE_MODEL, quality, size, ...(background ? { background } : {}) }]
     })
   });
 
