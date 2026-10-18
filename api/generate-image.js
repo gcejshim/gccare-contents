@@ -99,7 +99,7 @@ function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
   chars.forEach((u) => content.push({ type: 'input_image', image_url: u }));
   let note = '';
   if (ref) note += styleRefMine
-    ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition. If the requested subject appears in it, you may follow its shape. Do not copy its logos or text.)'
+    ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition. If the requested subject appears in it, you may follow its shape. It may be a finished thumbnail with a headline, captions, chips or logos — ignore all of that text and logos completely: do not reproduce them, and leave those areas as plain background.)'
     : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Use it for composition, layout and color mood only — follow the rendering style described in the prompt (premium studio-shot 3D), and do not copy its objects, people or text.)';
   if (chars.length) note += `\n\n(The ${ref ? 'next' : 'attached'} image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)`;
   // 2026-10-18: 신문 · 머그컵 등에 영어가 자꾸 나옴 → 적은 글자 말고는 글자 금지, 특히 영어
@@ -119,7 +119,7 @@ function buildEditContent({ prompt, image, ref }) {
     ...(hasRef ? [{ type: 'input_image', image_url: ref }] : []),
     { type: 'input_text', text:
       `Edit the first attached image. Change only this: ${prompt}\n\n` +
-      (hasRef ? 'The second attached image is a reference the user attached for this change ("참고 이미지"). Use it only for what the request asks (shape, color, style or layout). Do not copy its logos or text.\n\n' : '') +
+      (hasRef ? 'The second attached image is a reference the user attached for this change ("참고 이미지"). Use it only for what the request asks (shape, color, style or layout). If it contains headlines, captions, chips or logos, ignore them completely — do not copy any of its text or logos.\n\n' : '') +
       'Keep everything else exactly the same — composition, camera angle, object positions and sizes, colors, lighting, rendering style and the background color. ' +
       'Any changed or newly added object must match the main object: same camera angle and perspective, proportional size (supporting objects about 30-50% of the main object), same lighting direction, and sit on the same floor with a soft contact shadow — the result must look like one coherent scene, not stickers. ' +
       'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. Never add English or Latin-letter text unless the request explicitly asks for those exact words. ' +
