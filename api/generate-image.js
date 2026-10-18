@@ -90,14 +90,17 @@ function buildHeaderContent({ prompt, activeHeaderStyle, headerRefImages }) {
 // charRefs: 프롬프트에 '첨부한 캐릭터'로 적힌 카드뉴스 편집기 캐릭터 이미지 (최대 2장)
 const isSmallImage = (u) => /^data:image\/(webp|png|jpeg);base64,/.test(u || '') && u.length < 500000;
 // styleRef: 프롬프트에 '첨부한 참고 이미지'로 적힌 지난 호 썸네일 배경 (글자 뺀 것, 1장) — 그림체 · 배치만 참고
-function buildThumbContent({ prompt, charRefs, styleRef }) {
+// styleRefMine: 사용자가 직접 넣은 참고 이미지 → 그릴 대상이 그 안에 있으면 모양까지 참고 허용 (2026-10-18)
+function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
   const chars = (Array.isArray(charRefs) ? charRefs : []).filter(isSmallImage).slice(0, 2);
   const ref = isSmallImage(styleRef) ? styleRef : '';
   const content = [];
   if (ref) content.push({ type: 'input_image', image_url: ref });
   chars.forEach((u) => content.push({ type: 'input_image', image_url: u }));
   let note = '';
-  if (ref) note += '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition only — do not copy its objects, people or text.)';
+  if (ref) note += styleRefMine
+    ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition. If the requested subject appears in it, you may follow its shape. Do not copy its logos or text.)'
+    : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition only — do not copy its objects, people or text.)';
   if (chars.length) note += `\n\n(The ${ref ? 'next' : 'attached'} image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)`;
   content.push({ type: 'input_text', text: prompt + note });
   return content;
@@ -106,13 +109,15 @@ function buildThumbContent({ prompt, charRefs, styleRef }) {
 // 썸네일 · AI로 그리기 [고치기] — 지금 이미지를 그대로 두고 적은 부분만 바꿈 (2026-10-18)
 // image: 고칠 이미지(data URL, 도구에서 긴 쪽 1536px로 줄여 보냄), prompt: 바꿀 점 한 줄
 const isEditImage = (u) => /^data:image\/(webp|png|jpeg);base64,/.test(u || '') && u.length < 4000000;
-function buildEditContent({ prompt, image }) {
+// ref: 수정할 때 같이 붙인 참고 이미지(선택)
+function buildEditContent({ prompt, image, ref }) {
+  const hasRef = isEditImage(ref);
   return [
     { type: 'input_image', image_url: image },
+    ...(hasRef ? [{ type: 'input_image', image_url: ref }] : []),
     { type: 'input_text', text:
-      `Edit the attached image. Change only this: ${prompt}
-
-` +
+      `Edit the first attached image. Change only this: ${prompt}\n\n` +
+      (hasRef ? 'The second attached image is a reference the user attached for this change ("참고 이미지"). Use it only for what the request asks (shape, color, style or layout). Do not copy its logos or text.\n\n' : '') +
       'Keep everything else exactly the same — composition, camera angle, object positions and sizes, colors, lighting, rendering style and the background color. ' +
       'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. ' +
       'Output the full edited image at the same aspect ratio.' }

@@ -148,6 +148,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-edit label span{font-weight:400;color:var(--neutral-500)}
 .gen-edit-row{display:flex;gap:8px}
 .gen-edit-row input{flex:1;min-width:0}
+.gen-edit-row .edit-ref{flex:none;white-space:nowrap}
+.gen-edit-row .edit-ref.has{padding:2px 8px 2px 2px;gap:6px}
+.gen-edit-row .edit-ref img{width:40px;height:28px;object-fit:cover;border-radius:4px;display:block}
+.gen-edit-row .edit-ref span{font-size:11px;color:var(--neutral-500)}
+.gen-refs .ref-add{font-size:12px;line-height:1.35;color:var(--careBlue-600);border-style:dashed}
+.gen-refs .rk.mine{background:var(--careGreen-600)}
 .gen-list button{width:96px;height:64px;padding:0;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;cursor:pointer;
   background:repeating-conic-gradient(var(--coolNeutral-100) 0 25%, var(--neutral-0) 0 50%) 0 0/12px 12px}
 .gen-list button.on{outline:2px solid var(--careBlue-500);outline-offset:2px}
@@ -312,9 +318,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           <span class="gen-status" id="genStatus"></span>
         </div>
         <div class="gen-list" id="genList"></div>
+        <input type="file" id="myRefFile" accept="image/*" hidden><input type="file" id="editRefFile" accept="image/*" hidden>
         <div class="gen-edit" id="genEdit" hidden>   <!-- 2026-10-18 지금 이미지에서 적은 부분만 고치기 -->
           <label>만들어진 이미지 수정하기 <span>· 지금 썸네일에 들어간 이미지에서 적은 부분만 바꿔요</span></label>
-          <div class="gen-edit-row"><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 문서를 조금 더 크게"><button class="btn" id="btnEdit">수정하기</button></div>
+          <div class="gen-edit-row"><button type="button" class="btn edit-ref" id="editRef" title="이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)">＋ 참고 이미지</button><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 참고 이미지의 노트북처럼 바꿔 줘"><button class="btn" id="btnEdit">수정하기</button></div>
         </div>
       </div>
     </div>
@@ -771,10 +778,30 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       return Object.assign({rec, score}, r);
     }).sort((a, b) => b.score - a.score);
   }
+  // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
+  const myRefs = [];
+  function refSmall(src, side = 1024){   // 서버 제한(500KB) 안으로: 긴 쪽 1024px WebP, 크면 더 줄임
+    return new Promise((res, rej) => { const im = new Image();
+      im.onload = () => { let sd = side, q = .85, u = '';
+        for (let i = 0; i < 4; i++){ const k = Math.min(1, sd / Math.max(im.width, im.height)), c = document.createElement('canvas');
+          c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+          u = c.toDataURL('image/webp', q); if (!u.startsWith('data:image/webp')) u = c.toDataURL('image/jpeg', q);
+          if (u.length < 480000) break; sd = Math.round(sd * .75); q -= .1; }
+        res(u); };
+      im.onerror = rej; im.src = src; });
+  }
+  function readAsURL(file){ return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); }); }
+  async function addMyRef(file){
+    if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
+    try { const src = await refSmall(await readAsURL(file)), id = 'my' + Date.now();
+      myRefs.unshift({id, name:'내 이미지', src, desc:'', mine:true, rec:false}); if (myRefs.length > 4) myRefs.pop();
+      S.gen.ref = id; promptEdited = false; syncGen(); toast('내 이미지를 참고 이미지로 골랐어요.');
+    } catch(e){ toast('이미지를 읽지 못했어요.'); }
+  }
   function curRef(){
     if (S.gen.ref === 'none') return null;
     const L = refList();
-    return (S.gen.ref && L.find(r => r.id === S.gen.ref)) || L.find(r => r.rec) || null;
+    return (S.gen.ref && (myRefs.find(r => r.id === S.gen.ref) || L.find(r => r.id === S.gen.ref))) || L.find(r => r.rec) || null;
   }
 
   // 화면에 보이는 프롬프트 = [바로 만들기]로 보내는 프롬프트. 크기 · 투명 배경도 같은 유형(T.obj)에서 정함
@@ -882,9 +909,14 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (ref || chars.length){
       L.push('', '[참고 이미지]');
       if (ref){
-        L.push('- 첨부한 참고 이미지(우리 뉴스레터 지난 호 썸네일 배경)의 그림체 · 재질 · 조명 · 배치를 따른다.');
-        L.push(`- 참고 이미지 모습: ${ref.desc}`);
-        L.push('- 참고 이미지의 물건 · 인물 · 글자는 따라 그리지 않는다. 대상은 이번 주제로 새로 정한다.');
+        if (ref.mine){
+          L.push('- 첨부한 참고 이미지(직접 고른 이미지)의 그림체 · 재질 · 조명 · 배치를 따른다.');
+          L.push('- 그릴 내용에 적은 대상이 참고 이미지에 있으면 그 모양을 참고해도 된다. 참고 이미지의 로고 · 글자는 따라 그리지 않는다.');
+        } else {
+          L.push('- 첨부한 참고 이미지(우리 뉴스레터 지난 호 썸네일 배경)의 그림체 · 재질 · 조명 · 배치를 따른다.');
+          L.push(`- 참고 이미지 모습: ${ref.desc}`);
+          L.push('- 참고 이미지의 물건 · 인물 · 글자는 따라 그리지 않는다. 대상은 이번 주제로 새로 정한다.');
+        }
         L.push('- 배경색은 참고 이미지가 아니라 위 [배경과 색]의 색을 쓴다.');
       }
       if (chars.length){
@@ -910,7 +942,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const {text, chars, ref} = buildPrompt();
     if (!promptEdited) $('genPrompt').value = text;
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
-    $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>` + refList().map(r =>
+    $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>`
+      + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (여기로 끌어다 놓아도 돼요)">＋<br>내 이미지</button>`
+      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="내 이미지"><img src="${r.src}" alt=""><span class="rk mine">내 이미지</span></button>`).join('') + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
     $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· 이 그림체에 맞춰 그려요</span>` : '';
@@ -976,6 +1010,14 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         const u = c.toDataURL('image/webp', 0.9); res(u.startsWith('data:image/webp') ? u : c.toDataURL('image/png')); };
       im.onerror = rej; im.src = src; });
   }
+  let editRef = '';   // 수정할 때 같이 보낼 참고 이미지 (선택)
+  function showEditRef(){ const b = $('editRef'); b.classList.toggle('has', !!editRef);
+    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>참고 빼기</span>` : '＋ 참고 이미지';
+    b.title = editRef ? '눌러서 참고 이미지 빼기' : '이 이미지를 참고해서 수정해요 (끌어다 놓기도 돼요)'; }
+  async function setEditRef(file){
+    if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
+    try { editRef = await toEditSize(await readAsURL(file)); showEditRef(); } catch(e){ toast('이미지를 읽지 못했어요.'); }
+  }
   async function editImage(){
     if (generating) return;
     const what = $('genEditText').value.trim();
@@ -986,7 +1028,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
-        body: JSON.stringify({kind:'edit', prompt: what, image: await toEditSize(S.image)})});
+        body: JSON.stringify({kind:'edit', prompt: what, image: await toEditSize(S.image), ref: editRef})});
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL){
         const msg = data.error || `서버 응답 오류 (${resp.status})`;
@@ -996,7 +1038,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       const keep = {...S.img};
       gens.unshift({url, layout: 'scene'}); if (gens.length > 6) gens.pop();
       useGen(gens[0]); S.img = keep; syncForm(); refresh();   // 맞춰 둔 크기 · 위치는 그대로
-      $('genEditText').value = ''; st.textContent = '';
+      $('genEditText').value = ''; editRef = ''; showEditRef(); st.textContent = '';
     } catch(e){
       st.className = 'gen-status err';
       st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '수정하지 못했어요: ' + (e.message || e);
@@ -1014,7 +1056,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
-        body: JSON.stringify({kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref ? ref.src : ''})});
+        body: JSON.stringify({kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref ? ref.src : '', styleRefMine: !!(ref && ref.mine)})});
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL){
         const msg = data.error || `서버 응답 오류 (${resp.status})`;
@@ -1209,10 +1251,14 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('genRefs').addEventListener('scroll', refArrows);
     $('genRefs').addEventListener('wheel', e => { const r = $('genRefs'); if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || r.scrollWidth <= r.clientWidth) return; e.preventDefault(); r.scrollLeft += e.deltaY; }, {passive: false});
     if (window.ResizeObserver) new ResizeObserver(refArrows).observe($('genRefs')); else window.addEventListener('resize', refArrows);   // 접혀 있다 펼쳐질 때도 다시 계산
+    $('genRefs').addEventListener('click', e => { if (e.target.closest('[data-ref-add]')){ $('myRefFile').value = ''; $('myRefFile').click(); } });
+    $('myRefFile').addEventListener('change', e => addMyRef(e.target.files[0]));
+    ['dragover', 'dragenter'].forEach(ev => $('genRefs').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+    $('genRefs').addEventListener('drop', e => { const f = [...(e.dataTransfer?.files || [])].find(x => x.type.startsWith('image/')); if (!f) return; e.preventDefault(); e.stopPropagation(); addMyRef(f); });
     $('genRefs').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return; S.gen.ref = b.dataset.ref; promptEdited = false; syncGen(); autosave(); });
     // 마우스를 올리면 오른쪽(자리가 없으면 왼쪽)에 크게 미리보기
     $('genRefs').addEventListener('mouseover', e => {
-      const b = e.target.closest('[data-ref]'), pk = $('refPeek'), r = b && (window.REFS || []).find(x => x.id === b.dataset.ref);
+      const b = e.target.closest('[data-ref]'), pk = $('refPeek'), r = b && [...myRefs, ...(window.REFS || [])].find(x => x.id === b.dataset.ref);
       if (!r){ pk.hidden = true; return; }
       pk.querySelector('img').src = r.src; pk.querySelector('b').textContent = r.name; pk.querySelector('span').textContent = r.desc;
       pk.hidden = false;
@@ -1229,6 +1275,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     });
     $('btnGen').addEventListener('click', generate);
     $('btnEdit').addEventListener('click', editImage);
+    $('editRef').addEventListener('click', () => { if (editRef){ editRef = ''; showEditRef(); } else { $('editRefFile').value = ''; $('editRefFile').click(); } });
+    $('editRefFile').addEventListener('change', e => setEditRef(e.target.files[0]));
+    ['dragover', 'dragenter'].forEach(ev => $('genEdit').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+    $('genEdit').addEventListener('drop', e => { const f = [...(e.dataTransfer?.files || [])].find(x => x.type.startsWith('image/')); if (!f) return; e.preventDefault(); e.stopPropagation(); setEditRef(f); });
     $('genEditText').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing){ e.preventDefault(); editImage(); } });
     $('genList').addEventListener('click', e => { const b = e.target.closest('[data-gi]'); if (b) useGen(gens[+b.dataset.gi]); });
     $('genChars').addEventListener('click', e => {
