@@ -1036,7 +1036,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       ? `이미지 속 글자는 그릴 내용에 적은 "${quoted.join('", "')}"만, 적힌 그대로(한글은 한글, 영어는 영어) 쓴다. 그 밖의 영어 · 로마자 · 가짜 글자는 어디에도 넣지 않는다.`   // 영어는 직접 적었을 때만
       : '이미지 속에는 글자를 넣지 않는다. 특히 영어 · 로마자 · 가짜 글자는 절대 넣지 않는다.';
     if (quoted.length) L.push(`- 그릴 내용에 적은 글자(${quoted.map(q => `"${q}"`).join(', ')})만 해당 물건 위에 적힌 그대로 정확하고 또렷하게 넣는다. 한글을 영어로 바꾸거나 번역하지 않는다.`);
-    L.push('- 신문 · 문서 · 책자 · 화면 · 머그컵 · 표지판 · 라벨의 나머지 글자 자리는 글자 대신 회색 줄 · 막대 · 아이콘으로만 표현한다. 그릴 내용에 직접 적지 않은 영어 제목 · 영어 기사 · 영어 문구(예: HEALTH, SAFETY, ANNOUNCEMENT)는 절대 넣지 않는다.');
+    L.push('- 신문 · 문서 · 책자 · 화면 · 머그컵 · 표지판 · 라벨은 비워 두지 말고, 글자 자리를 회색 줄(글줄 느낌) · 작은 아이콘(십자 · 하트 · 방패 · 체크) · 작은 그래프로 채워 디자인된 물건처럼 보이게 한다. 그릴 내용에 직접 적지 않은 영어 제목 · 영어 기사 · 영어 문구(예: HEALTH, SAFETY, ANNOUNCEMENT)는 절대 넣지 않는다.');
     L.push('- 주제 이해에 필요하지 않은 수치나 사실은 지어내지 않는다.');
 
     if (ref || chars.length){
@@ -1070,7 +1070,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const CRIT = [
       quoted.length ? `TEXT: The only text allowed in the whole image is exactly: "${quoted.join('", "')}" (Korean stays Korean Hangul). No other text.`
         : 'TEXT: Absolutely no text, letters or numbers anywhere in the image.',
-      'All product labels, packaging, bottles, boxes, bags, screens and documents must be blank (plain color or simple gray lines) — never English words such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
+      // 2026-10-18 사용자: 아예 비면 어색함 → 글자 대신 그래픽으로 채우기
+      'Labels, packaging, signs, screens and documents must not be empty: fill them with simple graphics instead of text — a small icon (cross, heart, shield, check), short gray placeholder lines like lines of text, or a tiny chart. Never real words or English such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
       'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). No decorative plants, no extra props, no floating icons.',
       `LAYOUT: the left 55-60% is empty background close to ${bg}, continuous over the full image height; every object or person starts to the right of the 55% mark and never crosses into the left side.`,
       'ONE CONTINUOUS SCENE: no split panel, no hard vertical edge or seam — the background color flows smoothly and gradually from the left into the scene on the right.',
