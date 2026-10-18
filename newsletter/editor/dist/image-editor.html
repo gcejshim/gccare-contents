@@ -2567,6 +2567,11 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     (BLOCKS[type].fields || []).forEach(f => { if (f.k && !(f.k in d) && f.t in SKILL_EMPTY) s[f.k] = JSON.parse(JSON.stringify(SKILL_EMPTY[f.t])); });
     const o = Object.assign(s, d);
     if (type === 'table' && !('rowH' in d)) o.rowH = autoRowH(o.rows);   // 행 간격을 안 정했으면 내용 보고 자동
+    // 2026-10-18 사용자: 색이 들어간 강조형은 열 3개 이상(비교표)일 때만, 2열 '구분 | 내용'은 기본형(연한 머리글 · 첫 칸 강조 없음)
+    if (type === 'table' && !('hc' in d) && !('firstCol' in d)){
+      const cols = String(o.head || '').split('|').filter(c => c.trim()).length || String(o.rows || '').split('\n')[0].split('|').length;
+      if (cols >= 3){ o.hc = 'navy'; o.firstCol = true; } else { o.hc = 'light'; o.firstCol = false; o.icons = ''; }
+    }
     return o;
   }
   // 표 행 간격 자동: 칸 안 줄바꿈(//)이 절반 이상이면 넓게, 7행 이상 · 모두 한 줄 짧은 내용이면 좁게, 그 밖엔 보통
