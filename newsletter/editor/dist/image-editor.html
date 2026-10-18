@@ -2479,7 +2479,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       if (!ok.length){ box.innerHTML = '<div class="sp-e">스킬 결과를 읽을 수 없어요. claude.ai 코드 상자의 [복사] 버튼으로 전체를 복사해 주세요.</div>'; return; }
       const cOf = b => b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => parseInt(b.no, 10) || 1;
       box.innerHTML = `<div class="sp-h">들어올 이미지 ${ok.length}장</div>` + ok.map((b, i) => {
-        const t = {id: 'sp' + i, type: b.type, contents: cOf(b), no: nOf(b), bg: b.bg || 'gray', data: Object.assign(BLOCKS[b.type].sample(), b.data || {})};
+        const t = {id: 'sp' + i, type: b.type, contents: cOf(b), no: nOf(b), bg: b.bg || 'gray', data: skillData(b.type, b.data)};
         let th = ''; if (b.type !== 'pair'){ try { if (b.type === 'html') hkUpgrade(t.data); th = renderItem(t, 'pc'); } catch(_){} }
         const old = S.items.find(o => !o.owner && o.contents === t.contents && pad2(o.no) === pad2(t.no) && !o.fresh);
         return `<div class="sp-r"><div class="sp-th"><div style="transform:scale(${(96 / 900).toFixed(4)})">${th}</div></div><div class="sp-tx"><b>${esc(fileBase(t, 'pc'))}</b><span>${esc(BLOCKS[b.type].name)}</span></div><span class="sp-tg${old ? ' rep' : ''}">${old ? '바뀜' : '새로 추가'}</span></div>`; }).join('')
@@ -2559,6 +2559,14 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     });
   }
 
+  // 스킬 · AI 결과 → 블록 데이터 (2026-10-18): 견본 위에 덮어쓰면 안 적은 칸(아이콘 · 설명 글 등)에 견본 내용이 남음
+  // → 내용 칸(글 · 목록 · 아이콘 · 이미지)은 안 적었으면 비우고, 선택 · 숫자 같은 설정 칸만 견본 기본값을 씀
+  const SKILL_EMPTY = {text:'', area:'', image:'', icon:'', iconrows:'', list:[], badgerows:[], texts:{}};
+  function skillData(type, d){
+    const s = BLOCKS[type].sample(); d = d || {};
+    (BLOCKS[type].fields || []).forEach(f => { if (f.k && !(f.k in d) && f.t in SKILL_EMPTY) s[f.k] = JSON.parse(JSON.stringify(SKILL_EMPTY[f.t])); });
+    return Object.assign(s, d);
+  }
   // 붙여넣은 글자 읽기: 스킬 결과(nl-block · nl-blocks)면 블록 추가, 편집 원본이면 바꿀지 묻기. 읽었으면 true
   // 붙여 넣은 JSON 읽기: ``` 감싸기 · 앞뒤 설명 · BOM · 특수 공백을 걷어 내고, 그래도 안 되면 둥근 따옴표(맥 · 문서 복사)를 곧은 따옴표로
   function cleanJSON(raw){
@@ -2589,7 +2597,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     let replaced = 0;
     ok.forEach(b => {
       const it = newItem(b.type, cOf(b), nOf(b)), old = dupOf(b);
-      it.data = Object.assign(BLOCKS[b.type].sample(), b.data || {});
+      it.data = skillData(b.type, b.data);
       if (src) it.src = src;   // 붙여 넣은 스킬 결과 원문 (② 스킬 칸에 계속 보여 줌)
       if (b.type === 'html') hkUpgrade(it.data);   // 편집 표시가 없는 스킬 결과도 고칠 수 있게
       if (b.type === 'html' && old && old.type === 'html') hkKeepColors(old.data, it.data);   // 다시 넣어도 도구에서 바꾼 색은 유지
