@@ -1101,7 +1101,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       clearTimeout(timer); generating = false; $('btnGen').disabled = $('btnEdit').disabled = false; $('btnEdit').textContent = '수정하기';
     }
   }
-  const COPY_EDIT = 'Remove only all text (headline, captions, chips, numbers, labels) and logos from this image, and fill those areas naturally with the surrounding background. Keep the objects, arrangement, composition, colors, tone, lighting and rendering style exactly the same. Keep the left side as plain background for a new headline.';
+  // 첨부 그대로 모드: 글자 · 로고만 지우고, 배경은 고른 색으로(그림자 · 빛 번짐도 새 배경에 맞게) — 물건 색 · 구도 · 그림체는 그대로 (2026-10-18)
+  const copyEdit = hex => 'Remove only all text (headline, captions, chips, numbers, labels) and logos from this image, and fill those areas naturally with the surrounding background. '
+    + `Make the background exactly ${hex}; if it already is close to that color keep it as is, otherwise recolor only the background and adapt shadows and soft light glows naturally to the new background. `
+    + 'Keep the objects and their colors, arrangement, composition, lighting and rendering style exactly the same. Keep the left side as plain background for a new headline.';
   async function generate(){
     if (generating) return;
     const prompt = $('genPrompt').value.trim();
@@ -1114,7 +1117,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       const resp = await fetch(GEN_URL, {method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
         // 2026-10-18 사용자: 첨부 + 그릴 내용 비움이면 새로 그리지 말고 첨부 이미지를 고쳐서(글자 · 로고만 지움) 톤 · 물건 · 구도를 그대로
         body: JSON.stringify(ref && ref.mine && !S.gen.desc.trim()
-          ? {kind:'edit', image: ref.src, prompt: COPY_EDIT}
+          ? {kind:'edit', image: ref.src, prompt: copyEdit((tok(presetOf().bg) || '#f0f8ff').toUpperCase())}
           : {kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref ? ref.src : '', styleRefMine: ref && ref.mine ? 'style' : ''})});
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL){
