@@ -188,6 +188,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-edit-row .edit-ref span{font-size:11px;color:var(--neutral-500)}
 .gen-refs .ref-add{font-size:12px;line-height:1.35;color:var(--careBlue-600);border-style:dashed}
 .gen-refs .rk.mine{background:var(--careGreen-600)}
+.gen-refs .ref-del{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(17,17,17,.65);color:#fff;font-style:normal;font-size:13px;line-height:18px;text-align:center;cursor:pointer}
+.gen-refs .ref-del:hover{background:var(--careRed-500,#f5222d)}
 .gen-list button{width:96px;height:64px;padding:0;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;cursor:pointer;
   background:repeating-conic-gradient(var(--coolNeutral-100) 0 25%, var(--neutral-0) 0 50%) 0 0/12px 12px}
 .gen-list button.on{outline:2px solid var(--careBlue-500);outline-offset:2px}
@@ -1016,7 +1018,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
     $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>`
       + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">＋<br>이미지 첨부</button>`
-      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span></button>`).join('') + refList().map(r =>
+      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
     $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· 이 그림체에 맞춰 그려요</span>` : '';
@@ -1085,8 +1087,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   let pasteTo = '';   // 'ref' = 참고 이미지 줄 위, 'edit' = 수정하기 줄 위 (붙여넣기 첨부)
   let editRef = '';   // 수정할 때 같이 보낼 참고 이미지 (선택)
   function showEditRef(){ const b = $('editRef'); b.classList.toggle('has', !!editRef);
-    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>첨부 빼기</span>` : '＋ 이미지 첨부';
-    b.title = editRef ? '눌러서 첨부한 이미지 빼기' : '이 이미지를 참고해서 수정해요 (끌어다 놓거나 Ctrl+V 해도 돼요)'; }
+    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>× 지우기</span>` : '＋ 이미지 첨부';
+    b.title = editRef ? '눌러서 첨부한 이미지 지우기' : '이 이미지를 참고해서 수정해요 (끌어다 놓거나 Ctrl+V 해도 돼요)'; }
   async function setEditRef(file){
     if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
     try { editRef = await toEditSize(await readAsURL(file)); showEditRef(); } catch(e){ toast('이미지를 읽지 못했어요.'); }
@@ -1328,6 +1330,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('genRefs').addEventListener('scroll', refArrows);
     $('genRefs').addEventListener('wheel', e => { const r = $('genRefs'); if (Math.abs(e.deltaY) <= Math.abs(e.deltaX) || r.scrollWidth <= r.clientWidth) return; e.preventDefault(); r.scrollLeft += e.deltaY; }, {passive: false});
     if (window.ResizeObserver) new ResizeObserver(refArrows).observe($('genRefs')); else window.addEventListener('resize', refArrows);   // 접혀 있다 펼쳐질 때도 다시 계산
+    // 첨부한 이미지 지우기 (× · 2026-10-18) — 고르기보다 먼저 처리
+    $('genRefs').addEventListener('click', e => { const d = e.target.closest('[data-del]'); if (!d) return; e.stopPropagation(); e.preventDefault();
+      const i = myRefs.findIndex(r => r.id === d.dataset.del); if (i >= 0) myRefs.splice(i, 1);
+      if (S.gen.ref === d.dataset.del) S.gen.ref = ''; promptEdited = false; syncGen(); autosave(); toast('첨부한 이미지를 지웠어요.'); }, true);
     $('genRefs').addEventListener('click', e => { if (e.target.closest('[data-ref-add]')){ $('myRefFile').value = ''; $('myRefFile').click(); } });
     $('myRefFile').addEventListener('change', e => addMyRef(e.target.files[0]));
     ['dragover', 'dragenter'].forEach(ev => $('genRefs').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
