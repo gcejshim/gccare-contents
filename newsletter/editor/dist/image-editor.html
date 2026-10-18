@@ -416,6 +416,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .tb td{height:74px;padding:12px 16px;background:var(--neutral-0);color:var(--neutral-900);font-size:var(--fs-sub);font-weight:500;line-height:20px;letter-spacing:-0.064px;text-align:center;vertical-align:middle;border-right:1px solid var(--neutral-100);border-bottom:1px solid var(--neutral-100)}
 .nl .tb.rh-s td,.nl .tb.rh-s td.c0{height:56px;padding-top:8px;padding-bottom:8px} .nl .tb.rh-m td,.nl .tb.rh-m td.c0{height:64px;padding-top:10px;padding-bottom:10px}   /* 행 간격: 좁게 · 보통 (넓게 = 74px 기본) */
 .nl .tb th:last-child,.nl .tb td:last-child{border-right:0}
+.nl .tb td.al{text-align:left}   /* 본문 왼쪽 정렬 (긴 글 열) */
 .nl .tb tr:last-child td{border-bottom:0}
 .nl .tb th.c0{width:23.5%}
 .nl .tb td.c0{background:var(--careBlue-10);font-weight:600;text-align:left;padding:12px 24px 12px 30px}
@@ -1026,7 +1027,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         Object.assign({}, ICON_STYLE, {when: d => d.firstCol}),
         {k:'hl', t:'select', label:'강조 열', opts:[['none','없음 (헤더 전체 한 색)'],['last','마지막 열 강조']]},
         {k:'hc', t:'select', label:'머리글 색', opts:HEAD_COLORS},
-        {k:'rowH', t:'select', label:'행 간격', opts:[['m','보통'],['s','좁게 (한 줄 내용 · 항목이 많을 때)'],['l','넓게 (두 줄 내용이 많을 때)']]}
+        {k:'rowH', t:'select', label:'행 간격', opts:[['m','보통'],['s','좁게 (한 줄 내용 · 항목이 많을 때)'],['l','넓게 (두 줄 내용이 많을 때)']]},
+        {k:'align', t:'select', label:'본문 정렬', opts:[['auto','자동 (긴 글이 많은 열은 왼쪽)'],['center','가운데'],['left','왼쪽']]}
       ],
       sample: () => ({title:'검진 운영 방식별 업무 범위 비교', head:'구분 | 직접 운영 | 시스템 기반 운영 | 전담 위탁 운영', firstCol:true, hl:'last', icons:'Users\nCalendarDays\nArrowLeftRight',
         rows:['대상자 관리 | 명단 대조와//변경 반영을 직접 수행 | 변경 명단 전달 후//반영 결과 확인 | 위탁사가 반영,//예외 사항만 보고',
@@ -1040,7 +1042,11 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       render(d, m){
         const {head, rows} = this.parse(d);
         const n = this.parse(d).n;
-        const cls = (i) => [i === 0 && d.firstCol ? 'c0' : '', i === n - 1 ? 'cl' : ''].join(' ').trim();
+        // 본문 정렬 (2026-10-18 사용자): 자동 = 열마다 긴 글(20자 넘음 · 칸 안 줄바꿈)이 절반 이상이면 왼쪽, 짧은 값만 있으면 가운데
+        const plain = c => String(c || '').replace(/\*\*|!!|\[|\]|\{[^:{}]+:|\}/g, '');
+        const longCol = i => { const cs = rows.map(r => r[i] || '').filter(c => c.trim()); return cs.length && cs.filter(c => c.includes('//') || plain(c).replace(/\s*\/\/\s*/g, ' ').length > 20).length * 2 >= cs.length; };
+        const alignL = Array.from({length: n}, (_, i) => !(i === 0 && d.firstCol) && (d.align === 'left' || ((!d.align || d.align === 'auto') && longCol(i))));
+        const cls = (i) => [i === 0 && d.firstCol ? 'c0' : '', i === n - 1 ? 'cl' : '', alignL[i] ? 'al' : ''].join(' ').trim();
         // 모바일은 폭이 좁아 // 강제 줄바꿈 대신 자연스럽게 줄바꿈
         const cell = s => rich(m === 'mo' ? String(s).replace(/\s*\/\/\s*/g, ' ') : s).replace(/!!(.+?)!!/g, '<span class="warn">$1</span>');
         // 머리글 색: 13호처럼 왼쪽 → 오른쪽으로 점점 진하게 (첫 칸 연파랑, 마지막 칸 남색)
