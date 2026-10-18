@@ -103,6 +103,7 @@ function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
     : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Use it for composition, layout and color mood only — follow the rendering style described in the prompt (premium studio-shot 3D), and do not copy its objects, people or text.)';
   if (chars.length) note += `\n\n(The ${ref ? 'next' : 'attached'} image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)`;
   // 2026-10-18: 신문 · 머그컵 등에 영어가 자꾸 나옴 → 적은 글자 말고는 글자 금지, 특히 영어
+  note += '\n\n(OBJECT RULE: At most 2 objects in total — one main object and at most one supporting object. No floating small icons, badges, hearts, crosses, check marks, spheres, sparkles or speech bubbles around them.)';
   note += '\n\n(TEXT RULE: Render no text except the exact words the prompt explicitly asks for, written exactly as given — Korean stays Korean Hangul. Never invent English or any Latin-letter headlines, labels or body text on newspapers, documents, mugs or signs; draw gray lines instead.)';
   content.push({ type: 'input_text', text: prompt + note });
   return content;
