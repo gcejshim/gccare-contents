@@ -811,7 +811,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function curRef(){
     if (S.gen.ref === 'none') return null;
     const L = refList();
-    return (S.gen.ref && (myRefs.find(r => r.id === S.gen.ref) || L.find(r => r.id === S.gen.ref))) || L.find(r => r.rec) || null;
+    // 2026-10-18: 실제 인물 사진(인터뷰)을 자동 추천하면 얼굴을 베낌 → 자동 추천에서는 사람이 나오는 사진 빼기(직접 고르면 씀)
+    return (S.gen.ref && (myRefs.find(r => r.id === S.gen.ref) || L.find(r => r.id === S.gen.ref))) || L.find(r => r.rec && !/인물/.test(r.desc || '')) || null;
   }
 
   // 화면에 보이는 프롬프트 = [바로 만들기]로 보내는 프롬프트. 크기 · 투명 배경도 같은 유형(T.obj)에서 정함
@@ -967,6 +968,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           L.push('- 첨부한 참고 이미지(우리 뉴스레터 지난 호 썸네일 배경)에서는 배치 · 구도 · 색 분위기만 참고한다. 재질 · 조명은 위 [스타일]을 따른다(지난 호보다 더 세련되게). 참고 이미지에 떠 있는 카드 · 배지 · 아이콘이 있어도 따라 그리지 않는다.');
           L.push(`- 참고 이미지 모습: ${ref.desc}`);
           L.push('- 참고 이미지의 물건 · 인물 · 글자는 따라 그리지 않는다. 대상은 이번 주제로 새로 정한다.');
+          if (/인물/.test(ref.desc || '')) L.push('- 참고 이미지 속 사람은 실제 인물이다. 얼굴 · 머리 모양 · 옷을 절대 따라 그리지 않고, 완전히 다른 가상의 인물로 그린다.');
         }
         L.push('- 배경색은 참고 이미지가 아니라 위 [배경과 색]의 색을 쓴다.');
       }
@@ -987,6 +989,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       'All product labels, packaging, bottles, boxes, bags, screens and documents must be blank (plain color or simple gray lines) — never English words such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
       'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). No decorative plants, no extra props, no floating icons.',
       `LAYOUT: the left 55-60% is empty plain background ${bg}; every object stays inside the right 40-45% and never crosses into the left side.`,
+      ref && !ref.mine && /인물/.test(ref.desc || '') ? 'PEOPLE: the person in the reference photo is a real person — never copy their face, hair or outfit; draw a completely different fictional Korean person.' : '',
       NO_SITE ? 'No hard hats, helmets, safety vests, construction sites or warning signs (this is about employee health care).' : '',
       mineR ? (desc ? 'Follow the attached reference image for style, composition and colors; draw the subject described below.' : 'Recreate the attached reference image almost exactly (objects, layout, colors, style).') : ''
     ].filter(Boolean).join('\n');
