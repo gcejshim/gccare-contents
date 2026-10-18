@@ -558,9 +558,19 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
             for (let yy = 0; yy < ch; yy++){ const i = (yy * cw + xx) * 4; if (Math.abs(e[i] - ref[0]) + Math.abs(e[i+1] - ref[1]) + Math.abs(e[i+2] - ref[2]) > 70) hit++; }
             if (hit >= ch * 0.12){ subj = xx / cw; break; } }
         } catch(_){}
-        res(imgCache[src] = {w:im.naturalWidth, h:im.naturalHeight, corner, dark, subj});
+        // 그림 안에 세로 경계선(반으로 나눈 그림)이 있으면 그 위치 (0~1) — 흐림이 그 선을 덮게
+        let edge = null;
+        try {
+          const cw = 96, ch = 54, c3 = document.createElement('canvas'); c3.width = cw; c3.height = ch;
+          const x3 = c3.getContext('2d'); x3.drawImage(im, 0, 0, cw, ch); const e = x3.getImageData(0, 0, cw, ch).data;
+          for (let xx = Math.round(cw * 0.25); xx < Math.round(cw * 0.75); xx++){ let jump = 0;
+            for (let yy = 0; yy < ch; yy++){ const a = (yy * cw + xx - 1) * 4, b = (yy * cw + xx + 1) * 4;
+              if (Math.abs(e[a] - e[b]) + Math.abs(e[a+1] - e[b+1]) + Math.abs(e[a+2] - e[b+2]) > 45) jump++; }
+            if (jump >= ch * 0.7){ edge = xx / cw; break; } }
+        } catch(_){}
+        res(imgCache[src] = {w:im.naturalWidth, h:im.naturalHeight, corner, dark, subj, edge});
       };
-      im.onerror = () => res(imgCache[src] = {w:1, h:1, corner:null, dark:false, subj:null});
+      im.onerror = () => res(imgCache[src] = {w:1, h:1, corner:null, dark:false, subj:null, edge:null});
       im.src = src;
     });
   }
@@ -662,6 +672,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         const p2 = placeImage(meta), sxPx = p2.left + meta.subj * p2.w, gl = parseFloat(grad.style.left) || 0;
         const want = Math.max(W * 0.08, (sxPx - gl) * Math.min(fk, 1.6));
         grad.style.width = Math.round(Math.min(W * 0.45, want)) + 'px';
+      }
+      if (meta.edge != null){   // 반으로 나뉜 그림: 경계선 + 6%까지 흐림을 늘려 선을 덮음
+        const p3 = placeImage(meta), ex = p3.left + meta.edge * p3.w, gl = parseFloat(grad.style.left) || 0;
+        const need = ex + W * 0.06 - gl; if (need > (parseFloat(grad.style.width) || 0)) grad.style.width = Math.round(Math.min(W * 0.6, need)) + 'px';
       }
     }
     return th;
@@ -955,7 +969,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       // 실사: 인물 · 장면은 오른쪽, 타이틀은 왼쪽 아래 (11호 KB국민은행 · 9호 검진대행사)
       L.push('- 가로 3:2 (1536×1024). 썸네일로 쓸 때 위아래가 조금 잘린다.');
       L.push('- 왼쪽 55~60%는 물건 · 인물 없이 배경색에 가까운 톤만 둔다 (타이틀 · 로고 자리). 물건 · 인물이 왼쪽으로 넘어오지 않게 한다.');   // 2026-10-18: 실사에 빠져 있어 신문이 타이틀과 겹침
-      L.push('- 인물 · 물건 · 장면은 오른쪽 40~45%에 모으고, 둘레에 배경 여백을 넉넉히 둔다.');
+      L.push('- 인물 · 물건 · 장면은 가로 55% 지점보다 오른쪽에 모으고, 둘레에 배경 여백을 넉넉히 둔다.');
+      L.push('- 왼쪽은 같은 공간의 흐릿한 배경(벽 · 창 · 실내)이 그림 전체 높이로 끊김 없이 이어진다. 왼쪽만 따로 칠한 단색 판 · 패널은 만들지 않는다.');   // 2026-10-18: 반으로 나뉜 그림 방지
       L.push('- 왼쪽으로 갈수록 배경색에 가까운 톤으로 아주 천천히 자연스럽게 이어지게 한다. 화면을 반으로 나누거나 세로 경계선이 생기면 안 된다.');
     } else {
       // 지난 호 썸네일 기준: 물건은 오른쪽 아래에 모이고, 가장자리에서 잘려 나가도 됨
@@ -1021,7 +1036,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         : 'TEXT: Absolutely no text, letters or numbers anywhere in the image.',
       'All product labels, packaging, bottles, boxes, bags, screens and documents must be blank (plain color or simple gray lines) — never English words such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
       'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). No decorative plants, no extra props, no floating icons.',
-      `LAYOUT: the left 55-60% is empty plain background ${bg}; every object stays inside the right 40-45% and never crosses into the left side.`,
+      `LAYOUT: the left 55-60% is empty background close to ${bg}, continuous over the full image height; every object or person starts to the right of the 55% mark and never crosses into the left side.`,
       'ONE CONTINUOUS SCENE: no split panel, no hard vertical edge or seam — the background color flows smoothly and gradually from the left into the scene on the right.',
       ref && !ref.mine && /인물/.test(ref.desc || '') ? 'PEOPLE: the person in the reference photo is a real person — never copy their face, hair or outfit; draw a completely different fictional Korean person.' : '',
       NO_SITE ? 'No hard hats, helmets, safety vests, construction sites or warning signs (this is about employee health care).' : '',
