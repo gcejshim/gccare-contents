@@ -1136,7 +1136,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     }
   }
   // 첨부 그대로 모드: 글자 · 로고만 지우고, 배경은 고른 색으로(그림자 · 빛 번짐도 새 배경에 맞게) — 물건 색 · 구도 · 그림체는 그대로 (2026-10-18)
-  const copyEdit = hex => 'Remove only all text (headline, captions, chips, numbers, labels) and logos from this image, and fill those areas naturally with the surrounding background. '
+  // 2026-10-18 사용자: 책 표지 등 물건에 그려진 글자까지 지워짐 → 썸네일 위에 얹은 글자(타이틀 · 칩 · 로고)만 지우기
+  const copyEdit = hex => 'Remove only the text and logos that are overlaid on the thumbnail as a layout layer — the big headline, subtitle, keyword chips and the brand logo (usually on the left side and corners) — and fill those areas naturally with the surrounding background. '
+    + 'Do NOT remove text that is part of an object (for example a title printed on a book cover, a document or a phone screen); keep it exactly as it is. '
     + `Make the background exactly ${hex}; if it already is close to that color keep it as is, otherwise recolor only the background and adapt shadows and soft light glows naturally to the new background. `
     + 'Keep the objects and their colors, arrangement, composition, lighting and rendering style exactly the same. Keep the left side as plain background for a new headline.';
   async function generate(){
