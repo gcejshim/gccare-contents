@@ -100,7 +100,7 @@ function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
   let note = '';
   if (ref) note += styleRefMine
     ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition. If the requested subject appears in it, you may follow its shape. Do not copy its logos or text.)'
-    : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition only — do not copy its objects, people or text.)';
+    : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Use it for composition, layout and color mood only — follow the rendering style described in the prompt (premium studio-shot 3D), and do not copy its objects, people or text.)';
   if (chars.length) note += `\n\n(The ${ref ? 'next' : 'attached'} image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)`;
   // 2026-10-18: 신문 · 머그컵 등에 영어가 자꾸 나옴 → 적은 글자 말고는 글자 금지, 특히 영어
   note += '\n\n(TEXT RULE: Render no text except the exact words the prompt explicitly asks for, written exactly as given — Korean stays Korean Hangul. Never invent English or any Latin-letter headlines, labels or body text on newspapers, documents, mugs or signs; draw gray lines instead.)';
@@ -158,7 +158,7 @@ module.exports = async function handler(req, res) {
     let content, size, background, quality;
     if (kind === 'thumb') {
       content = buildThumbContent(body);
-      quality = 'low';   // 2026-10-18 gpt-image-2로 바꾸고 low부터 시험 (gpt-image-1 low는 참고 이미지를 넣어도 품질이 떨어졌음 · 부족하면 medium)
+      quality = 'medium';   // 2026-10-18 사용자: 세련되게 — low는 재질이 뭉개짐 (가로형 장당 약 $0.041)
       size = body.layout === 'object' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
     } else if (kind === 'edit') {
@@ -167,7 +167,7 @@ module.exports = async function handler(req, res) {
         return;
       }
       content = buildEditContent(body);
-      quality = 'low';   // 썸네일과 같은 품질
+      quality = 'medium';   // 썸네일과 같은 품질
       size = '1536x1024';
     } else if (kind === 'header') {
       content = buildHeaderContent(body);
