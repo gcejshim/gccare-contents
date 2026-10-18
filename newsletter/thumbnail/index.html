@@ -312,8 +312,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         </div>
         <div class="gen-list" id="genList"></div>
         <div class="gen-edit" id="genEdit" hidden>   <!-- 2026-10-18 지금 이미지에서 적은 부분만 고치기 -->
-          <label>이 이미지 고치기 <span>· 지금 썸네일에 들어간 이미지에서 적은 부분만 바꿔요</span></label>
-          <div class="gen-edit-row"><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 문서를 조금 더 크게"><button class="btn" id="btnEdit">고치기</button></div>
+          <label>만들어진 이미지 수정하기 <span>· 지금 썸네일에 들어간 이미지에서 적은 부분만 바꿔요</span></label>
+          <div class="gen-edit-row"><input type="text" id="genEditText" placeholder="예: 방패와 안전모 빼 줘 · 그래프를 초록색으로 · 문서를 조금 더 크게"><button class="btn" id="btnEdit">수정하기</button></div>
         </div>
       </div>
     </div>
@@ -978,10 +978,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   async function editImage(){
     if (generating) return;
     const what = $('genEditText').value.trim();
-    if (!S.image){ toast('고칠 이미지가 없어요.'); return; }
+    if (!S.image){ toast('수정할 이미지가 없어요.'); return; }
     if (!what){ toast('바꿀 점을 적어 주세요. 예: 방패 빼 줘'); $('genEditText').focus(); return; }
-    generating = true; $('btnGen').disabled = $('btnEdit').disabled = true; $('btnEdit').textContent = '고치는 중…';
-    const st = $('genStatus'); st.className = 'gen-status'; st.textContent = '고치는 중이에요. 30초~1분 걸려요.';
+    generating = true; $('btnGen').disabled = $('btnEdit').disabled = true; $('btnEdit').textContent = '수정하는 중…';
+    const st = $('genStatus'); st.className = 'gen-status'; st.textContent = '수정하는 중이에요. 30초~1분 걸려요.';
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method:'POST', headers:{'Content-Type':'application/json'}, signal:ctrl.signal,
@@ -998,9 +998,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       $('genEditText').value = ''; st.textContent = '';
     } catch(e){
       st.className = 'gen-status err';
-      st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '고치지 못했어요: ' + (e.message || e);
+      st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '수정하지 못했어요: ' + (e.message || e);
     } finally {
-      clearTimeout(timer); generating = false; $('btnGen').disabled = $('btnEdit').disabled = false; $('btnEdit').textContent = '고치기';
+      clearTimeout(timer); generating = false; $('btnGen').disabled = $('btnEdit').disabled = false; $('btnEdit').textContent = '수정하기';
     }
   }
   async function generate(){
