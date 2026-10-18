@@ -99,7 +99,7 @@ function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
   chars.forEach((u) => content.push({ type: 'input_image', image_url: u }));
   let note = '';
   if (ref) note += styleRefMine
-    ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. Follow its rendering style, materials, lighting and composition. If the requested subject appears in it, you may follow its shape. It may be a finished thumbnail with a headline, captions, chips or logos — ignore all of that text and logos completely: do not reproduce them, and leave those areas as plain background.)'
+    ? '\n\n(The first attached image is the reference the user attached, referred to as "첨부한 참고 이미지" above. It is the MOST IMPORTANT guide: closely match its objects, arrangement, composition, colors, rendering style, materials and lighting — only adapt the topic. It overrides the generic style description. It may be a finished thumbnail with a headline, captions, chips or logos — ignore all of that text and logos completely: do not reproduce them, and leave those areas as plain background.)'
     : '\n\n(The first attached image is the style reference referred to as "첨부한 참고 이미지" above. Use it for composition, layout and color mood only — follow the rendering style described in the prompt (premium studio-shot 3D), and do not copy its objects, people or text.)';
   if (chars.length) note += `\n\n(The ${ref ? 'next' : 'attached'} image(s) are our brand characters referred to as "첨부한 캐릭터" above, in the same order. Use only their faces and hairstyles.)`;
   // 2026-10-18: 신문 · 머그컵 등에 영어가 자꾸 나옴 → 적은 글자 말고는 글자 금지, 특히 영어

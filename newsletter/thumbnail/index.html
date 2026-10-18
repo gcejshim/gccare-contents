@@ -848,7 +848,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push('- 타이틀과 그릴 내용으로 이번 주제를 해석해 줘. 타이틀은 내용 참고용이고, 이미지에 큰 제목으로 넣지 않는다.');
     if (desc) L.push('- 그릴 내용에 적은 대상을 중심으로 그린다. 주제와 관계없는 물건은 더하지 않는다.');
     // 2026-10-18 사용자: GC케어 중심은 건강검진 · 건강관리 → 그릴 내용을 비우면 타이틀에 맞는 물건을 이 목록에서 (추가는 사용자가 알려 줌)
-    if (!desc) L.push(`- 그릴 대상(중심 1 + 보조 1~2)은 이 중에서 고른다: ${objectsFor(title)}`);
+    const mineRef = curRef();
+    if (!desc && mineRef && mineRef.mine) L.push('- 그릴 대상은 첨부한 참고 이미지 속 물건과 같은 종류 · 모양으로 하고, 주제(타이틀)에 맞게 화면 내용만 바꾼다.');   // 2026-10-18: 첨부가 1순위
+    else if (!desc) L.push(`- 그릴 대상(중심 1 + 보조 1~2)은 이 중에서 고른다: ${objectsFor(title)}`);
     L.push('- GC케어 기업 건강관리 뉴스레터용. 독자는 기업 인사 · 보건 담당자.');
     // 2026-10-18 사용자: '안전보건' 주제에 안전모가 자꾸 나옴 — 산업안전이 아니라 직장인 건강관리
     L.push('- 주제의 \'안전 · 안전보건\'은 공사장 · 산업안전이 아니라 직장인 건강관리(건강검진 · 보건관리 · 건강한 생활습관)의 뜻으로 해석한다.');
@@ -954,7 +956,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       L.push('', '[참고 이미지]');
       if (ref){
         if (ref.mine){
-          L.push('- 첨부한 참고 이미지(직접 고른 이미지)의 그림체 · 재질 · 조명 · 배치를 따른다.');
+          L.push('- 첨부한 참고 이미지(직접 고른 이미지)를 가장 중요하게 따른다: 물건 종류 · 배치 · 구도 · 색감 · 그림체 · 재질 · 조명을 최대한 비슷하게. 위 [스타일]보다 첨부 이미지가 우선이다.');
           L.push('- 그릴 내용에 적은 대상이 참고 이미지에 있으면 그 모양을 참고해도 된다. 참고 이미지의 로고 · 글자는 따라 그리지 않는다.');
           L.push('- 참고 이미지에 완성된 타이틀 · 문구 · 로고 · 칩이 들어 있어도 모두 무시한다. 그 글자를 옮겨 쓰지 않고, 글자가 있던 자리는 빈 배경으로 둔다(왼쪽은 타이틀 자리).');   // 2026-10-18 사용자: 완성 썸네일을 참고로 넣을 때
         } else {
@@ -971,8 +973,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     }
     const NO_SITE = /안전모|헬멧|안전조끼|공사|소화기|경고/.test(desc) ? '' : ' 안전모 · 헬멧 · 공사 현장 같은 산업안전 물건은 그리지 않는다(직장인 건강관리 주제).';
     // 2026-10-18 사용자: 주변 물건이 너무 많음(떠 있는 하트 · 십자 · 체크 · 구슬) → 개수 규칙을 맨 앞 · 끝에
+    const MINE = (curRef() || {}).mine ? ' 첨부한 참고 이미지와 최대한 비슷하게(물건 · 배치 · 색감 · 그림체) 만들고, 주제만 이번 타이틀에 맞춘다.' : '';
     const FEW = ' 물건은 모두 합쳐 3개 이하(중심 1 + 보조 최대 2). 주변에 떠 있는 작은 아이콘 · 배지 · 하트 · 십자 · 체크 · 구슬 · 반짝이 · 말풍선은 하나도 넣지 않는다.';
-    return {text: ['[가장 중요] ' + KO_RULE + NO_SITE + FEW, '', ...L, '', '[다시 한 번] ' + KO_RULE + NO_SITE + FEW].join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
+    return {text: ['[가장 중요] ' + KO_RULE + NO_SITE + FEW + MINE, '', ...L, '', '[다시 한 번] ' + KO_RULE + NO_SITE + FEW + MINE].join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
   }
 
   const gens = [];   // 이번에 바로 만든 이미지 후보 (새로고침하면 사라짐)
