@@ -8,7 +8,12 @@ module.exports.config = { maxDuration: 60 };
 
 const IMAGE_MODEL = 'gpt-image-2';
 
-async function callOpenAIImage({ apiKey, content, size, background, quality = 'low' }) {
+// 그림이 안 오고 말로만 답하면(가끔 생김) 한 번 더 시도
+async function callOpenAIImage(opts) {
+  try { return await callOpenAIImageOnce(opts); }
+  catch (e) { if (/응답에 이미지가 없습니다/.test(e.message || '')) return await callOpenAIImageOnce(opts); throw e; }
+}
+async function callOpenAIImageOnce({ apiKey, content, size, background, quality = 'low' }) {
   const resp = await fetch('https://api.openai.com/v1/responses', {
     method: 'POST',
     headers: {
@@ -20,7 +25,9 @@ async function callOpenAIImage({ apiKey, content, size, background, quality = 'l
       input: [{ role: 'user', content }],
       // 이미지 모델은 직접 지정 (gpt-image-1은 2026-10-23 종료 → gpt-image-2. 투명 배경은 gpt-image-2 미리보기 기능)
       // 투명 배경은 gpt-image-2에서 'not supported' (2026-10-18 시험) → 썸네일 오브젝트형(투명)은 도구에서 뺌
-      tools: [{ type: 'image_generation', model: IMAGE_MODEL, quality, size, ...(background ? { background } : {}) }]
+      tools: [{ type: 'image_generation', model: IMAGE_MODEL, quality, size, ...(background ? { background } : {}) }],
+      // 2026-10-18: 중간 모델(gpt-4o)이 규칙이 많은 프롬프트를 보고 그림 대신 거절 메시지를 보낸 적 있음 → 그림 도구를 꼭 쓰게
+      tool_choice: { type: 'image_generation' }
     })
   });
 
