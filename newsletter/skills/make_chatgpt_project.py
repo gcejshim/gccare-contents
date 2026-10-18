@@ -17,6 +17,11 @@ if os.path.isdir(OUT): shutil.rmtree(OUT)   # 예전 썸네일 파일 · 참고 
 os.makedirs(OUT)
 
 inst = open(os.path.join(HERE, 'chatgpt-extra', 'project-instructions.md'), encoding='utf-8').read()
+# 지침에 '블록 고르기' 표를 직접 넣음(ChatGPT는 파일에서 일부만 찾아 읽어 세부 규칙을 놓침 — 2026-10-18) + ChatGPT 보충 규칙
+import re as _re
+_c = open(os.path.join(SKILL, 'references', 'content.md'), encoding='utf-8').read()
+_m = _re.search(r'## 블록 고르기.*?(?=\n## )', _c, _re.S)
+inst = inst.rstrip() + '\n\n' + (_m.group(0).strip() if _m else '') + '\n' + open(os.path.join(HERE, 'chatgpt-extra', 'chatgpt-notes.md'), encoding='utf-8').read()
 open(os.path.join(OUT, '프로젝트_지침.txt'), 'w', encoding='utf-8').write(inst)
 for f in ('content.md', 'design-system.md'):
     shutil.copyfile(os.path.join(SKILL, 'references', f), os.path.join(OUT, f))
