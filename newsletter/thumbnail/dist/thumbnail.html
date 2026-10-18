@@ -187,6 +187,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-edit-row .edit-ref img{width:40px;height:28px;object-fit:cover;border-radius:4px;display:block}
 .gen-edit-row .edit-ref span{font-size:11px;color:var(--neutral-500)}
 .gen-refs .ref-add{font-size:12px;line-height:1.35;color:var(--careBlue-600);border-style:dashed}
+.gen-refs .ref-add.ready,.gen-edit-row .edit-ref.ready{border:2px dashed var(--careBlue-500);background:var(--careBlue-50);color:var(--careBlue-600);font-weight:600;box-shadow:0 0 0 3px rgba(47,116,235,.15)}
+@keyframes justIn{0%{box-shadow:0 0 0 0 rgba(10,194,98,.7)}100%{box-shadow:0 0 0 10px rgba(10,194,98,0)}}
+.gen-refs button.just,.gen-edit-row .edit-ref.just{animation:justIn .8s ease-out 2}
 .gen-refs .rk.mine{background:var(--careGreen-600)}
 .gen-refs .ref-del{position:absolute;top:3px;right:3px;width:18px;height:18px;border-radius:50%;background:rgba(17,17,17,.65);color:#fff;font-style:normal;font-size:13px;line-height:18px;text-align:center;cursor:pointer}
 .gen-refs .ref-del:hover{background:var(--careRed-500,#f5222d)}
@@ -816,6 +819,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   }
   // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
   const myRefs = [];
+  let justAdded = '';   // 방금 첨부한 칸 (잠깐 반짝)
+  let pasteTo = '';   // 'ref' = 참고 이미지 줄 위, 'edit' = 수정하기 줄 위 (붙여넣기 첨부)
+  let editRef = '';   // 수정할 때 같이 보낼 참고 이미지 (선택)
   function refSmall(src, side = 1024){   // 서버 제한(500KB) 안으로: 긴 쪽 1024px WebP, 크면 더 줄임
     return new Promise((res, rej) => { const im = new Image();
       im.onload = () => { let sd = side, q = .85, u = '';
@@ -831,6 +837,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
     try { const src = await refSmall(await readAsURL(file)), id = 'my' + Date.now();
       myRefs.unshift({id, name:'첨부한 이미지', src, desc:'', mine:true, rec:false}); if (myRefs.length > 4) myRefs.pop();
+      justAdded = id; setTimeout(() => { if (justAdded === id){ justAdded = ''; syncGen(); } }, 1600);
+      pasteTo = ''; $('genRefs').scrollLeft = 0;
       S.gen.ref = id; promptEdited = false; syncGen(); toast('첨부한 이미지를 참고 이미지로 골랐어요.');
     } catch(e){ toast('이미지를 읽지 못했어요.'); }
   }
@@ -1017,8 +1025,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!promptEdited) $('genPrompt').value = text;
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
     $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>`
-      + `<button data-ref-add="1" class="ref-add" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">＋<br>이미지 첨부</button>`
-      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>
+      + `<button data-ref-add="1" class="ref-add${pasteTo === 'ref' ? ' ready' : ''}" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">${pasteTo === 'ref' ? 'Ctrl+V<br>또는 여기에 놓기' : '＋<br>이미지 첨부'}</button>`
+      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}${r.id === justAdded ? ' just' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
     $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· 이 그림체에 맞춰 그려요</span>` : '';
@@ -1084,14 +1092,16 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         const u = c.toDataURL('image/webp', 0.9); res(u.startsWith('data:image/webp') ? u : c.toDataURL('image/png')); };
       im.onerror = rej; im.src = src; });
   }
-  let pasteTo = '';   // 'ref' = 참고 이미지 줄 위, 'edit' = 수정하기 줄 위 (붙여넣기 첨부)
-  let editRef = '';   // 수정할 때 같이 보낼 참고 이미지 (선택)
-  function showEditRef(){ const b = $('editRef'); b.classList.toggle('has', !!editRef);
-    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>× 지우기</span>` : '＋ 이미지 첨부';
+  function setReady(v, on){   // 첨부 자리 켜짐 표시: 'ref' = 참고 이미지 줄, 'edit' = 수정하기 줄
+    const next = on ? v : (pasteTo === v ? '' : pasteTo); if (next === pasteTo) return;
+    pasteTo = next; syncGen(); showEditRef();
+  }
+  function showEditRef(){ const b = $('editRef'); if (!b) return; b.classList.toggle('has', !!editRef); b.classList.toggle('ready', !editRef && pasteTo === 'edit');
+    b.innerHTML = editRef ? `<img src="${editRef}" alt=""><span>× 지우기</span>` : pasteTo === 'edit' ? 'Ctrl+V 또는 여기에 놓기' : '＋ 이미지 첨부';
     b.title = editRef ? '눌러서 첨부한 이미지 지우기' : '이 이미지를 참고해서 수정해요 (끌어다 놓거나 Ctrl+V 해도 돼요)'; }
   async function setEditRef(file){
     if (!file || !/^image\//.test(file.type)){ toast('이미지 파일만 넣을 수 있어요.'); return; }
-    try { editRef = await toEditSize(await readAsURL(file)); showEditRef(); } catch(e){ toast('이미지를 읽지 못했어요.'); }
+    try { editRef = await toEditSize(await readAsURL(file)); pasteTo = ''; showEditRef(); const b = $('editRef'); b.classList.remove('just'); void b.offsetWidth; b.classList.add('just'); } catch(e){ toast('이미지를 읽지 못했어요.'); }
   }
   async function editImage(){
     if (generating) return;
@@ -1359,9 +1369,14 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('btnGen').addEventListener('click', generate);
     $('btnEdit').addEventListener('click', editImage);
     [['genRefs', 'ref'], ['genEdit', 'edit']].forEach(([id, v]) => {
-      $(id).addEventListener('mouseenter', () => { pasteTo = v; });
-      $(id).addEventListener('mouseleave', () => { if (pasteTo === v) pasteTo = ''; });
+      const el = $(id);
+      el.addEventListener('mouseenter', () => setReady(v, true));
+      el.addEventListener('mouseleave', () => { if (!(v === 'edit' && document.activeElement === $('genEditText'))) setReady(v, false); });
+      el.addEventListener('dragenter', () => setReady(v, true));
+      el.addEventListener('dragleave', e => { if (!el.contains(e.relatedTarget)) setReady(v, false); });
     });
+    $('genEditText').addEventListener('focus', () => setReady('edit', true));
+    $('genEditText').addEventListener('blur', () => setReady('edit', false));
     $('editRef').addEventListener('click', () => { if (editRef){ editRef = ''; showEditRef(); } else { $('editRefFile').value = ''; $('editRefFile').click(); } });
     $('editRefFile').addEventListener('change', e => setEditRef(e.target.files[0]));
     ['dragover', 'dragenter'].forEach(ev => $('genEdit').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
