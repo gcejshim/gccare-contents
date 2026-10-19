@@ -55,13 +55,14 @@ newsletter/
 │  ├─ index.html       개발본 (여기서 수정)
 │  ├─ build.py         python3 build.py → dist/thumbnail.html (이름 고정, 단일 파일, 오프라인 동작.)
 │  ├─ assets.js        로고·예시 이미지(base64). assets/ 원본에서 생성
-│  └─ vendor/          html2canvas 1.4.1, lucide 0.460.0, Pretendard woff2
+│  └─ vendor/          html2canvas 1.4.1, lucide 0.460.0, Pretendard woff2 (400~900), 포인트 글꼴 Oswald 가변(latin · `oswald.css`는 개발본용, 통합본은 app/build.py가 직접 넣음 · 2026-10-20 사용자 지정: 숫자 · 장 번호 · 날짜 · 영문 머리표에)
 │     └─ vendor/Pretendard-Medium.woff2  (npm pretendard@1.3.9 경로. gh 경로는 404) — 빌드 3종 모두 500 = Medium
 ├─ editor/             콘텐츠 이미지(PC 900→2배 · 모바일 350→3배) 블록 편집기
 │  ├─ index.html       개발본. 블록 정의는 BLOCKS (list·rank·hbar·table·hero·steps·vbar·stack·line·donut·html·raw·compare)
 │  ├─ assets-editor.js 한글 로고(logoKoBlue/White) · 상단 바 한글 CI(logoTopKo)
 │  └─ build.py         → dist/image-editor.html (이름 고정 · thumbnail/vendor · assets.js 공유)
-├─ app/                통합본 "AX Studio · Newsletter" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF 준비 중 · 에셋 · 가이드)
+├─ pdf/index.html      PDF 도구 (2026-10-20). 상태 `{v:1, kind:'nl-pdf', title, theme(navy|blue|green), cover, img{src,mode(full|br|center),scale,x,y,desc}, pages:[{ch, chName, title, lead, blocks:[{type,…}]}], end}`. 블록 정의 `BLOCKS`(timeline · stats · flow · tiles · qa · steps · cards · text · note · box · src), 글자는 미리보기 contenteditable(`data-p` 경로, [ ] 강조 · ** 굵게), 저장 = window.print(@page 900×1273). 호와 따로(호 옮기기 제외), 자동저장 `gc-nl-pdf-v1`. 디자인 기준 = `docs/pdf-참고사례/시안/` (샘플: 남색 + 큰 제목 + 핵심어 파랑)
+├─ app/                통합본 "AX Studio · Newsletter" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF · 에셋 · 가이드)
 │  ├─ index.html       개발본. 두 도구를 iframe으로 띄우고 postMessage로 호수 공유 · 저장 기록 · 호 전체 저장/열기
 │  ├─ make_samples.py  10~14호 완성 이미지 → samples.js (에셋 › 샘플 모아보기, 2배 WebP). 회사 PC 월별 폴더 또는 `--figma DIR`(Figma 2배 PNG, 파일명=노드 ID, 매핑은 FIGMA 딕셔너리). 11호 contents01_p03 · contents02_p01은 Figma에 납품본이 없어 예전 JPG 유지
 │  └─ build.py         → dist/gccare-insight-studio.html (이름 고정 · 폰트·라이브러리는 한 번만 넣고 blob URL로 두 도구가 공유, 약 5.8MB)

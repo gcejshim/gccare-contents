@@ -22,10 +22,11 @@ def sub1(pattern, repl, html, label):
     return html
 
 
-def tool(path, extra=()):
+def tool(path, extra=(), h2c=True):
     h = read(path)
     h = sub1(r'<link rel="stylesheet" href="[^"]*pretendard[^"]*">', '<style>__NL_FONTFACE__</style>', h, path)
-    h = sub1(r'<script src="[^"]*html2canvas[^"]*"></script>', '<script src="__NL_LIB_h2c__"></script>', h, path)
+    h = re.sub(r'<link rel="stylesheet" href="[^"]*oswald\.css">\n?', '', h)   # 포인트 글꼴은 __NL_FONTFACE__에 들어 있음
+    if h2c: h = sub1(r'<script src="[^"]*html2canvas[^"]*"></script>', '<script src="__NL_LIB_h2c__"></script>', h, path)
     h = sub1(r'<script src="[^"]*lucide[^"]*"></script>', '<script src="__NL_LIB_lucide__"></script>', h, path)
     h = sub1(r'<script src="[^"]*assets\.js"></script>', '<script src="__NL_LIB_assets__"></script>', h, path)
     for pat, key in extra: h = sub1(pat, f'<script src="__NL_LIB_{key}__"></script>', h, path)
@@ -35,6 +36,7 @@ def tool(path, extra=()):
 tools = {
     'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs')]),
     'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd')]),
+    'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), h2c=False),   # PDF는 인쇄 → PDF라 html2canvas 없음
 }
 libs = {
     'h2c': read(os.path.join(TH, 'vendor', 'html2canvas.min.js')),
@@ -44,7 +46,8 @@ libs = {
     'refs': read(os.path.join(TH, 'refs.js')),   # 썸네일 참고 이미지 (썸네일 도구 · 에셋 › 배경 이미지)
     'samples': read(os.path.join(HERE, 'samples.js')),
 }
-fonts = {w: base64.b64encode(read(os.path.join(TH, 'vendor', f'Pretendard-{n}.woff2'), 'rb')).decode() for w, n in [('400', 'Regular'), ('500', 'Medium'), ('600', 'SemiBold'), ('700', 'Bold')]}
+fonts = {w: base64.b64encode(read(os.path.join(TH, 'vendor', f'Pretendard-{n}.woff2'), 'rb')).decode() for w, n in [('400', 'Regular'), ('500', 'Medium'), ('600', 'SemiBold'), ('700', 'Bold'), ('800', 'ExtraBold'), ('900', 'Black')]}
+fonts['oswald'] = base64.b64encode(read(os.path.join(TH, 'vendor', 'Oswald-Variable.woff2'), 'rb')).decode()   # 포인트 글꼴 (세로로 긴 숫자 · 영문, 2026-10-20)
 
 BOOT = r"""
 (function(){
@@ -53,7 +56,8 @@ BOOT = r"""
   const bin = b64 => { const s = atob(b64), a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; };
   const font = {}; Object.keys(D.fonts).forEach(w => { font[w] = URL.createObjectURL(new Blob([bin(D.fonts[w])], {type: 'font/woff2'})); });
   Object.keys(D.libs).forEach(k => { urls[k] = blob(D.libs[k], 'text/javascript'); });
-  const faces = [[400, '400'], [500, '500'], [600, '600'], [700, '700']].map(([w, f]) => `@font-face{font-family:Pretendard;font-weight:${w};font-display:block;src:url(${font[f]}) format('woff2')}`).join('');
+  const faces = [[400, '400'], [500, '500'], [600, '600'], [700, '700'], [800, '800'], [900, '900']].map(([w, f]) => `@font-face{font-family:Pretendard;font-weight:${w};font-display:block;src:url(${font[f]}) format('woff2')}`).join('')
+    + `@font-face{font-family:Oswald;font-weight:200 700;font-display:block;src:url(${font.oswald}) format('woff2')}`;
   const load = src => new Promise((res, rej) => { const s = document.createElement('script'); s.src = src; s.onload = res; s.onerror = rej; document.head.appendChild(s); });
   window.NL_PACK = {
     version: D.version,

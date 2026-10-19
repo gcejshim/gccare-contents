@@ -1,0 +1,2 @@
+/* 포인트 글꼴 Oswald (세로로 긴 숫자 · 영문, SIL OFL) — 개발본용. 통합본은 app/build.py가 글꼴을 직접 넣음 */
+@font-face{font-family:Oswald;font-weight:200 700;font-display:block;src:url(Oswald-Variable.woff2) format('woff2')}

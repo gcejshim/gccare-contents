@@ -188,7 +188,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <hr>
   <button class="menu" data-view="thumb" data-icon="Image">뉴스레터 썸네일</button>
   <button class="menu" data-view="image" data-icon="LayoutTemplate">콘텐츠 이미지 생성</button>
-  <button class="menu" data-view="pdf" data-icon="FileText">PDF <span class="badge">준비 중</span></button>
+  <button class="menu" data-view="pdf" data-icon="FileText">PDF</button>
   <hr>
   <button class="menu" data-view="ai" data-icon="Sparkles">AI로 그리기</button>
   <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
@@ -234,20 +234,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <!-- 도구 (iframe) -->
   <section class="view frame" id="v-thumb"></section>
   <section class="view frame" id="v-image"></section>
-
-  <!-- PDF -->
-  <section class="view" id="v-pdf"><div class="page">
-    <div class="card ph-card">
-      <i data-icon="FileText"></i>
-      <h3>PDF는 준비 중이에요</h3>
-      <p class="hint" style="font-size:14px">15호 PC · 모바일 블록을 만들면서 그 블록을 그대로 재사용해 PDF 템플릿을 만들 예정이에요.</p>
-      <ul>
-        <li>규격: A4 세로 (900 × 1273) · 게시판 업로드 · 화면 열람용</li>
-        <li>방향: 한 페이지 한 메시지, 큰 숫자 · 도식, 본문 최소화 (토스 콘텐츠 벤치마킹)</li>
-        <li>내보내기: 브라우저 인쇄 → PDF (글자가 실제 텍스트로 남음)</li>
-      </ul>
-    </div>
-  </div></section>
+  <section class="view frame" id="v-pdf"></section>
 
   <!-- 에셋 -->
   <section class="view" id="v-assets"><div class="page">
@@ -327,6 +314,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       <table class="tbl">
         <tr><th style="width:140px">관점</th><td>앱 화면이 아니라 B2B(HR · 보건 담당자) 정보 콘텐츠 → 편집 디자인 · 인포그래픽. 디자인 시스템은 컬러 · 타이포 토큰만 사용</td></tr>
         <tr><th>컬러</th><td>블루톤 기반 + 그린(careGreen)은 포인트로만. 예외: 타이틀 <code>#002540</code>, 그린 배경 <code>#20B977</code></td></tr>
+        <tr><th>글꼴</th><td>기본 Pretendard. <b>포인트 글꼴 Oswald</b>(세로로 긴 숫자 · 영문) — 큰 숫자 · 장 번호 · 날짜 · 머리표(WHEN · WHO)에. 한글에는 쓰지 않음(자동으로 Pretendard). 통합본 모든 도구에 들어 있어 <code>font-family:Oswald,Pretendard</code>로 쓸 수 있음</td></tr>
         <tr><th>아이콘</th><td>Lucide 라인 아이콘이 기본. 채움은 강조할 때만</td></tr>
         <tr><th>이미지</th><td>AI 이미지에는 글자를 넣지 않음(글자는 항상 HTML로). 인물 사진은 회사 보유 사진만</td></tr>
         <tr><th>작업 방식</th><td>초안을 넓게 먼저 잡고 점점 좁혀 감. 요청하지 않은 산출물은 늘리지 않음</td></tr>
@@ -395,7 +383,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const I = () => (H.issues[H.issue] = H.issues[H.issue] || blankIssue(H.issue));
 
   // ── 도구 (iframe) ──
-  const TOOLS = {thumb: {src: '../thumbnail/index.html'}, image: {src: '../editor/index.html'}};
+  const TOOLS = {thumb: {src: '../thumbnail/index.html'}, image: {src: '../editor/index.html'}, pdf: {src: '../pdf/index.html'}};   // PDF는 호와 따로 (자료실 PDF) — 호 옮기기에는 안 들어감
   const pending = {};
   function frameOf(win){ return Object.keys(TOOLS).find(k => TOOLS[k].el && TOOLS[k].el.contentWindow === win); }
   function send(tool, m){ const t = TOOLS[tool]; if (t.el && t.ready) t.el.contentWindow.postMessage(Object.assign({nl: 1}, m), '*'); else (t.queue = t.queue || []).push(m); }
@@ -404,7 +392,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   }
   function mountTools(){
     Object.entries(TOOLS).forEach(([k, t]) => {
-      const f = document.createElement('iframe'); f.title = k === 'thumb' ? '뉴스레터 썸네일' : '콘텐츠 이미지 생성';
+      const f = document.createElement('iframe'); f.title = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지 생성', pdf: 'PDF'}[k];
       if (PACK) f.srcdoc = PACK.toolHTML(k); else f.src = t.src;
       t.el = f; $('v-' + k).appendChild(f);
     });
@@ -687,8 +675,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     } finally { b.disabled = false; b.textContent = label; }
   }
   async function saveAll(){
-    const [thumb, image] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState')]);
-    const data = {v: 1, kind: 'nl-issue', issue: H.issue, ym: ymOf(H.issue), savedAt: new Date().toISOString(), hub: I(), thumb, image};
+    const [thumb, image, pdf] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState'), ask('pdf', 'getState')]);
+    const data = {v: 1, kind: 'nl-issue', issue: H.issue, ym: ymOf(H.issue), savedAt: new Date().toISOString(), hub: I(), thumb, image, pdf};
     const n = await saveOver(new Blob([JSON.stringify(data)], {type: 'application/json'}), `${ymOf(H.issue)}_뉴스레터_${H.issue}호_전체.json`); if (!n) return;
     toast(`${H.issue}호 전체 작업을 저장했어요. (${n})${!thumb || !image ? ' (열리지 않은 도구는 빠졌어요)' : ''}`, 3500);
   }
@@ -697,10 +685,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     // 도구별 작업 파일(예전 [작업 파일 저장] 파일)도 받아서 그 도구로 보냄
     if (d && d.kind === 'nl-thumbs' || d && !d.kind && (d.title !== undefined || d.preset !== undefined)){ send('thumb', {type: 'setState', state: d, msg: '썸네일 작업 파일을 불러왔어요.'}); go('thumb'); return; }
     if (d && d.kind === 'nl-image'){ send('image', {type: 'setState', state: d, msg: '콘텐츠 이미지 작업 파일을 불러왔어요.'}); go('image'); return; }
+    if (d && d.kind === 'nl-pdf'){ send('pdf', {type: 'setState', state: d, msg: 'PDF 작업 파일을 불러왔어요.'}); go('pdf'); return; }
     if (!d || d.kind !== 'nl-issue'){ toast('작업 파일이 아니에요. [전체 파일 저장]으로 만든 파일을 열어 주세요.', 4000); return; }
     H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); setIssue(d.issue);
     if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: `${d.issue}호 썸네일 작업을 불러왔어요.`});
     if (d.image) send('image', {type: 'setState', state: d.image, msg: `${d.issue}호 콘텐츠 이미지 작업을 불러왔어요.`});
+    if (d.pdf) send('pdf', {type: 'setState', state: d.pdf, msg: ''});
     save(); renderHome(); toast(`${d.issue}호 전체 작업을 열었어요.`);
   }
 

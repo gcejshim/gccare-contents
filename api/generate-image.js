@@ -173,6 +173,11 @@ module.exports = async function handler(req, res) {
       quality = 'medium';   // 2026-10-18 사용자: 세련되게 — low는 재질이 뭉개짐 (가로형 장당 약 $0.041)
       size = body.layout === 'object' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
+    } else if (kind === 'pdf') {
+      // 뉴스레터 PDF 표지 그림 (2026-10-20) — 프롬프트는 PDF 도구가 짬. 배경 전체 = 세로 2:3, 오른쪽 아래 · 가운데 = 정사각
+      content = buildThumbContent({ prompt });
+      quality = 'medium';
+      size = body.layout === 'square' ? '1024x1024' : '1024x1536';
     } else if (kind === 'edit') {
       if (!isEditImage(body.image)) {
         res.status(400).json({ error: '고칠 이미지가 없거나 너무 커요.' });
@@ -203,7 +208,7 @@ module.exports = async function handler(req, res) {
     const envKeys = kind === 'header'
       ? ['HEADER_PROMPT_A', 'HEADER_PROMPT_B']
       : ['SECTION_STYLE', 'SECTION_PROMPT', 'SECTION_GUIDELINE_MALE', 'SECTION_GUIDELINE_FEMALE'];
-    const envInfo = kind === 'thumb' || kind === 'edit' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
+    const envInfo = kind === 'thumb' || kind === 'edit' || kind === 'pdf' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
     res.status(500).json({ error: `[사용된 키: ${usedKey}]${envInfo} ` + (e.message || String(e)) });
   }
 };
