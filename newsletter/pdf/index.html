@@ -929,7 +929,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
       const t = document.title; document.title = fileName();
       toast('인쇄 창에서 대상을 [PDF로 저장]으로 고르고 저장해요.', 4000);
-      setTimeout(() => { window.print(); document.title = t; }, 150);
+      setTimeout(() => { window.print(); document.title = t;
+        // 인쇄 창을 닫은 뒤 "이번 호" 저장 기록에 남김 (실제로 저장했는지는 브라우저가 알려 주지 않음 → 저장 창을 연 것으로 체크)
+        if (hubIssue) notify({type: 'exported', files: [{name: fileName() + '.pdf', kind: 'pdf', issue: hubIssue}]}); }, 150);
     });
     window.addEventListener('resize', zoom);
     render();
@@ -938,6 +940,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 
   // ── 메뉴 셸(AX Studio · Newsletter)과 연결 ──
   function notify(m){ if (window.parent !== window) window.parent.postMessage(Object.assign({nl: 1, tool: 'pdf'}, m), '*'); }
+  let hubIssue = null;   // 셸에서 받은 지금 호 (PDF 저장 기록을 그 호의 "이번 호" 체크에 남김)
   function bridge(){
     if (window.parent === window) return;
     document.body.classList.add('embedded'); zoom();
@@ -945,6 +948,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
       if (m.type === 'getState') notify({type: 'state', reqId: m.reqId, state: S});
       if (m.type === 'setState' && m.state) setState(m.state, m.msg == null ? 'PDF 작업을 불러왔어요.' : m.msg);
+      if (m.type === 'setIssue' && m.issue) hubIssue = m.issue;
+      if (m.type === 'blankIssue'){ if (m.issue) hubIssue = m.issue; lastPlan = null; showPlanRow(); planStatus(''); setState(BLANK(), ''); }   // 작업한 적 없는 호로 옮김 → 빈 PDF
       if (m.type === 'exportAll') notify({type: 'exportDone', reqId: m.reqId, n: 0});
     });
     notify({type: 'ready'});

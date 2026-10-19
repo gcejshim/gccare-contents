@@ -212,6 +212,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       <h3>콘텐츠 <small>한 호 = 콘텐츠 2~3개</small><span class="sp"></span><button class="btn sm" id="btnC3"></button></h3>
       <div class="grid2" id="contents"></div>
     </div>
+    <div class="card">
+      <h3>PDF <small>이번 호 보건관리 자료실 자료 (없으면 비워 두기)</small></h3>
+      <div id="pdfRow"></div>
+    </div>
     <div class="grid2">
       <div class="card">
         <h3>저장 기록 <small>이 브라우저에서 저장한 파일</small></h3>
@@ -383,7 +387,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const I = () => (H.issues[H.issue] = H.issues[H.issue] || blankIssue(H.issue));
 
   // ── 도구 (iframe) ──
-  const TOOLS = {thumb: {src: '../thumbnail/index.html'}, image: {src: '../editor/index.html'}, pdf: {src: '../pdf/index.html'}};   // PDF는 호와 따로 (자료실 PDF) — 호 옮기기에는 안 들어감
+  const TOOLS = {thumb: {src: '../thumbnail/index.html'}, image: {src: '../editor/index.html'}, pdf: {src: '../pdf/index.html'}};   // PDF도 호마다 따로 (10/20 사용자: 15호에 딸린 PDF)
   const pending = {};
   function frameOf(win){ return Object.keys(TOOLS).find(k => TOOLS[k].el && TOOLS[k].el.contentWindow === win); }
   function send(tool, m){ const t = TOOLS[tool]; if (t.el && t.ready) t.el.contentWindow.postMessage(Object.assign({nl: 1}, m), '*'); else (t.queue = t.queue || []).push(m); }
@@ -422,10 +426,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   async function switchIssue(n){
     n = Math.max(1, n | 0); if (switching || n === H.issue) return; switching = true;
     try {
-      const [thumb, image] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState')]);
-      if (thumb || image) await hdb(1, 'work:' + H.issue, {thumb, image});
+      const [thumb, image, pdf] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState'), ask('pdf', 'getState')]);
+      if (thumb || image || pdf) await hdb(1, 'work:' + H.issue, {thumb, image, pdf});
       const w = await hdb(0, 'work:' + n);
-      ['thumb', 'image'].forEach(k => send(k, w && w[k] ? {type: 'setState', state: w[k], msg: ''} : {type: 'blankIssue', issue: n}));
+      ['thumb', 'image', 'pdf'].forEach(k => send(k, w && w[k] ? {type: 'setState', state: w[k], msg: ''} : {type: 'blankIssue', issue: n}));
       setIssue(n);
     } finally { switching = false; }
   }
@@ -476,9 +480,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         </div>
         <div class="acts"><button class="btn sm" data-go="thumb" data-no="${c}">썸네일 만들기</button><button class="btn sm" data-go="image">콘텐츠 이미지 만들기</button></div></div>`;
     }).join('');
+    const pdfs = files.filter(f => f.kind === 'pdf').sort((a, b) => b.t - a.t);
+    $('pdfRow').innerHTML = `<div class="ct" style="flex-direction:row;align-items:center;gap:12px"><div class="st ${pdfs.length ? 'done' : ''}" style="flex:1">PDF<strong>${pdfs.length ? '저장함 · ' + esc(pdfs[0].name) : '아직'}</strong></div><div class="acts"><button class="btn sm" data-go="pdf">PDF 만들기</button></div></div>`;
     const fs = files.sort((a, b) => b.t - a.t);
     $('files').innerHTML = fs.length ? fs.map(f => { const d = new Date(f.t);
-      return `<li class="${f.kb > 1024 ? 'big' : ''}"><span class="t">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span><span>${esc(f.name)}</span><span class="k">${f.w ? `${f.w}×${f.h} · ` : ''}${f.kb}KB${f.kb > 1024 ? ' · 1MB 초과' : ''}</span></li>`; }).join('')
+      return `<li class="${f.kb > 1024 ? 'big' : ''}"><span class="t">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span><span>${esc(f.name)}</span><span class="k">${f.w ? `${f.w}×${f.h} · ` : ''}${f.kb != null ? `${f.kb}KB` : f.kind === 'pdf' ? 'PDF' : ''}${f.kb > 1024 ? ' · 1MB 초과' : ''}</span></li>`; }).join('')
       : '<li class="empty" style="display:block">아직 저장한 파일이 없어요. 썸네일이나 콘텐츠 이미지를 저장하면 여기에 쌓여요.</li>';
     renderTop();
   }
@@ -714,7 +720,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (fresh && window.NL_DEFAULT_ISSUE){ const d = window.NL_DEFAULT_ISSUE;
       H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); H.issue = d.issue; save(); renderTop();
       if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: ''});
-      if (d.image) send('image', {type: 'setState', state: d.image, msg: ''}); }
+      if (d.image) send('image', {type: 'setState', state: d.image, msg: ''});
+      if (d.pdf) send('pdf', {type: 'setState', state: d.pdf, msg: ''}); }   // 15호 PDF(안전보건공시제)도 처음부터 보이게 = 샘플
     const v = location.hash.slice(1);
     go(['home', 'thumb', 'image', 'pdf', 'ai', 'assets', 'guide'].includes(v) ? v : 'home');   // 새로 열면 항상 이번 호부터 (사용자 지정 10/15). 새로고침은 주소의 메뉴 유지
 
@@ -725,6 +732,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('memo').addEventListener('input', e => { I().memo = e.target.value; save(); });
     $('btnC3').addEventListener('click', () => { I().c3 = !I().c3; save(); renderHome(); });
     $('contents').addEventListener('input', e => { const c = e.target.dataset.title; if (c){ I().contents[c].title = e.target.value; save(); } });
+    $('pdfRow').addEventListener('click', e => { if (e.target.closest('[data-go]')) go('pdf'); });
     $('contents').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.no) send('thumb', {type: 'setNo', no: b.dataset.no}); go(b.dataset.go); });
     $('btnSaveAll').addEventListener('click', saveAll);
     $('btnExportAllImg').addEventListener('click', exportAllImages);
