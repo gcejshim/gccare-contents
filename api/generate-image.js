@@ -139,6 +139,35 @@ function buildEditContent({ prompt, image, ref }) {
   ];
 }
 
+// 뉴스레터 PDF 자동 만들기 (2026-10-20) — 기획서(글 또는 PDF 파일) → 규칙서(_pdf-rules.js)대로 쪽 · 블록을 나눈 작업 내용(JSON)
+// 그림이 아니라 글 모델. 모델은 환경변수 PDF_TEXT_MODEL로 바꿀 수 있음 (기본 gpt-4o, 한 건 약 100원)
+const { PDF_RULES } = require('./_pdf-rules');
+const isPdfFile = (u) => /^data:application\/pdf;base64,/.test(u || '') && u.length < 4200000;
+async function planPdf({ apiKey, text, file, fileName }) {
+  const content = [];
+  if (isPdfFile(file)) content.push({ type: 'input_file', filename: fileName || '기획서.pdf', file_data: file });
+  content.push({ type: 'input_text', text: (text && text.trim() ? '기획서:\n' + text.trim() + '\n\n' : '기획서는 첨부한 PDF입니다.\n\n') + '위 기획서를 규칙대로 PDF 작업 내용 JSON 하나로 만들어 주세요.' });
+  const resp = await fetch('https://api.openai.com/v1/responses', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: process.env.PDF_TEXT_MODEL || 'gpt-4o',
+      instructions: PDF_RULES,
+      input: [{ role: 'user', content }],
+      text: { format: { type: 'json_object' } },   // 답은 JSON 하나만
+      temperature: 0.2,                             // 같은 기획서면 비슷하게
+      max_output_tokens: 12000
+    })
+  });
+  if (!resp.ok) { const err = await resp.json().catch(() => ({})); throw new Error(err?.error?.message || `OpenAI 호출 실패 (${resp.status})`); }
+  const data = await resp.json();
+  const out = data.output_text || (data.output || []).flatMap((o) => o.content || []).map((c) => c.text || '').join('');
+  let plan; try { plan = JSON.parse(out); } catch (e) { throw new Error('정리 결과를 읽지 못했어요. 다시 시도해 주세요.'); }
+  if (!plan || !Array.isArray(plan.pages)) throw new Error('정리 결과에 쪽이 없어요. 다시 시도해 주세요.');
+  plan.kind = 'nl-pdf'; plan.v = 1;
+  return plan;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -156,6 +185,13 @@ module.exports = async function handler(req, res) {
   try {
     const body = req.body || {};
     const { kind, prompt, apiKey } = body;
+    if (kind === 'pdfplan') {   // 그림이 아니라 글 정리 — 프롬프트 대신 기획서(글 · PDF)를 받음
+      if (!(body.text && body.text.trim()) && !isPdfFile(body.file)) { res.status(400).json({ error: '기획서가 비어 있거나 파일이 너무 커요(4MB까지).' }); return; }
+      if (!process.env.OPENAI_API_KEY) { res.status(500).json({ error: '서버에 OpenAI API 키가 설정되어 있지 않습니다.' }); return; }
+      const plan = await planPdf({ apiKey: process.env.OPENAI_API_KEY, text: body.text, file: body.file, fileName: body.fileName });
+      res.status(200).json({ plan });
+      return;
+    }
     if (!prompt || !prompt.trim()) {
       res.status(400).json({ error: '프롬프트가 비어있습니다.' });
       return;
@@ -208,7 +244,7 @@ module.exports = async function handler(req, res) {
     const envKeys = kind === 'header'
       ? ['HEADER_PROMPT_A', 'HEADER_PROMPT_B']
       : ['SECTION_STYLE', 'SECTION_PROMPT', 'SECTION_GUIDELINE_MALE', 'SECTION_GUIDELINE_FEMALE'];
-    const envInfo = kind === 'thumb' || kind === 'edit' || kind === 'pdf' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
+    const envInfo = kind === 'thumb' || kind === 'edit' || kind === 'pdf' || kind === 'pdfplan' ? '' : ` [env 글자수(실제/기대): ${checkEnvLengths(envKeys)}]`;
     res.status(500).json({ error: `[사용된 키: ${usedKey}]${envInfo} ` + (e.message || String(e)) });
   }
 };

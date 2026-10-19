@@ -81,6 +81,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 details.pr{margin-top:8px;font-size:12px;color:var(--neutral-600)}
 details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radius:8px;padding:10px;font-size:11.5px;line-height:1.5;max-height:220px;overflow:auto}
 
+/* ⓪ 기획서 */
+.planrow{display:flex;align-items:center;gap:8px;margin-top:8px;font-size:13px;color:var(--neutral-600)}
+.planrow[hidden],.planst[hidden]{display:none}
+.planrow span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.planst{display:flex;align-items:flex-start;gap:8px;margin-top:8px;font-size:13px;line-height:1.55;color:var(--careBlue-600);background:var(--careBlue-50);border-radius:8px;padding:8px 10px}
+.planst span{flex:1}
+.planst.err{color:var(--careRed-500);background:#fff1f0}
+.planst.busy span::before{content:"";display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* 확인 필요 (맞는 템플릿이 없던 블록) — 화면에만, PDF에는 안 나옴 */
+.chk-flag{display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:6px 10px;border-radius:8px;background:var(--careOrange-50);color:var(--careOrange-600);font-size:13px;font-weight:600;font-family:Pretendard,sans-serif}
+.chk-flag span{flex:1}
+.chk-flag button{border:1px solid currentColor;background:#fff;color:inherit;border-radius:6px;font-size:12px;padding:2px 8px;cursor:pointer}
+.plist li .c{flex:none;font-size:11px;font-weight:700;color:var(--careOrange-600)}
+
 /* 쪽 목록 · 블록 목록 */
 .plist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
 .plist li{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--coolNeutral-100);cursor:pointer;font-size:13px}
@@ -316,6 +331,14 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 <div class="main">
   <aside class="panel">
     <div class="sec">
+      <h3><span class="stepn">0</span>기획서 <small>넣으면 쪽이 자동으로 채워져요</small></h3>
+      <div class="drop" id="planDrop">기획서 글을 복사해서 이 화면에 <b>Ctrl+V</b><br>또는 파일(PPT · PDF · Word · 텍스트)을 끌어다 놓거나 <b>클릭</b></div>
+      <input type="file" id="planFile" accept=".pptx,.docx,.pdf,.txt,.md,application/pdf,text/plain" hidden>
+      <div class="planrow" id="planRow" hidden><span id="planName"></span><button class="btn xs" id="btnPlanAgain">다시 만들기</button></div>
+      <div class="planst" id="planSt" hidden><span id="planMsg"></span><button class="btn xs" id="btnPlanCancel" hidden>취소</button></div>
+    </div>
+
+    <div class="sec">
       <h3><span class="stepn">1</span>문서 · 색</h3>
       <div class="field"><label>문서 이름 (쪽 아래 바닥글 · 저장 파일 이름)</label><input type="text" id="docTitle"></div>
       <div class="swatches" id="themes" style="margin-top:12px"></div>
@@ -469,8 +492,27 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     const b = BLANK(); d = Object.assign(b, d || {});
     d.cover = Object.assign(BLANK().cover, d.cover || {}); d.img = Object.assign(BLANK().img, d.img || {}); d.end = Object.assign(END(), d.end || {});
     if (!THEMES[d.theme]) d.theme = 'navy';
-    d.pages = (d.pages || []).map(p => Object.assign({ch: '01', chName: '', title: '', lead: '', blocks: []}, p, {blocks: (p.blocks || []).filter(x => x && BLOCKS[x.type]).map(x => Object.assign(BLOCKS[x.type].make(), x))}));
+    const str = v => v == null ? '' : String(v);
+    d.pages = (Array.isArray(d.pages) ? d.pages : []).map(p => { p = p || {};
+      return {ch: str(p.ch || '01'), chName: str(p.chName), title: str(p.title), lead: str(p.lead), blocks: (Array.isArray(p.blocks) ? p.blocks : []).filter(x => x && BLOCKS[x.type]).map(fixBlock)}; });
+    if (!d.pages.length) d.pages = BLANK().pages;
+    Object.keys(BLANK().cover).forEach(k => { d.cover[k] = str(d.cover[k]); });
     d.kind = 'nl-pdf'; d.v = 1; return d;
+  }
+  // 블록 하나 정리: 빠진 칸은 템플릿 기본값으로, 목록은 꼭 배열로 (자동 만들기 · 붙여넣기 결과가 조금 달라도 그려지게)
+  function fixBlock(x){
+    const d = BLOCKS[x.type], b = Object.assign(d.make(), x), str = v => v == null ? '' : String(v);
+    if (d.items){ const base = d.item(); b[d.items] = (Array.isArray(b[d.items]) ? b[d.items] : []).map(it => {
+      const o = Object.assign({}, base, typeof it === 'object' && it ? it : {label: str(it)});
+      Object.keys(base).forEach(k => { if (k === 'checks') o.checks = (Array.isArray(o.checks) ? o.checks : [o.checks]).map(str).filter((c, i, a) => c || a.length === 1); else o[k] = str(o[k]); });
+      if (o.icon && !ICONS.includes(o.icon)) o.icon = base.icon; return o; });
+      if (!b[d.items].length) b[d.items] = [base]; }
+    if (x.type === 'steps') b.items = (Array.isArray(b.items) ? b.items : [b.items]).map(str);
+    if (x.type === 'src') b.lines = (Array.isArray(b.lines) ? b.lines : [b.lines]).map(str);
+    if (d.hl){ b.hl = Number.isInteger(+b.hl) ? +b.hl : -1; if (b.hl >= b[d.items].length) b.hl = -1; }
+    ['tag', 'h', 'q', 'a', 'text', 'title', 'tagText'].forEach(k => { if (k in b) b[k] = str(b[k]); });
+    if (b.check != null) b.check = str(b.check); if (!b.check) delete b.check;
+    return b;
   }
   let warnedBig = false;
   function save(){
@@ -530,7 +572,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     let n = 0;
     const blocks = pg.blocks.map((b, j) => { const st = BLOCKS[b.type].step; if (st) n++;
       const tight = j > 0 && (b.type === 'note' || b.type === 'box' || b.type === 'src') ? ' tight' : st ? ' stp' : '';
-      return `<div class="blk${tight}" data-bi="${j}">${R[b.type](b, `pages.${i}.blocks.${j}`, n)}</div>`; }).join('');
+      const flag = b.check ? `<div class="chk-flag no-print"><span>확인 필요 · ${esc(b.check)}</span><button data-unflag="${i}.${j}">확인함</button></div>` : '';
+      return `<div class="blk${tight}" data-bi="${j}">${flag}${R[b.type](b, `pages.${i}.blocks.${j}`, n)}</div>`; }).join('');
     return `<div class="pg in" data-pi="${i}"><div class="bar"><span><b>${esc(pg.ch)}</b> ${esc(pg.chName)}</span>${A().logoBlue ? `<img src="${A().logoBlue}" alt="GC Care">` : ''}</div>
       <div class="pbody">${ed(`pages.${i}.title`, '쪽 제목', '', 'h2')}${ed(`pages.${i}.lead`, '한두 줄 설명', 'lead', 'p')}${blocks}</div>
       <div class="foot"><span>${esc(S.title)}</span><span class="nb">${pad(no)}</span></div>
@@ -581,7 +624,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('endOn').checked = !!S.end.on;
     let no = 1;
     const rows = [`<li data-pi="cover" class="${sel === 'cover' ? 'on' : ''}"><span class="n">표지</span><span class="t">${esc(firstLine(S.cover.t1))}</span></li>`]
-      .concat(S.pages.map((p, i) => `<li data-pi="${i}" class="${sel === i ? 'on' : ''}"><span class="n">${pad(++no)}</span><span class="t">${esc(firstLine(p.title))}</span><span class="w" hidden>넘침</span></li>`));
+      .concat(S.pages.map((p, i) => { const c = p.blocks.filter(b => b.check).length;
+        return `<li data-pi="${i}" class="${sel === i ? 'on' : ''}"><span class="n">${pad(++no)}</span><span class="t">${esc(firstLine(p.title))}</span>${c ? `<span class="c">확인 ${c}</span>` : ''}<span class="w" hidden>넘침</span></li>`; }));
     if (S.end.on) rows.push(`<li data-pi="end" class="${sel === 'end' ? 'on' : ''}"><span class="n">${pad(++no)}</span><span class="t">마무리 · 구독 안내</span></li>`);
     $('plist').innerHTML = rows.join('');
     renderPedit(); checkOver();
@@ -665,6 +709,102 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     }
   }
 
+  // ── ⓪ 기획서 → 자동 만들기 (회사 서버 kind 'pdfplan' → 일반 GPT가 규칙서대로 쪽 · 블록을 나눔, 그리는 건 이 도구) ──
+  // 붙여 넣은 표는 '| 칸 | 칸 |' 줄로 바꿔 보냄 (표 모양을 알아보게)
+  function htmlToText(html){
+    const doc = new DOMParser().parseFromString(html, 'text/html'), out = [];
+    const txt = el => (el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim();
+    const walk = el => { for (const n of el.childNodes){
+      if (n.nodeType === 3){ const t = n.textContent.replace(/\s+/g, ' '); if (t.trim()) out.push(t); continue; }
+      if (n.nodeType !== 1) continue; const tag = n.tagName;
+      if (/^(SCRIPT|STYLE|HEAD|META|TITLE)$/.test(tag)) continue;
+      if (tag === 'TABLE'){ out.push('\n'); n.querySelectorAll('tr').forEach(tr => out.push('| ' + [...tr.children].map(txt).join(' | ') + ' |\n')); out.push('\n'); continue; }
+      if (tag === 'BR'){ out.push('\n'); continue; }
+      if (tag === 'LI'){ out.push('\n- '); walk(n); out.push('\n'); continue; }
+      const block = /^(P|DIV|H[1-6]|UL|OL|SECTION|ARTICLE|BLOCKQUOTE|TR)$/.test(tag);
+      if (block) out.push('\n'); walk(n); if (block) out.push('\n'); } };
+    walk(doc.body); return out.join('').replace(/[ \t]+\n/g, '\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  // Word(.docx) · PPT(.pptx)는 압축(zip) 파일 → 필요한 XML만 꺼냄 (라이브러리 없이 브라우저 압축 풀기)
+  async function unzipText(buf, want){
+    const v = new DataView(buf), u8 = new Uint8Array(buf); let e = -1;
+    for (let i = u8.length - 22; i >= Math.max(0, u8.length - 65557); i--) if (v.getUint32(i, true) === 0x06054b50){ e = i; break; }
+    if (e < 0) throw new Error('파일을 읽지 못했어요.');
+    let p = v.getUint32(e + 16, true); const n = v.getUint16(e + 10, true), out = {};
+    for (let k = 0; k < n; k++){
+      const method = v.getUint16(p + 10, true), size = v.getUint32(p + 20, true), nl = v.getUint16(p + 28, true), el = v.getUint16(p + 30, true), cl = v.getUint16(p + 32, true), off = v.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nl));
+      if (want(name)){ const s = off + 30 + v.getUint16(off + 26, true) + v.getUint16(off + 28, true), data = u8.subarray(s, s + size);
+        out[name] = method === 0 ? new TextDecoder().decode(data) : await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text(); }
+      p += 46 + nl + el + cl; }
+    return out;
+  }
+  // PPT: 슬라이드 한 장 = PDF 한 쪽 → 슬라이드마다 [쪽 나눔], 글상자 · 표 글만
+  async function pptxToText(buf){
+    const files = await unzipText(buf, n => /^ppt\/slides\/slide\d+\.xml$/.test(n)), A = 'http://schemas.openxmlformats.org/drawingml/2006/main';
+    const names = Object.keys(files).sort((a, b) => +a.match(/\d+/)[0] - +b.match(/\d+/)[0]);
+    if (!names.length) throw new Error('PPT 안에서 슬라이드를 찾지 못했어요.');
+    const para = p => [...p.getElementsByTagNameNS(A, '*')].map(x => x.localName === 't' ? x.textContent : x.localName === 'br' ? '\n' : '').join('');
+    return names.map((nm, i) => { const doc = new DOMParser().parseFromString(files[nm], 'application/xml'), out = [];
+      const inTbl = el => { for (let x = el.parentNode; x; x = x.parentNode) if (x.localName === 'tbl') return true; return false; };
+      doc.getElementsByTagNameNS(A, 'tbl').length && [...doc.getElementsByTagNameNS(A, 'tbl')].forEach(t => [...t.getElementsByTagNameNS(A, 'tr')].forEach(tr =>
+        out.push('| ' + [...tr.getElementsByTagNameNS(A, 'tc')].map(tc => [...tc.getElementsByTagNameNS(A, 'p')].map(para).join(' ').trim()).join(' | ') + ' |')));
+      const text = [...doc.getElementsByTagNameNS(A, 'p')].filter(p => !inTbl(p)).map(para).filter(s => s.trim());
+      return (i ? '[쪽 나눔]\n' : '') + `(슬라이드 ${i + 1})\n` + text.concat(out).join('\n'); }).join('\n\n');
+  }
+  // Word: word/document.xml에서 문단 · 표 · 쪽 나눔
+  async function docxToText(buf){
+    const xml = (await unzipText(buf, n => n === 'word/document.xml'))['word/document.xml'];
+    if (!xml) throw new Error('Word 파일 안에서 본문을 찾지 못했어요.');
+    const doc = new DOMParser().parseFromString(xml, 'application/xml'), W = 'http://schemas.openxmlformats.org/wordprocessingml/2006/main';
+    const para = pEl => { let s = ''; pEl.querySelectorAll('*').forEach(x => { if (x.namespaceURI !== W) return;
+      if (x.localName === 't') s += x.textContent; if (x.localName === 'tab') s += ' '; if (x.localName === 'br' && x.getAttributeNS(W, 'type') !== 'page') s += '\n'; }); return s; };
+    const hasPage = pEl => [...pEl.getElementsByTagNameNS(W, 'br')].some(b => b.getAttributeNS(W, 'type') === 'page') || pEl.getElementsByTagNameNS(W, 'pageBreakBefore').length;
+    const body = doc.getElementsByTagNameNS(W, 'body')[0], out = [];
+    [...(body ? body.children : [])].forEach(el => {
+      if (el.localName === 'p'){ if (hasPage(el)) out.push('[쪽 나눔]'); out.push(para(el)); }
+      if (el.localName === 'tbl') [...el.getElementsByTagNameNS(W, 'tr')].forEach(tr => out.push('| ' + [...tr.getElementsByTagNameNS(W, 'tc')].map(tc => [...tc.getElementsByTagNameNS(W, 'p')].map(para).join(' ').trim()).join(' | ') + ' |')); });
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').trim();
+  }
+  let planBusy = null, lastPlan = null, planCancelled = false;   // lastPlan = {name, text, file} — [다시 만들기]용 (이 화면에서만)
+  function planStatus(msg, kind){ const st = $('planSt'); st.hidden = !msg; st.className = 'planst' + (kind ? ' ' + kind : ''); $('planMsg').textContent = msg || ''; $('btnPlanCancel').hidden = kind !== 'busy'; }
+  function showPlanRow(){ $('planRow').hidden = !lastPlan; if (lastPlan) $('planName').textContent = '📄 ' + lastPlan.name; }
+  async function readPlanFile(f){
+    if (!f) return;
+    try {
+      if (/\.pdf$/i.test(f.name) || f.type === 'application/pdf'){
+        if (f.size > 3 * 1024 * 1024){ planStatus('PDF가 너무 커요(3MB까지). 기획서 글을 복사해서 Ctrl+V로 붙여 넣어 주세요.', 'err'); return; }
+        const file = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(f); });
+        return startPlan({name: f.name, text: '', file});
+      }
+      if (/\.docx$/i.test(f.name)) return startPlan({name: f.name, text: await docxToText(await f.arrayBuffer())});
+      if (/\.pptx$/i.test(f.name)) return startPlan({name: f.name, text: await pptxToText(await f.arrayBuffer())});
+      if (/\.(hwp|hwpx|doc|ppt)$/i.test(f.name)){ planStatus('이 파일은 바로 읽지 못해요. 문서를 열어 전체 복사(Ctrl+A → Ctrl+C) 후 여기에 Ctrl+V 해 주세요.', 'err'); return; }
+      return startPlan({name: f.name, text: await f.text()});
+    } catch(e){ planStatus('파일을 읽지 못했어요: ' + (e.message || e) + ' — 글을 복사해서 붙여 넣어 주세요.', 'err'); }
+  }
+  async function startPlan(input, again){
+    if (planBusy) return;
+    if (!again && !confirm(`이 기획서로 PDF를 자동으로 만들까요?${input.name ? `\n(${input.name})` : ''}\n지금 작업 내용은 새로 바뀌어요.`)) return;
+    lastPlan = input; showPlanRow(); planCancelled = false;
+    const ctrl = planBusy = new AbortController(), timer = setTimeout(() => ctrl.abort(), 180000);
+    planStatus('기획서를 정리하는 중이에요. 30초~1분 걸려요.', 'busy'); $('btnPlanAgain').disabled = true;
+    try {
+      const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
+        body: JSON.stringify({kind: 'pdfplan', text: input.text || '', file: input.file || '', fileName: input.name || ''})});
+      const data = await resp.json().catch(() => ({}));
+      if (!resp.ok || !data.plan){ const msg = data.error || `서버 응답 오류 (${resp.status})`;
+        throw new Error(/알 수 없는 kind|프롬프트가 비어/.test(msg) ? '서버에 자동 만들기 기능이 아직 올라가지 않았어요. (GitHub에 올린 뒤 1~2분)' : msg); }
+      const p = data.plan, keepUrl = S.end.url;
+      S = norm(Object.assign({}, p, {img: Object.assign({}, BLANK().img, {desc: String((p.img && p.img.desc) || '')}), end: Object.assign(END(), {url: keepUrl})}));
+      sel = 'cover'; commit();
+      const nCheck = S.pages.reduce((a, pg) => a + pg.blocks.filter(b => b.check).length, 0), nOver = document.querySelectorAll('.pg.over').length;
+      planStatus(`${S.pages.length + 1 + (S.end.on ? 1 : 0)}쪽을 채웠어요. ` + (nOver || nCheck ? `빨간 '넘침' ${nOver}곳 · 주황 '확인 필요' ${nCheck}곳을 살펴보고, ` : '훑어보고 고칠 곳만 고친 뒤 ') + '② 표지 그림을 만들어 주세요.');
+    } catch(e){
+      planStatus(e.name === 'AbortError' ? (planCancelled ? '취소했어요. 지금 작업은 그대로예요.' : '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.') : '만들지 못했어요: ' + (e.message || e), 'err');
+    } finally { clearTimeout(timer); planBusy = null; $('btnPlanAgain').disabled = false; }
+  }
+
   // ── 미리보기에서 글자 고치기 ──
   function bindStage(){
     const pages = $('pages');
@@ -687,7 +827,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       if (im){ e.preventDefault(); e.stopPropagation(); setImg(im.getAsFile()); return; }
       const el = e.target.closest('[data-p]'); if (!el) return; e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
     pages.addEventListener('mousedown', e => { const pg = e.target.closest('.pg'); if (pg && String(sel) !== pg.dataset.pi){ sel = pg.dataset.pi === 'cover' || pg.dataset.pi === 'end' ? pg.dataset.pi : +pg.dataset.pi; markSel(); renderPanel(); } });
-    pages.addEventListener('click', e => { const ic = e.target.closest('[data-icon-p]'); if (ic) openPicker(ic, e); });
+    pages.addEventListener('click', e => { const ic = e.target.closest('[data-icon-p]'); if (ic) openPicker(ic, e);
+      const uf = e.target.closest('[data-unflag]'); if (uf){ const [i, j] = uf.dataset.unflag.split('.').map(Number); delete S.pages[i].blocks[j].check; commit(); } });
   }
   function focusP(p, end){ const el = document.querySelector(`[data-p="${p}"]`); if (!el) return; el.focus();
     const r = document.createRange(); r.selectNodeContents(el); r.collapse(!end ? true : false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
@@ -765,8 +906,19 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       const im = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
       if (im){ e.preventDefault(); setImg(im.getAsFile()); return; }
       const t = (e.clipboardData.getData('text/plain') || '').trim();
-      if (t.startsWith('{')){ try { const d = JSON.parse(t); if (d && d.kind === 'nl-pdf'){ e.preventDefault(); if (confirm('붙여 넣은 PDF 작업 내용으로 바꿀까요? 지금 작업은 사라져요.')) setState(d, 'PDF 작업 내용을 넣었어요.'); } } catch(_){ } }
+      // 스킬 · Claude Code가 만든 작업 내용(JSON) → 그대로 채움 (무료)
+      if (t.startsWith('{')){ try { const d = JSON.parse(t); if (d && d.kind === 'nl-pdf'){ e.preventDefault(); if (confirm('붙여 넣은 PDF 작업 내용으로 바꿀까요? 지금 작업은 사라져요.')) setState(d, 'PDF 작업 내용을 넣었어요.'); return; } } catch(_){ } }
+      // 그 밖의 글 → 기획서로 보고 자동 만들기 (표는 칸 모양을 살려서)
+      const html = e.clipboardData.getData('text/html'), text = html ? htmlToText(html) : t;
+      if (text.length >= 20){ e.preventDefault(); startPlan({name: `붙여 넣은 기획서 (${text.length.toLocaleString()}자)`, text}); }
     });
+    $('planDrop').addEventListener('click', () => { $('planFile').value = ''; $('planFile').click(); });
+    $('planFile').addEventListener('change', e => readPlanFile(e.target.files[0]));
+    $('planDrop').addEventListener('dragover', e => { e.preventDefault(); $('planDrop').classList.add('over'); });
+    $('planDrop').addEventListener('dragleave', () => $('planDrop').classList.remove('over'));
+    $('planDrop').addEventListener('drop', e => { e.preventDefault(); $('planDrop').classList.remove('over'); readPlanFile(e.dataTransfer.files[0]); });
+    $('btnPlanAgain').addEventListener('click', () => { if (lastPlan && confirm('같은 기획서로 다시 만들까요? 지금 작업은 새로 바뀌어요.')) startPlan(lastPlan, true); });
+    $('btnPlanCancel').addEventListener('click', () => { if (planBusy){ planCancelled = true; planBusy.abort(); } });
     $('btnNew').addEventListener('click', () => { if (confirm('빈 문서로 새로 시작할까요? 지금 작업은 사라져요.\n(필요하면 먼저 작업 파일을 저장해 두세요)')) setState(BLANK(), '새 문서를 시작했어요.'); });
     $('btnExample').addEventListener('click', () => { if (confirm('안전보건공시제 예시를 불러올까요? 지금 작업은 사라져요.')) setState(EXAMPLE(), '예시를 불러왔어요.'); });
     $('btnSave').addEventListener('click', () => download(new Blob([JSON.stringify(S)], {type: 'application/json'}), `PDF_${fileName()}.json`));
