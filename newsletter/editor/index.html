@@ -677,7 +677,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 #pvPc [data-e].editing,#pvMo [data-e].editing{outline:2px solid var(--careBlue-500);outline-offset:2px;background:var(--neutral-0);color:var(--neutral-900);white-space:pre-wrap;min-width:24px}
 #pvPc .cx [data-e].editing,#pvMo .cx [data-e].editing{outline-offset:-2px;box-shadow:0 0 0 3px var(--careBlue-100) inset}   /* 직접 만든 블록: 막대 칸처럼 바깥이 잘리는(overflow:hidden) 곳에서도 편집 중 테두리가 보이게 안쪽으로 */
 
-/* ── 메뉴 셸(AX Studio · Insight) 안에 들어갔을 때 ── */
+/* ── 메뉴 셸(AX Studio · Newsletter) 안에 들어갔을 때 ── */
 body.embedded .topbar{background:var(--neutral-0);border-bottom:1px solid var(--coolNeutral-100);padding:10px 20px}
 body.embedded .topbar .brand{display:none}
 body.embedded .topbar .btn:not(.primary){background:var(--neutral-0);border-color:var(--coolNeutral-200);color:var(--neutral-900)}
@@ -2629,7 +2629,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     toast(`블록 ${ok.length}개를 넣었어요${replaced ? ` (${replaced}개는 기존 이미지를 교체)` : ''}.${ok.length < list.length ? ` (알 수 없는 ${list.length - ok.length}개는 뺐어요)` : ''} 번호와 내용을 확인해 주세요.`, 4000);
   }
 
-  // ── 메뉴 셸(AX Studio · Insight)과 연결: 호수 공유 · 저장 기록 전달 · 편집 원본 주고받기 ──
+  // ── 메뉴 셸(AX Studio · Newsletter)과 연결: 호수 공유 · 저장 기록 전달 · 편집 원본 주고받기 ──
   function notify(m){ if (window.parent !== window) window.parent.postMessage(Object.assign({nl:1, tool:'image'}, m), '*'); }
   // 셸 안에서는 하단 작업 파일 버튼이 숨으므로 안내 문구를 셸 버튼 이름으로
   function hubName(s){ return document.body.classList.contains('embedded') ? s.replace(/\[작업 파일 저장\]/g, '[전체 파일 저장]').replace(/\[작업 파일 열기\]/g, '[불러오기]') : s; }

@@ -2,7 +2,7 @@
 
 운영자가 디자이너 없이 뉴스레터 이미지를 만들 수 있게 돕는 도구입니다.
 
-## AX Studio · Insight (통합본 · 프로토타입)
+## AX Studio · Newsletter (통합본 · 프로토타입)
 
 **바로 열기:** https://gcejshim.github.io/gccare-contents/newsletter/app/dist/gccare-insight-studio.html
 
@@ -46,6 +46,7 @@ python3 build.py        # → dist/thumbnail.html (이름 고정 · build.py의 
 
 | 버전 | 내용 |
 |---|---|
+| 2026-10-19 | 이름 변경: AX Studio · Insight → AX Studio · Newsletter (탭 제목 · 상단 바 · 왼쪽 아래 표기 · 문서 · 스킬 · ChatGPT 지침). 배포 파일 이름 gccare-insight-studio.html · 스킬 폴더 gc-ax-insight는 그대로 |
 | 2026-10-15 | v1.0 기준점 한 번 맞추기: 예전 버전에서 호를 옮기며 꼬인 기록(14호 칸에 15호 내용)이 있는 브라우저는 처음 열 때 한 번 15호 완성본으로 다시 시작, 다른 호 보관 기록은 비움 |
 | **v1.0 (2026-10-15)** | 버전 1.0으로 정리 — 이후로는 버전을 올리지 않고 이 표에 날짜별 업데이트만 기록 |
 | 통합본 v2.0 · 편집기 v1.9 · 썸네일 v1.9 (2026-10-15) | 호 > 콘텐츠 계층: 상단 ◀ ▶로 호를 옮기면 썸네일 · 콘텐츠 이미지 작업이 그 호 것으로 바뀜(지금 호 작업은 브라우저 IndexedDB `work:호수`에 보관, 없는 호는 빈 상태 · 템플릿으로 만들기 + 목록 펼침). 통합본 안에서는 도구의 호수 칸 잠금(상단에서만 변경). 스킬 칸 붙여넣기 통째 교체 · 다시 넣어도 바꾼 색 유지 |

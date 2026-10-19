@@ -1,4 +1,4 @@
-"""AX Studio · Insight(메뉴 셸) 배포본: 셸 + 썸네일 도구 + 콘텐츠 이미지 편집기 + 라이브러리 + 폰트 + 샘플을 HTML 한 파일로 합친다.
+"""AX Studio · Newsletter(메뉴 셸) 배포본: 셸 + 썸네일 도구 + 콘텐츠 이미지 편집기 + 라이브러리 + 폰트 + 샘플을 HTML 한 파일로 합친다.
 
 폰트 · 라이브러리는 한 번만 넣고, 실행할 때 blob 주소로 만들어 두 도구(iframe)가 같이 쓴다 → 파일 크기를 줄임.
 실행: python3 build.py  →  dist/gccare-insight-studio.html (이름 고정 · 인터넷 없이 동작)
@@ -77,7 +77,7 @@ DEFAULT_ISSUE = os.path.join(ROOT, 'issues', '15', 'work', '202610_뉴스레터_
 default_issue = read(DEFAULT_ISSUE).replace('<', '\\u003c')
 pack = '<script>window.__NL_DATA=' + data + ';</script>\n<script>window.NL_DEFAULT_ISSUE=' + default_issue + ';</script>\n<script>' + BOOT + '</script>\n'
 shell = shell.replace('</head>', pack + '</head>', 1)
-shell = shell.replace('<title>AX Studio · Insight</title>', f'<title>AX Studio · Insight v{VERSION}</title>')
+shell = shell.replace('<title>AX Studio · Newsletter</title>', f'<title>AX Studio · Newsletter v{VERSION}</title>')
 os.makedirs(os.path.join(HERE, 'dist'), exist_ok=True)
 out = os.path.join(HERE, 'dist', 'gccare-insight-studio.html')   # 이름 고정 (버전은 파일 안 · README에서 관리)
 with open(out, 'w', encoding='utf-8') as f: f.write(shell)
