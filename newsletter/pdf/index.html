@@ -656,7 +656,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   function setImg(file){
     if (!file || !/^image\//.test(file.type)) return;
     const r = new FileReader();
-    r.onload = () => { S.img.src = r.result; S.img.scale = 100; S.img.x = 0; S.img.y = 0; S.img.fade = FADE(); commit(); toast('표지 그림을 넣었어요. 크기 · 좌우 · 상하로 맞춰요.'); };
+    r.onload = async () => { S.img.src = await toWebp(r.result); S.img.scale = 100; S.img.x = 0; S.img.y = 0; S.img.fade = FADE(); commit(); toast('표지 그림을 넣었어요. 크기 · 좌우 · 상하로 맞춰요.'); };
     r.readAsDataURL(file);
   }
   function applyImg(){ const im = S.img, el = document.querySelector('.cover .art'); if (el){ el.className = 'art m-' + im.mode + (im.fade ? ' fade' : ''); el.style.transform = `translate(${im.x}px,${im.y}px) scale(${im.scale / 100})`; el.style.setProperty('--f', im.fade + '%'); } }
@@ -683,9 +683,12 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   // [✦ 이미지 만들기]: 회사 공용 서버(썸네일과 같은 함수, kind 'pdf')로 그림 → 바로 표지에 넣음
   const GEN_URL = 'https://gccardnews.vercel.app/api/generate-image';
   let generating = false;
-  const toWebp = src => new Promise(res => { const im = new Image();   // 자동저장에 들어가게 WebP로 (크기는 그대로)
-    im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; c.getContext('2d').drawImage(im, 0, 0);
-      const u = c.toDataURL('image/webp', 0.92); res(u.startsWith('data:image/webp') ? u : src); };
+  // 표지 그림은 들어올 때 WebP로 (PNG보다 훨씬 가벼움 → 자동저장 · 작업 파일 · 통합본이 작아짐). 긴 쪽은 2560px까지 (PDF 2배 인쇄에 충분)
+  const toWebp = src => new Promise(res => { if (!/^data:image\/(png|jpeg|jpg|bmp|gif)/.test(src || '')) return res(src);
+    const im = new Image();
+    im.onload = () => { const k = Math.min(1, 2560 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+      const u = c.toDataURL('image/webp', 0.9); res(u.startsWith('data:image/webp') && u.length < src.length ? u : src); };
     im.onerror = () => res(src); im.src = src; });
   async function generate(){
     if (generating) return;
@@ -842,7 +845,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   }
 
   // ── 작업 파일 ──
-  function setState(d, msg){ S = norm(d); sel = 'cover'; commit(); if (msg) toast(msg); }
+  function setState(d, msg){ S = norm(d); sel = 'cover'; commit(); if (msg) toast(msg); webpImg(); }
+  // 예전 작업 파일 · 자동저장의 PNG 그림도 열 때 WebP로 바꿔 둠
+  async function webpImg(){ const s = S.img.src; if (!/^data:image\/(png|jpeg|jpg)/.test(s || '')) return;
+    const w = await toWebp(s); if (w !== s && S.img.src === s){ S.img.src = w; save(); const a = document.querySelector('.cover .art'); if (a) a.src = w; const t = $('imgThumb'); if (t) t.src = w; } }
   function openText(text){ let d; try { d = JSON.parse(text); } catch(e){ toast('파일을 읽을 수 없어요.'); return; }
     if (!d || d.kind !== 'nl-pdf'){ toast('PDF 작업 파일이 아니에요.'); return; } setState(d, 'PDF 작업을 불러왔어요.'); }
   const fileName = () => (S.title || 'PDF').trim().replace(/[\\/:*?"<>|]+/g, '_');
@@ -934,7 +940,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
         if (hubIssue) notify({type: 'exported', files: [{name: fileName() + '.pdf', kind: 'pdf', issue: hubIssue}]}); }, 150);
     });
     window.addEventListener('resize', zoom);
-    render();
+    render(); webpImg();
     document.fonts && document.fonts.ready.then(() => { fitCover(); checkOver(); });
   }
 
