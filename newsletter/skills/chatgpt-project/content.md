@@ -4,8 +4,8 @@
 
 ## 작업 방향
 
-- **템플릿은 디자인 참고용**이다. 이미지는 **기획서를 기준으로** Claude가 만든다.
-- **타이틀 · 컬러는 기본 디자인 시스템**에서, **레이아웃은 기획서를 최대한 참조**한다.
+- **템플릿에 있는 모양은 템플릿대로**(제목 · 카드 · 표 · 막대 · 축 · 숫자 위치 · 범례 · 변화 배지 등), **템플릿에 없거나 기획서에서 더해진 것은 첨부(기획서 · 참고 이미지)에 보이는 대로** 그린다(이름 띠 · 출처 위치 · 특정 막대 강조색 등). 기획서에 없는 요소(범례 · 설명 등)를 더하거나, 있는 요소를 빼지 않는다.
+- 기획서의 제목 상자 · 글자 크기처럼 템플릿에 이미 있는 것은 기획서 모양을 따라 하지 않고 템플릿 스타일로 바꾼다.
 - 기획서에 스타일이 없으면(텍스트 · 기본 표만 있으면) 디자인 시스템을 지키고 템플릿을 참고해 알아서 디자인한다.
 - 결과물은 **편집기에서 상세 수정이 가능한 구조**로 만든다. 템플릿으로 되는 모양은 꼭 템플릿으로(숫자를 바꾸면 막대까지 다시 계산됨), `html`이면 data- 표시를 빠짐없이 단다. 그래서 가능한 한 편집기 템플릿(`type`)과 옵션으로 표현하고, 편집기에 새로 생긴 템플릿 · 옵션을 우선 쓴다. `html`은 템플릿으로 도저히 안 될 때만.
 - 기본 타이틀 크기 · 스타일과 폰트 크기 정책(아래 "글자" 표)은 **항상** 지킨다. 템플릿을 쓰면 편집기가 지켜 주고, `html`이면 직접 지킨다.
@@ -13,8 +13,8 @@
 ## 우선순위 (부딪히면 위가 이긴다)
 
 1. **기획안 내용** — 문구 · 수치 · 강조가 정확할 것. 임의로 바꾸지 않는다. 줄바꿈 · 강조만 정한다. 수치가 없으면 지어내지 말고 빈칸으로 두고 알린다.
-2. **기획서의 형태 · 시각 요소** — 표면 표, 막대면 막대, 순서 · 묶음 · 강조 위치
-3. **템플릿 · 디자인 시스템 스타일** — 제목 스타일, 폰트 크기 정책, 색 토큰
+2. **기획서의 형태 · 구성** — 표면 표, 막대면 막대, 순서 · 묶음 · 강조 위치, 들어 있는 요소(빼거나 더하지 않기)
+3. **모양(스타일)** — 템플릿에 있는 모양은 템플릿 스타일, 템플릿에 없는 모양만 기획서에 보이는 대로. 폰트 크기 정책 · 색 토큰은 항상
 
 ## 진행 방식
 
@@ -29,7 +29,7 @@
      - 직접 만든 블록(`html`)이 없고 이미지가 4장 이하면 → 전체를 `nl-blocks` 하나로("전체 한 번에 넣기").
      - 그보다 길면 → **콘텐츠별로**(01 · 02 · 03) `nl-blocks`를 나눠서, 한 답에 하나씩. 다음 묶음은 "다음 묶음 줘"라고 하면 준다.
    - **JSON 하나를 두 답으로 쪼개지 않는다**(끊긴 JSON은 도구가 못 읽음). 길면 아티팩트로 만들고, 그래도 길면 콘텐츠별로 나눈다. 끊긴 경우 사용자가 "○번 이미지 다시 줘"라고 하면 그 이미지만 다시 준다.
-4. 소스는 **[복사] 버튼으로 한 번에 복사되게** 준다. 짧으면 채팅 코드 블록, 길면(`html` · 묶음) **아티팩트(코드)**로 — 채팅은 길이 제한으로 끊긴다. 다운로드 파일은 만들지 않는다. 한 장이면 `nl-block`, 여러 장이면 `nl-blocks`.
+4. 소스는 길이와 상관없이 **항상 아티팩트(코드) 하나**로 준다. 안에는 JSON만 넣어 [복사] 한 번으로 끝나게 한다(짧다고 채팅 코드 블록으로 주지 않기 — 받는 방법이 매번 같아야 함, 채팅은 길면 끊김). 다운로드 파일은 만들지 않는다. 한 장이면 `nl-block`, 여러 장이면 `nl-blocks`.
 5. 넣는 방법 안내 (소스와 함께 매번 짧게):
    "편집기 ② 만드는 방법에서 **[Claude 스킬로 만들기]**를 고르고, 칸에 붙여 넣은 뒤 [넣기]를 눌러 주세요. 넣기 전에 들어올 이미지 목록이 보이고, 이미 있는 번호는 '바뀜'으로 표시돼요. 화면 캡처 · 사진은 블록에서 직접 넣어 주세요."
 
@@ -118,9 +118,22 @@
 맞는 블록이 없을 때만 쓴다. 편집기가 이 코드를 PC(폭 900) · 모바일(폭 350)에 그려 2·3배 PNG로 저장한다.
 
 **디자인**
-- **가장 가까운 템플릿의 스타일을 그대로** 따른다: 제목(블록 제목 22 Bold, 남색 헤더 등), 카드(흰 바탕 · 둥근 모서리 16 · 그림자), 표 선, 그래프 막대 모양 · 축 · 숫자 위치, 아이콘 원.
-- 템플릿에 **없는 스타일은 Claude가 디자인 시스템 안에서 임의로** 만든다(말풍선, 이름 띠, 보조 값 칸 등). 색은 토큰만, 글자 크기는 아래 표 안에서.
-- 기획서에 참고 이미지가 있으면 배치 · 순서 · 강조 위치를 따르되, 색 · 글꼴은 디자인 시스템으로 바꾼다.
+- **템플릿에 있는 모양은 편집기 템플릿 클래스를 그대로 쓴다**(CSS로 비슷하게 다시 그리지 않기). 그러면 템플릿과 똑같이 나오고, 글자 크기도 PC · 모바일에 맞춰 편집기가 정해 준다.
+
+| 클래스 | 모양 |
+|---|---|
+| `box ch` | 그래프 카드(흰 바탕 · 모서리 · 그림자 · 안 여백) |
+| `blk-title` + 안에 `<small>` | 블록 제목 22 Bold + 옆 작은 글씨(단위 · N수). 모바일에서는 작은 글씨가 아래 줄로 |
+| `ch-plot` (`style="--bw:18px;--gap:4px"` 막대 굵기 · 간격) | 그래프 칸 (높이 240, 왼쪽 축 자리 포함) |
+| `ch-grid` › `<i class="base" style="bottom:0">` · `<i style="bottom:50%"><b>25</b></i>` | 가로 점선 눈금 + 축 숫자 (`base` = 맨 아래 실선) |
+| `vb-gs` › `vb-g` › `<i>` 막대 › `<b>` 숫자 | 세로 막대 묶음(항목 하나 = `vb-g` 하나), 막대 위 숫자 |
+| `vb-d bad` · `vb-d good` · `vb-d` | 막대 위 변화 배지(빨강 · 그린 · 회색). 말풍선 · 증가 표시는 이걸로 |
+| `ch-x` › `<span style="left:8.333%">` | 가로축 글자 (left = (순서 + 0.5) ÷ 항목 수) |
+| `ch-lg` › `<span><i style="background:var(--…)"></i>이름</span>` | 범례 (기획서에 있을 때만) |
+
+- 템플릿에 **없는 모양만 기획서 · 참고 이미지에 보이는 대로** 만든다(이름 띠, 출처 위치, 구분선 등). 색은 토큰만, 글자 크기는 `var(--fs-body)` · `var(--fs-cap)` 같은 편집기 글자 변수나 아래 표 안에서.
+- 기획서의 배치 · 순서 · 강조 위치는 따르되, 제목 상자 · 글꼴처럼 템플릿에 있는 모양은 템플릿 스타일로 바꾼다.
+- 테두리만 그린 작은 도형(꺾쇠 · 꼬리)은 저장 PNG에서 끊긴 모양으로 나온다. 말풍선 꼬리가 꼭 필요하면 가는 세로선(`:after`, 폭 2px) 하나로.
 
 **운영자가 고칠 수 있게 (꼭 지키기)** — 바뀔 만한 글자 · 숫자 · 막대 · 색에 `data-` 표시를 단다. 편집기가 읽어서 미리보기에서 바로 고치게 해 준다(코드 안 열어도 됨). PC(`html`)와 모바일(`htmlMo`)에 **같은 `data-key`**를 쓰면 한쪽을 고칠 때 둘 다 바뀐다.
 | 속성 | 붙는 곳 | 하는 일 |
@@ -138,6 +151,7 @@
 - 운영자는 코드를 보지 않는다. ③ 상세 편집에 data- 표시로 만든 입력칸만 보이므로, 바뀔 수 있는 건 빠짐없이 표시한다.
 - 그래프는 막대마다 `data-key` + `data-bar` + `data-axis` + `data-color`, 숫자 라벨은 같은 key로 `data-edit="value"`.
 - 글자 색은 `<span class="tc-red">`(tc-blue · tc-green · tc-red · tc-orange · tc-gray), 굵게는 `<b>`.
+- 세로축 맨 위는 가장 큰 값보다 한두 칸 위까지만(예: 32.1 → 40 또는 50). 너무 높으면 막대가 아래에 눌린다. 배지가 있으면 배지가 그래프 칸 안에 들어오게 한 칸 더.
 - 그래프 예시는 맨 아래 "예시" 참고.
 
 **구조**
@@ -167,27 +181,36 @@
 {"kind": "nl-block", "type": "html", "contents": "02", "no": 2, "bg": "gray", "data": {"note": "기획자 한마디 인용", "html": "<style>.q{background:#fff;border-radius:16px;padding:28px 32px}.q .who{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:700;margin-bottom:14px}.q .who span{width:36px;height:36px;border-radius:50%;background:var(--careBlue-50);display:flex;align-items:center;justify-content:center}.q p{margin:0;font-size:18px;font-weight:500;line-height:1.65}.q b{color:var(--careBlue-700)}.q .by{margin-top:12px;font-size:16px;color:var(--coolNeutral-600)}</style><div class=\"q\"><div class=\"who\"><span><i data-icon=\"MessageCircle\" data-size=\"20\"></i></span><span data-key=\"head\" data-edit=\"text\">기획자의 한 마디</span></div><p data-key=\"quote\" data-edit=\"text\">“현장의 소리를 들어보니 <b>검진·건강평가·사후관리 데이터가 수기로 제각각 관리</b>되어, 보건관리자가 단순 정리에 매달리고 있었습니다.”</p><div class=\"by\" data-key=\"by\" data-edit=\"text\">- 검진 PI팀 기획자</div></div>", "htmlMo": "<style>.q{background:#fff;border-radius:14px;padding:20px 18px}.q .who{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;margin-bottom:10px}.q .who span{width:30px;height:30px;border-radius:50%;background:var(--careBlue-50);display:flex;align-items:center;justify-content:center}.q p{margin:0;font-size:15px;font-weight:500;line-height:1.6}.q b{color:var(--careBlue-700)}.q .by{margin-top:10px;font-size:13px;color:var(--coolNeutral-600)}</style><div class=\"q\"><div class=\"who\"><span><i data-icon=\"MessageCircle\" data-size=\"16\"></i></span><span data-key=\"head\" data-edit=\"text\">기획자의 한 마디</span></div><p data-key=\"quote\" data-edit=\"text\">“현장의 소리를 들어보니 <b>검진·건강평가·사후관리 데이터가 수기로 제각각 관리</b>되어, 보건관리자가 단순 정리에 매달리고 있었습니다.”</p><div class=\"by\" data-key=\"by\" data-edit=\"text\">- 검진 PI팀 기획자</div></div>"}}
 ```
 
-그래프 예시 (막대 · 말풍선 · 축 — 32.1을 고치면 막대와 말풍선이, 맨 위 80을 고치면 모든 막대와 눈금이 다시 계산됨):
+그래프 예시 (템플릿 클래스 + 기획서에만 있는 이름 띠 — 32.1을 고치면 막대와 배지가, 맨 위 50을 고치면 모든 막대와 눈금이 다시 계산됨. 항목마다 `vb-g` 하나, 그래프 2개를 나란히 둘 때는 이 칸을 2열 grid로):
 
 ```html
 <style>
-.ch{position:relative;height:240px;display:flex;align-items:flex-end;gap:24px;border-bottom:1px solid var(--coolNeutral-200)}
-.ax{position:absolute;left:-36px;font-size:14px;color:var(--coolNeutral-600)}
-.g{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:4px}
-.b{width:22px;border-radius:4px 4px 0 0;position:relative}
-.v{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:700;color:var(--careBlue-700)}
-.co{position:absolute;left:50%;transform:translateX(-50%);padding:4px 8px;border:1.5px solid var(--careRed-500);border-radius:6px;background:#fff;color:var(--careRed-500);font-size:14px;font-weight:700;white-space:nowrap}
+.bd{margin:16px 0 0 44px;padding:10px 0;border-radius:10px;text-align:center;font-size:var(--fs-body);font-weight:600}
+.src{margin-top:16px;text-align:right;font-size:var(--fs-cap);color:var(--coolNeutral-500)}
 </style>
-<div class="ch">
-  <span class="ax" style="top:0" data-max-key="axis" data-key="axis">80</span>
-  <span class="ax" style="bottom:50%" data-tick="0.5" data-axis="axis">40</span>
-  <div class="g">
-    <div class="co" data-key="m-20-note" data-edit="text" data-follow="m-20-now" data-gap="30">4.0%p 증가 ▲</div>
-    <div class="b" data-key="m-20-prev" data-bar="28.1" data-axis="axis" data-color="--coolNeutral-200"></div>
-    <div class="b" data-key="m-20-now" data-bar="32.1" data-axis="axis" data-color="--careBlue-700">
-      <span class="v" data-key="m-20-now" data-edit="value">32.1</span>
+<div class="box ch">
+  <div class="blk-title"><span data-key="title" data-edit="text" data-label="제목">지방에너지섭취분율</span><small data-key="unit" data-edit="text" data-label="단위">(%)</small></div>
+  <div class="ch-plot" style="--bw:18px;--gap:4px">
+    <div class="ch-grid">
+      <i class="base" style="bottom:0"><b>0</b></i>
+      <i style="bottom:50%"><b data-tick="0.5" data-axis="axis">25</b></i>
+      <i style="bottom:100%"><b data-max-key="axis" data-key="axis" data-label="세로축 최대값">50</b></i>
+    </div>
+    <div class="vb-gs">
+      <div class="vb-g">
+        <span class="vb-d bad" data-key="m-note" data-edit="text" data-follow="m-20-now" data-gap="30" data-label="남자 배지">4.0%p 증가 ▲</span>
+        <i data-key="m-20-prev" data-bar="28.1" data-axis="axis" data-color="--coolNeutral-200" data-label="남자 20대 비교 막대"></i>
+        <i data-key="m-20-now" data-bar="32.1" data-axis="axis" data-color="--careBlue-900" data-label="남자 20대"><b data-key="m-20-now" data-edit="value" data-label="남자 20대">32.1</b></i>
+      </div>
+      <div class="vb-g">
+        <i data-key="m-30-prev" data-bar="30.1" data-axis="axis" data-color="--coolNeutral-200" data-label="남자 30대 비교 막대"></i>
+        <i data-key="m-30-now" data-bar="31.0" data-axis="axis" data-color="--careBlue-400" data-label="남자 30대"><b data-key="m-30-now" data-edit="value" data-label="남자 30대">31.0</b></i>
+      </div>
     </div>
   </div>
+  <div class="ch-x"><span style="left:25%">20대</span><span style="left:75%">30대</span></div>
+  <div class="bd" style="color:var(--neutral-0)" data-key="m-band" data-edit="text" data-color="--careBlue-900" data-label="남자 띠">남자</div>
+  <div class="src" data-key="src" data-edit="text" data-label="출처">(자료=질병관리청)</div>
 </div>
 ```
 

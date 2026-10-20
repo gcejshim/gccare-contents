@@ -46,6 +46,7 @@ python3 build.py        # → dist/thumbnail.html (이름 고정 · build.py의 
 
 | 버전 | 내용 |
 |---|---|
+| 2026-10-20 | 직접 만든 블록(html): PC 미리보기 · 저장에 모바일 `<style>`이 섞이던 문제 고침(범위를 PC · 모바일 따로 — PC 그래프 높이 · 막대 굵기가 모바일 값으로 눌리던 원인). 스킬 규칙: 템플릿에 있는 모양은 템플릿 클래스(`box ch` · `blk-title` · `ch-plot` · `vb-g` · `vb-d` · `ch-x`)를 그대로 쓰고, 없는 것만 기획서대로. 소스는 항상 아티팩트 하나로. 그래프 예시(스킬 · `docs/HTML블록_data속성_규격.md`) 새로 |
 | 2026-10-20 | PDF 자동 만들기: ⓪ 기획서 칸 — 기획서 글을 Ctrl+V(표 모양 유지)하거나 파일(PPT · PDF · Word · 텍스트)을 넣으면 회사 서버(kind `pdfplan`, GPT 글 모델)가 규칙서(`api/_pdf-rules.js`)대로 쪽 · 블록을 채움. PPT는 슬라이드 = 쪽, Word는 쪽 나눔 · 표를 읽음. 취소 · 다시 만들기, 맞는 템플릿 없던 블록은 주황 '확인 필요'(PDF엔 안 나옴). 스킬 작업 내용(nl-pdf JSON)을 붙여 넣으면 그대로 채움. 스킬에 PDF 추가(`references/pdf.md` = 같은 규칙서, `skills/build_skill.py`로 zip) |
 | 2026-10-20 | PDF 메뉴 추가(`pdf/index.html`, 준비 중 → 사용): A4 세로 900×1273 다쪽 문서. 표지 색(네이비 · 블루 · 그린)을 고르면 본문 강조색이 따라옴, 표지 그림은 붙여넣기 + 배치(배경 전체 · 오른쪽 아래 · 가운데) · 크기 · 좌우 · 상하 + ChatGPT 프롬프트 복사. 본문 블록 11종(타임라인 · 숫자 카드 · 단계 흐름 · 아이콘 타일 · Q&A · 번호 체크리스트 · 번호+체크 카드 · 문단 · 안내 한 줄 · 안내 박스 · 출처), 글자는 미리보기에서 바로 고침, 넘치는 쪽 표시, 마무리(구독) 쪽, [PDF 저장] = 브라우저 인쇄. 예시 = 안전보건공시제 체크리스트. 통합본 전체 파일 저장 · 불러오기에 PDF 작업 포함. **포인트 글꼴 Oswald**(세로로 긴 숫자 · 영문, `thumbnail/vendor/Oswald-Variable.woff2` · SIL OFL)와 Pretendard 800 · 900을 통합본 모든 도구에 넣음(통합본 7.5 → 9.6MB) |
 | 2026-10-19 | 이름 변경: AX Studio · Insight → AX Studio · Newsletter (탭 제목 · 상단 바 · 왼쪽 아래 표기 · 문서 · 스킬 · ChatGPT 지침). 배포 파일 이름 gccare-insight-studio.html · 스킬 폴더 gc-ax-insight는 그대로 |

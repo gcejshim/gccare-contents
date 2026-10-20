@@ -1332,7 +1332,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       render(d, m, it){
         const src = m === 'mo' && String(d.htmlMo || '').trim() ? d.htmlMo : d.html;
         if (!String(src || '').trim()) return '<div class="ph">HTML을 붙여 넣어 주세요<br>(Claude "뉴스레터 블록" 스킬 결과를 편집기 화면에 Ctrl+V 하면 블록이 바로 생겨요)</div>';
-        const sc = `.cx-${(it && it.id) || 'x'}`, tx = d.texts || {}, nu = d.nums || {};
+        // 범위는 PC · 모바일 따로: 같은 화면에 둘 다 그려지므로, 같은 id만 쓰면 모바일 <style>이 PC에도 먹음
+        const sc = `.cx-${(it && it.id) || 'x'}-${m}`, tx = d.texts || {}, nu = d.nums || {};
         // {{이름}} 자리에 texts 글자, {{#이름}} 자리에 nums 숫자를 넣고 미리보기에서 눌러 고칠 수 있게 (PC · 모바일이 같은 값을 씀)
         const body = hkRender(cleanHTML(src, sc).html).replace(/\{\{(#?)([^{}\s.]+)\}\}/g, (all, h, k) =>
           h ? (k in nu ? `<span${E('nums.' + esc(k))} data-num="1">${esc(String(nu[k]))}</span>` : all) : (k in tx ? `<span${E('texts.' + esc(k))}>${rich(tx[k])}</span>` : all));
@@ -1344,7 +1345,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         let out = body;
         if (m === 'mo' && /data-sub/.test(out)){ const t = document.createElement('template'); t.innerHTML = out;
           t.content.querySelectorAll('[data-sub]').forEach(el => { const f = el.firstChild; if (f && f.nodeType === 3) f.textContent = f.textContent.replace(/^\s*[-·–—]\s*/, ''); }); out = t.innerHTML; }   // 아래 줄로 내려가니 앞 기호는 빼고
-        return `<div class="cx cx-${(it && it.id) || 'x'}"${vars.length ? ` style="${esc(vars.join(';'))}"` : ''}>${out}</div>`;
+        return `<div class="cx cx-${(it && it.id) || 'x'}-${m}"${vars.length ? ` style="${esc(vars.join(';'))}"` : ''}>${out}</div>`;
       },
       lint(d){
         const w = [], all = (d.html || '') + '\n' + (d.htmlMo || '');

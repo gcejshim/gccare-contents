@@ -32,32 +32,42 @@
 - 숫자 라벨이 막대 안에 있으면 라벨을 누르면 숫자 수정, 막대의 빈 곳을 누르면 색 고르기.
 - 색 글자는 편집기 글자 색 클래스를 쓴다: `tc-blue` · `tc-green` · `tc-red` · `tc-orange` · `tc-gray`.
 
-## 2. 예시 (남자 20대 막대 · 말풍선 · 축)
+## 2. 예시 (템플릿 클래스 + 이름 띠 — 남자 20대 · 30대 막대 · 배지 · 축)
 
 ```html
 <style>
-.ch{position:relative;height:240px;display:flex;align-items:flex-end;gap:24px;border-bottom:1px solid var(--coolNeutral-200)}
-.ax{position:absolute;left:-36px;font-size:14px;color:var(--coolNeutral-600)}
-.g{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;gap:4px}
-.b{width:22px;border-radius:4px 4px 0 0;position:relative}
-.v{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:14px;font-weight:700;color:var(--careBlue-700)}
-.co{position:absolute;left:50%;transform:translateX(-50%);padding:4px 8px;border:1.5px solid var(--careRed-500);border-radius:6px;background:#fff;color:var(--careRed-500);font-size:14px;font-weight:700;white-space:nowrap}
+.bd{margin:16px 0 0 44px;padding:10px 0;border-radius:10px;text-align:center;font-size:var(--fs-body);font-weight:600}
+.src{margin-top:16px;text-align:right;font-size:var(--fs-cap);color:var(--coolNeutral-500)}
 </style>
-<div class="ch">
-  <span class="ax" style="top:0" data-max-key="axis" data-key="axis">80</span>
-  <span class="ax" style="bottom:50%" data-tick="0.5" data-axis="axis">40</span>
-  <div class="g">
-    <div class="co" data-key="m-20-note" data-edit="text" data-follow="m-20-now" data-gap="30">4.0%p 증가 ▲</div>
-    <div class="b" data-key="m-20-prev" data-bar="28.1" data-axis="axis" data-color="--coolNeutral-200"></div>
-    <div class="b" data-key="m-20-now" data-bar="32.1" data-axis="axis" data-color="--careBlue-700">
-      <span class="v" data-key="m-20-now" data-edit="value">32.1</span>
+<div class="box ch">
+  <div class="blk-title"><span data-key="title" data-edit="text" data-label="제목">지방에너지섭취분율</span><small data-key="unit" data-edit="text" data-label="단위">(%)</small></div>
+  <div class="ch-plot" style="--bw:18px;--gap:4px">
+    <div class="ch-grid">
+      <i class="base" style="bottom:0"><b>0</b></i>
+      <i style="bottom:50%"><b data-tick="0.5" data-axis="axis">25</b></i>
+      <i style="bottom:100%"><b data-max-key="axis" data-key="axis" data-label="세로축 최대값">50</b></i>
+    </div>
+    <div class="vb-gs">
+      <div class="vb-g">
+        <span class="vb-d bad" data-key="m-note" data-edit="text" data-follow="m-20-now" data-gap="30" data-label="남자 배지">4.0%p 증가 ▲</span>
+        <i data-key="m-20-prev" data-bar="28.1" data-axis="axis" data-color="--coolNeutral-200" data-label="남자 20대 비교 막대"></i>
+        <i data-key="m-20-now" data-bar="32.1" data-axis="axis" data-color="--careBlue-900" data-label="남자 20대"><b data-key="m-20-now" data-edit="value" data-label="남자 20대">32.1</b></i>
+      </div>
+      <div class="vb-g">
+        <i data-key="m-30-prev" data-bar="30.1" data-axis="axis" data-color="--coolNeutral-200" data-label="남자 30대 비교 막대"></i>
+        <i data-key="m-30-now" data-bar="31.0" data-axis="axis" data-color="--careBlue-400" data-label="남자 30대"><b data-key="m-30-now" data-edit="value" data-label="남자 30대">31.0</b></i>
+      </div>
     </div>
   </div>
+  <div class="ch-x"><span style="left:25%">20대</span><span style="left:75%">30대</span></div>
+  <div class="bd" style="color:var(--neutral-0)" data-key="m-band" data-edit="text" data-color="--careBlue-900" data-label="남자 띠">남자</div>
+  <div class="src" data-key="src" data-edit="text" data-label="출처">(자료=질병관리청)</div>
 </div>
 ```
-- 32.1 → 35.0으로 고치면: PC · 모바일 막대 높이와 말풍선 위치가 같이 바뀜
-- 맨 위 눈금 80 → 100으로 고치면: 모든 막대 · 가운데 눈금(40 → 50) · 말풍선이 다시 계산됨
-- 파란 막대를 눌러 `careRed-500`을 고르면: PC · 모바일 둘 다 바뀜
+- 32.1 → 35.0으로 고치면: PC · 모바일 막대 높이와 배지 위치가 같이 바뀜
+- 맨 위 눈금 50 → 60으로 고치면: 모든 막대 · 가운데 눈금(25 → 30) · 배지가 다시 계산됨
+- 진남색 막대를 눌러 `careRed-500`을 고르면: PC · 모바일 둘 다 바뀜
+- 템플릿에 있는 모양(카드 · 제목 · 눈금 · 막대 · 숫자 · 배지 · 가로축)은 편집기 템플릿 클래스를 그대로 써서 템플릿과 똑같이 나옴. 이름 띠 · 출처처럼 템플릿에 없는 것만 `<style>`로
 
 ## 3. 허용 색 토큰 (편집기에 정의된 전체)
 
