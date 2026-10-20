@@ -1264,7 +1264,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       const cur = BOOK[d.cur] ? d.cur : (NOS.find(n => BOOK[n]) || '01');
       S = BOOK[cur] || (BOOK[cur] = Object.assign(DEFAULT(), {issue:d.issue || S.issue, no:cur}));
     } else {
-      const o = normalize(d);
+      // 스킬 결과는 그릴 것 키워드만 줄 수 있음(2026-10-20 사용자: 타이틀 · 배경 · 참고 이미지는 도구에서) → 빠진 칸은 그 번호 자리의 지금 값을 그대로
+      const no = NOS.includes(d.no) ? d.no : S.no, same = d.issue == null || d.issue === S.issue, prev = same ? BOOK[no] : null;
+      const o = normalize(prev ? Object.assign({}, prev, d, {img: d.img || prev.img, gen: Object.assign({}, prev.gen, d.gen || {}), chips: d.chips || prev.chips}) : Object.assign({}, d, {no}));
+      if (d.issue == null) o.issue = S.issue;
       if (o.issue !== S.issue) BOOK = {};
       BOOK[o.no] = o; S = o;
       Object.values(BOOK).forEach(s => s.issue = o.issue);

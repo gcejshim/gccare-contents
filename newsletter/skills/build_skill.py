@@ -30,7 +30,6 @@ HEAD = """# PDF (보건관리 자료실 · 실무 자료)
 
 with open(os.path.join(SKILL, 'references', 'pdf.md'), 'w', encoding='utf-8', newline='\n') as f:
     f.write(HEAD + rules.strip() + '\n')
-
 out = os.path.join(HERE, 'gc-ax-newsletter.zip')
 with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED) as z:
     z.writestr('gc-ax-newsletter/', '')
