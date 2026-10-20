@@ -179,6 +179,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 .cover h1 .l1{display:block;font-size:109px;white-space:nowrap}
 .cover h1 .l2{display:block;font-size:71px;margin-top:10px;letter-spacing:-0.05em;color:var(--hl);white-space:nowrap}
 .cover .sub{display:flex;align-items:center;gap:20px;margin:40px 0 0 4px;font-size:22px;font-weight:500;line-height:1.5}
+/* 설명이 비면 화살표 줄을 숨김 — 편집 화면에선 표지에 마우스를 올릴 때만 흐리게(설명을 넣을 수 있게), PDF에는 안 나옴 */
+.cover .sub.empty{opacity:0;transition:opacity .15s}
+.cover:hover .sub.empty,.cover .sub.empty:focus-within{opacity:.45}
 .circ{flex:none;width:58px;height:58px;border:2px solid currentColor;border-radius:50%;display:grid;place-items:center}
 .circ svg{width:28px;height:28px}
 .cover .toc{position:absolute;left:80px;bottom:76px;display:flex;gap:56px}
@@ -199,7 +202,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 .blk.stp{margin-top:26px}
 .bh{margin:0 0 18px;display:flex;align-items:center;gap:12px;font-size:23px;font-weight:700;letter-spacing:-0.02em}
 .btag{font-size:14px;color:#fff;background:var(--dk);border-radius:6px;padding:2px 9px;font-weight:700;letter-spacing:.02em}
-.btag:empty{background:none;color:var(--dk);padding:2px 0}
+.bh .btag:empty{background:none;color:var(--dk);padding:0;min-width:0;margin-right:-12px}   /* 머리표가 비면 그 자리만큼 제목이 밀리지 않게 (빈칸 최소 폭도 0) */
+.bh .btag:empty::before{content:none}                                        /* 안 보이는 안내 글자도 자리를 차지하지 않게 */
+.blk:hover .bh .btag:empty::before,.bh .btag:empty:focus::before{content:attr(data-ph);margin-right:12px}   /* 블록에 마우스를 올리면 머리표 자리가 보임 */
 .bh:has(> :empty + :empty){margin:0}
 .foot{position:absolute;left:72px;right:72px;bottom:44px;display:flex;justify-content:space-between;font-size:13px;font-weight:600;color:#A3AABA}
 .foot .nb{color:var(--ac);font-size:16px}
@@ -278,6 +283,23 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 .note svg{flex:none;width:17px;height:17px;margin-top:2px;color:var(--ac)}
 .warn{background:var(--soft);border-radius:14px;padding:14px 20px;font-size:14px;color:#3B4256;line-height:1.6}
 .src{border-top:1px solid #E3E8F2;padding-top:16px;display:flex;flex-direction:column;gap:4px;font-size:13.5px;color:#7A8194;line-height:1.6}
+/* 표 */
+.dtb{border:1px solid #E3E8F2;border-radius:16px;overflow:hidden;background:#fff}
+.dtb table{width:100%;border-collapse:collapse;font-size:15.5px;line-height:1.55}
+.dtb th{background:var(--dk);color:#fff;font-weight:700;text-align:left;padding:13px 18px;font-size:15px}
+.dtb td{padding:13px 18px;border-top:1px solid #E3E8F2;color:#3B4256;vertical-align:top}
+.dtb.first td:first-child{background:var(--soft);color:var(--dk);font-weight:700}
+/* 코드 배지 표 — 배지 색은 코드 글자로 자동 (DS: 그린 500 · 오렌지 600 · 레드 500 · 쿨뉴트럴 500) */
+.bdg{display:flex;flex-direction:column;border:1px solid #E3E8F2;border-radius:16px;background:#fff;overflow:hidden}
+.bdg .br{display:flex;gap:18px;align-items:center;padding:13px 22px}
+.bdg .br+.br{border-top:1px solid #E3E8F2}
+.bdg .bd{flex:none;min-width:58px;text-align:center;border-radius:10px;padding:5px 10px;font-family:Oswald,Pretendard,sans-serif;font-weight:600;font-size:19px;color:#fff;background:var(--ac)}
+.bdg .bd.ok{background:#0ac262}.bdg .bd.warn{background:#d46b08}.bdg .bd.bad{background:#f5222d}.bdg .bd.hold{background:#828d92}
+.bdg p{margin:0;display:flex;flex-direction:column;gap:2px;min-width:0}
+.bdg .bl{font-size:17px;font-weight:700;color:#111827}
+.bdg .bdsc{font-size:14.5px;color:#7A8194}
+/* 직접 만든 블록 */
+.custom{font-size:16px;line-height:1.6;color:#3B4256}
 
 /* 마무리 (구독) */
 .end{background:var(--endbg);color:#fff}
@@ -310,7 +332,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   .pg{box-shadow:none;outline:none!important;break-after:page;page-break-after:always;margin:0}
   .pg:last-child{break-after:auto;page-break-after:auto}
   .pg [contenteditable]:empty{display:none}
-  .pg [contenteditable]{box-shadow:none!important;background:none!important}
+  .cover .sub.empty{display:none}
+  .pg [contenteditable]{box-shadow:none!important}   /* 편집 테두리만 지움 — 배경은 남김 (Q 말풍선 · 머리표 · 강조 표시는 칸 자체가 색 배경) */
+  .pg [contenteditable]:empty::before{content:none!important}
   *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
 }
 </style>
@@ -427,7 +451,15 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     text: {name: '문단', hint: '설명 글', make: () => ({text: '설명을 적어요.'})},
     note: {name: '안내 한 줄', hint: 'ⓘ 참고 · 주의 한 줄', make: () => ({text: '참고할 내용을 적어요.'})},
     box: {name: '안내 박스', hint: '면책 · 중요한 안내', make: () => ({text: '안내 내용을 적어요.'})},
-    src: {name: '자료 기준 · 출처', hint: '쪽 맨 아래', make: () => ({lines: ['자료 기준: ', '출처: ']})}
+    src: {name: '자료 기준 · 출처', hint: '쪽 맨 아래', make: () => ({lines: ['자료 기준: ', '출처: ']})},
+    // 2026-10-20 추가: 기획서에 자주 나오는 표 · 판정 코드, 맞는 게 없을 때 AI가 만드는 블록
+    table: {name: '표', hint: '3칸 이상 · 비교 · 기준표', items: 'rows', min: 1, max: 14, item: () => [],
+      make: () => ({tag: '', h: '', first: true, head: ['구분', '내용'], rows: [['항목', '내용'], ['항목', '내용']]})},
+    badges: {name: '코드 배지 표', hint: '판정 코드 · 등급 · 단계 구분 (색은 자동)', items: 'items', min: 1, max: 12,
+      item: () => ({code: 'A', label: '이름', desc: ''}),
+      make: () => ({tag: '', h: '', items: [{code: 'A', label: '정상', desc: ''}, {code: 'C', label: '요관찰', desc: ''}, {code: 'D', label: '유소견', desc: ''}]})},
+    html: {name: '직접 만든 블록', hint: '맞는 템플릿이 없을 때 (AI가 만듦)',
+      make: () => ({html: '<div style="padding:24px;border:1px solid #E3E8F2;border-radius:16px;background:#fff">직접 만든 블록 — 글자를 눌러 고쳐요</div>'})}
   };
 
   // ── 문서 ──
@@ -502,7 +534,13 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   // 블록 하나 정리: 빠진 칸은 템플릿 기본값으로, 목록은 꼭 배열로 (자동 만들기 · 붙여넣기 결과가 조금 달라도 그려지게)
   function fixBlock(x){
     const d = BLOCKS[x.type], b = Object.assign(d.make(), x), str = v => v == null ? '' : String(v);
-    if (d.items){ const base = d.item(); b[d.items] = (Array.isArray(b[d.items]) ? b[d.items] : []).map(it => {
+    if (x.type === 'table'){   // 표: 머리글 칸 수에 행을 맞춤
+      b.head = (Array.isArray(b.head) ? b.head : []).map(str); if (!b.head.length) b.head = ['구분', '내용'];
+      b.rows = (Array.isArray(b.rows) ? b.rows : []).map(r => { r = Array.isArray(r) ? r : [r]; return b.head.map((_, i) => str(r[i])); });
+      if (!b.rows.length) b.rows = [b.head.map(() => '')]; b.first = b.first !== false;
+    }
+    if (x.type === 'html'){ b.html = sanitizeHTML(str(b.html)); if (!b.checked && b.check == null) b.check = '직접 만든 블록 — 모양과 글을 확인해 주세요'; }
+    if (d.items && x.type !== 'table'){ const base = d.item(); b[d.items] = (Array.isArray(b[d.items]) ? b[d.items] : []).map(it => {
       const o = Object.assign({}, base, typeof it === 'object' && it ? it : {label: str(it)});
       Object.keys(base).forEach(k => { if (k === 'checks') o.checks = (Array.isArray(o.checks) ? o.checks : [o.checks]).map(str).filter((c, i, a) => c || a.length === 1); else o[k] = str(o[k]); });
       if (o.icon && !ICONS.includes(o.icon)) o.icon = base.icon; return o; });
@@ -514,6 +552,49 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     if (b.check != null) b.check = str(b.check); if (!b.check) delete b.check;
     return b;
   }
+  // 직접 만든 블록(HTML): 스크립트 · 외부 파일 · 이벤트는 빼고 모양(태그 · style · class)만 남김
+  function sanitizeHTML(s){
+    const doc = new DOMParser().parseFromString('<div>' + (s || '') + '</div>', 'text/html'), root = doc.body.firstChild;
+    root.querySelectorAll('script,style,iframe,object,embed,link,meta,img,video,audio,form,input,button,textarea,select,base').forEach(n => n.remove());
+    root.querySelectorAll('*').forEach(n => [...n.attributes].forEach(a => { if (/^on/i.test(a.name) || (/^(href|src|xlink:href)$/i.test(a.name)) || /url\s*\(|expression\s*\(/i.test(a.value)) n.removeAttribute(a.name); }));
+    return root.innerHTML;
+  }
+  // 코드 배지 색은 도구가 코드 글자로 정함 (A 정상 · B/C 주의 · D 위험 · R/U 보류)
+  const badgeTone = c => { const k = String(c || '').trim().charAt(0).toUpperCase(); return k === 'A' ? 'ok' : (k === 'B' || k === 'C') ? 'warn' : k === 'D' ? 'bad' : (k === 'R' || k === 'U') ? 'hold' : ''; };
+  // ── 모양 바꾸기: 목록형 블록끼리 글은 그대로 두고 종류만 바꿈 (자동 만들기 결과를 버튼 하나로 고치기) ──
+  const CONV = ['tiles', 'badges', 'table', 'stats', 'flow', 'timeline', 'cards', 'steps'];
+  const sp = s => String(s || '').trim();
+  function toItems(b){   // → [{code, label, desc, icon}]
+    switch (b.type){
+      case 'tiles': case 'flow': return b.items.map(x => ({label: x.label, desc: x.desc, icon: x.icon}));
+      case 'stats': return b.items.map(x => ({label: sp(x.big + (x.unit ? ' ' + x.unit : '')), desc: x.desc, icon: x.icon}));
+      case 'timeline': return b.items.map(x => ({label: x.label, desc: sp(sp(x.big + x.small) + (x.desc ? ' · ' + x.desc : ''))}));
+      case 'badges': return b.items.map(x => ({code: x.code, label: x.label, desc: x.desc}));
+      case 'cards': return b.items.map(x => ({label: x.label, desc: x.checks.filter(Boolean).join('\n'), icon: x.icon}));
+      case 'steps': return b.items.map(x => ({label: x, desc: ''}));
+      case 'table': return b.rows.map(r => ({label: r[0], desc: r.slice(1).filter(Boolean).join(' · ')}));
+    }
+    return [];
+  }
+  function convertBlock(b, to){
+    const g = toItems(b), keep = {tag: b.tag || '', h: b.h || b.title || ''}, short = s => sp(s).length > 0 && sp(s).length <= 4;
+    const lab = x => x.code ? sp(x.code + ' ' + x.label) : x.label;
+    const out = {
+      tiles: () => ({type: 'tiles', ...keep, hl: -1, tagText: '', items: g.map(x => ({icon: x.icon || 'file-text', label: lab(x), desc: x.desc}))}),
+      badges: () => ({type: 'badges', ...keep, items: g.map((x, i) => x.code ? {code: x.code, label: x.label, desc: x.desc}
+        : short(x.label) ? {code: sp(x.label), label: x.desc, desc: ''} : {code: String(i + 1), label: x.label, desc: x.desc})}),
+      table: () => ({type: 'table', ...keep, first: true, head: g.some(x => x.code) ? ['코드', '구분', '설명'] : ['구분', '내용'],
+        rows: g.map(x => g.some(y => y.code) ? [x.code || '', x.label, x.desc] : [lab(x), x.desc])}),
+      stats: () => ({type: 'stats', ...keep, items: g.map(x => ({icon: x.icon || 'file-text', big: lab(x), unit: '', desc: x.desc}))}),
+      flow: () => ({type: 'flow', ...keep, items: g.map(x => ({label: lab(x), desc: x.desc}))}),
+      timeline: () => ({type: 'timeline', ...keep, hl: -1, items: g.map(x => ({big: lab(x), small: '', label: x.desc, desc: ''}))}),
+      cards: () => ({type: 'cards', title: keep.h || '항목별로 확인해보세요', items: g.map(x => ({icon: x.icon || 'file-text', label: lab(x), checks: (x.desc ? x.desc.split('\n') : ['확인할 내용'])}))}),
+      steps: () => ({type: 'steps', title: keep.h || '확인하세요', items: g.map(x => sp(lab(x) + (x.desc ? ' — ' + x.desc.replace(/\n/g, ' / ') : '')))})
+    }[to]();
+    if (b.check && b.check.indexOf('직접 만든') < 0) out.check = b.check;
+    return fixBlock(out);
+  }
+  const canConvert = (b, to) => to !== b.type && CONV.includes(to) && CONV.includes(b.type) && (BLOCKS[to].max == null || toItems(b).length <= BLOCKS[to].max);
   let warnedBig = false;
   function save(){
     try { localStorage.setItem(KEY, JSON.stringify(S)); }
@@ -545,7 +626,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       return `<div>${icon(q + '.icon')}<span class="sb ${isNum(x.big) ? '' : 'word'}">${ed(q + '.big', '숫자')}<small>${ed(q + '.unit', '단위')}</small></span>${ed(q + '.desc', '설명', '', 'p')}</div>`; }).join('')}</div>`,
     flow: (b, p) => head(b, p) + `<div class="fl">${b.items.map((x, i) => { const q = `${p}.items.${i}`;
       return `<div class="fi"><span class="nb">${pad(i + 1)}</span><p>${ed(q + '.label', '단계', 'flb')}${ed(q + '.desc', '설명', 'fld')}</p></div>`; }).join('<span class="ar"><i data-lucide="chevron-right"></i></span>')}</div>`,
-    tiles: (b, p) => { const n = b.items.length, c = n === 4 ? 2 : n <= 3 ? n : 3;
+    tiles: (b, p) => { const n = b.items.length, c = n === 4 ? 2 : (n === 7 || n === 8) ? 4 : n <= 3 ? n : 3;   // 자동 배치: 하나만 남는 줄이 안 생기게
       return head(b, p) + `<div class="tiles" style="--c:${c}">${b.items.map((x, i) => { const q = `${p}.items.${i}`;
         return `<div class="${i === b.hl ? 'on' : ''}">${i === b.hl ? ed(p + '.tagText', '표시', 'ttag') : ''}${icon(q + '.icon')}${ed(q + '.label', '항목', 'tb')}${ed(q + '.desc', '설명', '', 'p')}</div>`; }).join('')}</div>`; },
     qa: (b, p) => `<div class="qa"><div class="q"><span class="qb">Q</span>${ed(p + '.q', '질문', 'bub', 'div')}</div><div class="a"><span class="qb">A</span>${ed(p + '.a', '답', 'bub', 'div')}</div></div>`,
@@ -555,7 +636,12 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     text: (b, p) => ed(p + '.text', '설명', 'txt', 'p'),
     note: (b, p) => `<p class="note"><i data-lucide="info"></i>${ed(p + '.text', '안내')}</p>`,
     box: (b, p) => `<div class="warn">${ed(p + '.text', '안내')}</div>`,
-    src: (b, p) => `<div class="src">${b.lines.map((x, i) => edL(p + '.lines', i, '자료 기준 · 출처')).join('')}</div>`
+    src: (b, p) => `<div class="src">${b.lines.map((x, i) => edL(p + '.lines', i, '자료 기준 · 출처')).join('')}</div>`,
+    table: (b, p) => head(b, p) + `<div class="dtb${b.first ? ' first' : ''}"><table><thead><tr>${b.head.map((h, c) => `<th>${ed(`${p}.head.${c}`, '머리글')}</th>`).join('')}</tr></thead>
+      <tbody>${b.rows.map((r, ri) => `<tr>${r.map((v, c) => `<td>${ed(`${p}.rows.${ri}.${c}`, '')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`,
+    badges: (b, p) => head(b, p) + `<div class="bdg">${b.items.map((x, i) => { const q = `${p}.items.${i}`;
+      return `<div class="br"><span class="bd ${badgeTone(x.code)}">${ed(q + '.code', '코드')}</span><p>${ed(q + '.label', '이름', 'bl')}${ed(q + '.desc', '설명', 'bdsc')}</p></div>`; }).join('')}</div>`,
+    html: (b, p) => `<div class="custom" contenteditable="true" spellcheck="false" data-hp="${p}.html">${b.html}</div>`
   };
   function chapters(){ const out = []; S.pages.forEach(p => { if (p.ch && !out.find(c => c.ch === p.ch)) out.push({ch: p.ch, name: p.chName}); }); return out; }
   function coverHTML(){
@@ -565,7 +651,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     return `<div class="pg cover" data-pi="cover">${art}${slot}
       <div class="top"><span class="kind"><b>${ed('cover.kind', '분류')}</b><span class="sep">${c.kind2 ? ' · ' : ' '}</span>${ed('cover.kind2', '보조 분류')}</span>${A()[th.logo] ? `<img class="logo" src="${A()[th.logo]}" alt="GC Care">` : ''}</div>
       <div class="head">${ed('cover.for', '대상', 'for', 'p')}<h1>${ed('cover.t1', '큰 제목', 'l1')}${ed('cover.t2', '강조할 둘째 줄', 'l2')}</h1>
-        <p class="sub"><span class="circ"><i data-lucide="arrow-right"></i></span>${ed('cover.sub', '설명')}</p></div>
+        <p class="sub${c.sub.trim() ? '' : ' empty'}"><span class="circ"><i data-lucide="arrow-right"></i></span>${ed('cover.sub', '설명')}</p></div>
       <div class="toc">${chapters().map(x => `<div><b class="nb">${esc(x.ch)}</b><span>${fmt(x.name)}</span></div>`).join('')}</div></div>`;
   }
   function pageHTML(pg, i, no){
@@ -594,7 +680,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     if (S.end.on) h += endHTML(++no);
     el.innerHTML = h;
     drawIcons(el);
-    markSel(); fitCover(); checkOver(); renderPanel(); zoom();
+    markSel(); fitCover(); checkOver(); renderPanel(); zoom(); bakeFade();
   }
   // 큰 제목이 한 줄에 안 들어가면 글자 크기를 줄임
   function fitCover(){
@@ -640,8 +726,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       <div class="field"><label>블록 (위에서부터 순서대로)</label>
       ${pg.blocks.length ? `<ul class="blist">${pg.blocks.map((b, j) => { const d = BLOCKS[b.type], arr = d.items ? b[d.items] : null;
         const hl = d.hl ? `<label>강조 <select data-hl="${j}"><option value="-1">없음</option>${arr.map((_, k) => `<option value="${k}"${k === b.hl ? ' selected' : ''}>${k + 1}번째</option>`).join('')}</select></label>` : '';
-        const cnt = arr ? `<span>항목 ${arr.length}개</span><button class="ib" data-act="iadd" data-j="${j}" title="항목 추가"${arr.length >= d.max ? ' disabled' : ''}>＋</button><button class="ib" data-act="idel" data-j="${j}" title="마지막 항목 빼기"${arr.length <= d.min ? ' disabled' : ''}>－</button>` : '';
-        return `<li><div class="bh"><b>${d.name}</b><button class="ib" data-act="up" data-j="${j}" title="위로"${j === 0 ? ' disabled' : ''}>↑</button><button class="ib" data-act="down" data-j="${j}" title="아래로"${j === pg.blocks.length - 1 ? ' disabled' : ''}>↓</button><button class="ib" data-act="next" data-j="${j}" title="다음 쪽으로 보내기">⇥</button><button class="ib" data-act="del" data-j="${j}" title="블록 삭제">✕</button></div>${cnt || hl ? `<div class="bo">${cnt}${hl}</div>` : ''}</li>`; }).join('')}</ul>` : '<div class="empty">아직 블록이 없어요. 아래에서 골라 추가해요.</div>'}
+        const cnt = (arr ? `<span>${b.type === 'table' ? '줄' : '항목'} ${arr.length}개</span><button class="ib" data-act="iadd" data-j="${j}" title="추가"${arr.length >= d.max ? ' disabled' : ''}>＋</button><button class="ib" data-act="idel" data-j="${j}" title="마지막 빼기"${arr.length <= d.min ? ' disabled' : ''}>－</button>` : '')
+          + (b.type === 'table' ? `<span>칸 ${b.head.length}개</span><button class="ib" data-act="cadd" data-j="${j}" title="칸 추가"${b.head.length >= 5 ? ' disabled' : ''}>＋</button><button class="ib" data-act="cdel" data-j="${j}" title="마지막 칸 빼기"${b.head.length <= 1 ? ' disabled' : ''}>－</button>` : '');
+        const conv = CONV.includes(b.type) ? `<label>모양 <select data-conv="${j}"><option value="">${d.name}</option>${CONV.filter(t => canConvert(b, t)).map(t => `<option value="${t}">→ ${BLOCKS[t].name}</option>`).join('')}</select></label>` : '';
+        return `<li><div class="bh"><b>${d.name}</b><button class="ib" data-act="up" data-j="${j}" title="위로"${j === 0 ? ' disabled' : ''}>↑</button><button class="ib" data-act="down" data-j="${j}" title="아래로"${j === pg.blocks.length - 1 ? ' disabled' : ''}>↓</button><button class="ib" data-act="next" data-j="${j}" title="다음 쪽으로 보내기">⇥</button><button class="ib" data-act="del" data-j="${j}" title="블록 삭제">✕</button></div>${cnt || hl || conv ? `<div class="bo">${conv}${cnt}${hl}</div>` : ''}</li>`; }).join('')}</ul>` : '<div class="empty">아직 블록이 없어요. 아래에서 골라 추가해요.</div>'}
       </div>
       <div class="row"><select id="addType" style="flex:1">${opts}</select><button class="btn sm primary" id="btnAddBlock">추가</button></div>
       <div class="row"><button class="btn xs" data-pact="up"${sel === 0 ? ' disabled' : ''}>쪽 위로</button><button class="btn xs" data-pact="down"${sel === S.pages.length - 1 ? ' disabled' : ''}>쪽 아래로</button><button class="btn xs" data-pact="dup">쪽 복제</button><button class="btn xs" data-pact="del"${S.pages.length <= 1 ? ' disabled' : ''}>쪽 삭제</button></div>`;
@@ -659,7 +747,29 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     r.onload = async () => { S.img.src = await toWebp(r.result); S.img.scale = 100; S.img.x = 0; S.img.y = 0; S.img.fade = FADE(); commit(); toast('표지 그림을 넣었어요. 크기 · 좌우 · 상하로 맞춰요.'); };
     r.readAsDataURL(file);
   }
-  function applyImg(){ const im = S.img, el = document.querySelector('.cover .art'); if (el){ el.className = 'art m-' + im.mode + (im.fade ? ' fade' : ''); el.style.transform = `translate(${im.x}px,${im.y}px) scale(${im.scale / 100})`; el.style.setProperty('--f', im.fade + '%'); } }
+  function applyImg(){ const im = S.img, el = document.querySelector('.cover .art'); if (el){ el.className = 'art m-' + im.mode + (im.fade ? ' fade' : ''); el.style.transform = `translate(${im.x}px,${im.y}px) scale(${im.scale / 100})`; el.style.setProperty('--f', im.fade + '%'); bakeFade(); } }
+  // 흐림을 그림 파일에 구워 넣음: CSS 마스크는 인쇄(PDF 저장)할 때 빠져서 네모 경계가 드러남 (2026-10-20) → 가장자리를 투명하게 만든 그림으로 바꿔 끼움
+  const fadeCache = new Map(); let bakeT = 0;
+  function fadedSrc(src, f){
+    const key = f + '|' + src.length + '|' + src.slice(-48); if (fadeCache.has(key)) return Promise.resolve(fadeCache.get(key));
+    return new Promise(res => { const im = new Image();
+      im.onload = () => { const w = im.width, h = im.height, c = document.createElement('canvas'); c.width = w; c.height = h; const x = c.getContext('2d');
+        x.drawImage(im, 0, 0); x.globalCompositeOperation = 'destination-in';
+        const k = f / 100, stops = g => { g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(k * .4, 'rgba(0,0,0,.35)'); g.addColorStop(k, '#000'); g.addColorStop(1 - k, '#000'); g.addColorStop(1 - k * .4, 'rgba(0,0,0,.35)'); g.addColorStop(1, 'rgba(0,0,0,0)'); return g; };
+        x.fillStyle = stops(x.createLinearGradient(0, 0, w, 0)); x.fillRect(0, 0, w, h);   // 좌우
+        x.fillStyle = stops(x.createLinearGradient(0, 0, 0, h)); x.fillRect(0, 0, w, h);   // 위아래 (두 번 겹쳐 네 방향)
+        let u = c.toDataURL('image/webp', 0.92); if (!u.startsWith('data:image/webp')) u = c.toDataURL('image/png');
+        if (fadeCache.size > 6) fadeCache.clear(); fadeCache.set(key, u); res(u); };
+      im.onerror = () => res(src); im.src = src; });
+  }
+  async function bakeNow(){
+    const im = S.img, el = document.querySelector('.cover .art'); if (!el || !im.src) return;
+    if (!im.fade || im.fade <= 0 || im.fade >= 50){ el.src = im.src; return; }   // 흐림 0이면 원본 (CSS 마스크 클래스도 없음)
+    const s = im.src, u = await fadedSrc(s, im.fade); if (S.img.src !== s || !el.isConnected) return;
+    if (el.src !== u) await new Promise(r => { el.onload = r; el.onerror = r; el.src = u; });
+    el.classList.remove('fade');   // 구운 그림이면 CSS 마스크는 빼서 두 번 흐려지지 않게
+  }
+  function bakeFade(){ clearTimeout(bakeT); bakeT = setTimeout(bakeNow, 120); }
   const FADE = () => 18;   // 가장자리 흐림 기본값 (배경 전체도 크기를 줄이면 경계가 보여서 늘 켬)
   function gptPrompt(){
     const th = THEMES[S.theme], im = S.img, full = im.mode === 'full';
@@ -812,6 +922,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   function bindStage(){
     const pages = $('pages');
     pages.addEventListener('focusin', e => { const el = e.target.closest('[data-p]'); if (!el) return; el.classList.add('editing'); el.textContent = getP(el.dataset.p) || ''; });
+    // 직접 만든 블록: 글자를 그 자리에서 고치면 모양(HTML) 그대로 저장
+    pages.addEventListener('input', e => { const el = e.target.closest('[data-hp]'); if (!el) return; setP(el.dataset.hp, sanitizeHTML(el.innerHTML)); save(); checkOver(); });
     pages.addEventListener('input', e => { const el = e.target.closest('[data-p]'); if (!el) return;
       setP(el.dataset.p, el.innerText.replace(/\n$/, '')); save();
       if (/^cover\.t[12]$/.test(el.dataset.p)) fitCover(); checkOver(); });
@@ -819,7 +931,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       el.classList.remove('editing'); const p = el.dataset.p; setP(p, el.innerText.replace(/\n$/, '')); save(); el.innerHTML = fmt(getP(p));
       // 숫자 칸은 글자면 작게 · 둘째 분류가 비면 가운뎃점 숨김
       const sb = el.closest('.stats .sb'); if (sb) sb.classList.toggle('word', !isNum(getP(p)));
+      const bd = el.closest('.bdg .bd'); if (bd) bd.className = 'bd ' + badgeTone(getP(p));   // 코드를 바꾸면 배지 색도 자동
       if (p === 'cover.kind2'){ const sep = document.querySelector('.cover .sep'); if (sep) sep.textContent = getP(p) ? ' · ' : ' '; }
+      if (p === 'cover.sub'){ const sub = document.querySelector('.cover .sub'); if (sub) sub.classList.toggle('empty', !String(getP(p) || '').trim()); }
       renderPanel(); fitCover(); checkOver(); });
     pages.addEventListener('keydown', e => { const el = e.target.closest('[data-list]'); if (!el) return;
       const arr = getP(el.dataset.list), i = +el.dataset.li;
@@ -828,10 +942,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     pages.addEventListener('paste', e => {
       const im = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
       if (im){ e.preventDefault(); e.stopPropagation(); setImg(im.getAsFile()); return; }
-      const el = e.target.closest('[data-p]'); if (!el) return; e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
+      const el = e.target.closest('[data-p],[data-hp]'); if (!el) return; e.preventDefault(); document.execCommand('insertText', false, e.clipboardData.getData('text/plain')); });
     pages.addEventListener('mousedown', e => { const pg = e.target.closest('.pg'); if (pg && String(sel) !== pg.dataset.pi){ sel = pg.dataset.pi === 'cover' || pg.dataset.pi === 'end' ? pg.dataset.pi : +pg.dataset.pi; markSel(); renderPanel(); } });
     pages.addEventListener('click', e => { const ic = e.target.closest('[data-icon-p]'); if (ic) openPicker(ic, e);
-      const uf = e.target.closest('[data-unflag]'); if (uf){ const [i, j] = uf.dataset.unflag.split('.').map(Number); delete S.pages[i].blocks[j].check; commit(); } });
+      const uf = e.target.closest('[data-unflag]'); if (uf){ const [i, j] = uf.dataset.unflag.split('.').map(Number), bk = S.pages[i].blocks[j]; delete bk.check; bk.checked = true; commit(); } });
   }
   function focusP(p, end){ const el = document.querySelector(`[data-p="${p}"]`); if (!el) return; el.focus();
     const r = document.createRange(); r.selectNodeContents(el); r.collapse(!end ? true : false); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
@@ -880,7 +994,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     });
     $('pedit').addEventListener('change', e => {
       if (e.target.id === 'pCh' || e.target.id === 'pChName'){ render(); return; }
-      const h = e.target.dataset.hl; if (h != null){ S.pages[sel].blocks[+h].hl = +e.target.value; commit(); } });
+      const h = e.target.dataset.hl; if (h != null){ S.pages[sel].blocks[+h].hl = +e.target.value; commit(); }
+      const cv = e.target.dataset.conv; if (cv != null && e.target.value){ const bl = S.pages[sel].blocks, from = BLOCKS[bl[+cv].type].name;
+        bl[+cv] = convertBlock(bl[+cv], e.target.value); commit(); toast(`${from} → ${BLOCKS[bl[+cv].type].name}로 바꿨어요. 글은 그대로예요.`); } });
     $('pedit').addEventListener('click', e => {
       const pg = S.pages[sel]; if (!pg) return;
       if (e.target.id === 'btnAddBlock'){ const t = $('addType').value; pg.blocks.push(Object.assign({type: t}, BLOCKS[t].make())); commit(); return; }
@@ -892,7 +1008,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
         if (b.dataset.act === 'next'){ const moved = bl.splice(j, 1)[0];
           if (!S.pages[sel + 1]) S.pages.push({ch: pg.ch, chName: pg.chName, title: '', lead: '', blocks: []});
           S.pages[sel + 1].blocks.unshift(moved); toast('다음 쪽 맨 위로 보냈어요.'); }
-        if (b.dataset.act === 'iadd'){ const arr = bl[j][d.items]; if (arr.length < d.max) arr.push(d.item()); }
+        if (b.dataset.act === 'iadd'){ const arr = bl[j][d.items]; if (arr.length < d.max) arr.push(bl[j].type === 'table' ? bl[j].head.map(() => '') : d.item()); }
+        if (b.dataset.act === 'cadd' && bl[j].head.length < 5){ bl[j].head.push('머리글'); bl[j].rows.forEach(r => r.push('')); }
+        if (b.dataset.act === 'cdel' && bl[j].head.length > 1){ bl[j].head.pop(); bl[j].rows.forEach(r => r.pop()); }
         if (b.dataset.act === 'idel'){ const arr = bl[j][d.items]; if (arr.length > d.min){ arr.pop(); if (bl[j].hl >= arr.length) bl[j].hl = arr.length - 1; } }
         commit(); return; }
       const pa = e.target.closest('[data-pact]');
@@ -908,7 +1026,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     document.addEventListener('keydown', e => { if (e.key === 'Escape') $('picker').hidden = true; });
     // 붙여넣기: 그림 → 표지 그림, 작업 내용(JSON) → 불러오기 (입력칸 밖에서)
     document.addEventListener('paste', e => {
-      if (e.target.closest && (e.target.closest('[data-p]') || /INPUT|TEXTAREA/.test(e.target.tagName))) return;
+      if (e.target.closest && (e.target.closest('[data-p],[data-hp]') || /INPUT|TEXTAREA/.test(e.target.tagName))) return;
       const im = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
       if (im){ e.preventDefault(); setImg(im.getAsFile()); return; }
       const t = (e.clipboardData.getData('text/plain') || '').trim();
@@ -931,9 +1049,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('btnSave').addEventListener('click', () => download(new Blob([JSON.stringify(S)], {type: 'application/json'}), `PDF_${fileName()}.json`));
     $('btnLoad').addEventListener('click', () => { $('fileLoad').value = ''; $('fileLoad').click(); });
     $('fileLoad').addEventListener('change', e => { const f = e.target.files[0]; if (f) f.text().then(openText); });
-    $('btnPrint').addEventListener('click', () => {
+    $('btnPrint').addEventListener('click', async () => {
       if (document.querySelector('.pg.over') && !confirm('내용이 넘치는 쪽이 있어요. 그대로 저장할까요?')) return;
       if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      clearTimeout(bakeT); await bakeNow();   // 표지 그림 흐림이 구워진 뒤에 인쇄 (PDF에 네모 경계가 안 생기게)
       const t = document.title; document.title = fileName();
       toast('인쇄 창에서 대상을 [PDF로 저장]으로 고르고 저장해요.', 4000);
       setTimeout(() => { window.print(); document.title = t;
