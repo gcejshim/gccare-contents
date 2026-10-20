@@ -7,7 +7,7 @@
 1. 기획안에서 **호수**(예: 15호)와 콘텐츠 목록(01 메인, 02 · 03 서브)을 찾는다. 호수가 없으면 물어본다. 참고: 14호=2026년 9월, 15호=2026년 10월, 이후 한 달에 한 호씩.
 2. 콘텐츠마다 아래 규칙으로 JSON을 하나씩 만든다.
 3. 콘텐츠마다 **아티팩트(코드 · JSON) 하나**를 준다(그릴 것 `gen.desc`가 안에 들어 있다). 콘텐츠 이미지 · PDF와 같은 방법 — 아티팩트 안에는 JSON만, [복사] 한 번. 채팅 코드 블록이나 다운로드 파일(.json 첨부)로 주지 않는다(맥에서 다운로드 파일을 복사하면 형식이 깨짐). 아티팩트 종류는 **코드(언어 `json`)**로 만든다 — 그래야 창 위에 [복사] 버튼이 생긴다. HTML · React · 문서 아티팩트로 만들지 않는다(화면으로 그려져 [복사] 버튼이 없음).
-4. 마지막에 사용 방법 한 줄을 붙인다: "뉴스레터 썸네일 메뉴 위쪽 [Claude 스킬 결과 넣기]에 붙여 넣고 [넣기] → [✦ 이미지 만들기]를 누른 뒤 [이 이미지 저장]을 누르세요. 콘텐츠마다 붙여넣으면 01 · 02 · 03 자리에 각각 들어가고, [작업 파일 저장]으로 한 호 썸네일을 한 파일에 보관할 수 있어요."
+4. 마지막에 사용 방법 한 줄을 붙인다: "[복사] → AX Studio · Newsletter **아무 화면에서 Ctrl+V** 하면 맞는 메뉴로 가서 들어가요. 썸네일 메뉴에서 [✦ 이미지 만들기]를 누른 뒤 [이 이미지 저장]을 누르세요. 콘텐츠마다 붙여 넣으면 01 · 02 · 03 자리에 각각 들어가요."
 
 기획안의 문구를 임의로 바꾸지 않는다. 줄바꿈과 강조만 정하고, 3줄에 도저히 안 들어가면 줄이기 전에 원문과 줄인 안을 함께 보여주고 고르게 한다.
 
@@ -34,6 +34,7 @@
 }
 ```
 
+- `kind`: 항상 `"nl-thumb"` (도구가 어느 메뉴 결과인지 알아봄)
 - `v`: 항상 1
 - `issue`: 호수 숫자, `no`: "01" · "02" · "03"
 - `image`: 항상 `null` (이미지는 운영자가 도구에서 넣는다)
@@ -91,9 +92,9 @@
 ## 예시 (14호, 실제 발행본)
 
 ```json
-{"v":1,"issue":14,"no":"01","title":"검진결과가\n나왔습니다.\n무엇을 해야 할까요?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":true,"chips":[{"icon":"User","label":"결과 확인"},{"icon":"MessageCircle","label":"사후관리"},{"icon":"TrendingUp","label":"건강관리 계획"}],"gen":{"desc":"검진 결과지를 든 손, 청진기"}}
+{"kind":"nl-thumb","v":1,"issue":14,"no":"01","title":"검진결과가\n나왔습니다.\n무엇을 해야 할까요?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":true,"chips":[{"icon":"User","label":"결과 확인"},{"icon":"MessageCircle","label":"사후관리"},{"icon":"TrendingUp","label":"건강관리 계획"}],"gen":{"desc":"검진 결과지를 든 손, 청진기"}}
 ```
 
 ```json
-{"v":1,"issue":14,"no":"02","title":"걷기 챌린지,\n더 오래 참여하고\n더 쉽게 운영하려면?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":false,"chips":[{"icon":"Footprints","label":""},{"icon":"Smartphone","label":""},{"icon":"TrendingUp","label":""}],"gen":{"desc":"걸음 수 앱 휴대폰과 흰 · 파랑 운동화"}}
+{"kind":"nl-thumb","v":1,"issue":14,"no":"02","title":"걷기 챌린지,\n더 오래 참여하고\n더 쉽게 운영하려면?","titleSize":26,"preset":"lightBlue","layout":"scene","image":null,"img":{"scale":100,"x":0,"y":0},"chipsOn":false,"chips":[{"icon":"Footprints","label":""},{"icon":"Smartphone","label":""},{"icon":"TrendingUp","label":""}],"gen":{"desc":"걸음 수 앱 휴대폰과 흰 · 파랑 운동화"}}
 ```

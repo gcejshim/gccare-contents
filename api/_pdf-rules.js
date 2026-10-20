@@ -1,5 +1,5 @@
 // 뉴스레터 PDF 자동 만들기 규칙서 (2026-10-20) — 서버 kind 'pdfplan'이 GPT에게 기획서와 함께 보냄.
-// 같은 규칙을 claude.ai 스킬(newsletter/skills/gc-ax-insight/references/pdf.md)도 씀 → 고치면 둘 다 고치기.
+// 같은 규칙을 claude.ai 스킬(newsletter/skills/gc-ax-newsletter/references/pdf.md)도 씀 → 고치면 둘 다 고치기.
 // 파일 이름이 _로 시작하면 Vercel이 주소(함수)로 만들지 않음.
 
 const BLOCKS = `

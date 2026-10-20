@@ -409,10 +409,29 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (m.type === 'state' && pending[m.reqId]){ pending[m.reqId](m.state); delete pending[m.reqId]; }
     if (m.type === 'exportDone' && pending[m.reqId]){ pending[m.reqId](m); delete pending[m.reqId]; }
     if (m.type === 'saveAll') saveAll();   // 도구 화면에서 Ctrl+S
+    if (m.type === 'route' && TOOLS[m.kind]) routeJSON(m.kind, m.text);   // 다른 메뉴의 결과를 붙여 넣음 → 그 메뉴로
     if (m.type === 'exported'){
       (m.files || []).forEach(f => { const iss = H.issues[f.issue] = H.issues[f.issue] || blankIssue(f.issue); iss.files[f.name] = Object.assign({t: Date.now()}, f); });
       save(); if (H.view === 'home') renderHome();
     }
+  });
+
+  // Claude 결과(JSON)는 어느 화면에서 Ctrl+V 해도 맞는 메뉴로 가서 들어감 (2026-10-20 사용자: 넣는 방법 통일)
+  const MENU_NAME = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지', pdf: 'PDF'};
+  function routeJSON(kind, text){
+    if (H.view !== kind){ go(kind); toast(`${MENU_NAME[kind]} 결과라서 ${MENU_NAME[kind]} 메뉴로 옮겨서 넣었어요.`); }
+    send(kind, {type: 'pasteJSON', text});
+  }
+  function kindOfJSON(raw){
+    const t = String(raw || '').replace(/^﻿/, '').trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!t.startsWith('{')) return '';
+    let d; try { d = JSON.parse(t); } catch(e){ try { d = JSON.parse(t.replace(/[“”„]/g, '"')); } catch(e2){ return ''; } }
+    const k = d && d.kind;
+    return k === 'nl-pdf' ? 'pdf' : /^nl-(block|blocks|image)$/.test(k) ? 'image' : /^nl-thumbs?$/.test(k) || (d && !k && d.v === 1 && 'title' in d && 'preset' in d) ? 'thumb' : '';
+  }
+  document.addEventListener('paste', e => {   // 셸 화면(이번 호 · 에셋 · 가이드 · 상단 바)에서 붙여 넣을 때
+    if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
+    const raw = e.clipboardData?.getData('text') || '', k = kindOfJSON(raw); if (!k) return;
+    e.preventDefault(); routeJSON(k, raw);
   });
 
   // ── 호수 ──

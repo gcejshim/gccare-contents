@@ -912,6 +912,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       const im = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/'));
       if (im){ e.preventDefault(); setImg(im.getAsFile()); return; }
       const t = (e.clipboardData.getData('text/plain') || '').trim();
+      if (nlRoute(t, 'pdf')){ e.preventDefault(); return; }   // 썸네일 · 콘텐츠 이미지 결과를 기획서로 잘못 읽어 자동 만들기가 돌지 않게
       // 스킬 · Claude Code가 만든 작업 내용(JSON) → 그대로 채움 (무료)
       if (t.startsWith('{')){ try { const d = JSON.parse(t); if (d && d.kind === 'nl-pdf'){ e.preventDefault(); if (confirm('붙여 넣은 PDF 작업 내용으로 바꿀까요? 지금 작업은 사라져요.')) setState(d, 'PDF 작업 내용을 넣었어요.'); return; } } catch(_){ } }
       // 그 밖의 글 → 기획서로 보고 자동 만들기 (표는 칸 모양을 살려서)
@@ -946,6 +947,22 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 
   // ── 메뉴 셸(AX Studio · Newsletter)과 연결 ──
   function notify(m){ if (window.parent !== window) window.parent.postMessage(Object.assign({nl: 1, tool: 'pdf'}, m), '*'); }
+  // 붙여 넣은 JSON이 어느 메뉴 것인지: thumb · image · pdf (모르면 ''). 통합본에서는 다른 메뉴 것을 붙이면 그 메뉴로 보냄 (2026-10-20 사용자: 결과 넣는 방법 통일)
+  const NL_MENU = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지', pdf: 'PDF'};
+  function nlKindOf(raw){
+    const t = String(raw || '').replace(/^﻿/, '').trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!t.startsWith('{')) return '';
+    let d; try { d = JSON.parse(t); } catch(e){ try { d = JSON.parse(t.replace(/[“”„]/g, '"')); } catch(e2){ return ''; } }
+    const k = d && d.kind;
+    return k === 'nl-pdf' ? 'pdf' : /^nl-(block|blocks|image)$/.test(k) ? 'image' : /^nl-thumbs?$/.test(k) || (d && !k && d.v === 1 && 'title' in d && 'preset' in d) ? 'thumb' : '';
+  }
+  // 다른 메뉴의 결과면: 통합본 안에서는 그 메뉴로 보내고, 단독 도구에서는 안내만. 처리했으면 true
+  function nlRoute(raw, self){
+    const k = nlKindOf(raw); if (!k || k === self) return false;
+    if (window.parent !== window) notify({type: 'route', kind: k, text: raw});
+    else toast(`${NL_MENU[k]} 결과예요. ${NL_MENU[k]} 화면에 붙여 넣어 주세요.`);
+    return true;
+  }
+
   let hubIssue = null;   // 셸에서 받은 지금 호 (PDF 저장 기록을 그 호의 "이번 호" 체크에 남김)
   function bridge(){
     if (window.parent === window) return;
@@ -957,6 +974,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
       if (m.type === 'setIssue' && m.issue) hubIssue = m.issue;
       if (m.type === 'blankIssue'){ if (m.issue) hubIssue = m.issue; lastPlan = null; showPlanRow(); planStatus(''); setState(BLANK(), ''); }   // 작업한 적 없는 호로 옮김 → 빈 PDF
       if (m.type === 'exportAll') notify({type: 'exportDone', reqId: m.reqId, n: 0});
+      if (m.type === 'pasteJSON' && m.text){ try { const d = JSON.parse(String(m.text).trim().replace(/^```(json)?\s*|\s*```$/g, '')); if (d && d.kind === 'nl-pdf' && confirm('붙여 넣은 PDF 작업 내용으로 바꿀까요? 지금 작업은 사라져요.')) setState(d, 'PDF 작업 내용을 넣었어요.'); } catch(_){ toast('불러올 수 없는 내용이에요.'); } }   // 다른 화면에서 붙여 넣은 PDF 결과
     });
     notify({type: 'ready'});
   }

@@ -217,7 +217,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 <header class="topbar">
   <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>뉴스레터 썸네일 만들기</h1></div>
   <button class="btn sm" id="btnNew">새로 만들기</button>
-  <button class="btn sm" id="btnSkill" title="claude.ai gc-ax-insight 스킬이 준 썸네일 작업 내용을 붙여 넣어요">Claude 스킬 결과 넣기</button>
+  <button class="btn sm" id="btnSkill" title="claude.ai gc-ax-newsletter 스킬이 준 썸네일 작업 내용을 붙여 넣어요">Claude 스킬 결과 넣기</button>
   <button class="btn sm" id="btnHelp">사용법</button>
   <span class="sp"></span>
   <button class="btn" id="btnLoad" title="저장해 둔 작업 파일(.json)을 열어요">작업 파일 열기</button>
@@ -336,7 +336,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 <div class="modal" id="skillBox" hidden>
   <div class="modal-box">
     <h2>Claude 스킬 결과 넣기</h2>
-    <p class="hint" style="margin:0 0 12px">claude.ai의 <b>gc-ax-insight</b> 스킬이 준 썸네일 작업 내용을 복사해서 아래에 붙여 넣으세요. 타이틀 · 배경색 · 레이아웃 · 칩과 <b>무엇을 그릴까요?</b>가 채워져요. 그다음 <b>[✦ 이미지 만들기]</b>만 누르면 돼요.</p>
+    <p class="hint" style="margin:0 0 12px">claude.ai의 <b>gc-ax-newsletter</b> 스킬이 준 썸네일 작업 내용을 복사해서 아래에 붙여 넣으세요. 타이틀 · 배경색 · 레이아웃 · 칩과 <b>무엇을 그릴까요?</b>가 채워져요. 그다음 <b>[✦ 이미지 만들기]</b>만 누르면 돼요.</p>
     <textarea id="skillText" rows="8" style="width:100%;font-family:ui-monospace,Menlo,monospace;font-size:12px" placeholder='{"v":1,"issue":15,"no":"01","title":"…", …}'></textarea>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px"><button class="btn" id="skillClose">닫기</button><button class="btn primary" id="skillApply">넣기</button></div>
   </div>
@@ -345,7 +345,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 <div class="modal" id="help" hidden>
   <div class="modal-box">
     <h2>썸네일 만드는 방법</h2>
-    <p class="hint" style="margin:0 0 12px">💡 claude.ai의 <b>gc-ax-insight</b> 스킬로 기획안을 변환했다면, 위의 <b>[Claude 스킬 결과 넣기]</b>에 붙여 넣으세요(화면에서 바로 Ctrl+V 해도 돼요). 1~5번과 그릴 것이 자동으로 채워져요.</p>
+    <p class="hint" style="margin:0 0 12px">💡 claude.ai의 <b>gc-ax-newsletter</b> 스킬로 기획안을 변환했다면, 위의 <b>[Claude 스킬 결과 넣기]</b>에 붙여 넣으세요(화면에서 바로 Ctrl+V 해도 돼요). 1~5번과 그릴 것이 자동으로 채워져요.</p>
     <ol>
       <li><b>호수와 콘텐츠 번호</b>를 확인해요. 저장 파일명에 그대로 들어가요.</li>
       <li><b>타이틀</b>을 기획안대로 입력해요. 엔터로 줄을 나누면 그대로 보여요. 3줄 이내를 권장해요.<br>강조할 단어는 <b>[대괄호]</b>로 감싸면 강조색이 돼요.</li>
@@ -1359,6 +1359,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
       // Claude가 만들어 준 작업 내용(JSON 텍스트) 붙여넣기
       const text = (e.clipboardData?.getData('text') || '').trim();
+      if (nlRoute(text, 'thumb')){ e.preventDefault(); return; }
       if (/^(```(json)?\s*)?\{/.test(text.replace(/^﻿/, ''))) loadState(text, 'Claude 작업 내용을 불러왔어요. 이미지만 넣으면 돼요.');
     });
     // 화면 어디에 놓아도 이미지로 받기 (크롬이 이미지를 새 화면으로 여는 것 방지)
@@ -1526,6 +1527,22 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
   // ── 메뉴 셸(AX Studio · Newsletter)과 연결: 호수 공유 · 저장 기록 전달 · 편집 원본 주고받기 ──
   function notify(m){ if (window.parent !== window) window.parent.postMessage(Object.assign({nl:1, tool:'thumb'}, m), '*'); }
+  // 붙여 넣은 JSON이 어느 메뉴 것인지: thumb · image · pdf (모르면 ''). 통합본에서는 다른 메뉴 것을 붙이면 그 메뉴로 보냄 (2026-10-20 사용자: 결과 넣는 방법 통일)
+  const NL_MENU = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지', pdf: 'PDF'};
+  function nlKindOf(raw){
+    const t = String(raw || '').replace(/^﻿/, '').trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!t.startsWith('{')) return '';
+    let d; try { d = JSON.parse(t); } catch(e){ try { d = JSON.parse(t.replace(/[“”„]/g, '"')); } catch(e2){ return ''; } }
+    const k = d && d.kind;
+    return k === 'nl-pdf' ? 'pdf' : /^nl-(block|blocks|image)$/.test(k) ? 'image' : /^nl-thumbs?$/.test(k) || (d && !k && d.v === 1 && 'title' in d && 'preset' in d) ? 'thumb' : '';
+  }
+  // 다른 메뉴의 결과면: 통합본 안에서는 그 메뉴로 보내고, 단독 도구에서는 안내만. 처리했으면 true
+  function nlRoute(raw, self){
+    const k = nlKindOf(raw); if (!k || k === self) return false;
+    if (window.parent !== window) notify({type: 'route', kind: k, text: raw});
+    else toast(`${NL_MENU[k]} 결과예요. ${NL_MENU[k]} 화면에 붙여 넣어 주세요.`);
+    return true;
+  }
+
   let hubExportAll = null;   // init()에서 채움
   // 셸 안에서는 하단 작업 파일 버튼이 숨으므로 안내 문구를 셸 버튼 이름으로
   function hubName(s){ return document.body.classList.contains('embedded') ? s.replace(/\[작업 파일 저장\]/g, '[전체 파일 저장]').replace(/\[작업 파일 열기\]/g, '[불러오기]') : s; }
@@ -1541,6 +1558,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ Object.values(BOOK).forEach(s => s.issue = m.issue); syncForm(); refresh(); }
       if (m.type === 'setNo' && NOS.includes(m.no)){ useSlot(m.no); syncForm(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:bookData()});
+      if (m.type === 'pasteJSON' && m.text) loadState(m.text, 'Claude 결과를 넣었어요. 이미지만 넣으면 돼요.');   // 다른 화면에서 붙여 넣은 썸네일 결과
       if (m.type === 'setState' && m.state) loadState(JSON.stringify(m.state), m.msg == null ? '썸네일 작업을 불러왔어요.' : m.msg);
       if (m.type === 'exportAll') (hubExportAll ? hubExportAll(m.dir) : Promise.resolve(0)).then(n => notify({type:'exportDone', reqId:m.reqId, n}));
     });

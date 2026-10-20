@@ -66,7 +66,7 @@ newsletter/
 │  ├─ index.html       개발본. 두 도구를 iframe으로 띄우고 postMessage로 호수 공유 · 저장 기록 · 호 전체 저장/열기
 │  ├─ make_samples.py  10~14호 완성 이미지 → samples.js (에셋 › 샘플 모아보기, 2배 WebP). 회사 PC 월별 폴더 또는 `--figma DIR`(Figma 2배 PNG, 파일명=노드 ID, 매핑은 FIGMA 딕셔너리). 11호 contents01_p03 · contents02_p01은 Figma에 납품본이 없어 예전 JPG 유지
 │  └─ build.py         → dist/gccare-insight-studio.html (이름 고정 · 폰트·라이브러리는 한 번만 넣고 blob URL로 두 도구가 공유, 약 5.8MB)
-├─ skills/gc-ax-insight/            claude.ai 스킬 GC AX Studio · Newsletter (기획안 · 엑셀 · 이미지 → 썸네일 JSON + 콘텐츠 블록 nl-block JSON). SKILL.md는 안내, 규칙은 references/thumbnail.md · content.md. 수정 후 zip 다시 만들기 (10/15 gc-newsletter-thumbnail · block 합침)
+├─ skills/gc-ax-newsletter/            claude.ai 스킬 GC AX Studio · Newsletter (기획안 · 엑셀 · 이미지 → 썸네일 JSON + 콘텐츠 블록 nl-block JSON). SKILL.md는 안내, 규칙은 references/thumbnail.md · content.md. 수정 후 zip 다시 만들기 (10/15 gc-newsletter-thumbnail · block 합침)
 ├─ docs/               GPT 지침(ChatGPT 배경 이미지), 컬러 매핑, 13·14호 원본 대비 비교 이미지
 ├─ issues/14/          14호 참고자료(기획안·PDF 4종)와 결과물
 ├─ docs/chart-guide.md 기존 차트(Chart.js TYPE A/B/C) 제작 가이드 — 캡처 규격 1012/350은 옛 값, 실제는 PC 920·모바일 390 스크립트
@@ -152,5 +152,5 @@ newsletter/
      - 자동 만들기 = 회사 서버(`api/generate-image.js`, 같은 OpenAI 키) **일반 GPT 글 모델(A, 한 건 약 100원)**. 넣으면 바로 시작 · 취소 · 다시 만들기. 답 모양 고정(nl-pdf JSON). 그리는 건 도구 템플릿
      - 규칙서(서버 · 스킬 공유): 블록 고르는 기준(날짜 순서 → 타임라인, 숫자 기준 → 숫자 카드, 절차 → 단계 흐름, 나열 → 아이콘 타일, 질문 → Q&A, "~했다" → 체크리스트, 애매하면 표) + 안전보건공시제 정답 예시. 기획서 **쪽수 · 문장 그대로**, 지어내지 않기, 맞는 블록 없으면 가까운 블록 → 문단 + '확인 필요' 표시 → 반복되면 새 블록. 표지 '그릴 것'도 채움(그림은 사람이 버튼 눌러서)
      - 비용 예상: 한 달 PDF 2~3건, 전체(그림 포함) 약 3,000원 · 많아도 5,000원(대부분 그림). 안심 장치: OpenAI 월 한도, 팀 암호(선택)
-     - 순서: ① 규칙서 → ② 스킬(gc-ax-insight)에 PDF 기능 → ③ 서버 + ⓪ 기획서 칸 → ④ 안전보건공시제로 두 방법 시험 · 손으로 만든 5쪽과 비교
+     - 순서: ① 규칙서 → ② 스킬(gc-ax-newsletter)에 PDF 기능 → ③ 서버 + ⓪ 기획서 칸 → ④ 안전보건공시제로 두 방법 시험 · 손으로 만든 5쪽과 비교
      - 다음: 콘텐츠 이미지 블록(표 · 그래프 · A vs B 비교 · 큰 숫자 · 인용)을 PDF에서 같이 쓰기(PC 폭 900 = PDF 폭). 참고 이미지 고르기는 보류
