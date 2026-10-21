@@ -410,6 +410,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (m.type === 'exportDone' && pending[m.reqId]){ pending[m.reqId](m); delete pending[m.reqId]; }
     if (m.type === 'saveAll') saveAll();   // 도구 화면에서 Ctrl+S
     if (m.type === 'route' && TOOLS[m.kind]) routeJSON(m.kind, m.text);   // 다른 메뉴의 결과를 붙여 넣음 → 그 메뉴로
+    if (m.type === 'pdfList' && Array.isArray(m.list)){ I().pdfs = m.list; save(); if (H.view === 'home') renderHome(); }   // 이 호의 PDF 번호 · 이름
     if (m.type === 'exported'){
       (m.files || []).forEach(f => { const iss = H.issues[f.issue] = H.issues[f.issue] || blankIssue(f.issue); iss.files[f.name] = Object.assign({t: Date.now()}, f); });
       save(); if (H.view === 'home') renderHome();
@@ -426,7 +427,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     const t = String(raw || '').replace(/^﻿/, '').trim().replace(/^```(json)?\s*|\s*```$/g, ''); if (!t.startsWith('{')) return '';
     let d; try { d = JSON.parse(t); } catch(e){ try { d = JSON.parse(t.replace(/[“”„]/g, '"')); } catch(e2){ return ''; } }
     const k = d && d.kind;
-    return k === 'nl-pdf' ? 'pdf' : /^nl-(block|blocks|image)$/.test(k) ? 'image' : /^nl-thumbs?$/.test(k) || (d && !k && d.v === 1 && 'title' in d && 'preset' in d) ? 'thumb' : '';
+    return /^nl-pdfs?$/.test(k) ? 'pdf' : /^nl-(block|blocks|image)$/.test(k) ? 'image' : /^nl-thumbs?$/.test(k) || (d && !k && d.v === 1 && 'title' in d && 'preset' in d) ? 'thumb' : '';
   }
   document.addEventListener('paste', e => {   // 셸 화면(이번 호 · 에셋 · 가이드 · 상단 바)에서 붙여 넣을 때
     if (/^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName)) return;
@@ -499,8 +500,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         </div>
         <div class="acts"><button class="btn sm" data-go="thumb" data-no="${c}">썸네일 만들기</button><button class="btn sm" data-go="image">콘텐츠 이미지 만들기</button></div></div>`;
     }).join('');
+    // PDF는 호 안에서 PDF01 · PDF02 … (목록은 PDF 도구가 알려 줌, 저장 기록은 번호로 맞춤 — 번호 없는 예전 기록은 PDF01)
     const pdfs = files.filter(f => f.kind === 'pdf').sort((a, b) => b.t - a.t);
-    $('pdfRow').innerHTML = `<div class="ct" style="flex-direction:row;align-items:center;gap:12px"><div class="st ${pdfs.length ? 'done' : ''}" style="flex:1">PDF<strong>${pdfs.length ? '저장함 · ' + esc(pdfs[0].name) : '아직'}</strong></div><div class="acts"><button class="btn sm" data-go="pdf">PDF 만들기</button></div></div>`;
+    const plist = (iss.pdfs && iss.pdfs.length) ? iss.pdfs : [{no: 'PDF01', title: ''}];
+    $('pdfRow').innerHTML = `<div class="grid2">${plist.map(p => { const got = pdfs.filter(f => (f.no || 'PDF01') === p.no);
+      return `<div class="ct" style="flex-direction:row;align-items:center;gap:12px"><div class="st ${got.length ? 'done' : ''}" style="flex:1">${esc(p.no)}${p.title ? ' · ' + esc(p.title) : ''}<strong>${got.length ? '저장함' : '아직'}</strong></div><div class="acts"><button class="btn sm" data-go="pdf" data-pdf="${esc(p.no)}">열기</button></div></div>`; }).join('')}</div>`;
     const fs = files.sort((a, b) => b.t - a.t);
     $('files').innerHTML = fs.length ? fs.map(f => { const d = new Date(f.t);
       return `<li class="${f.kb > 1024 ? 'big' : ''}"><span class="t">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span><span>${esc(f.name)}</span><span class="k">${f.w ? `${f.w}×${f.h} · ` : ''}${f.kb != null ? `${f.kb}KB` : f.kind === 'pdf' ? 'PDF' : ''}${f.kb > 1024 ? ' · 1MB 초과' : ''}</span></li>`; }).join('')
@@ -710,7 +714,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     // 도구별 작업 파일(예전 [작업 파일 저장] 파일)도 받아서 그 도구로 보냄
     if (d && d.kind === 'nl-thumbs' || d && !d.kind && (d.title !== undefined || d.preset !== undefined)){ send('thumb', {type: 'setState', state: d, msg: '썸네일 작업 파일을 불러왔어요.'}); go('thumb'); return; }
     if (d && d.kind === 'nl-image'){ send('image', {type: 'setState', state: d, msg: '콘텐츠 이미지 작업 파일을 불러왔어요.'}); go('image'); return; }
-    if (d && d.kind === 'nl-pdf'){ send('pdf', {type: 'setState', state: d, msg: 'PDF 작업 파일을 불러왔어요.'}); go('pdf'); return; }
+    if (d && (d.kind === 'nl-pdf' || d.kind === 'nl-pdfs')){ send('pdf', {type: 'setState', state: d, msg: 'PDF 작업 파일을 불러왔어요.'}); go('pdf'); return; }
     if (!d || d.kind !== 'nl-issue'){ toast('작업 파일이 아니에요. [전체 파일 저장]으로 만든 파일을 열어 주세요.', 4000); return; }
     H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); setIssue(d.issue);
     if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: `${d.issue}호 썸네일 작업을 불러왔어요.`});
@@ -751,7 +755,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('memo').addEventListener('input', e => { I().memo = e.target.value; save(); });
     $('btnC3').addEventListener('click', () => { I().c3 = !I().c3; save(); renderHome(); });
     $('contents').addEventListener('input', e => { const c = e.target.dataset.title; if (c){ I().contents[c].title = e.target.value; save(); } });
-    $('pdfRow').addEventListener('click', e => { if (e.target.closest('[data-go]')) go('pdf'); });
+    $('pdfRow').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.pdf) send('pdf', {type: 'setPdf', no: b.dataset.pdf}); go('pdf'); });
     $('contents').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.no) send('thumb', {type: 'setNo', no: b.dataset.no}); go(b.dataset.go); });
     $('btnSaveAll').addEventListener('click', saveAll);
     $('btnExportAllImg').addEventListener('click', exportAllImages);
