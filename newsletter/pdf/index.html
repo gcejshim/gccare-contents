@@ -1209,7 +1209,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('imgDesc').addEventListener('input', e => { S.img.desc = e.target.value; save(); $('promptView').textContent = gptPrompt(); });
     $('moods').addEventListener('click', e => { const b = e.target.closest('[data-mood]'); if (!b) return; const m = MOODS()[b.dataset.mood];
       S.theme = m.theme; S.img.style = m.style; if (!(S.img.desc || '').trim()) S.img.desc = m.desc;   // 그릴 것은 비어 있을 때만 예시로
-      Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()}); peek = 'm:' + b.dataset.mood; $('imgDesc').value = S.img.desc; commit(); });
+      Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()}, m.view || {}); peek = 'm:' + b.dataset.mood; $('imgDesc').value = S.img.desc; commit(); });   // 분위기마다 맞춰 둔 크기 · 위치
     $('imgStyle').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; S.img.style = b.dataset.st; save();
       if (!peek) Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()});   // 샘플을 처음 볼 때만 막대를 처음 값으로 (샘플끼리 옮겨 다닐 땐 맞춘 크기 그대로)
       peek = sampleOf(b.dataset.st) ? b.dataset.st : ''; render(); });
