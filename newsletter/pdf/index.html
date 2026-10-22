@@ -439,7 +439,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
         <div class="slider" title="그림 가장자리를 표지 배경으로 서서히 흐리게 · 0이면 흐림 끔 (그림 바탕색 빼기는 늘 자동)"><span>흐림</span><input type="range" id="imgFade" min="0" max="40"><output id="oFade"></output></div>
       </div>
       <h4 class="ai-h">AI 이미지 생성하기</h4>
-      <div class="field" style="margin-top:8px" id="moodField"><label>분위기 보기 · 누르면 표지 색 · 그림체가 골라져요</label><div class="moods" id="moods"></div></div>
+      <div class="field" style="margin-top:8px" id="moodField"><label>분위기 보기 · 누르면 그 그림체가 골라져요 (표지 색은 ②에서)</label><div class="moods" id="moods"></div></div>
       <div class="field" style="margin-top:8px"><label>그림체 · 샘플을 누르면 표지에 미리 보여요</label><div class="stg" id="imgStyle"></div></div>
       <div class="field" style="margin-top:12px"><label>무엇을 그릴까요? · 물건 3개까지, 가장 큰 것을 먼저 (색은 표지 색에 맞춰요)</label><textarea id="imgDesc" rows="2" style="min-height:60px;resize:vertical;line-height:1.5" placeholder="예: 체크리스트 클립보드, 체크 방패, 막대그래프 카드"></textarea></div>
       <button class="btn primary" id="btnGen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg><span>이미지 만들기</span></button>
@@ -822,7 +822,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
         `<button type="button" data-st="${k}">${sampleOf(k) ? `<img src="${sampleOf(k)}" alt="">` : '<span class="ph">샘플 없음<br>만들어 보며 확인</span>'}<span>${s.name}</span></button>`));
       $('imgStyle').innerHTML = Object.entries(grp).map(([g, o]) => (window.PDF_STYLE_SHOW ? '' : `<p class="stg-g">${g}</p>`) + o.join('')).join(''); }   // 6종만 보일 땐 묶음 제목 없이 3개씩
     styleOn(IMG_STYLES[im.style] ? im.style : 'base');
-    if (!$('moods').childElementCount) $('moods').innerHTML = MOODS().map((m, i) => `<button type="button" data-mood="${i}" title="${esc(m.name)} · ${esc(THEMES[m.theme].name)} · ${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name)}"><img src="${m.cover}" alt=""></button>`).join('');
+    if (!$('moods').childElementCount) $('moods').innerHTML = MOODS().map((m, i) => `<button type="button" data-mood="${i}" title="${esc(m.name)} · ${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name)}"><img src="${m.cover}" alt=""></button>`).join('');
     $('moodField').hidden = !MOODS().length; $('moods').querySelectorAll('[data-mood]').forEach(b => b.classList.toggle('on', peek === 'm:' + b.dataset.mood));
     $('promptView').textContent = gptPrompt();
     $('endOn').checked = !!S.end.on;
@@ -1208,7 +1208,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     [['imgScale', 'scale', 'oScale', '%'], ['imgX', 'x', 'oX', ''], ['imgY', 'y', 'oY', ''], ['imgFade', 'fade', 'oFade', '%']].forEach(([id, k, o, u]) => $(id).addEventListener('input', e => { const v = +e.target.value; if (peek) pv[k] = v; else { S.img[k] = v; save(); } $(o).textContent = v + u; applyImg(); }));
     $('imgDesc').addEventListener('input', e => { S.img.desc = e.target.value; save(); $('promptView').textContent = gptPrompt(); });
     $('moods').addEventListener('click', e => { const b = e.target.closest('[data-mood]'); if (!b) return; const m = MOODS()[b.dataset.mood];
-      S.theme = m.theme; S.img.style = m.style; if (!(S.img.desc || '').trim()) S.img.desc = m.desc;   // 그릴 것은 비어 있을 때만 예시로
+      S.img.style = m.style;   // 표지 색은 ② 문서 · 색에서 따로 (2026-10-22 사용자) if (!(S.img.desc || '').trim()) S.img.desc = m.desc;   // 그릴 것은 비어 있을 때만 예시로
       Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()}, m.view || {}); peek = 'm:' + b.dataset.mood; $('imgDesc').value = S.img.desc; commit(); });   // 분위기마다 맞춰 둔 크기 · 위치
     $('imgStyle').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; S.img.style = b.dataset.st; save();
       if (!peek) Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()});   // 샘플을 처음 볼 때만 막대를 처음 값으로 (샘플끼리 옮겨 다닐 땐 맞춘 크기 그대로)
