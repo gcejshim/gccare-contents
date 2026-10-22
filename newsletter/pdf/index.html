@@ -82,9 +82,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .pg.cover .art.peek-sq{left:auto;right:-20px;top:560px;width:62%}   /* 정사각 샘플은 세로 그림의 물건 자리(오른쪽 아래)에 */
 .cover .peek{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;white-space:nowrap;background:rgba(17,24,39,.82);color:#fff;font-size:14px;font-weight:600;border-radius:999px;padding:8px 8px 8px 18px;z-index:3}
 .cover .peek button{border:0;border-radius:999px;background:#fff;color:#111827;font-size:13px;font-weight:700;padding:6px 12px;cursor:pointer}
-.stbig{margin-top:10px;padding:10px;border:1px solid var(--coolNeutral-100);border-radius:10px;background:var(--coolNeutral-50);text-align:center}   /* 고른 표지 샘플 크게 보기 */
+.stbig{position:fixed;top:50%;transform:translateY(-50%);z-index:50;padding:12px;border-radius:14px;background:var(--neutral-0);box-shadow:0 12px 40px rgba(17,24,39,.28);text-align:center;pointer-events:none}   /* 고른 표지 샘플 크게 보기 — 패널 옆, 화면 가운데 높이 */
 .stbig[hidden]{display:none}
-.stbig img{display:block;max-width:100%;max-height:420px;margin:0 auto;border-radius:6px;box-shadow:0 2px 8px rgba(17,24,39,.12)}
+.stbig img{display:block;height:min(78vh,820px);width:auto;border-radius:8px}
 .stbig b{display:block;margin-top:8px;font-size:13px;color:var(--neutral-900)}
 .stbig small{display:block;margin-top:2px;font-size:12px;line-height:1.5;color:var(--neutral-600)}
 .stg button.on{border-color:var(--careBlue-500);outline:1px solid var(--careBlue-500);color:var(--careBlue-500);font-weight:700}
@@ -1224,10 +1224,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('viewSeg').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; VIEW = b.dataset.v; try { localStorage.setItem('gc-nl-pdf-view', VIEW); } catch(_){} zoom(); });
     $('imgStyle').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; S.img.style = b.dataset.st; save();
       if (!peek) Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()});   // 샘플을 처음 볼 때만 막대를 처음 값으로 (샘플끼리 옮겨 다닐 땐 맞춘 크기 그대로)
-      if (MOODS().length){ const m = MOODS()[+b.dataset.mi], big = $('stBig'), again = !big.hidden && big.dataset.mi === b.dataset.mi;   // 고른 샘플 크게 보기, 같은 걸 다시 누르면 접기
-        big.hidden = again; big.dataset.mi = b.dataset.mi;
-        if (!again && m) big.innerHTML = `<img src="${m.cover}" alt=""><b>${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name.replace(/^\d+ · /, ''))}</b><small>${esc(m.desc || '')}</small>`;
-        peek = ''; if (!(S.img.desc || '').trim() && b.dataset.desc){ S.img.desc = b.dataset.desc; $('imgDesc').value = S.img.desc; } save(); render(); return; }   // 완성 표지 샘플은 고르기만
+      if (MOODS().length){ peek = ''; if (!(S.img.desc || '').trim() && b.dataset.desc){ S.img.desc = b.dataset.desc; $('imgDesc').value = S.img.desc; } save(); render(); return; }   // 완성 표지 샘플은 고르기만
       peek = sampleOf(b.dataset.st) ? b.dataset.st : ''; render(); });
     $('btnGen').addEventListener('click', generate);
     $('plist').addEventListener('click', e => { const li = e.target.closest('li[data-pi]'); if (li) select(li.dataset.pi, true); });
@@ -1274,7 +1271,11 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     });
     $('picker').addEventListener('click', e => { const b = e.target.closest('[data-ic]'); if (!b || !pickP) return; setP(pickP, b.dataset.ic); $('picker').hidden = true; commit(); });
     document.addEventListener('mousedown', e => { if (!$('picker').hidden && !e.target.closest('#picker') && !e.target.closest('[data-icon-p]')) $('picker').hidden = true; });
-    document.addEventListener('keydown', e => { if (e.key === 'Escape') $('picker').hidden = true; });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape'){ $('picker').hidden = true; $('stBig').hidden = true; } });
+    $('imgStyle').addEventListener('mouseover', e => { const b = e.target.closest('[data-mi]'), big = $('stBig'); if (!b || big.dataset.mi === b.dataset.mi && !big.hidden) return;   // 표지 샘플에 마우스를 올리면 패널 옆에 크게
+      const m = MOODS()[+b.dataset.mi]; if (!m) return; big.dataset.mi = b.dataset.mi; big.style.left = (document.querySelector('.panel').getBoundingClientRect().right + 16) + 'px';
+      big.innerHTML = `<img src="${m.cover}" alt=""><b>${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name.replace(/^\d+ · /, ''))}</b><small>${esc(m.desc || '')}</small>`; big.hidden = false; });
+    $('imgStyle').addEventListener('mouseleave', () => { $('stBig').hidden = true; });
     // 붙여넣기: 그림 → 표지 그림, 작업 내용(JSON) → 불러오기 (입력칸 밖에서)
     document.addEventListener('paste', e => {
       const t = (e.clipboardData.getData('text/plain') || '').trim(), isNl = /^\{\s*"kind"\s*:\s*"nl-/.test(t);   // 스킬 결과는 글자 칸 안에서 붙여 넣어도 알아봄
