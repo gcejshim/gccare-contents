@@ -142,7 +142,16 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 .switch{display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer}
 
 /* ── 미리보기 ── */
-.stage{min-width:0}
+.stage{min-width:0;overflow-x:auto}
+/* 보기 크기: 맞춤 · 100% · 70%(게시판에서 보는 크기 가늠) */
+.viewbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;margin:0 0 10px}
+.viewbar .vl{font-size:13px;color:var(--neutral-600)}
+.viewbar .seg{display:inline-flex;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;background:var(--neutral-0)}
+.viewbar button{border:0;background:none;padding:5px 12px;white-space:nowrap;font-size:13px;cursor:pointer;color:var(--neutral-600)}
+.viewbar button+button{border-left:1px solid var(--coolNeutral-200)}
+.viewbar button.on{background:var(--careBlue-900);color:var(--neutral-0);font-weight:600}
+.pages.v-100{align-items:flex-start}
+.pages.v-70{align-items:center}
 .hintbar{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:12px 16px;font-size:13px;color:var(--neutral-600);line-height:1.6;margin-bottom:16px}
 .hintbar b{color:var(--careBlue-600)}
 .pages{display:flex;flex-direction:column;align-items:center;gap:28px;zoom:var(--z,1)}
@@ -451,6 +460,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 
   <section class="stage" id="stage">
     <div class="hintbar">글자는 <b>미리보기에서 눌러 바로</b> 고쳐요. <b>[대괄호]</b> = 강조색, <b>**별표 두 개**</b> = 굵게. 체크 줄에서 <b>Enter</b> = 줄 추가, 빈 줄에서 <b>Backspace</b> = 줄 삭제. 아이콘은 눌러서 바꿔요.</div>
+    <div class="viewbar no-print"><span class="vl">보기 크기</span><div class="seg" id="viewSeg"><button data-v="fit" title="이 칸 폭에 맞춰 보기">화면 맞춤</button><button data-v="100" title="PDF 실제 크기(폭 900)">실제 크기 100%</button><button data-v="70" title="게시판에 올렸을 때처럼 작게 — 글자가 읽히는지 확인">게시판 70%</button></div></div>
     <div class="pages doc" id="pages"></div>
   </section>
 </div>
@@ -794,7 +804,11 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     document.querySelectorAll('.pg.in').forEach(pg => { const b = pg.querySelector('.pbody'); const o = b.scrollHeight > b.clientHeight + 2; pg.classList.toggle('over', o); pg.dataset.over = o ? 1 : ''; any = any || o; });
     document.querySelectorAll('#plist li[data-pi]').forEach(li => { const pg = document.querySelector(`.pg[data-pi="${li.dataset.pi}"]`); const w = li.querySelector('.w'); if (w) w.hidden = !(pg && pg.dataset.over); });
   }
-  function zoom(){ const st = $('stage'); const z = Math.min(1, (st.clientWidth - 8) / 900); $('pages').style.setProperty('--z', z > 0 ? z.toFixed(3) : 1); }
+  // 보기 크기 (보는 사람 브라우저에만 기억) — 맞춤 = 칸 폭에 맞춰 줄임(100% 넘지 않음), 100% = 실제 크기, 70% = 게시판에서 보는 크기 가늠
+  let VIEW = 'fit'; try { VIEW = localStorage.getItem('gc-nl-pdf-view') || 'fit'; } catch(e){}
+  function zoom(){ const st = $('stage'), fit = Math.min(1, (st.clientWidth - 8) / 900), z = VIEW === '100' ? 1 : VIEW === '70' ? 0.7 : fit;
+    const el = $('pages'); el.style.setProperty('--z', z > 0 ? z.toFixed(3) : 1); el.classList.toggle('v-100', VIEW === '100'); el.classList.toggle('v-70', VIEW === '70');
+    [...$('viewSeg').children].forEach(b => b.classList.toggle('on', b.dataset.v === VIEW)); }
   function markSel(){ document.querySelectorAll('.pg').forEach(p => p.classList.toggle('sel', p.dataset.pi === String(sel))); }
 
   // ── 왼쪽 패널 ──
@@ -1202,6 +1216,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('imgMode').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.img.mode = b.dataset.v; S.img.scale = 100; S.img.x = 0; S.img.y = 0; S.img.fade = FADE(S.img.mode); save(); renderPanel(); applyImg(); });
     [['imgScale', 'scale', 'oScale', '%'], ['imgX', 'x', 'oX', ''], ['imgY', 'y', 'oY', ''], ['imgFade', 'fade', 'oFade', '%']].forEach(([id, k, o, u]) => $(id).addEventListener('input', e => { const v = +e.target.value; if (peek) pv[k] = v; else { S.img[k] = v; save(); } $(o).textContent = v + u; applyImg(); }));
     $('imgDesc').addEventListener('input', e => { S.img.desc = e.target.value; save(); $('promptView').textContent = gptPrompt(); });
+    $('viewSeg').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; VIEW = b.dataset.v; try { localStorage.setItem('gc-nl-pdf-view', VIEW); } catch(_){} zoom(); });
     $('imgStyle').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; S.img.style = b.dataset.st; save();
       if (!peek) Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()});   // 샘플을 처음 볼 때만 막대를 처음 값으로 (샘플끼리 옮겨 다닐 땐 맞춘 크기 그대로)
       if (MOODS().length){ peek = ''; if (!(S.img.desc || '').trim() && b.dataset.desc){ S.img.desc = b.dataset.desc; $('imgDesc').value = S.img.desc; } save(); render(); return; }   // 완성 표지 샘플은 고르기만
