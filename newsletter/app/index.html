@@ -549,14 +549,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const REF_TYPE = {obj3d:'3D 오브젝트', scene3d:'3D 배경 포함', photo:'실사', mockup:'화면 목업', flat:'평면 그래픽'};
   let bFilter = 'all', bKind = 'thumb';
   const BG_HINT = {thumb: '썸네일에서 <b>글자를 뺀 배경</b>이에요. 썸네일 › AI 이미지 생성하기에서 <b>참고 이미지</b>로 선택하면 그 스타일에 맞추어 이미지가 그려져요. 배경으로 그대로 써도 돼요.',
-    lm: '리드마그넷 표지에 쓴 그림과 <b>그림체 샘플</b>이에요. 리드마그넷 › AI 이미지 생성하기에서 같은 그림체를 고르면 이런 느낌으로 그려져요.'};
-  // 리드마그넷 표지: 실제로 만든 표지 그림(pdf/examples.js) + 그림체 샘플(pdf/styles.js, 네이비 · 그린)
+    lm: '리드마그넷 표지에 쓴 그림이에요. 리드마그넷 › AI 이미지 생성하기에서 같은 그림체를 고르면 이런 느낌으로 그려져요.'};
+  // 리드마그넷 표지: 완성 표지 그림 6장 (pdf/moods.js)
   function lmItems(){
     const C = (window.PDF_MOODS || []).map((m, i) => ({id: 'm' + i, f: 'made', name: m.name, tag: '분위기 표지', src: m.art}));   // 분위기 보기와 같은 6장 (pdf/moods)
-    const T = window.PDF_STYLE_THUMBS || {}, N = window.PDF_STYLE_NAMES || {}, TH = {navy: '네이비', green: '그린'};
-    const SHOW = window.PDF_STYLE_SHOW || Object.keys(N);
-    const S = Object.keys(T).flatMap(t => SHOW.filter(k => T[t][k]).map(k => ({id: t + ':' + k, f: t, name: N[k], tag: TH[t] + ' 샘플', src: T[t][k]})));
-    return C.concat(S);
+    return C;   // 2026-10-22 사용자: 클립보드 그림체 샘플(아이콘)은 빼고 완성 표지 그림만
   }
   function renderBgs(){
     [...$('bKind').children].forEach(b => b.classList.toggle('on', b.dataset.k === bKind));
