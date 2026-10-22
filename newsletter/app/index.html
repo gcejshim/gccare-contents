@@ -668,6 +668,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         body: JSON.stringify({kind: 'thumb', prompt: buildPrompt(), layout: 'scene', styleRef: aiRef})});
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
+      if (window._0u) window._0u('AI로 그리기');
       aiOutURL = data.dataURL; $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false;
       st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15)
     } catch(e){
@@ -829,6 +830,40 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (v && v !== H.view && $('v-' + v)) go(v); });
   }
   if (PACK && PACK.boot) PACK.boot().then(init); else if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+})();
+</script>
+<script>
+/* 사용자 확인 (2026-10-22 사용자: 카드뉴스 편집기와 똑같이) — 같은 구글 시트(명단 · 접속 기록 · 사용 기록), 뉴스레터는 tool:'뉴스레터'로 구분.
+   창 · 함수는 cardnews_editor_v1.0.html AI_LOADER에서 그대로 옮김(로고 바꾸기만 뺌). 저장 키 _gcUserId도 같음 */
+(function(){
+const SHEETS_URL='https://script.google.com/macros/s/AKfycbzsgN563o-OCtMFRU7H_Ks4wOpzNw2rMMuyJstkEiJIDmxBe7atXoAgAICNxF1-18g-/exec';
+const TOOL='뉴스레터';
+async function _0k(c,t,n){try{await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({c,t,n,tool:TOOL})});}catch(e){console.warn('접근 로그 기록 실패(무시하고 계속 진행):',e);}}
+window._0u = async function(kind){try{const id=_0r();if(!id)return;await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({c:id.c,t:id.t,n:id.n,kind:TOOL+' · '+kind,action:'usage',tool:TOOL})});}catch(e){console.warn('사용량 로그 기록 실패(무시하고 계속 진행):',e);}}
+async function _0l(){try{const r=await fetch(SHEETS_URL);if(!r.ok)throw new Error(`구글시트 접근 실패 (${r.status})`);const d=await r.json();return Array.isArray(d)?d:[];}catch(e){console.warn('사용자 명단 불러오기 실패(직접입력으로 진행 가능):',e);return [];}}
+function _0r(){try{return JSON.parse(localStorage.getItem('_gcUserId')||'null');}catch(e){return null;}}
+function _0m(us){return new Promise((res)=>{const saved=_0r();const COS=['GC케어','GC메디아이'];const defC=saved&&COS.includes(saved.c)?saved.c:'GC케어';const ov=document.createElement('div');ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99999;display:flex;align-items:center;justify-content:center;font-family:sans-serif;';const bx=document.createElement('div');bx.style.cssText='background:#fff;border-radius:12px;padding:12px;width:286px;text-align:center;box-shadow:0 10px 40px rgba(0,0,0,.2);';bx.innerHTML=`
+      <div style="font-weight:700;font-size:14px;margin-bottom:6px;">사용자 확인</div>
+      <div style="font-size:12px;color:#777;margin-bottom:12px;">AX Studio · Newsletter를 사용하려면<br>정보를 입력해주세요</div>
+      <select id="_userCompany" style="width:100%;box-sizing:border-box;padding:6px 24px 6px 6px;margin-bottom:8px;border-radius:6px;border:1px solid #ccc;font-size:13px;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center;background-size:12px;">
+        ${COS.map(c=>`<option value="${c}" ${c===defC?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <select id="_userSelect" style="flex:1;min-width:0;box-sizing:border-box;padding:6px 24px 6px 6px;border-radius:6px;border:1px solid #ccc;font-size:13px;appearance:none;-webkit-appearance:none;-moz-appearance:none;background-image:url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27%23666%27 stroke-width=%272%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpolyline points=%276 9 12 15 18 9%27/%3E%3C/svg%3E');background-repeat:no-repeat;background-position:right 8px center;background-size:12px;">
+          <option value="" disabled selected>이름을 선택하세요</option>
+          ${us.map((u,i)=>({u,i})).filter(o=>o.u.c===defC).map(o=>`<option value="${o.i}">${o.u.n}</option>`).join('')}
+          <option value="__custom__">직접입력</option>
+        </select>
+        <input id="_userCustom" type="text" placeholder="이름 입력" style="display:none;flex:1;min-width:0;padding:6px;border-radius:6px;border:1px solid #ccc;font-size:13px;box-sizing:border-box;" />
+      </div>
+      <input id="_userTeam" type="text" placeholder="팀명 입력" style="width:100%;padding:6px;margin-bottom:8px;border-radius:6px;border:1px solid #ccc;font-size:13px;box-sizing:border-box;" />
+      <div id="_userSwitch" style="display:none;font-size:11px;color:#2a4a7f;text-decoration:underline;cursor:pointer;margin-bottom:10px;">다른 사용자로 전환</div>
+      <button id="_userConfirm" style="width:100%;padding:8px;border:none;border-radius:6px;background:#2a4a7f;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">확인</button>
+    `;ov.appendChild(bx);document.body.appendChild(ov);const coSel=bx.querySelector('#_userCompany'),teamIn=bx.querySelector('#_userTeam'),sl=bx.querySelector('#_userSelect'),cu=bx.querySelector('#_userCustom'),sw=bx.querySelector('#_userSwitch');const setCM=(on)=>{if(on){sl.style.flex='0 0 84px';cu.style.display='block';}else{sl.style.flex='1';cu.style.display='none';}};const renderSelect=(company)=>{sl.innerHTML='<option value="" disabled selected>이름을 선택하세요</option>'+us.map((u,i)=>({u,i})).filter(o=>o.u.c===company).map(o=>`<option value="${o.i}">${o.u.n}</option>`).join('')+'<option value="__custom__">직접입력</option>';};const reset=()=>{coSel.value='GC케어';renderSelect('GC케어');teamIn.value='';const inCompany=us.filter(u=>u.c==='GC케어');if(inCompany.length===0){sl.value='__custom__';setCM(true);cu.value='';cu.focus();}else{setCM(false);sl.value='';sl.focus();}sw.style.display='none';};if(saved){teamIn.value=saved.t||'';const idx=us.findIndex(u=>u.c===saved.c&&u.t===saved.t&&u.n===saved.n);if(idx>=0){sl.value=String(idx);setCM(false);}else{sl.value='__custom__';setCM(true);cu.value=saved.n||'';}sw.style.display='block';}else{const inCompany=us.filter(u=>u.c===defC);if(inCompany.length===0){sl.value='__custom__';setCM(true);}else{setCM(false);sl.value='';}}sl.addEventListener('change',()=>{if(sl.value==='__custom__'){setCM(true);cu.focus();}else{setCM(false);const picked=us[parseInt(sl.value,10)];coSel.value=picked.c;teamIn.value=picked.t;}});coSel.addEventListener('change',()=>{renderSelect(coSel.value);const inCompany=us.filter(u=>u.c===coSel.value);teamIn.value='';if(inCompany.length===0){sl.value='__custom__';setCM(true);cu.value='';cu.focus();}else{setCM(false);sl.value='';}});sw.addEventListener('click',()=>{localStorage.removeItem('_gcUserId');reset();});const cf=()=>{const c=coSel.value;if(sl.value===''){sl.focus();return;}const n=sl.value==='__custom__'?cu.value.trim():(us[parseInt(sl.value,10)]||{}).n||'';if(!n){cu.style.display='block';cu.focus();return;}const t=teamIn.value.trim();if(!t){teamIn.focus();return;}const clean=s=>s.replace(/[\t\n]/g,' ');const cc=clean(c),tt=clean(t),nn=clean(n);localStorage.setItem('_gcUserId',JSON.stringify({c:cc,t:tt,n:nn}));document.body.removeChild(ov);res({c:cc,t:tt,n:nn});};bx.querySelector('#_userConfirm').addEventListener('click',cf);teamIn.addEventListener('keydown',(e)=>{if(e.key==='Enter')cf();});cu.addEventListener('keydown',(e)=>{if(e.key==='Enter')cf();});});}
+
+async function _0n(){try{const us=await _0l(),{c,t,n}=await _0m(us);await _0k(c,t,n);console.log('뉴스레터 게이트 통과 ('+c+' · '+t+' · '+n+')');}catch(e){console.error('게이트 로드 실패:',e);}}
+window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='usage'&&d.kind)window._0u(d.kind);});   // 도구(iframe)에서 AI를 쓰면 한 줄
+if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',_0n);else _0n();
 })();
 </script>
 </body>
