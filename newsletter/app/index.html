@@ -12,6 +12,7 @@
 <script src="samples.js"></script>
 <script src="../pdf/styles.js"></script>
 <script src="../pdf/examples.js"></script>
+<script src="../pdf/moods.js"></script>
 <style>
 /* ── 디자인 시스템 토큰 (Figma Foundation ai8JLld3k0Zg9blRCq2H4C) ── */
 :root{
@@ -551,9 +552,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     lm: '리드마그넷 표지에 쓴 그림과 <b>그림체 샘플</b>이에요. 리드마그넷 › AI 이미지 생성하기에서 같은 그림체를 고르면 이런 느낌으로 그려져요.'};
   // 리드마그넷 표지: 실제로 만든 표지 그림(pdf/examples.js) + 그림체 샘플(pdf/styles.js, 네이비 · 그린)
   function lmItems(){
-    const C = (window.PDF_COVERS || []).map((c, i) => ({id: 'c' + i, f: 'made', name: c.name, tag: `${c.issue ? c.issue + '호 ' : ''}표지`, src: c.src}));
+    const C = (window.PDF_MOODS || []).map((m, i) => ({id: 'm' + i, f: 'made', name: m.name, tag: '분위기 표지', src: m.art}));   // 분위기 보기와 같은 6장 (pdf/moods)
     const T = window.PDF_STYLE_THUMBS || {}, N = window.PDF_STYLE_NAMES || {}, TH = {navy: '네이비', green: '그린'};
-    const S = Object.keys(T).flatMap(t => Object.keys(N).filter(k => T[t][k]).map(k => ({id: t + ':' + k, f: t, name: N[k], tag: TH[t] + ' 샘플', src: T[t][k]})));
+    const SHOW = window.PDF_STYLE_SHOW || Object.keys(N);
+    const S = Object.keys(T).flatMap(t => SHOW.filter(k => T[t][k]).map(k => ({id: t + ':' + k, f: t, name: N[k], tag: TH[t] + ' 샘플', src: T[t][k]})));
     return C.concat(S);
   }
   function renderBgs(){

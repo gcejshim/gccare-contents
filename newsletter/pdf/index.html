@@ -10,6 +10,7 @@
 <script src="../thumbnail/assets.js"></script>
 <script src="styles.js"></script>
 <script src="examples.js"></script>
+<script src="moods.js"></script>
 <style>
 /* ── 디자인 시스템 토큰 ── */
 :root{
@@ -71,6 +72,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .sw span{font-size:12px;color:var(--neutral-600)}
 .sw.on i{outline:2px solid var(--careBlue-500);outline-offset:2px}
 /* 그림 스타일 샘플 (참고 이미지에서 그림 부분만 자른 썸네일) */
+/* 분위기 보기: 완성 표지를 작게 — 누르면 표지 색 · 그림체가 골라지고 큰 표지에 미리 */
+.moods{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px}
+.moods button{padding:0;border:1px solid var(--coolNeutral-200);border-radius:6px;overflow:hidden;background:var(--neutral-0);cursor:pointer;line-height:0}
+.moods img{width:100%;aspect-ratio:900/1274;object-fit:cover;display:block}
+.moods button:hover{border-color:var(--careBlue-500)}
+.moods button.on{border-color:var(--careBlue-500);outline:1px solid var(--careBlue-500)}
 .stg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .stg .stg-g{grid-column:1/-1;margin:6px 0 -2px;font-size:12px;font-weight:700;color:var(--neutral-600)}
 .stg button{display:flex;flex-direction:column;gap:4px;padding:4px;border:1px solid var(--coolNeutral-200);border-radius:8px;background:var(--neutral-0);cursor:pointer;font-size:11px;line-height:1.3;color:var(--neutral-600);text-align:left}
@@ -432,6 +439,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
         <div class="slider" title="그림 가장자리를 표지 배경으로 서서히 흐리게 · 0이면 흐림 끔 (그림 바탕색 빼기는 늘 자동)"><span>흐림</span><input type="range" id="imgFade" min="0" max="40"><output id="oFade"></output></div>
       </div>
       <h4 class="ai-h">AI 이미지 생성하기</h4>
+      <div class="field" style="margin-top:8px" id="moodField"><label>분위기 보기 · 누르면 표지 색 · 그림체가 골라져요</label><div class="moods" id="moods"></div></div>
       <div class="field" style="margin-top:8px"><label>그림체 · 샘플을 누르면 표지에 미리 보여요</label><div class="stg" id="imgStyle"></div></div>
       <div class="field" style="margin-top:12px"><label>무엇을 그릴까요? · 물건 3개까지, 가장 큰 것을 먼저 (색은 표지 색에 맞춰요)</label><textarea id="imgDesc" rows="2" style="min-height:60px;resize:vertical;line-height:1.5" placeholder="예: 체크리스트 클립보드, 체크 방패, 막대그래프 카드"></textarea></div>
       <button class="btn primary" id="btnGen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg><span>이미지 만들기</span></button>
@@ -743,10 +751,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   function chapters(){ const out = []; S.pages.forEach(p => { if (p.ch && !out.find(c => c.ch === p.ch)) out.push({ch: p.ch, name: p.chName}); }); return out; }
   function coverHTML(){
     const c = S.cover, im = S.img, th = THEMES[S.theme], src = artSrc();
-    const sq = peek && im.mode !== 'center', v = artV();   // 정사각 샘플 미리보기는 세로 그림의 물건 자리에서 시작, 막대로 따로 조절
+    const sq = peek && !isMood(peek) && im.mode !== 'center', v = artV();   // 정사각 샘플 미리보기는 세로 그림의 물건 자리에서 시작, 막대로 따로 조절
     const art = src ? `<img class="art m-${im.mode}${sq ? ' peek-sq' : ''}${v.fade ? ' fade' : ''}" src="${src}" alt="" style="transform:${artTf(v)};--f:${v.fade}%">` : '';
     const slot = src ? '' : '<div class="slot no-print">표지 그림 자리<br>왼쪽 ③ 표지 그림에서 넣어요</div>';
-    const pk = peek ? `<div class="peek no-print">샘플 미리보기 · ${esc(IMG_STYLES[peek].name)}<button type="button" data-peekoff>${im.src ? '원래 그림 보기' : '닫기'}</button></div>` : '';
+    const pk = peek ? `<div class="peek no-print">${isMood(peek) ? '분위기 미리보기 · ' + esc((moodOf(peek) || {}).name) : '샘플 미리보기 · ' + esc(IMG_STYLES[peek].name)}<button type="button" data-peekoff>${im.src ? '원래 그림 보기' : '닫기'}</button></div>` : '';
     return `<div class="pg cover" data-pi="cover">${art}${slot}${pk}
       <div class="top"><span class="kind"><b>${ed('cover.kind', '분류')}</b><span class="sep">${c.kind2 ? ' · ' : ' '}</span>${ed('cover.kind2', '보조 분류')}</span>${A()[th.logo] ? `<img class="logo" src="${A()[th.logo]}" alt="GC Care">` : ''}</div>
       <div class="head">${ed('cover.for', '대상', 'for', 'p')}<h1>${ed('cover.t1', '큰 제목', 'l1')}${ed('cover.t2', '강조할 둘째 줄', 'l2')}</h1>
@@ -810,10 +818,12 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     [['imgScale', 'scale', 'oScale', '%'], ['imgX', 'x', 'oX', ''], ['imgY', 'y', 'oY', ''], ['imgFade', 'fade', 'oFade', '%']].forEach(([id, k, o, u]) => { const v = artV(); $(id).value = v[k]; $(o).textContent = v[k] + u; });
     if (document.activeElement !== $('imgDesc')) $('imgDesc').value = im.desc || '';
     if ($('imgStyle').dataset.theme !== S.theme){ const grp = {}; $('imgStyle').dataset.theme = S.theme;   // 표지 색이 바뀌면 그 색 샘플로 다시
-      Object.entries(IMG_STYLES).forEach(([k, s]) => (grp[s.g || '기본'] = grp[s.g || '기본'] || []).push(
+      Object.entries(IMG_STYLES).filter(([k]) => !window.PDF_STYLE_SHOW || window.PDF_STYLE_SHOW.includes(k) || k === S.img.style).forEach(([k, s]) => (grp[s.g || '기본'] = grp[s.g || '기본'] || []).push(
         `<button type="button" data-st="${k}">${sampleOf(k) ? `<img src="${sampleOf(k)}" alt="">` : '<span class="ph">샘플 없음<br>만들어 보며 확인</span>'}<span>${s.name}</span></button>`));
-      $('imgStyle').innerHTML = Object.entries(grp).map(([g, o]) => `<p class="stg-g">${g}</p>` + o.join('')).join(''); }
+      $('imgStyle').innerHTML = Object.entries(grp).map(([g, o]) => (window.PDF_STYLE_SHOW ? '' : `<p class="stg-g">${g}</p>`) + o.join('')).join(''); }   // 6종만 보일 땐 묶음 제목 없이 3개씩
     styleOn(IMG_STYLES[im.style] ? im.style : 'base');
+    if (!$('moods').childElementCount) $('moods').innerHTML = MOODS().map((m, i) => `<button type="button" data-mood="${i}" title="${esc(m.name)} · ${esc(THEMES[m.theme].name)} · ${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name)}"><img src="${m.cover}" alt=""></button>`).join('');
+    $('moodField').hidden = !MOODS().length; $('moods').querySelectorAll('[data-mood]').forEach(b => b.classList.toggle('on', peek === 'm:' + b.dataset.mood));
     $('promptView').textContent = gptPrompt();
     $('endOn').checked = !!S.end.on;
     let no = 1;
@@ -862,7 +872,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     r.readAsDataURL(file);
   }
   const artTf = im => `translate(${im.x}px,${im.y}px) scale(${im.scale / 100})`;
-  function applyImg(){ const im = S.img, el = document.querySelector('.cover .art'); const v = artV(); if (el){ el.className = 'art m-' + im.mode + (peek && im.mode !== 'center' ? ' peek-sq' : '') + (v.fade ? ' fade' : ''); el.style.transform = artTf(v); el.style.setProperty('--f', v.fade + '%'); bakeFade(); } }
+  function applyImg(){ const im = S.img, el = document.querySelector('.cover .art'); const v = artV(); if (el){ el.className = 'art m-' + im.mode + (peek && !isMood(peek) && im.mode !== 'center' ? ' peek-sq' : '') + (v.fade ? ' fade' : ''); el.style.transform = artTf(v); el.style.setProperty('--f', v.fade + '%'); bakeFade(); } }
   // 흐림을 그림 파일에 구워 넣음: CSS 마스크는 인쇄(PDF 저장)할 때 빠져서 네모 경계가 드러남 (2026-10-20) → 가장자리를 투명하게 만든 그림으로 바꿔 끼움
   const fadeCache = new Map(); let bakeT = 0;
   function fadedSrc(src, f){
@@ -930,7 +940,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   const pv = {scale: 100, x: 0, y: 0, fade: 18};   // 샘플 미리보기용 크기 · 위치 · 흐림 (내 그림 값과 따로, 저장 안 함)
   const artV = () => peek ? Object.assign({}, S.img, pv) : S.img;
   const sampleOf = k => (REF_THUMBS[S.theme] || {})[k] || REF_THUMBS.navy[k];   // 표지 색별 샘플이 있으면 그것, 없으면 네이비 샘플
-  const artSrc = () => (peek && sampleOf(peek)) || S.img.src;
+  const MOODS = () => window.PDF_MOODS || [], isMood = k => /^m:/.test(k || ''), moodOf = k => MOODS()[+String(k).slice(2)];
+  const peekSrc = () => isMood(peek) ? (moodOf(peek) || {}).art : sampleOf(peek);
+  const artSrc = () => (peek && peekSrc()) || S.img.src;
   function styleOn(k){ $('imgStyle').querySelectorAll('[data-st]').forEach(b => b.classList.toggle('on', b.dataset.st === k)); }
   function peekOff(){ if (!peek) return; peek = ''; render(); }
   function gptPrompt(){
@@ -1195,6 +1207,9 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('imgMode').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; S.img.mode = b.dataset.v; S.img.scale = 100; S.img.x = 0; S.img.y = 0; S.img.fade = FADE(S.img.mode); save(); renderPanel(); applyImg(); });
     [['imgScale', 'scale', 'oScale', '%'], ['imgX', 'x', 'oX', ''], ['imgY', 'y', 'oY', ''], ['imgFade', 'fade', 'oFade', '%']].forEach(([id, k, o, u]) => $(id).addEventListener('input', e => { const v = +e.target.value; if (peek) pv[k] = v; else { S.img[k] = v; save(); } $(o).textContent = v + u; applyImg(); }));
     $('imgDesc').addEventListener('input', e => { S.img.desc = e.target.value; save(); $('promptView').textContent = gptPrompt(); });
+    $('moods').addEventListener('click', e => { const b = e.target.closest('[data-mood]'); if (!b) return; const m = MOODS()[b.dataset.mood];
+      S.theme = m.theme; S.img.style = m.style; if (!(S.img.desc || '').trim()) S.img.desc = m.desc;   // 그릴 것은 비어 있을 때만 예시로
+      Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()}); peek = 'm:' + b.dataset.mood; $('imgDesc').value = S.img.desc; commit(); });
     $('imgStyle').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; S.img.style = b.dataset.st; save();
       if (!peek) Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()});   // 샘플을 처음 볼 때만 막대를 처음 값으로 (샘플끼리 옮겨 다닐 땐 맞춘 크기 그대로)
       peek = sampleOf(b.dataset.st) ? b.dataset.st : ''; render(); });
