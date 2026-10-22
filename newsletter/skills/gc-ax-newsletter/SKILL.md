@@ -11,7 +11,7 @@ description: GC AX Studio · Newsletter — GC케어 뉴스레터 기획안(PDF�
 |---|---|---|
 | **뉴스레터 썸네일** | 콘텐츠마다 **그릴 것 키워드만** 담은 JSON 1개 (미리보기 없음) | `references/thumbnail.md` |
 | (공통) 디자인 시스템 | 색 · 글자 · 모양 · 그래프 색 · 썸네일 프리셋 기준 | `references/design-system.md` |
-| **콘텐츠 이미지 생성** | 이미지 목록 확인 → 한 장씩 미리보기 → OK → 블록 JSON (`nl-block` / `nl-blocks`) | `references/content.md` |
+| **콘텐츠 이미지** | 이미지 목록 확인 → 한 장씩 미리보기 → OK → 블록 JSON (`nl-block` / `nl-blocks`) | `references/content.md` |
 | **PDF** | 기획서 쪽마다 블록 정리 → 확인 → 작업 내용 JSON (`nl-pdf`) 하나 | `references/pdf.md` |
 
 ## 진행 순서

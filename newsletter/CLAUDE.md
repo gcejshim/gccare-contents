@@ -30,7 +30,7 @@
 
 - **뉴스레터는 앱 위주가 아님.** B2B(HR·보건 담당자) 정보 콘텐츠 = 편집 디자인·인포그래픽 관점. 앱 UI 패턴/Mobbin 레퍼런스 X. DS는 토큰(컬러·타이포)만 사용
 - **컬러:** 블루톤 기반 + 녹색(careGreen)은 포인트만. 기본은 DS 토큰, **단 Figma 13·14호 원본 재현이 DS 매핑보다 우선** (사용자 지정, 2026-10-01)
-  - 13·14호 → DS 매핑(확정): 헤더 남색·진남색 careBlue/900, 강조 careBlue/700, 배지 careBlue/500, 연파랑 careBlue/100, 바탕 coolNeutral/50, 구분선 coolNeutral/100, 그린 careGreen/500·700·10 (일반 `blue/*` 대신 careBlue 우선) — `docs/컬러매핑_13-14호.html`
+  - 13·14호 → DS 매핑(확정): 헤더 남색·진남색 careBlue/900, 강조 careBlue/700, 배지 careBlue/500, 연파랑 careBlue/100, 바탕 coolNeutral/50, 구분선 coolNeutral/100, 그린 careGreen/500·700·10 (일반 `blue/*` 대신 careBlue 우선)
   - 예외 1: 썸네일 타이틀 색 `#002540` (**썸네일 전용**. 콘텐츠 이미지는 아님)
   - 예외 2: 그린 배경 `#20B977` (타이틀 흰색, 로고 남색, 강조 단어 `#002540`, 대비 안내 생략)
   - 예외 3: 표·순위 막대는 13호 Figma 원본 색 그대로 (`--nl-*` 변수, editor/index.html 맨 위)
@@ -61,13 +61,14 @@ newsletter/
 │  ├─ index.html       개발본. 블록 정의는 BLOCKS (list·rank·hbar·table·hero·steps·vbar·stack·line·donut·html·raw·compare)
 │  ├─ assets-editor.js 한글 로고(logoKoBlue/White) · 상단 바 한글 CI(logoTopKo)
 │  └─ build.py         → dist/image-editor.html (이름 고정 · thumbnail/vendor · assets.js 공유)
+├─ pdf/                리드마그넷(PDF) 도구 — 메뉴 이름 2026-10-22 PDF → 리드마그넷(IPR팀 용어, 목적성 있는 자료). styles.js = 그림체 샘플(window.PDF_STYLE_THUMBS · 이름), examples.js = make_examples.py가 15호 작업 파일에서 만든 [예시 보기] 문서 · 표지 그림(window.PDF_EXAMPLES · PDF_COVERS, 새 호로 바꾸면 경로 바꿔 다시 실행 후 app/build.py)
 ├─ pdf/index.html      PDF 도구 (2026-10-20). 상태 `{v:1, kind:'nl-pdf', title, theme(navy|blue|green), cover, img{src,mode(full|br|center),scale,x,y,desc}, pages:[{ch, chName, title, lead, blocks:[{type,…}]}], end}`. 블록 정의 `BLOCKS`(timeline · stats · flow · tiles · qa · steps · cards · text · note · box · src), 글자는 미리보기 contenteditable(`data-p` 경로, [ ] 강조 · ** 굵게), 저장 = window.print(@page 900×1273). 호와 따로(호 옮기기 제외), 자동저장 `gc-nl-pdf-v1`. 디자인 기준 = `docs/pdf-참고사례/시안/` (샘플: 남색 + 큰 제목 + 핵심어 파랑)
 ├─ app/                통합본 "AX Studio · Newsletter" (메뉴 셸: 이번 호 · 썸네일 · 콘텐츠 이미지 · PDF · 에셋 · 가이드)
 │  ├─ index.html       개발본. 두 도구를 iframe으로 띄우고 postMessage로 호수 공유 · 저장 기록 · 호 전체 저장/열기
 │  ├─ make_samples.py  10~14호 완성 이미지 → samples.js (에셋 › 샘플 모아보기, 2배 WebP). 회사 PC 월별 폴더 또는 `--figma DIR`(Figma 2배 PNG, 파일명=노드 ID, 매핑은 FIGMA 딕셔너리). 11호 contents01_p03 · contents02_p01은 Figma에 납품본이 없어 예전 JPG 유지
 │  └─ build.py         → dist/gccare-insight-studio.html (이름 고정 · 폰트·라이브러리는 한 번만 넣고 blob URL로 두 도구가 공유, 약 5.8MB)
 ├─ skills/gc-ax-newsletter/            claude.ai 스킬 GC AX Studio · Newsletter (기획안 · 엑셀 · 이미지 → 썸네일 JSON + 콘텐츠 블록 nl-block JSON). SKILL.md는 안내, 규칙은 references/thumbnail.md · content.md. 수정 후 zip 다시 만들기 (10/15 gc-newsletter-thumbnail · block 합침)
-├─ docs/               GPT 지침(ChatGPT 배경 이미지), 컬러 매핑, 13·14호 원본 대비 비교 이미지
+├─ docs/               GPT 지침(ChatGPT 배경 이미지) · 보고 자료 · 규격 문서 · 이미지 프롬프트 구성, 원본비교/(원본 대비 캡처). 호별 기획서 · 참고 자료는 issues/NN/references, 결과물은 issues/NN/work
 ├─ issues/14/          14호 참고자료(기획안·PDF 4종)와 결과물
 ├─ docs/chart-guide.md 기존 차트(Chart.js TYPE A/B/C) 제작 가이드 — 캡처 규격 1012/350은 옛 값, 실제는 PC 920·모바일 390 스크립트
 └─ scripts/screenshot_ipr.py  기존 Playwright 캡처 스크립트
@@ -107,7 +108,7 @@ newsletter/
 - 미리보기: PC·모바일 둘 다 기본 표시, PC는 칸에 맞춰 자동 축소, PC 제목줄의 "메일 크기로 보기"(630px) 옵션, 화면별 ▾ 접기 (사용자 지정: 설명 문구는 최소로)
 - 블록에 없는 형태 대응(사용자 승인): ① 가까운 블록 옵션 → ② `html` 블록(스킬이 만든 HTML, `<style>` 자동 범위 한정 · script 제거 · `data-icon`→Lucide · 토큰 외 색 점검) → ③ 두세 번 반복되면 정식 블록으로 승격 → ④ `raw`(외부 제작 이미지 그대로, PC 1800 / 모바일 1050 권장)
 - 붙여넣기: `{kind:'nl-block'|'nl-blocks'}` JSON → 블록 추가, 이미지 → 현재 블록의 빈 이미지 칸(목록 안 이미지 칸 포함)
-- 검증 사례: 14호 서브 콘텐츠 2장(단계별 화면 + 목업 히어로) 재현 → `docs/데모_14호_서브콘텐츠_원본비교.jpg`
+- 검증 사례: 14호 서브 콘텐츠 2장(단계별 화면 + 목업 히어로) 재현 → `docs/원본비교/데모_14호_서브콘텐츠_원본비교.jpg`
 - AI 이미지: 지금은 메뉴 AI로 그리기(에셋 위, 10/14 에셋에서 분리 · ChatGPT 프롬프트 생성, `docs/ChatGPT_뉴스레터이미지_GPT지침.md`). 계획: 별도 메뉴 "AI 이미지"로 분리 + 도구 이미지 칸 옆 [AI로 그리기] 버튼(용도·주제 자동 채움) → 공용 키 프록시(카드뉴스와 **함수 분리** `api/newsletter-image.js`, 뉴스레터 전용 OpenAI 프로젝트 키, 개인 키 미허용) → 에셋에 생성 이미지 보관. 사용 기록은 카드뉴스 UsageLog 시트에 `도구`·`호·카드` 열을 더해 합계 통계. 비용 기준 장당 약 ₩35
 - ② 만드는 방법(2026-10-07): [템플릿으로 만들기(기본) | Claude 스킬로 만들기] 중 고른 쪽만 보임. 스킬 쪽은 패널 안 붙여넣기 칸 + 들어올 이미지 목록(작은 PC 그림 · 파일명 · 새로 추가/바뀜). 「직접 만든 블록」은 템플릿 목록에서 빠짐(스킬로만 생김). 묶음 순서: 표 → 막대 → 선 · 원 → 리스트 · 카드 → 인용 · 인터뷰 → 숫자 · 흐름 → 화면 · 사진 → 직접 만들기
   - 미리보기 편집 원칙: 보이는 것(글자 · 숫자 · 색 · 배지 · 아이콘 · 강조색)은 미리보기에서, 구조 · 설정(줄 추가 · 축 · 옵션)은 왼쪽. 템플릿 목록 마우스 올림 미리보기는 없앰
@@ -151,6 +152,6 @@ newsletter/
      - 운영자에겐 도구만 줌. PDF 메뉴 ⓪ 기획서 칸: 붙여넣기(표 모양 유지) · Word · PDF. 붙여 넣은 게 **기획서 글이면 자동 만들기**, **nl-pdf 작업 내용이면 그대로 채움**(스킬 · Claude Code 결과, 무료) — 도구가 구분
      - 자동 만들기 = 회사 서버(`api/generate-image.js`, 같은 OpenAI 키) **일반 GPT 글 모델(A, 한 건 약 100원)**. 넣으면 바로 시작 · 취소 · 다시 만들기. 답 모양 고정(nl-pdf JSON). 그리는 건 도구 템플릿
      - 규칙서(서버 · 스킬 공유): 블록 고르는 기준(날짜 순서 → 타임라인, 숫자 기준 → 숫자 카드, 절차 → 단계 흐름, 나열 → 아이콘 타일, 질문 → Q&A, "~했다" → 체크리스트, 애매하면 표) + 안전보건공시제 정답 예시. 기획서 **쪽수 · 문장 그대로**, 지어내지 않기, 맞는 블록 없으면 가까운 블록 → 문단 + '확인 필요' 표시 → 반복되면 새 블록. 표지 '그릴 것'도 채움(그림은 사람이 버튼 눌러서)
-     - 비용 예상: 한 달 PDF 2~3건, 전체(그림 포함) 약 3,000원 · 많아도 5,000원(대부분 그림). 안심 장치: OpenAI 월 한도, 팀 암호(선택)
+     - 비용 예상: 한 달 PDF 2~3건, 전체(그림 포함) 약 3,000원 · 많아도 5,000원(대부분 그림). → 10/22 다시 계산: 리드마그넷 1건 약 ₩250(본문 ₩100 + 표지 ₩150), 한 달 썸네일 포함 약 ₩1,000~1,500 (`docs/AI비용_사용현황.md`) 안심 장치: OpenAI 월 한도, 팀 암호(선택)
      - 순서: ① 규칙서 → ② 스킬(gc-ax-newsletter)에 PDF 기능 → ③ 서버 + ⓪ 기획서 칸 → ④ 안전보건공시제로 두 방법 시험 · 손으로 만든 5쪽과 비교
      - 다음: 콘텐츠 이미지 블록(표 · 그래프 · A vs B 비교 · 큰 숫자 · 인용)을 PDF에서 같이 쓰기(PC 폭 900 = PDF 폭). 참고 이미지 고르기는 보류

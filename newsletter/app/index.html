@@ -10,6 +10,8 @@
 <script src="../editor/assets-editor.js"></script>
 <script src="../thumbnail/refs.js"></script>
 <script src="samples.js"></script>
+<script src="../pdf/styles.js"></script>
+<script src="../pdf/examples.js"></script>
 <style>
 /* ── 디자인 시스템 토큰 (Figma Foundation ai8JLld3k0Zg9blRCq2H4C) ── */
 :root{
@@ -187,8 +189,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <button class="menu" data-view="home" data-icon="LayoutDashboard">이번 호</button>
   <hr>
   <button class="menu" data-view="thumb" data-icon="Image">뉴스레터 썸네일</button>
-  <button class="menu" data-view="image" data-icon="LayoutTemplate">콘텐츠 이미지 생성</button>
-  <button class="menu" data-view="pdf" data-icon="FileText">PDF</button>
+  <button class="menu" data-view="image" data-icon="LayoutTemplate">콘텐츠 이미지</button>
+  <button class="menu" data-view="pdf" data-icon="FileText" title="PDF 자료 (보건관리 자료실 · 실무 가이드)">리드마그넷</button>
   <hr>
   <button class="menu" data-view="ai" data-icon="Sparkles">AI로 그리기</button>
   <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
@@ -213,7 +215,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       <div class="grid2" id="contents"></div>
     </div>
     <div class="card">
-      <h3>PDF <small>이번 호 보건관리 자료실 자료 (없으면 비워 두기)</small></h3>
+      <h3>리드마그넷 <small>이번 호 PDF 자료 (없으면 비워 두기)</small></h3>
       <div id="pdfRow"></div>
     </div>
     <div class="grid2">
@@ -226,7 +228,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <ol class="todo">
           <li><b>기획안</b>을 받아 콘텐츠 제목과 메모를 적어요.</li>
           <li><b>뉴스레터 썸네일</b>을 콘텐츠마다 1장씩 만들어요.</li>
-          <li><b>콘텐츠 이미지 생성</b>에서 블록을 골라 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 블록이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 10~14호를 참고해요.</span></li>
+          <li><b>콘텐츠 이미지</b>에서 블록을 골라 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 블록이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 10~14호를 참고해요.</span></li>
           <li>배경 · 일러스트가 필요하면 <b>AI로 그리기</b>에서 프롬프트를 만들어 ChatGPT에 붙여 넣어요.</li>
           <li>저장 기록에 <b>1MB 초과</b> 표시가 없는지 확인하고 납품해요.</li>
           <li><b>[전체 이미지 저장]</b>으로 이미지를 받고, <b>[전체 파일 저장]</b>으로 작업 파일을 보관해요.</li>
@@ -243,16 +245,17 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <!-- 에셋 -->
   <section class="view" id="v-assets"><div class="page">
     <h2>에셋</h2>
-    <p class="lead">이미지는 각 도구에 바로 <b>붙여넣기(Ctrl+V)</b>하거나 끌어다 놓으면 돼요. 여기서는 지난 호 샘플을 참고하고, 배경 이미지 · 로고 · 아이콘 · 컬러를 확인해요.</p>
+    <p class="lead">이미지는 각 도구에 바로 <b>붙여넣기(Ctrl+V)</b>하거나 끌어다 놓으면 돼요. 여기서는 로고 · 아이콘 · 컬러를 확인하고, 지난 호 샘플과 배경 이미지를 참고해요.</p>
     <div class="tabs" id="aTabs">
-      <button data-t="samples">샘플 모아보기</button><button data-t="bgs">배경 이미지</button><button data-t="logo">로고 · 아이콘</button><button data-t="color">컬러</button>
+      <button data-t="logo">로고 · 아이콘</button><button data-t="color">컬러</button><button data-t="samples">샘플 모아보기</button><button data-t="bgs">배경 이미지</button>
     </div>
     <div id="a-samples">
       <div class="chips" id="sChips"></div>
       <div class="gal" id="gal"></div>
     </div>
     <div id="a-bgs" hidden>
-      <p class="hint" style="margin:0 0 10px">썸네일에서 <b>글자를 뺀 배경</b>이에요. 썸네일 › AI 이미지 생성하기에서 <b>참고 이미지</b>로 선택하면 그 스타일에 맞추어 이미지가 그려져요. 배경으로 그대로 써도 돼요.</p>
+      <div class="chips" id="bKind"><button data-k="thumb">썸네일</button><button data-k="lm">리드마그넷 표지</button></div>
+      <p class="hint" style="margin:0 0 10px" id="bHint"></p>
       <div class="chips" id="bChips"></div>
       <div class="gal" id="bGal"></div>
     </div>
@@ -302,7 +305,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <tr><td>PC 이미지</td><td>폭 900</td><td>2배 (1800px)</td><td>메일에서 약 660px로 줄어 보임 → 본문 최소 18, 가장 작은 글자 14, 선 1.5px 이상</td></tr>
         <tr><td>모바일 이미지</td><td>폭 350</td><td>3배 (1050px)</td><td>타이틀 16·18 / 본문 14·16</td></tr>
         <tr><td>썸네일</td><td>399 × 231</td><td>3배 (1197 × 693)</td><td>타이틀 26 (길면 22)</td></tr>
-        <tr><td>PDF</td><td>A4 세로 900 × 1273</td><td>인쇄 → PDF</td><td>게시판 · 화면 열람용</td></tr>
+        <tr><td>리드마그넷 (PDF)</td><td>A4 세로 900 × 1273</td><td>인쇄 → PDF</td><td>게시판 · 화면 열람용</td></tr>
         <tr><td>파일 크기</td><td colspan="3">1MB 이하. 넘으면 사진이 많은 이미지만 JPG(품질 90)로 저장. 이미지 크기는 줄이지 않음(2·3배 의미가 사라짐)</td></tr>
       </table>
     </div>
@@ -382,7 +385,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // ── 상태 ──
   let H;
   function blankIssue(n){ return {due: DUE[n] || '', memo: '', c3: false, contents: {'01': {title: ''}, '02': {title: ''}, '03': {title: ''}}, files: {}}; }
-  function load(){ try { const h = JSON.parse(localStorage.getItem(KEY) || 'null'); if (h && h.issues) return h; } catch(e){} return {issue: 15, view: 'home', aTab: 'samples', ai: {}, issues: {}}; }
+  function load(){ try { const h = JSON.parse(localStorage.getItem(KEY) || 'null'); if (h && h.issues) return h; } catch(e){} return {issue: 15, view: 'home', aTab: 'logo', ai: {}, issues: {}}; }
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(H)); } catch(e){} }
   const I = () => (H.issues[H.issue] = H.issues[H.issue] || blankIssue(H.issue));
 
@@ -396,7 +399,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   }
   function mountTools(){
     Object.entries(TOOLS).forEach(([k, t]) => {
-      const f = document.createElement('iframe'); f.title = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지 생성', pdf: 'PDF'}[k];
+      const f = document.createElement('iframe'); f.title = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지', pdf: '리드마그넷'}[k];
       if (PACK) f.srcdoc = PACK.toolHTML(k); else f.src = t.src;
       t.el = f; $('v-' + k).appendChild(f);
     });
@@ -418,7 +421,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   });
 
   // Claude 결과(JSON)는 어느 화면에서 Ctrl+V 해도 맞는 메뉴로 가서 들어감 (2026-10-20 사용자: 넣는 방법 통일)
-  const MENU_NAME = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지', pdf: 'PDF'};
+  const MENU_NAME = {thumb: '뉴스레터 썸네일', image: '콘텐츠 이미지', pdf: '리드마그넷'};
   function routeJSON(kind, text){
     if (H.view !== kind){ go(kind); toast(`${MENU_NAME[kind]} 결과라서 ${MENU_NAME[kind]} 메뉴로 옮겨서 넣었어요.`); }
     send(kind, {type: 'pasteJSON', text});
@@ -536,16 +539,39 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('lbMeta').textContent = `${TYPES[s.type][0]} · 원본 ${s.w}×${s.h}`;
     const b = TYPES[s.type][1]; $('lbMake').hidden = !b && s.type !== 'thumb'; $('lbNote').hidden = !b;
     $('lbMake').textContent = s.type === 'thumb' ? '썸네일 만들러 가기' : `${TYPES[s.type][0]}로 새로 만들기`;
-    $('lbMake').title = '콘텐츠 이미지 생성에 이 형태의 블록을 예시 내용으로 하나 추가해요. 샘플 내용이 복사되지는 않아요.';
+    $('lbMake').title = '콘텐츠 이미지에 이 형태의 블록을 예시 내용으로 하나 추가해요. 샘플 내용이 복사되지는 않아요.';
     $('lb').hidden = false;
   }
 
   // ── 에셋: 배경 이미지 (썸네일 참고 이미지 · thumbnail/refs.js) ──
   const BG_NAME = {navy:'네이비', lightBlue:'라이트 블루', green:'그린', photo:'사진'};
   const REF_TYPE = {obj3d:'3D 오브젝트', scene3d:'3D 배경 포함', photo:'실사', mockup:'화면 목업', flat:'평면 그래픽'};
-  let bFilter = 'all';
+  let bFilter = 'all', bKind = 'thumb';
+  const BG_HINT = {thumb: '썸네일에서 <b>글자를 뺀 배경</b>이에요. 썸네일 › AI 이미지 생성하기에서 <b>참고 이미지</b>로 선택하면 그 스타일에 맞추어 이미지가 그려져요. 배경으로 그대로 써도 돼요.',
+    lm: '리드마그넷 표지에 쓴 그림과 <b>그림체 샘플</b>이에요. 리드마그넷 › AI 이미지 생성하기에서 같은 그림체를 고르면 이런 느낌으로 그려져요.'};
+  // 리드마그넷 표지: 실제로 만든 표지 그림(pdf/examples.js) + 그림체 샘플(pdf/styles.js, 네이비 · 그린)
+  function lmItems(){
+    const C = (window.PDF_COVERS || []).map((c, i) => ({id: 'c' + i, f: 'made', name: c.name, tag: `${c.issue ? c.issue + '호 ' : ''}표지`, src: c.src}));
+    const T = window.PDF_STYLE_THUMBS || {}, N = window.PDF_STYLE_NAMES || {}, TH = {navy: '네이비', green: '그린'};
+    const S = Object.keys(T).flatMap(t => Object.keys(N).filter(k => T[t][k]).map(k => ({id: t + ':' + k, f: t, name: N[k], tag: TH[t] + ' 샘플', src: T[t][k]})));
+    return C.concat(S);
+  }
   function renderBgs(){
+    [...$('bKind').children].forEach(b => b.classList.toggle('on', b.dataset.k === bKind));
+    $('bHint').innerHTML = BG_HINT[bKind];
+    if (bKind === 'lm'){
+      const L = lmItems(), F = {made: '만든 표지', navy: '네이비 샘플', green: '그린 샘플'}, cnt = k => L.filter(r => k === 'all' || r.f === k).length;
+      if (bFilter !== 'all' && !F[bFilter]) bFilter = 'all';
+      $('bChips').innerHTML = [['all', '전체'], ...Object.entries(F).filter(([k]) => cnt(k))]
+        .map(([k, l]) => `<button data-f="${k}" class="${k === bFilter ? 'on' : ''}">${l}<small>${cnt(k)}</small></button>`).join('');
+      const items = L.filter(r => bFilter === 'all' || r.f === bFilter);
+      $('bGal').innerHTML = items.length ? items.map(r => `<div class="it" style="cursor:default"><img src="${r.src}" alt="" loading="lazy"><div class="m"><b>${esc(r.name)}</b><span>${r.tag}</span></div>
+        <div class="m" style="padding-top:0"><button class="btn sm" data-ldl="${r.id}">내려받기</button></div></div>`).join('')
+        : '<div class="empty">리드마그넷 표지 그림이 없어요. pdf/make_examples.py를 실행해 주세요.</div>';
+      return;
+    }
     const R = window.REFS || [], grp = r => r.bg[0] === 'blue' ? 'navy' : r.bg[0] === 'white' ? 'lightBlue' : r.bg[0];
+    if (bFilter !== 'all' && !BG_NAME[bFilter]) bFilter = 'all';
     const cnt = k => R.filter(r => k === 'all' || grp(r) === k).length;
     $('bChips').innerHTML = [['all', '전체'], ...Object.entries(BG_NAME).filter(([k]) => cnt(k))]
       .map(([k, l]) => `<button data-f="${k}" class="${k === bFilter ? 'on' : ''}">${l}<small>${cnt(k)}</small></button>`).join('');
@@ -665,7 +691,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   ];
   let assetsBuilt = false;
   function renderAssets(){
-    const t = H.aTab && H.aTab !== 'ai' ? H.aTab : 'samples';   // 'ai'는 메뉴로 옮김 (예전 저장값 대비)
+    const t = H.aTab && H.aTab !== 'ai' ? H.aTab : 'logo';   // 'ai'는 메뉴로 옮김 (예전 저장값 대비)
     [...$('aTabs').children].forEach(b => b.classList.toggle('on', b.dataset.t === t));
     ['samples', 'bgs', 'logo', 'color'].forEach(k => { $('a-' + k).hidden = k !== t; });
     if (t === 'samples') renderSamples();
@@ -767,6 +793,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('bChips').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; bFilter = b.dataset.f; renderBgs(); });
     $('bGal').addEventListener('click', e => { const b = e.target.closest('[data-bdl]'); if (!b) return; const r = (window.REFS || []).find(x => x.id === b.dataset.bdl);
       if (r){ const a = document.createElement('a'); a.href = r.src; a.download = `배경_${r.id}.webp`; a.click(); } });
+    $('bGal').addEventListener('click', e => { const b = e.target.closest('[data-ldl]'); if (!b) return; const r = lmItems().find(x => x.id === b.dataset.ldl);
+      if (r){ const a = document.createElement('a'); a.href = r.src; a.download = `리드마그넷표지_${r.name.replace(/[\\/:*?"<>|]/g, '')}.webp`; a.click(); } });
+    $('bKind').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; bKind = b.dataset.k; bFilter = 'all'; renderBgs(); });
     $('gal').addEventListener('click', e => { const it = e.target.closest('.it'); if (it) openLB(+it.dataset.i); });
     $('lbClose').addEventListener('click', () => { $('lb').hidden = true; });
     $('lb').addEventListener('click', e => { if (e.target === $('lb')) $('lb').hidden = true; });

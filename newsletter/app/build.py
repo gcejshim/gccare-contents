@@ -36,7 +36,7 @@ def tool(path, extra=(), h2c=True):
 tools = {
     'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs')]),
     'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd')]),
-    'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), h2c=False),   # PDF는 인쇄 → PDF라 html2canvas 없음
+    'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), [(r'<script src="styles\.js"></script>', 'pdfStyles'), (r'<script src="examples\.js"></script>', 'pdfEx')], h2c=False),   # PDF는 인쇄 → PDF라 html2canvas 없음
 }
 libs = {
     'h2c': read(os.path.join(TH, 'vendor', 'html2canvas.min.js')),
@@ -45,6 +45,8 @@ libs = {
     'assetsEd': read(os.path.join(ED, 'assets-editor.js')),
     'refs': read(os.path.join(TH, 'refs.js')),   # 썸네일 참고 이미지 (썸네일 도구 · 에셋 › 배경 이미지)
     'samples': read(os.path.join(HERE, 'samples.js')),
+    'pdfStyles': read(os.path.join(ROOT, 'pdf', 'styles.js')),   # 리드마그넷 그림체 샘플 (PDF 도구 · 에셋 › 배경 이미지)
+    'pdfEx': read(os.path.join(ROOT, 'pdf', 'examples.js')),     # 리드마그넷 예시 · 표지 그림 (pdf/make_examples.py)
 }
 fonts = {w: base64.b64encode(read(os.path.join(TH, 'vendor', f'Pretendard-{n}.woff2'), 'rb')).decode() for w, n in [('400', 'Regular'), ('500', 'Medium'), ('600', 'SemiBold'), ('700', 'Bold'), ('800', 'ExtraBold'), ('900', 'Black')]}
 fonts['oswald'] = base64.b64encode(read(os.path.join(TH, 'vendor', 'Oswald-Variable.woff2'), 'rb')).decode()   # 포인트 글꼴 (세로로 긴 숫자 · 영문, 2026-10-20)
@@ -64,7 +66,7 @@ BOOT = r"""
     toolHTML(k){ return D.tools[k].replace('__NL_FONTFACE__', faces).replace(/__NL_LIB_(\w+)__/g, (_, n) => urls[n]); },
     async boot(){
       const st = document.createElement('style'); st.textContent = faces; document.head.appendChild(st);
-      for (const k of ['lucide', 'assets', 'assetsEd', 'samples', 'refs']) await load(urls[k]);
+      for (const k of ['lucide', 'assets', 'assetsEd', 'samples', 'refs', 'pdfStyles', 'pdfEx']) await load(urls[k]);
       try { await document.fonts.load('700 16px Pretendard'); } catch(e){}
     }
   };
@@ -73,7 +75,7 @@ BOOT = r"""
 
 shell = read(os.path.join(HERE, 'index.html'))
 shell = sub1(r'<link rel="stylesheet" href="[^"]*pretendard[^"]*">\n', '', shell, 'shell font')
-for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="\.\./thumbnail/refs\.js"></script>\n',r'<script src="samples\.js"></script>\n']:
+for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="\.\./thumbnail/refs\.js"></script>\n',r'<script src="samples\.js"></script>\n', r'<script src="\.\./pdf/styles\.js"></script>\n', r'<script src="\.\./pdf/examples\.js"></script>\n']:
     shell = sub1(pat, '', shell, 'shell lib')
 data = json.dumps({'version': VERSION, 'tools': tools, 'libs': libs, 'fonts': fonts}, ensure_ascii=False).replace('<', '\\u003c')
 # 기본 호: 처음 여는 브라우저에 채워 줄 최신 완성 호 (issues/NN/work/*_전체.json)
