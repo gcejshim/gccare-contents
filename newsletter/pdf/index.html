@@ -82,6 +82,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .pg.cover .art.peek-sq{left:auto;right:-20px;top:560px;width:62%}   /* 정사각 샘플은 세로 그림의 물건 자리(오른쪽 아래)에 */
 .cover .peek{position:absolute;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;white-space:nowrap;background:rgba(17,24,39,.82);color:#fff;font-size:14px;font-weight:600;border-radius:999px;padding:8px 8px 8px 18px;z-index:3}
 .cover .peek button{border:0;border-radius:999px;background:#fff;color:#111827;font-size:13px;font-weight:700;padding:6px 12px;cursor:pointer}
+.stbig{margin-top:10px;padding:10px;border:1px solid var(--coolNeutral-100);border-radius:10px;background:var(--coolNeutral-50);text-align:center}   /* 고른 표지 샘플 크게 보기 */
+.stbig[hidden]{display:none}
+.stbig img{display:block;max-width:100%;max-height:420px;margin:0 auto;border-radius:6px;box-shadow:0 2px 8px rgba(17,24,39,.12)}
+.stbig b{display:block;margin-top:8px;font-size:13px;color:var(--neutral-900)}
+.stbig small{display:block;margin-top:2px;font-size:12px;line-height:1.5;color:var(--neutral-600)}
 .stg button.on{border-color:var(--careBlue-500);outline:1px solid var(--careBlue-500);color:var(--careBlue-500);font-weight:700}
 .drop{border:1.5px dashed var(--coolNeutral-200);border-radius:10px;padding:14px;text-align:center;font-size:13px;color:var(--neutral-600);cursor:pointer;background:var(--coolNeutral-50);line-height:1.6}
 .drop:hover,.drop.over{border-color:var(--careBlue-500);color:var(--careBlue-500)}
@@ -443,7 +448,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
         <div class="slider" title="그림 가장자리를 표지 배경으로 서서히 흐리게 · 0이면 흐림 끔 (그림 바탕색 빼기는 늘 자동)"><span>흐림</span><input type="range" id="imgFade" min="0" max="40"><output id="oFade"></output></div>
       </div>
       <h4 class="ai-h">AI 이미지 생성하기</h4>
-      <div class="field" style="margin-top:8px"><label id="stLabel">그림체 · 샘플을 누르면 표지에 미리 보여요</label><div class="stg" id="imgStyle"></div></div>
+      <div class="field" style="margin-top:8px"><label id="stLabel">그림체 · 샘플을 누르면 표지에 미리 보여요</label><div class="stg" id="imgStyle"></div><div class="stbig" id="stBig" hidden></div></div>
       <div class="field" style="margin-top:12px"><label>무엇을 그릴까요? · 물건 3개까지, 가장 큰 것을 먼저 (색은 표지 색에 맞춰요)</label><textarea id="imgDesc" rows="2" style="min-height:60px;resize:vertical;line-height:1.5" placeholder="예: 체크리스트 클립보드, 체크 방패, 막대그래프 카드"></textarea></div>
       <button class="btn primary" id="btnGen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg><span>이미지 만들기</span></button>
       <p class="gen-st" id="genSt" hidden></p>
@@ -827,7 +832,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     if (document.activeElement !== $('imgDesc')) $('imgDesc').value = im.desc || '';
     if (MOODS().length){ if (!$('imgStyle').childElementCount){   // 완성 표지 샘플 = 그림체 고르기 (2026-10-22 사용자: 샘플만 보여 주기, 표지에 얹지 않음)
         $('imgStyle').classList.add('covers'); $('stLabel').textContent = '그림체 · 표지 색은 ②에서, 그림은 지금 표지 색으로 새로 그려요';
-        $('imgStyle').innerHTML = MOODS().map(m => `<button type="button" data-st="${m.style}" data-desc="${esc(m.desc)}"><img src="${m.cover}" alt=""><span>${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name.replace(/^\d+ · /, ''))}</span></button>`).join(''); } }
+        $('imgStyle').innerHTML = MOODS().map((m, i) => `<button type="button" data-mi="${i}" data-st="${m.style}" data-desc="${esc(m.desc)}"><img src="${m.cover}" alt=""><span>${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name.replace(/^\d+ · /, ''))}</span></button>`).join(''); } }
     else if ($('imgStyle').dataset.theme !== S.theme){ const grp = {}; $('imgStyle').dataset.theme = S.theme;   // 표지 색이 바뀌면 그 색 샘플로 다시
       Object.entries(IMG_STYLES).filter(([k]) => !window.PDF_STYLE_SHOW || window.PDF_STYLE_SHOW.includes(k) || k === S.img.style).forEach(([k, s]) => (grp[s.g || '기본'] = grp[s.g || '기본'] || []).push(
         `<button type="button" data-st="${k}">${sampleOf(k) ? `<img src="${sampleOf(k)}" alt="">` : '<span class="ph">샘플 없음<br>만들어 보며 확인</span>'}<span>${s.name}</span></button>`));
@@ -1219,7 +1224,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     $('viewSeg').addEventListener('click', e => { const b = e.target.closest('[data-v]'); if (!b) return; VIEW = b.dataset.v; try { localStorage.setItem('gc-nl-pdf-view', VIEW); } catch(_){} zoom(); });
     $('imgStyle').addEventListener('click', e => { const b = e.target.closest('[data-st]'); if (!b) return; S.img.style = b.dataset.st; save();
       if (!peek) Object.assign(pv, {scale: 100, x: 0, y: 0, fade: FADE()});   // 샘플을 처음 볼 때만 막대를 처음 값으로 (샘플끼리 옮겨 다닐 땐 맞춘 크기 그대로)
-      if (MOODS().length){ peek = ''; if (!(S.img.desc || '').trim() && b.dataset.desc){ S.img.desc = b.dataset.desc; $('imgDesc').value = S.img.desc; } save(); render(); return; }   // 완성 표지 샘플은 고르기만
+      if (MOODS().length){ const m = MOODS()[+b.dataset.mi], big = $('stBig'), again = !big.hidden && big.dataset.mi === b.dataset.mi;   // 고른 샘플 크게 보기, 같은 걸 다시 누르면 접기
+        big.hidden = again; big.dataset.mi = b.dataset.mi;
+        if (!again && m) big.innerHTML = `<img src="${m.cover}" alt=""><b>${esc((IMG_STYLES[m.style] || IMG_STYLES.base).name.replace(/^\d+ · /, ''))}</b><small>${esc(m.desc || '')}</small>`;
+        peek = ''; if (!(S.img.desc || '').trim() && b.dataset.desc){ S.img.desc = b.dataset.desc; $('imgDesc').value = S.img.desc; } save(); render(); return; }   // 완성 표지 샘플은 고르기만
       peek = sampleOf(b.dataset.st) ? b.dataset.st : ''; render(); });
     $('btnGen').addEventListener('click', generate);
     $('plist').addEventListener('click', e => { const li = e.target.closest('li[data-pi]'); if (li) select(li.dataset.pi, true); });
