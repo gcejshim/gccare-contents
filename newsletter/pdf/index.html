@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <link rel="stylesheet" href="../thumbnail/vendor/oswald.css">
 <script src="../thumbnail/vendor/lucide.min.js"></script>
+<script src="../thumbnail/vendor/html2canvas.min.js"></script>
 <script src="../thumbnail/assets.js"></script>
 <script src="styles.js"></script>
 <script src="examples.js"></script>
@@ -799,8 +800,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     markSel(); fitCover(); checkOver(); renderPanel(); zoom(); bakeFade();
   }
   // 큰 제목이 한 줄에 안 들어가면 글자 크기를 줄임
-  function fitCover(){
-    const head = document.querySelector('.cover .head'); if (!head) return; const w = head.clientWidth;
+  function fitCover(root){
+    const head = (root || document).querySelector('.cover .head'); if (!head) return; const w = head.clientWidth;
     [['.l1', 109, 56], ['.l2', 71, 40]].forEach(([q, base, min]) => { const el = head.querySelector(q); if (!el) return;
       let s = base; el.style.fontSize = s + 'px'; while (el.scrollWidth > w && s > min){ s -= 2; el.style.fontSize = s + 'px'; } });
   }
@@ -922,6 +923,28 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     if (artSrc() !== s || !el.isConnected) return;
     if (el.src !== u) await new Promise(r => { el.onload = r; el.onerror = r; el.src = u; });
     el.classList.remove('fade');   // 구운 그림이면 CSS 마스크는 빼서 두 번 흐려지지 않게
+  }
+  // 셸 이번 호 화면: PDF마다 표지를 완성 모양 그대로 작게 (화면 밖에서 그려서 이미지로)
+  async function coverPreviews(){
+    const keepS = S, keepPeek = peek, out = {};
+    const host = document.createElement('div'); host.className = 'doc'; host.style.cssText = 'position:fixed;left:-20000px;top:0';
+    document.body.appendChild(host);
+    try {
+      if (document.fonts) await document.fonts.ready;
+      peek = '';
+      for (const k of Object.keys(BOOK.items).sort()){
+        S = k === BOOK.cur ? keepS : BOOK.items[k];
+        host.dataset.theme = S.theme; host.innerHTML = coverHTML(); drawIcons(host); fitCover(host);
+        host.querySelectorAll('.no-print').forEach(e => e.remove());
+        const art = host.querySelector('.cover .art');
+        if (art){ const f = artV().fade, u = await fadedSrc(S.img.src, f > 0 && f < 50 ? f : 1); art.src = u; art.classList.remove('fade'); }
+        await Promise.all([...host.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+        const c = await html2canvas(host.firstElementChild, {scale: .3, backgroundColor: null, useCORS: true, logging: false, width: 900, height: 1273});
+        out['PDF' + k] = c.toDataURL('image/jpeg', .85);
+      }
+    } catch(e){ console.error(e); }
+    finally { S = keepS; peek = keepPeek; host.remove(); }
+    return out;
   }
   function bakeFade(){ clearTimeout(bakeT); bakeT = setTimeout(bakeNow, 120); }
   const FADE = () => 18;   // 가장자리 흐림 기본값 (배경 전체도 크기를 줄이면 경계가 보여서 늘 켬)
@@ -1357,6 +1380,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
     document.body.classList.add('embedded'); zoom();
     window.addEventListener('message', e => {
       const m = e.data; if (!m || m.nl !== 1 || e.source !== window.parent) return;
+      if (m.type === 'preview') coverPreviews().then(state => notify({type: 'state', reqId: m.reqId, state}));   // 셸 이번 호 화면에 표지를 작게
       if (m.type === 'getState'){ BOOK.items[BOOK.cur] = S; notify({type: 'state', reqId: m.reqId, state: BOOK}); }
       if (m.type === 'setPdf' && m.no){ const n = PDF_NO(m.no); if (n) switchPdf(n); }   // 이번 호 화면에서 PDF 번호를 눌러 들어옴
       if (m.type === 'setState' && m.state) setState(m.state, m.msg == null ? 'PDF 작업을 불러왔어요.' : m.msg);

@@ -96,12 +96,44 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .toast.show{opacity:1}
 
 /* 이번 호 */
+.hero{position:relative;overflow:hidden;border-radius:16px;padding:26px 28px;margin-bottom:18px;display:flex;align-items:flex-end;gap:24px;flex-wrap:wrap;color:var(--neutral-0);
+  background:radial-gradient(ellipse 45% 140% at 85% 20%, rgba(10,194,98,.28), rgba(10,194,98,0) 70%), radial-gradient(ellipse 50% 160% at 10% 100%, rgba(89,152,247,.45), rgba(89,152,247,0) 70%), var(--careBlue-700)}
+.hero .tx{flex:1;min-width:260px}
+.hero small{font-size:12px;font-weight:600;opacity:.75;letter-spacing:.5px}
+.page .hero h2{color:var(--neutral-0);font-size:26px;margin:4px 0 8px}
+.hero p{margin:0;font-size:13px;line-height:1.6;opacity:.85}
+.prog{width:260px;flex:none}
+.prog b{display:flex;align-items:baseline;gap:6px;font-size:13px;font-weight:500;margin-bottom:8px}
+.prog b strong{font-size:28px;font-weight:800}
+.prog .bar{height:8px;border-radius:4px;background:rgba(255,255,255,.18);overflow:hidden}
+.prog .bar i{display:block;height:100%;border-radius:4px;background:var(--careGreen-500);transition:width .3s}
+.view.frame.peek:not(.on){display:block;position:fixed;left:-20000px;top:0;width:1400px;height:900px}   /* 이번 호 미리보기를 그리는 동안만 도구를 화면 밖에 펼침 */
+.ct-b{display:flex;gap:10px;align-items:stretch;min-width:0}
+.pv{flex:none;height:104px;border-radius:8px;overflow:hidden;border:1px solid var(--coolNeutral-100);background:var(--neutral-0)}
+.pv img{display:block;height:100%;width:auto}
+.pv.th{width:180px}
+.pv.th img{width:100%;object-fit:cover}
+.pv.none{display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--neutral-500);background:var(--coolNeutral-50);border:1.5px dashed var(--coolNeutral-200)}
+.strip{flex:1;min-width:0;display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.strip .pv.none{flex:1}
+.ct.pdfc{flex-direction:row;align-items:center;gap:14px}   /* .ct(세로)보다 뒤에 있지 않아도 이기게 */
+.pdfc .cv{flex:none;width:64px;height:91px;border-radius:6px;overflow:hidden;border:1px solid var(--coolNeutral-100);background:var(--coolNeutral-50);box-shadow:0 2px 8px rgba(3,21,82,.08)}
+.pdfc .cv img{display:block;width:100%;height:100%;object-fit:cover}
+.pdfc .st{flex:1;min-width:0}
+.pdfc .st .nm{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}   /* 긴 PDF 제목은 한 줄로 줄이고 마우스를 올리면 전체 (10/24 사용자) */
+.pdfc .st strong{flex:none}
+.pdfc.one{gap:18px;padding:14px 18px}   /* 리드마그넷은 보통 하나 → 칸을 꽉 채우고 표지를 크게 (10/24 사용자) */
+.pdfc.one .cv{width:90px;height:127px}
+.pdfc.one .st{flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;background:none;padding:0;font-size:13px}
+.pdfc.one .st .nm{font-size:15px;font-weight:700;color:var(--careBlue-900);max-width:100%}
+.pdfc.one .st strong{font-size:12px;padding:2px 10px;border-radius:10px;background:var(--coolNeutral-50);color:var(--coolNeutral-600)}
+.pdfc.one .st.done strong{background:var(--careGreen-10);color:var(--careGreen-700)}
 .ct{border:1px solid var(--coolNeutral-100);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:12px}
 .ct-h{display:flex;align-items:center;gap:8px}
 .ct-h b{font-size:13px;color:var(--careBlue-600);background:var(--careBlue-50);padding:2px 8px;border-radius:6px}
 .ct-h input{flex:1}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.st{border-radius:10px;padding:10px 12px;background:var(--coolNeutral-50);font-size:12px;color:var(--coolNeutral-600);display:flex;flex-direction:column;gap:4px}
+.st{border-radius:10px;padding:9px 12px;background:var(--coolNeutral-50);font-size:12px;color:var(--coolNeutral-600);display:flex;align-items:baseline;justify-content:space-between;gap:6px}   /* 한 줄로 (10/24 사용자) */
 .st strong{font-size:14px;color:var(--neutral-900)}
 .st.done{background:var(--careGreen-10);color:var(--careGreen-600)}
 .st.done strong{color:var(--careGreen-700)}
@@ -202,8 +234,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <main class="main">
   <!-- 이번 호 -->
   <section class="view" id="v-home"><div class="page">
-    <h2 id="homeTitle"></h2>
-    <p class="lead">콘텐츠마다 썸네일 · PC · 모바일 이미지를 만들면 저장할 때 자동으로 체크돼요. 다 만들면 [전체 파일 저장]으로 작업 파일을 보관해 두세요.</p>
+    <div class="hero">
+      <div class="tx"><small>이번 호</small><h2 id="homeTitle"></h2><p>콘텐츠마다 썸네일 · PC · 모바일 이미지를 만들면 저장할 때 자동으로 체크돼요.<br>다 만들면 [전체 파일 저장]으로 작업 파일을 보관해 두세요.</p></div>
+      <div class="prog"><b id="progTxt"></b><div class="bar"><i id="progBar"></i></div></div>
+    </div>
     <div class="card">
       <h3>호 정보</h3>
       <div class="row">
@@ -212,29 +246,23 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       </div>
     </div>
     <div class="card">
-      <h3>콘텐츠 <small>한 호 = 콘텐츠 2~3개</small><span class="sp"></span><button class="btn sm" id="btnC3"></button></h3>
+      <h3>콘텐츠<span class="sp"></span><button class="btn sm" id="btnAddC">+ 콘텐츠 추가</button></h3>
       <div class="grid2" id="contents"></div>
     </div>
     <div class="card">
       <h3>리드마그넷 <small>이번 호 PDF 자료 (없으면 비워 두기)</small></h3>
       <div id="pdfRow"></div>
     </div>
-    <div class="grid2">
-      <div class="card">
-        <h3>저장 기록 <small>이 브라우저에서 저장한 파일</small></h3>
-        <ul class="files" id="files"></ul>
-      </div>
-      <div class="card">
+    <div class="card">
         <h3>작업 순서</h3>
         <ol class="todo">
-          <li><b>기획안</b>을 받아 콘텐츠 제목과 메모를 적어요.</li>
-          <li><b>뉴스레터 썸네일</b>을 콘텐츠마다 1장씩 만들어요.</li>
-          <li><b>콘텐츠 이미지</b>에서 블록을 골라 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 블록이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 10~14호를 참고해요.</span></li>
-          <li>배경 · 일러스트가 필요하면 <b>AI로 그리기</b>에서 프롬프트를 만들어 ChatGPT에 붙여 넣어요.</li>
-          <li>저장 기록에 <b>1MB 초과</b> 표시가 없는지 확인하고 납품해요.</li>
+          <li><b>기획안</b>을 받아 콘텐츠 제목 · 마감일 · 메모를 적어요.</li>
+          <li>기획안을 <b>Claude 스킬(gc-ax-newsletter)</b>에 넣고, 받은 결과를 아무 화면에서나 <b>Ctrl+V</b>로 붙여 넣어요. 맞는 메뉴로 알아서 들어가요.</li>
+          <li><b>뉴스레터 썸네일</b>을 콘텐츠마다 1장씩 만들어요. 그림은 <b>[바로 만들기]</b>로 그려요.</li>
+          <li><b>콘텐츠 이미지</b>에서 블록 글자를 확인하고 PC · 모바일 이미지를 만들어요.<br><span class="hint">어떤 모양이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>를 참고해요.</span></li>
+          <li>이번 호 PDF 자료가 있으면 <b>리드마그넷</b>에서 만들고 <b>[PDF 저장]</b>으로 받아요.</li>
           <li><b>[전체 이미지 저장]</b>으로 이미지를 받고, <b>[전체 파일 저장]</b>으로 작업 파일을 보관해요.</li>
         </ol>
-      </div>
     </div>
   </div></section>
 
@@ -385,7 +413,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 
   // ── 상태 ──
   let H;
-  function blankIssue(n){ return {due: DUE[n] || '', memo: '', c3: false, contents: {'01': {title: ''}, '02': {title: ''}, '03': {title: ''}}, files: {}}; }
+  function blankIssue(n){ return {due: DUE[n] || '', memo: '', n: 2, contents: {'01': {title: ''}, '02': {title: ''}}, files: {}}; }
   function load(){ try { const h = JSON.parse(localStorage.getItem(KEY) || 'null'); if (h && h.issues) return h; } catch(e){} return {issue: 15, view: 'home', aTab: 'logo', ai: {}, issues: {}}; }
   function save(){ try { localStorage.setItem(KEY, JSON.stringify(H)); } catch(e){} }
   const I = () => (H.issues[H.issue] = H.issues[H.issue] || blankIssue(H.issue));
@@ -395,8 +423,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const pending = {};
   function frameOf(win){ return Object.keys(TOOLS).find(k => TOOLS[k].el && TOOLS[k].el.contentWindow === win); }
   function send(tool, m){ const t = TOOLS[tool]; if (t.el && t.ready) t.el.contentWindow.postMessage(Object.assign({nl: 1}, m), '*'); else (t.queue = t.queue || []).push(m); }
-  function ask(tool, type){
-    return new Promise(res => { const id = Math.random().toString(36).slice(2); pending[id] = res; send(tool, {type, reqId: id}); setTimeout(() => { if (pending[id]){ delete pending[id]; res(null); } }, 4000); });
+  function ask(tool, type, ms){
+    return new Promise(res => { const id = Math.random().toString(36).slice(2); pending[id] = res; send(tool, {type, reqId: id}); setTimeout(() => { if (pending[id]){ delete pending[id]; res(null); } }, ms || 4000); });
   }
   function mountTools(){
     Object.entries(TOOLS).forEach(([k, t]) => {
@@ -408,7 +436,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   window.addEventListener('message', e => {
     const m = e.data, tool = frameOf(e.source); if (!m || m.nl !== 1 || !tool) return;
     const t = TOOLS[tool];
-    if (m.type === 'ready'){ t.ready = true; send(tool, {type: 'setIssue', issue: H.issue}); (t.queue || []).splice(0).forEach(q => send(tool, q)); if (tool === 'image') refreshPlan(); }
+    if (m.type === 'ready'){ t.ready = true; send(tool, {type: 'setIssue', issue: H.issue}); (t.queue || []).splice(0).forEach(q => send(tool, q)); if (tool === 'image') refreshPlan(); if (H.view === 'home') setTimeout(refreshPreviews, 300); }
     if (m.type === 'issueChanged' && m.issue && m.issue !== H.issue){ setIssue(m.issue, tool); }
     if (m.type === 'state' && pending[m.reqId]){ pending[m.reqId](m.state); delete pending[m.reqId]; }
     if (m.type === 'exportDone' && pending[m.reqId]){ pending[m.reqId](m); delete pending[m.reqId]; }
@@ -460,7 +488,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   function renderTop(){
     $('issueNo').textContent = `뉴스레터 ${H.issue}호`;   // 앞의 이름은 불러온 콘텐츠 종류 (나중에 '보건관리 14호'처럼) const ym = ymOf(H.issue); $('issueYm').textContent = `${ym.slice(0, 4)}.${ym.slice(4)}`;
     const due = I().due, dd = $('dday');
-    if (due){ const d = Math.ceil((new Date(due + 'T23:59:59') - new Date()) / 864e5); dd.hidden = false; dd.textContent = d > 0 ? `마감 D-${d}` : d === 0 ? '오늘 마감' : `마감 ${-d}일 지남`; dd.className = 'dday' + (d < 0 ? ' over' : d <= 3 ? ' soon' : ''); }
+    // 마감이 지나면 표시 안 함 (10/24 사용자)
+    const d = due ? Math.ceil((new Date(due + 'T23:59:59') - new Date()) / 864e5) : -1;
+    if (d >= 0){ dd.hidden = false; dd.textContent = d > 0 ? `마감 D-${d}` : d === 0 ? '오늘 마감' : `마감 ${-d}일 지남`; dd.className = 'dday' + (d < 0 ? ' over' : d <= 3 ? ' soon' : ''); }
     else dd.hidden = true;
   }
 
@@ -469,7 +499,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     H.view = view; save();
     document.querySelectorAll('.menu').forEach(b => b.classList.toggle('on', b.dataset.view === view));
     document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + view));
-    if (view === 'home') renderHome();
+    if (view === 'home'){ renderHome(); refreshPreviews(); }
     if (view === 'assets') renderAssets();
     if (view === 'ai') renderAI();
     if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
@@ -482,13 +512,32 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (s && s.ym === ymOf(H.issue)) (s.items || []).forEach(it => { if (!it.owner) plan[it.contents] = (plan[it.contents] || 0) + 1; });
     if (H.view === 'home') renderHome();
   }
+  // 완성 모양 미리보기 (썸네일 · 콘텐츠 이미지 PC · 리드마그넷 표지) — 도구가 그려서 보내 줌, 호마다 브라우저(IndexedDB)에 보관
+  let pv = {issue: 0, thumb: {}, image: [], pdf: {}}, peeking = false;
+  const PV_TOOLS = ['thumb', 'image', 'pdf'];
+  async function refreshPreviews(){
+    if (peeking || !PV_TOOLS.every(k => TOOLS[k].ready)) return;
+    const n = H.issue; peeking = true;
+    PV_TOOLS.forEach(k => $('v-' + k).classList.add('peek'));   // 숨은 화면(display:none)의 도구는 그려지지 않음
+    try {
+      if (pv.issue !== n){ const kept = await hdb(0, 'prev:' + n); pv = kept || {issue: n, thumb: {}, image: [], pdf: {}}; if (H.view === 'home') renderHome(); }
+      const [t, im, p] = await Promise.all(PV_TOOLS.map(k => ask(k, 'preview', 60000)));
+      if (H.issue !== n) return;
+      pv = {issue: n, thumb: t && t.issue === n ? t.items : {}, image: im && im.ym === ymOf(n) ? im.items : [], pdf: p || {}};
+      hdb(1, 'prev:' + n, pv);
+      if (H.view === 'home') renderHome();
+    } finally { PV_TOOLS.forEach(k => $('v-' + k).classList.remove('peek')); peeking = false; }
+  }
+  const NO = i => String(i + 1).padStart(2, '0');
+  const cCount = iss => Math.max(2, iss.n || (iss.c3 ? 3 : 2));   // 한 호 콘텐츠 수는 정해져 있지 않음 (10/24 사용자) · 예전 기록(c3)도 그대로
   function renderHome(){
-    const iss = I(), ym = ymOf(H.issue);
+    const iss = I(), ym = ymOf(H.issue), mine = pv.issue === H.issue;
     $('homeTitle').textContent = `${H.issue}호 · ${ym.slice(0, 4)}년 ${+ym.slice(4)}월호`;
     $('due').value = iss.due || ''; $('memo').value = iss.memo || '';
-    $('btnC3').textContent = iss.c3 ? '콘텐츠 03 빼기' : '+ 콘텐츠 03 추가';
     const files = Object.values(iss.files);
-    const list = iss.c3 ? ['01', '02', '03'] : ['01', '02'];
+    const count = cCount(iss), list = Array.from({length: count}, (_, i) => NO(i));
+    $('btnAddC').hidden = count >= 9;
+    let done = 0, total = 0;
     $('contents').innerHTML = list.map(c => {
       const th = files.filter(f => f.kind === 'thumb' && f.no === c);
       const pc = new Set(files.filter(f => f.kind === 'pc' && f.contents === c).map(f => f.no)).size;
@@ -496,23 +545,26 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       const want = plan[c] || 0;
       const st = (n, w) => n === 0 ? '' : (w && n < w) ? 'part' : 'done';
       const lbl = (n, w) => w ? `${n} / ${w}장` : `${n}장`;
-      return `<div class="ct"><div class="ct-h"><b>${c} ${c === '01' ? '메인' : '서브'}</b><input type="text" data-title="${c}" value="${esc(iss.contents[c].title)}" placeholder="콘텐츠 제목"></div>
+      total += 3; done += (th.length ? 1 : 0) + (st(pc, want) === 'done' ? 1 : 0) + (st(mo, want) === 'done' ? 1 : 0);
+      const tsrc = mine && pv.thumb[c], imgs = mine ? pv.image.filter(x => x.contents === c) : [];
+      return `<div class="ct"><div class="ct-h"><b>${c} ${c === '01' ? '메인' : '서브'}</b><input type="text" data-title="${c}" value="${esc((iss.contents[c] || {}).title || '')}" placeholder="콘텐츠 제목"></div>
+        <div class="ct-b">${tsrc ? `<div class="pv th"><img src="${tsrc}" alt="썸네일"></div>` : '<div class="pv th none">썸네일 아직</div>'}
+          <div class="strip">${imgs.length ? imgs.map(x => `<div class="pv"><img src="${x.src}" alt="콘텐츠 이미지"></div>`).join('') : '<div class="pv none">콘텐츠 이미지 아직</div>'}</div></div>
         <div class="steps">
           <div class="st ${th.length ? 'done' : ''}">썸네일<strong>${th.length ? '저장함' : '아직'}</strong></div>
           <div class="st ${st(pc, want)}">PC<strong>${lbl(pc, want)}</strong></div>
           <div class="st ${st(mo, want)}">모바일<strong>${lbl(mo, want)}</strong></div>
         </div>
-        <div class="acts"><button class="btn sm" data-go="thumb" data-no="${c}">썸네일 만들기</button><button class="btn sm" data-go="image">콘텐츠 이미지 만들기</button></div></div>`;
+        <div class="acts"><button class="btn sm" data-go="thumb" data-no="${c}">썸네일 열기</button><button class="btn sm" data-go="image">콘텐츠 이미지 열기</button>${c === NO(count - 1) && count > 2 ? '<span style="flex:1"></span><button class="btn sm" data-del="1">이 콘텐츠 빼기</button>' : ''}</div></div>`;
     }).join('');
     // PDF는 호 안에서 PDF01 · PDF02 … (목록은 PDF 도구가 알려 줌, 저장 기록은 번호로 맞춤 — 번호 없는 예전 기록은 PDF01)
     const pdfs = files.filter(f => f.kind === 'pdf').sort((a, b) => b.t - a.t);
     const plist = (iss.pdfs && iss.pdfs.length) ? iss.pdfs : [{no: 'PDF01', title: ''}];
-    $('pdfRow').innerHTML = `<div class="grid2">${plist.map(p => { const got = pdfs.filter(f => (f.no || 'PDF01') === p.no);
-      return `<div class="ct" style="flex-direction:row;align-items:center;gap:12px"><div class="st ${got.length ? 'done' : ''}" style="flex:1">${esc(p.no)}${p.title ? ' · ' + esc(p.title) : ''}<strong>${got.length ? '저장함' : '아직'}</strong></div><div class="acts"><button class="btn sm" data-go="pdf" data-pdf="${esc(p.no)}">열기</button></div></div>`; }).join('')}</div>`;
-    const fs = files.sort((a, b) => b.t - a.t);
-    $('files').innerHTML = fs.length ? fs.map(f => { const d = new Date(f.t);
-      return `<li class="${f.kb > 1024 ? 'big' : ''}"><span class="t">${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}</span><span>${esc(f.name)}</span><span class="k">${f.w ? `${f.w}×${f.h} · ` : ''}${f.kb != null ? `${f.kb}KB` : f.kind === 'pdf' ? 'PDF' : ''}${f.kb > 1024 ? ' · 1MB 초과' : ''}</span></li>`; }).join('')
-      : '<li class="empty" style="display:block">아직 저장한 파일이 없어요. 썸네일이나 콘텐츠 이미지를 저장하면 여기에 쌓여요.</li>';
+    $('pdfRow').innerHTML = `<div class="${plist.length > 1 ? 'grid2' : ''}">${plist.map(p => { const got = pdfs.filter(f => (f.no || 'PDF01') === p.no); total++; if (got.length) done++;
+      const cv = mine && pv.pdf[p.no];
+      return `<div class="ct pdfc${plist.length > 1 ? '' : ' one'}">${cv ? `<div class="cv"><img src="${cv}" alt="표지"></div>` : ''}<div class="st ${got.length ? 'done' : ''}"><span class="nm" title="${esc(p.no)}${p.title ? ' · ' + esc(p.title) : ''}">${esc(p.no)}${p.title ? ' · ' + esc(p.title) : ''}</span><strong>${got.length ? '저장함' : '아직'}</strong></div><div class="acts"><button class="btn sm" data-go="pdf" data-pdf="${esc(p.no)}">열기</button></div></div>`; }).join('')}</div>`;
+    $('progTxt').innerHTML = done && done === total ? '<strong>모두 완료</strong>' : `<strong>${done}</strong>/ ${total}개 완료`;
+    $('progBar').style.width = (total ? done / total * 100 : 0) + '%';
     renderTop();
   }
 
@@ -779,9 +831,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('issueNext').addEventListener('click', () => switchIssue(H.issue + 1));
     $('due').addEventListener('change', e => { I().due = e.target.value; save(); renderTop(); });
     $('memo').addEventListener('input', e => { I().memo = e.target.value; save(); });
-    $('btnC3').addEventListener('click', () => { I().c3 = !I().c3; save(); renderHome(); });
-    $('contents').addEventListener('input', e => { const c = e.target.dataset.title; if (c){ I().contents[c].title = e.target.value; save(); } });
+    $('btnAddC').addEventListener('click', () => { const iss = I(); iss.n = Math.min(9, cCount(iss) + 1); delete iss.c3; save(); renderHome(); });
+    $('contents').addEventListener('input', e => { const c = e.target.dataset.title; if (c){ (I().contents[c] = I().contents[c] || {}).title = e.target.value; save(); } });
     $('pdfRow').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.pdf) send('pdf', {type: 'setPdf', no: b.dataset.pdf}); go('pdf'); });
+    $('contents').addEventListener('click', e => { if (!e.target.closest('[data-del]')) return; const iss = I(); iss.n = cCount(iss) - 1; delete iss.c3; save(); renderHome(); });
     $('contents').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if (!b) return; if (b.dataset.no) send('thumb', {type: 'setNo', no: b.dataset.no}); go(b.dataset.go); });
     $('btnSaveAll').addEventListener('click', saveAll);
     $('btnExportAllImg').addEventListener('click', exportAllImages);
@@ -861,7 +914,9 @@ function _0m(us){return new Promise((res)=>{const saved=_0r();const COS=['GC케�
       <button id="_userConfirm" style="width:100%;padding:8px;border:none;border-radius:6px;background:#2a4a7f;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">확인</button>
     `;ov.appendChild(bx);document.body.appendChild(ov);const coSel=bx.querySelector('#_userCompany'),teamIn=bx.querySelector('#_userTeam'),sl=bx.querySelector('#_userSelect'),cu=bx.querySelector('#_userCustom'),sw=bx.querySelector('#_userSwitch');const setCM=(on)=>{if(on){sl.style.flex='0 0 84px';cu.style.display='block';}else{sl.style.flex='1';cu.style.display='none';}};const renderSelect=(company)=>{sl.innerHTML='<option value="" disabled selected>이름을 선택하세요</option>'+us.map((u,i)=>({u,i})).filter(o=>o.u.c===company).map(o=>`<option value="${o.i}">${o.u.n}</option>`).join('')+'<option value="__custom__">직접입력</option>';};const reset=()=>{coSel.value='GC케어';renderSelect('GC케어');teamIn.value='';const inCompany=us.filter(u=>u.c==='GC케어');if(inCompany.length===0){sl.value='__custom__';setCM(true);cu.value='';cu.focus();}else{setCM(false);sl.value='';sl.focus();}sw.style.display='none';};if(saved){teamIn.value=saved.t||'';const idx=us.findIndex(u=>u.c===saved.c&&u.t===saved.t&&u.n===saved.n);if(idx>=0){sl.value=String(idx);setCM(false);}else{sl.value='__custom__';setCM(true);cu.value=saved.n||'';}sw.style.display='block';}else{const inCompany=us.filter(u=>u.c===defC);if(inCompany.length===0){sl.value='__custom__';setCM(true);}else{setCM(false);sl.value='';}}sl.addEventListener('change',()=>{if(sl.value==='__custom__'){setCM(true);cu.focus();}else{setCM(false);const picked=us[parseInt(sl.value,10)];coSel.value=picked.c;teamIn.value=picked.t;}});coSel.addEventListener('change',()=>{renderSelect(coSel.value);const inCompany=us.filter(u=>u.c===coSel.value);teamIn.value='';if(inCompany.length===0){sl.value='__custom__';setCM(true);cu.value='';cu.focus();}else{setCM(false);sl.value='';}});sw.addEventListener('click',()=>{localStorage.removeItem('_gcUserId');reset();});const cf=()=>{const c=coSel.value;if(sl.value===''){sl.focus();return;}const n=sl.value==='__custom__'?cu.value.trim():(us[parseInt(sl.value,10)]||{}).n||'';if(!n){cu.style.display='block';cu.focus();return;}const t=teamIn.value.trim();if(!t){teamIn.focus();return;}const clean=s=>s.replace(/[\t\n]/g,' ');const cc=clean(c),tt=clean(t),nn=clean(n);localStorage.setItem('_gcUserId',JSON.stringify({c:cc,t:tt,n:nn}));document.body.removeChild(ov);res({c:cc,t:tt,n:nn});};bx.querySelector('#_userConfirm').addEventListener('click',cf);teamIn.addEventListener('keydown',(e)=>{if(e.key==='Enter')cf();});cu.addEventListener('keydown',(e)=>{if(e.key==='Enter')cf();});});}
 
-async function _0n(){try{const us=await _0l(),{c,t,n}=await _0m(us);await _0k(c,t,n);console.log('뉴스레터 게이트 통과 ('+c+' · '+t+' · '+n+')');}catch(e){console.error('게이트 로드 실패:',e);}}
+// 사용자 확인 창은 잠시 끔 (2026-10-24 사용자: 열 때마다 불편, 다시 켜 달라고 할 때만 GATE=true). 꺼 둔 동안에도 예전에 확인한 브라우저는 접속 기록만 남김
+const GATE=false;
+async function _0n(){try{if(!GATE){const sv=_0r();if(sv&&sv.n)_0k(sv.c,sv.t,sv.n);return;}const us=await _0l(),{c,t,n}=await _0m(us);await _0k(c,t,n);console.log('뉴스레터 게이트 통과 ('+c+' · '+t+' · '+n+')');}catch(e){console.error('게이트 로드 실패:',e);}}
 window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='usage'&&d.kind)window._0u(d.kind);});   // 도구(iframe)에서 AI를 쓰면 한 줄
 if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',_0n);else _0n();
 })();

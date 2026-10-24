@@ -36,7 +36,7 @@ def tool(path, extra=(), h2c=True):
 tools = {
     'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs')]),
     'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd')]),
-    'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), [(r'<script src="styles\.js"></script>', 'pdfStyles'), (r'<script src="examples\.js"></script>', 'pdfEx'), (r'<script src="moods\.js"></script>', 'pdfMoods')], h2c=False),   # PDF는 인쇄 → PDF라 html2canvas 없음
+    'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), [(r'<script src="styles\.js"></script>', 'pdfStyles'), (r'<script src="examples\.js"></script>', 'pdfEx'), (r'<script src="moods\.js"></script>', 'pdfMoods')]),   # html2canvas는 이번 호 화면의 작은 표지 미리보기용
 }
 libs = {
     'h2c': read(os.path.join(TH, 'vendor', 'html2canvas.min.js')),

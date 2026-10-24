@@ -725,7 +725,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         </div>
         <div class="row">
           <div class="field"><label>콘텐츠</label>
-            <select id="itContents"><option value="01">01 (메인)</option><option value="02">02 (서브)</option><option value="03">03 (서브)</option></select>
+            <select id="itContents"><option value="01">01 (메인)</option><option value="02">02 (서브)</option><option value="03">03 (서브)</option><option value="04">04 (서브)</option><option value="05">05 (서브)</option><option value="06">06 (서브)</option><option value="07">07 (서브)</option><option value="08">08 (서브)</option><option value="09">09 (서브)</option></select>
           </div>
           <div class="field"><label>이미지 번호</label><input type="number" id="itNo" min="1" max="20"></div>
         </div>
@@ -2336,7 +2336,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   }
 
   // ── 내보내기 (PC 2배 · 모바일 3배, 흰 배경으로 투명 영역 없음) ──
-  async function snap(it, m){
+  async function snap(it, m, sc){
     const host = $('exportHost');
     host.innerHTML = renderItem(it, m);
     const node = host.firstElementChild;
@@ -2345,9 +2345,17 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     fixPills(host);
     const w = m === 'pc' ? 900 : 350, h = Math.ceil(node.getBoundingClientRect().height);
     node.style.height = h + 'px';
-    const canvas = await html2canvas(node, {scale: m === 'pc' ? 2 : 3, backgroundColor: '#ffffff', useCORS: true, logging: false, width: w, height: h, windowWidth: 1400});
+    const canvas = await html2canvas(node, {scale: sc || (m === 'pc' ? 2 : 3), backgroundColor: '#ffffff', useCORS: true, logging: false, width: w, height: h, windowWidth: 1400});
     host.innerHTML = '';
     return canvas;
+  }
+  async function previews(){
+    if (busy) return null;
+    const items = [];
+    for (const it of allOut().filter(it => !it.fresh)){
+      try { const c = await snap(it, 'pc', .4); items.push({contents: it.contents, src: c.toDataURL('image/jpeg', .8)}); } catch(e){ console.error(e); }
+    }
+    return {ym: S.ym, items};
   }
   const toBlob = (c, fmt) => new Promise(r => fmt === 'jpg' ? c.toBlob(r, 'image/jpeg', JPG_Q) : c.toBlob(r, 'image/png'));
   let lastRes = [];
@@ -2718,6 +2726,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       if (m.type === 'setState' && m.state) setTimeout(hReset, 0);   // 다른 호 작업으로 바뀜 → 되돌리기 기록 새로
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ S.issue = m.issue; S.ym = ymOf(m.issue); syncTop(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:S});
+      if (m.type === 'preview') previews().then(state => notify({type:'state', reqId:m.reqId, state}));   // 셸 이번 호 화면에 완성 이미지(PC)를 작게
       if (m.type === 'setState' && m.state) applyState(m.state, m.msg == null ? '콘텐츠 이미지 작업을 불러왔어요.' : m.msg);
       if (m.type === 'addBlock') addBlock(m.blockType);
       if (m.type === 'pasteJSON' && m.text) takeJSON(m.text);   // 다른 화면에서 붙여 넣은 콘텐츠 이미지 결과
