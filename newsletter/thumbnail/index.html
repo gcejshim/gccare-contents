@@ -50,7 +50,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 
 /* ── 레이아웃 ── */
 .main{display:grid;grid-template-columns:380px 1fr;gap:20px;padding:20px;max-width:1400px;margin:0 auto}
-.panel{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:22px;align-self:start}
+.panel{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:22px;align-self:stretch}   /* 2026-10-25 사용자: 왼쪽 패널 아래 끝을 오른쪽과 맞춤 */
 .sec h3{font-size:14px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:6px}
 .sec h3 small{font-weight:400;color:var(--neutral-500);font-size:12px}
 .stepn{flex:none;width:18px;height:18px;border-radius:50%;background:#788da1;color:var(--neutral-0);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
@@ -96,9 +96,17 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .card h2{font-size:14px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px}
 .card h2 small{font-weight:400;color:var(--neutral-500);font-size:12px}
 .gen{display:flex;flex-direction:column;gap:12px}
+/* 2026-10-25 이미지 카드: 단계마다 번호 · 구분선, 미리보기 카드는 위에 고정(막대를 움직이며 결과 보기) */
+.gen > .sec + .sec, .gen > .sec-h{padding-top:16px;border-top:1px solid var(--coolNeutral-100);margin-top:4px}
+.gen .sec-h{font-size:14px;font-weight:700;margin:4px 0 0;display:flex;align-items:center;gap:6px}
+.gen .sec-h small{font-weight:400;color:var(--neutral-500);font-size:12px}
+.gen .swatches{grid-template-columns:repeat(7,minmax(0,80px))}
+.gen-edit label{display:flex;align-items:center;gap:6px}
+@keyframes secFlash{0%,60%{background:var(--careBlue-50);box-shadow:0 0 0 2px var(--careBlue-500)}100%{background:transparent;box-shadow:0 0 0 2px transparent}}
+#imgSec{border-radius:10px;margin:-8px;padding:8px}
+#imgSec.flash{animation:secFlash 2.4s ease-out}
 .gen-row{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
 .gen-row > .field{min-width:200px}
-#genStyle button{padding:0 14px;white-space:nowrap}
 .gen-bg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--neutral-600)}
 .gen-bg i{width:22px;height:22px;border-radius:6px;border:1px solid var(--coolNeutral-200);flex:none}
 .gen-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
@@ -236,7 +244,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       <div class="row">
         <div class="field"><label>호수</label><input type="number" id="issue" min="1"></div>
         <div class="field"><label>콘텐츠 번호</label>
-          <select id="no"><option value="01">01 (메인)</option><option value="02">02 (서브)</option><option value="03">03 (서브)</option></select>
+          <select id="no"></select>
         </div>
       </div>
     </div>
@@ -244,22 +252,24 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     <div class="sec">
       <h3><span class="stepn">2</span>타이틀 <small>줄바꿈한 대로 표시돼요</small></h3>
       <textarea id="title" spellcheck="false"></textarea>
-      <div class="hint">강조하고 싶은 단어는 <b>[대괄호]</b>로 감싸 주세요. 예: 검진 결과가 [나왔습니다.]</div>
+      <div class="hint">강조하고 싶은 단어는 <b>[대괄호]</b>로 감싸 주세요.</div>
     </div>
 
+    <!-- 2026-10-25 사용자: 배경 색상 · 그림체 · AI로 만들기는 오른쪽 '이미지' 카드. 가진 이미지 넣기 · 크기 · 위치는 왼쪽 4번 (오른쪽이 길어져 스크롤이 생기는 게 싫음) -->
     <div class="sec">
-      <h3><span class="stepn">3</span>배경 색상</h3>
-      <div class="swatches" id="presets"></div>
-      <div class="hint" id="presetHint" hidden>지금은 <b>장면형</b>이라 이미지의 배경을 그대로 쓰고, 글자색은 이미지 밝기에 맞춰 자동으로 정해져요. 색을 고르면 배경색이 보이도록 사진형으로 바뀌어요.</div>
+      <h3><span class="stepn">3</span>키워드 칩 <small>최대 3개</small></h3>
+      <label class="switch"><input type="checkbox" id="chipsOn"> 칩 표시하기</label>
+      <div id="chipEditors"></div>
     </div>
 
-    <div class="sec">
-      <h3><span class="stepn">4</span>이미지</h3>
+    <div class="sec" id="imgSec">
+      <h3><span class="stepn">4</span>이미지 <small>가진 이미지 넣기 · 크기 · 위치</small></h3>
       <div class="seg" id="layout" hidden>   <!-- 2026-10-18 배치 버튼 없앰: AI 그림은 장면형, 넣은 사진은 사진형으로 자동 -->
         <button data-v="scene">장면형</button><button data-v="photo">사진형</button>
       </div>
+      <div class="drop" id="drop">이미지를 끌어다 놓거나 <b>클릭</b>해서 선택<br>복사한 이미지는 <b>Ctrl+V</b>로 붙여넣기</div>
       <div class="hint" id="layoutHint"></div>
-      <div class="drop" id="drop" style="margin-top:10px">이미지를 끌어다 놓거나 <b>클릭</b>해서 선택<br>복사한 이미지는 <b>Ctrl+V</b>로 붙여넣기</div>
+      <div class="hint" id="imgEmpty" style="margin:0">없으면 오른쪽 <b>AI 이미지 생성하기</b>에서 만들어요.</div>
       <input type="file" id="fileImg" accept="image/*" hidden>
       <div class="imgrow" id="imgRow" hidden>
         <img id="imgThumb" alt="">
@@ -271,12 +281,6 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         <div class="slider"><span>상하</span><input type="range" id="imgY" min="-200" max="200"><output id="oY"></output></div>
         <div class="slider" title="글씨 쪽(왼쪽)으로 갈수록 배경색으로 흐려지는 정도 · 0이면 끔"><span>흐림</span><input type="range" id="imgFade" min="0" max="200"><output id="oFade"></output></div>
       </div>
-    </div>
-
-    <div class="sec">
-      <h3>키워드 칩 <small>최대 3개</small></h3>
-      <label class="switch"><input type="checkbox" id="chipsOn"> 칩 표시하기</label>
-      <div id="chipEditors"></div>
     </div>
   </aside>
 
@@ -293,25 +297,28 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       </div>
       <p class="filename" style="margin:14px 0 0">저장 파일명: <code id="fname"></code></p>
     </div>
+    <!-- 2026-10-25 사용자: AI 이미지 생성은 이 카드에서 위 → 아래 순서로 (배경색 → 그림체 → 그릴 것 → 만들기 → 수정). 가진 이미지 넣기 · 크기 · 위치는 왼쪽 ④ -->
     <div class="card">
       <h2>AI 이미지 생성하기</h2>
       <div class="gen">
-        <div class="gen-bg">지금 배경: <i id="genBgChip"></i><b id="genBgName"></b><span id="genLayoutName"></span></div>
-        <div class="gen-row">
-          <div class="field" style="flex:none"><label>그림체</label>
-            <div class="seg" id="genStyle"><button data-v="scene3d">3D</button><button data-v="photo">실사</button></div>
-          </div>
-          <div class="field"><label>무엇을 그릴까요?</label>
-            <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 펼쳐진 공시 책자, 체크 방패. 책자 제목 &quot;안전보건 공시&quot; (따옴표 글자만 그림에 들어가요 · 비워 두면 타이틀로 정해요)"></textarea>
-          </div>
+        <div class="sec">
+          <h3><span class="stepn">1</span>배경 색상</h3>
+          <div class="swatches" id="presets"></div>
+          <div class="hint" id="presetHint" hidden>지금은 <b>장면형</b>이라 이미지의 배경을 그대로 쓰고, 글자색은 이미지 밝기에 맞춰 자동으로 정해져요. 색을 고르면 배경색이 보이도록 사진형으로 바뀌어요.</div>
+          <span id="genBgChip" hidden></span><span id="genBgName" hidden></span><span id="genLayoutName" hidden></span>
         </div>
-        <div class="field"><label>참고 이미지 <small style="font-weight:400;color:var(--neutral-500)">참고 이미지를 선택하면 그 스타일에 맞추어 이미지가 그려져요</small></label>
+        <div class="sec">   <!-- 2026-10-25 사용자: 그림체(3D · 실사) 버튼 없앰 — 참고 이미지가 그림체를 정함 -->
+          <h3><span class="stepn">2</span>그림체 <small>고른 참고 이미지의 그림체로 그려요</small></h3>
           <div class="gen-rwrap"><button type="button" class="gen-rarr l" id="genRefL" title="앞으로" hidden><i>‹</i></button><div class="gen-refs" id="genRefs"></div><button type="button" class="gen-rarr r" id="genRefR" title="더 보기" hidden><i>›</i></button></div>
           <div class="gen-refnow" id="genRefNow"></div>
           <div class="ref-peek" id="refPeek" hidden><img alt=""><b></b><span></span></div>
+          <div class="hint" id="genHint" style="margin:6px 0 0"></div>
         </div>
-        <div class="hint" id="genHint" style="margin:0"></div>
-        <div class="gen-chars" id="genChars" hidden></div>
+        <div class="sec">
+          <h3><span class="stepn">3</span>무엇을 그릴까요?</h3>
+          <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 펼쳐진 공시 책자, 막대그래프 카드. 책자 제목 &quot;안전보건 공시&quot; (따옴표 글자만 그림에 들어가요 · 비워 두면 타이틀로 정해요)"></textarea>
+          <div class="gen-chars" id="genChars" hidden style="margin-top:8px"></div>
+        </div>
         <div class="field" hidden><label>프롬프트</label>   <!-- 2026-10-15 ChatGPT 흐름 안 씀: 프롬프트는 안에서만 만들어 [이미지 만들기]로 보냄 -->
           <textarea id="genPrompt" spellcheck="false"></textarea>
         </div>
@@ -336,14 +343,13 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 <div class="modal" id="help" hidden>
   <div class="modal-box">
     <h2>썸네일 만드는 방법</h2>
-    <p class="hint" style="margin:0 0 12px">💡 claude.ai의 <b>gc-ax-newsletter</b> 스킬로 기획안을 변환했다면, 결과 창 위 <b>[복사]</b> → 이 화면 아무 곳에서 <b>Ctrl+V</b> 하세요(글자 칸 안에서 해도 돼요). 1~5번과 그릴 것이 자동으로 채워져요.</p>
+    <p class="hint" style="margin:0 0 12px">💡 claude.ai의 <b>gc-ax-newsletter</b> 스킬로 기획안을 변환했다면, 결과 창 위 <b>[복사]</b> → 이 화면 아무 곳에서 <b>Ctrl+V</b> 하세요(글자 칸 안에서 해도 돼요). 호수 · 타이틀 · 배경 색상 · 칩과 그릴 것이 자동으로 채워져요.</p>
     <ol>
       <li><b>호수와 콘텐츠 번호</b>를 확인해요. 저장 파일명에 그대로 들어가요.</li>
       <li><b>타이틀</b>을 기획안대로 입력해요. 엔터로 줄을 나누면 그대로 보여요. 3줄 이내를 권장해요.<br>강조할 단어는 <b>[대괄호]</b>로 감싸면 강조색이 돼요.</li>
-      <li><b>배경 색상</b>을 골라요. 글자색과 로고는 자동으로 맞춰져요.<br>이미지 배경과 색을 딱 맞춰야 할 때만 <b>[색 찍기]</b>로 이미지나 화면의 색을 스포이트로 찍어 써요.</li>
-      <li><b>이미지</b>를 넣어요. 끌어다 놓기, 클릭해서 선택, Ctrl+V 붙여넣기 모두 돼요. 새로 그려야 하면 <b>AI 이미지 생성하기</b>에서 배경색 · 그림체 · 그릴 것을 고르고 <b>[이미지 만들기]</b>를 눌러요. 실제 인터뷰 사진은 그대로 붙여넣어 주세요.
-        이미지는 오른쪽, 왼쪽은 배경색과 타이틀 자리예요. 크기·좌우·상하 막대로 위치를 맞춰요. <b>이미지에는 글자가 없어야 해요.</b></li>
       <li>필요하면 <b>키워드 칩</b>(최대 3개, 7자 이내)을 켜요.</li>
+      <li>가진 이미지가 있으면 왼쪽 <b>④ 이미지</b>에 끌어다 놓거나 Ctrl+V 해요(실제 인터뷰 사진은 그대로 붙여넣기). 이미지는 오른쪽, 왼쪽은 배경색과 타이틀 자리예요. 크기 · 좌우 · 상하 · 흐림 막대로 맞춰요. <b>이미지에는 글자가 없어야 해요.</b></li>
+      <li>배경색과 새 그림은 오른쪽 <b>AI 이미지 생성하기</b>에서 위에서부터 차례로: <b>배경 색상</b> → <b>그림체</b>(참고 이미지) → <b>무엇을 그릴까요?</b> → <b>[이미지 만들기]</b>. 만든 이미지도 왼쪽 ④에서 크기 · 위치를 맞춰요. 글자색과 로고는 배경에 맞춰 자동으로 정해져요.</li>
       <li><b>자동 점검</b>에 주황색 경고가 없는지 확인해요.</li>
       <li><b>[이 이미지 저장]</b>을 누르면 처음 한 번 저장할 폴더를 고르고, 그다음부터 그 폴더에 저장돼요. <b>[전체 이미지 저장]</b>은 이번 호에서 작업한 썸네일을 모두 저장해요.</li>
       <li>콘텐츠 번호(01 · 02 · 03)를 바꾸면 그 번호의 썸네일로 바뀌어요. 한 호의 썸네일은 <b>[작업 파일 저장]</b> 파일 하나에 모두 들어가고, <b>[작업 파일 열기]</b>로 열면 한꺼번에 이어서 수정할 수 있어요.</li>
@@ -421,7 +427,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   let S = DEFAULT();
   // 한 호의 썸네일 묶음: 콘텐츠 번호 → 썸네일 상태. 지금 보는 썸네일 S는 항상 BOOK[S.no]와 같은 것
   let BOOK = {'01': S};
-  const NOS = ['01', '02', '03'];
+  const NOS = ['01', '02', '03', '04', '05', '06', '07', '08', '09'];   // 한 호 콘텐츠 수는 정해져 있지 않음 (10/24 사용자)
   const $ = id => document.getElementById(id);
   const imgCache = {};   // dataURL → {w,h,corner}
   const used = s => !!s.image || s.title !== DEFAULT().title;
@@ -561,7 +567,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
               if (Math.abs(e[a] - e[b]) + Math.abs(e[a+1] - e[b+1]) + Math.abs(e[a+2] - e[b+2]) > 45) jump++; }
             if (jump >= ch * 0.7){ edge = xx / cw; break; } }
         } catch(_){}
-        res(imgCache[src] = {w:im.naturalWidth, h:im.naturalHeight, corner, dark, subj, edge});
+        res(imgCache[src] = {w:im.naturalWidth, h:im.naturalHeight, corner, dark, subj, edge, el:im});
       };
       im.onerror = () => res(imgCache[src] = {w:1, h:1, corner:null, dark:false, subj:null, edge:null});
       im.src = src;
@@ -590,6 +596,24 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     return { left: rx + slide(S.img.x, rw - w, rw), top: ry + slide(S.img.y, rh - h, rh), w, h, rx };
   }
 
+  // 2026-10-25 사용자: AI 그림을 줄이면 그림 네모 틀이 보임(배경이 단색이 아니라 그라데이션 · 빛이라 배경색으로 채워도 경계가 남)
+  // → 그림 바깥을 그림 가장자리 줄을 늘려 채운 한 장(저장 크기 3배)으로 만들어 배경이 끝없이 이어지게
+  let extKey = '', extURL = '';
+  function extendedImage(meta, p){
+    const key = [S.image.length, S.image.slice(-40), p.left.toFixed(1), p.top.toFixed(1), p.w.toFixed(1)].join('|');
+    if (key === extKey) return extURL;
+    const k = 3, c = document.createElement('canvas'); c.width = W * k; c.height = H * k;
+    const x = c.getContext('2d'), im = meta.el, w = meta.w, h = meta.h, e = Math.max(1, Math.round(Math.min(w, h) * 0.004));   // 가장자리 몇 줄 (압축 테두리 피함)
+    const L = p.left * k, T = p.top * k, R = (p.left + p.w) * k, B = (p.top + p.h) * k, CW = c.width, CH = c.height;
+    const d = (sx, sy, sw, sh, dx, dy, dw, dh) => { if (dw > 0 && dh > 0) x.drawImage(im, sx, sy, sw, sh, dx, dy, dw, dh); };
+    d(0, 0, e, h, 0, T, L, B - T); d(w - e, 0, e, h, R, T, CW - R, B - T);   // 왼 · 오른쪽
+    d(0, 0, w, e, L, 0, R - L, T); d(0, h - e, w, e, L, B, R - L, CH - B);   // 위 · 아래
+    d(0, 0, e, e, 0, 0, L, T); d(w - e, 0, e, e, R, 0, CW - R, T); d(0, h - e, e, e, 0, B, L, CH - B); d(w - e, h - e, e, e, R, B, CW - R, CH - B);   // 네 귀퉁이
+    x.drawImage(im, L, T, R - L, B - T);
+    extKey = key; extURL = c.toDataURL('image/jpeg', 0.95);
+    return extURL;
+  }
+
   // ── 썸네일 그리기 ──
   async function renderThumb(host){
     const meta = S.image ? await loadImgMeta(S.image) : null;
@@ -607,7 +631,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const fk = (S.img.fade ?? 100) / 100;   // 흐림 막대 (0 = 끔, 100 = 기본, 200 = 두 배)
     if (meta){
       const p = placeImage(meta);   // 흐림 막대 (0 = 끔, 100 = 기본, 200 = 두 배)
-      imgHTML = `<img class="t-img" src="${S.image}" style="left:${p.left}px;top:${p.top}px;width:${p.w}px;height:${p.h}px" alt="">`;
+      const exposed = p.left > 0.5 || p.top > 0.5 || p.left + p.w < W - 0.5 || p.top + p.h < H - 0.5;
+      const extend = S.layout === 'scene' && exposed && meta.el;   // 장면형에서 틀이 드러날 때만 가장자리를 늘린 한 장으로
+      imgHTML = extend ? `<img class="t-img" src="${extendedImage(meta, p)}" style="left:0;top:0;width:${W}px;height:${H}px" alt="">`
+        : `<img class="t-img" src="${S.image}" style="left:${p.left}px;top:${p.top}px;width:${p.w}px;height:${p.h}px" alt="">`;
       if (S.layout === 'photo'){
         if (fk > 0) imgHTML += `<img class="t-fade fd-grad" src="${fadeURL(bg)}" style="left:${Math.floor(p.rx) - 1}px;width:${Math.round(W * 0.34 * fk)}px;height:${H}px" alt="">`;   // 흐림 폭 22% → 34% (부드럽게)
         imgHTML += `<div class="t-fade fd-solid" style="left:0;width:${Math.floor(p.rx)}px;background:${bg}"></div>`;
@@ -619,19 +646,23 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         if (sx > 0) imgHTML += `<div class="t-fade fd-solid" style="left:0;width:${sx}px;background:${bg}"></div>`;
         if (fk > 0) imgHTML += `<img class="t-fade fd-grad" src="${fadeURL(bg)}" style="left:${Math.max(0, sx - 1)}px;width:${Math.round(W * 0.26 * fk * wide)}px;height:${H}px" alt="">`;
         // 크기를 줄이거나 옮겨 그림 테두리가 드러나면: 바깥은 배경색, 경계는 배경색으로 흐려 이어 줌 (2026-10-18)
-        const L0 = p.left, T0 = p.top, R0 = p.left + p.w, B0 = p.top + p.h, fw = Math.round(W * 0.16), fh = Math.round(H * 0.28);   // 테두리 흐림도 더 길게
+        // 2026-10-25 사용자: 테두리 흐림도 흐림 막대를 따름 — 0이면 끔 (크기를 줄여도 저절로 흐려지지 않게)
+        // 2026-10-25: 가장자리를 늘린 한 장(extend)이면 틀이 없으니 아래 배경색 채움 · 테두리 흐림은 안 씀
+        if (!extend){
+        const ek = Math.min(fk, 1.6), L0 = p.left, T0 = p.top, R0 = p.left + p.w, B0 = p.top + p.h, fw = Math.round(W * 0.16 * ek), fh = Math.round(H * 0.28 * ek);   // 테두리 흐림도 더 길게
         if (R0 < W - 0.5){
-          imgHTML += `<img class="t-fade" src="${fadeVURL(bg, 'hr')}" style="left:${Math.round(R0 - fw)}px;width:${fw}px;height:${H}px" alt="">`;
+          if (fw > 0) imgHTML += `<img class="t-fade" src="${fadeVURL(bg, 'hr')}" style="left:${Math.round(R0 - fw)}px;width:${fw}px;height:${H}px" alt="">`;
           imgHTML += `<div class="t-fade" style="left:${Math.floor(R0)}px;width:${Math.ceil(W - R0) + 1}px;background:${bg}"></div>`;
         }
-        if (L0 > sx + 0.5) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.round(L0)}px;width:${fw}px;height:${H}px" alt="">`;
+        if (L0 > sx + 0.5 && fw > 0) imgHTML += `<img class="t-fade" src="${fadeURL(bg)}" style="left:${Math.round(L0)}px;width:${fw}px;height:${H}px" alt="">`;
         if (T0 > 0.5){
           imgHTML += `<div class="t-fade" style="left:0;width:${W}px;top:0;bottom:auto;height:${Math.ceil(T0) + 1}px;background:${bg}"></div>`;
-          imgHTML += `<img class="t-fade" src="${fadeVURL(bg)}" style="left:0;width:${W}px;top:${Math.floor(T0)}px;bottom:auto;height:${fh}px" alt="">`;
+          if (fh > 0) imgHTML += `<img class="t-fade" src="${fadeVURL(bg)}" style="left:0;width:${W}px;top:${Math.floor(T0)}px;bottom:auto;height:${fh}px" alt="">`;
         }
         if (B0 < H - 0.5){
-          imgHTML += `<img class="t-fade" src="${fadeVURL(bg, 'vr')}" style="left:0;width:${W}px;top:${Math.round(B0 - fh)}px;bottom:auto;height:${fh}px" alt="">`;
+          if (fh > 0) imgHTML += `<img class="t-fade" src="${fadeVURL(bg, 'vr')}" style="left:0;width:${W}px;top:${Math.round(B0 - fh)}px;bottom:auto;height:${fh}px" alt="">`;
           imgHTML += `<div class="t-fade" style="left:0;width:${W}px;top:${Math.floor(B0)}px;bottom:auto;height:${Math.ceil(H - B0) + 1}px;background:${bg}"></div>`;
+        }
         }
       }
     }
@@ -760,11 +791,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     else { cc.style.background = ''; cc.style.color = ''; }
     $('layoutHint').textContent = LAYOUT_HINT[S.layout];
     $('imgRow').hidden = $('imgCtrls').hidden = !S.image;
+    $('imgEmpty').hidden = !!S.image;
     if (S.image) $('imgThumb').src = S.image;
     [['imgScale','scale','oScale','%'],['imgX','x','oX',''],['imgY','y','oY',''],['imgFade','fade','oFade','%']].forEach(([id,k,o,u]) => { const v = S.img[k] ?? (k === 'fade' ? 100 : 0); $(id).value = v; $(o).textContent = v + u; });
     $('chipsOn').checked = S.chipsOn;
     buildChipEditors();
-    document.querySelectorAll('#genStyle button').forEach(b => b.classList.toggle('on', b.dataset.v === S.gen.style));
     $('genDesc').value = S.gen.desc;
   }
 
@@ -784,7 +815,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     return style === 'obj3d' || style === '3d' ? 'scene3d' : typeOf(false, false);
   }
   const GEN_STYLE_HINT = {
-    photo: '실제 인터뷰 · 고객사 인물 사진은 <b>④ 이미지</b>에 붙여 넣어 주세요.'
+    photo: '실제 인터뷰 · 고객사 인물 사진은 왼쪽 <b>④ 이미지</b>에 끌어다 놓거나 붙여 넣어 주세요.'
   };
   const GEN_LAYOUT_NAME = {scene:'장면형', object:'오브젝트형', photo:'사진형'};
 
@@ -809,18 +840,21 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   }
 
   // ── 참고 이미지 (refs.js · 지난 호 썸네일의 글자 뺀 배경) ──
-  // 지금 배경색(프리셋) · 이미지 유형에 맞는 것을 '추천'으로 앞에. S.gen.ref: 없음 = 자동(추천 1순위), 'none' = 쓰지 않음, id = 직접 고름
-  const REF_GROUP = {scene3d:['scene3d', 'obj3d'], photo:['photo']};
+  // 지금 배경색(프리셋)에 맞는 것을 '추천'으로 앞에. S.gen.ref: 없음(또는 예전 'none') = 참고 이미지 안 씀, id = 직접 고름
+  // 2026-10-25 사용자: 그림체 버튼을 없애고 참고 이미지가 그림체를 정함 → 추천은 배경색으로만 (실사는 배경색이 없어 추천 안 함)
   const isDarkBg = () => { const bg = tok(presetOf().bg) || '#f0f8ff'; return contrast(bg, '#ffffff') >= contrast(bg, tok('--nl-title') || '#002540'); };
   function refList(){
-    const R = window.REFS || [], type = GEN_TYPES[S.gen.style] ? S.gen.style : 'scene3d', grp = REF_GROUP[type];
+    const R = window.REFS || [];
     const key = S.preset === 'custom' ? (isDarkBg() ? 'navy' : 'lightBlue') : S.preset, dark = isDarkBg();
-    return R.map((r, i) => {
-      const bgOK = type === 'photo' ? r.bg.includes('photo') : r.bg.includes(key), gi = grp.indexOf(r.type);
-      const rec = bgOK && gi >= 0;
-      const score = (rec ? 100 : 0) + (bgOK ? 20 : 0) + (gi >= 0 ? 10 - gi : 0) + ((r.bg.includes('navy') === dark) ? 3 : 0) - i * 0.01;
+    const list = R.map((r, i) => {
+      const rec = r.bg.includes(key);
+      const score = (rec ? 100 : 0) + ((r.bg.includes('navy') === dark) ? 3 : 0) - i * 0.01;
       return Object.assign({rec, score}, r);
-    }).sort((a, b) => b.score - a.score);
+    });
+    // 비슷한 생김새(look)끼리 붙여서: 묶음은 그 안 가장 높은 점수 순, 묶음 안은 점수 순
+    const top = {}; list.forEach(r => { const k = r.look || r.type; top[k] = Math.max(top[k] ?? -1e9, r.score); });
+    return list.sort((a, b) => { const ka = a.look || a.type, kb = b.look || b.type;
+      return ka === kb ? b.score - a.score : (top[kb] - top[ka]) || (ka < kb ? -1 : 1); });
   }
   // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
   const myRefs = [];
@@ -850,11 +884,12 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // 실제 인물이 나오는 지난 호 사진(9 · 11호 인터뷰)은 그림 모델에 보내지 않음 — 글 규칙으로는 얼굴 베끼기를 못 막음 (2026-10-18)
   const realPerson = r => !!r && !r.mine && /인물/.test(r.desc || '');
   function curRef(){
-    if (S.gen.ref === 'none') return null;
-    const L = refList();
-    // 2026-10-18: 실제 인물 사진(인터뷰)을 자동 추천하면 얼굴을 베낌 → 자동 추천에서는 사람이 나오는 사진 빼기(직접 고르면 씀)
-    return (S.gen.ref && (myRefs.find(r => r.id === S.gen.ref) || L.find(r => r.id === S.gen.ref))) || L.find(r => r.rec && !/인물/.test(r.desc || '')) || null;
+    // 2026-10-25 사용자: [없음] 버튼 뺌 — 고르지 않으면 참고 이미지 없음 (예전 '자동 추천 1순위'는 없앰). 고른 것을 다시 누르면 풀림
+    if (!S.gen.ref || S.gen.ref === 'none') return null;
+    return myRefs.find(r => r.id === S.gen.ref) || refList().find(r => r.id === S.gen.ref) || null;
   }
+  // 그림체 = 고른 참고 이미지의 유형 (실사 → photo, 그 밖 · 없음 · 첨부 → 3D. 첨부는 프롬프트에서 첨부 그림체를 따르게 함)
+  const refStyle = ref => ref && !ref.mine && ref.type === 'photo' ? 'photo' : 'scene3d';
 
   // 화면에 보이는 프롬프트 = [바로 만들기]로 보내는 프롬프트. 크기 · 투명 배경도 같은 유형(T.obj)에서 정함
   // 주제별 기본 물건 (헬스케어 · 기업 건강관리 관점, 2026-10-18). 위에서부터 먼저 맞는 것
@@ -866,18 +901,18 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/근골격|자세|허리|목|어깨|척추/, '척추 모형, 사무용 의자, 스트레칭 밴드, 폼롤러'],
     [/혈압|혈당|뇌심|심혈관|만성|당뇨|고혈압/, '하트와 심전도 선, 혈압계, 혈당 측정기, 수치 카드'],
     [/데이터|리포트|통계|분석|설문|결과\s?보고/, '막대 · 원 그래프 카드, 돋보기, 문서'],
-    [/검진|건강검진|결과지|수검|재검/, '건강검진 결과 리포트(종이 또는 앱 화면), 달력, 체크리스트 클립보드'],
-    [/감염|감염병|독감|코로나|호흡기|위생|방역/, '손 소독제, 마스크, 체온계, 체크 방패'],
-    [/공시|법|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 초록 체크 배지, 막대그래프 카드, 도장'],
+    [/검진|건강검진|결과지|수검|재검/, '건강검진 결과 리포트(종이 또는 앱 화면), 달력, 클립보드'],
+    [/감염|감염병|독감|코로나|호흡기|위생|방역/, '손 소독제, 마스크, 체온계, 비누'],
+    [/공시|법|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 막대그래프 카드, 도장, 달력'],
   ];
   const OBJ_DEFAULT = '건강관리 앱 화면 휴대폰, 노트북 건강관리 대시보드, 건강 리포트 문서, 막대그래프 카드, 달력';   // 건강검진 · 건강관리 (병원 · 진료 도구 말고 기업 건강관리)
   function objectsFor(title){ const t = String(title || ''); const hit = OBJ_MAP.find(([re]) => re.test(t)); return hit ? hit[1] : OBJ_DEFAULT; }
 
   function buildPrompt(){
     const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase();
-    const type = GEN_TYPES[S.gen.style] ? S.gen.style : 'scene3d', T = GEN_TYPES[type];
-    const dark = contrast(bg, '#ffffff') >= contrast(bg, tok('--nl-title') || '#002540');
     const ref = curRef();
+    const type = S.gen.style = refStyle(ref), T = GEN_TYPES[type];
+    const dark = contrast(bg, '#ffffff') >= contrast(bg, tok('--nl-title') || '#002540');
     const title = S.title.replace(/[\[\]]/g, '').replace(/\s*\n\s*/g, ' ').trim();
     const desc = S.gen.desc.trim();
     const chars = T.is3d ? charRefs(desc || title) : [];
@@ -895,25 +930,34 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!desc && mineRef && mineRef.mine) L.push('- 첨부한 참고 이미지를 거의 그대로 다시 그린다: 같은 물건 · 배치 · 구도 · 색감 · 그림체. 글자 · 로고만 빼고, 배경색과 왼쪽 비우기만 이 규칙에 맞춘다.');   // 첨부 + 그릴 내용 비움 = 그대로
     else if (!desc) L.push(`- 그릴 대상(중심 1 + 보조 1~2)은 이 중에서 고른다: ${objectsFor(title)}`);
     L.push('- GC케어 기업 건강관리 뉴스레터용. 독자는 기업 인사 · 보건 담당자. 병원 · 진료실이 아니라 회사의 건강관리 업무(플랫폼 · 데이터 · 리포트 · 담당자 업무)의 느낌으로.');
-    if (!/청진기|주사|병원|의사|간호|진료/.test(desc)) L.push('- 청진기 · 주사기 · 병원 침대 같은 진료 · 의료 도구는 그릴 내용에 직접 적지 않으면 넣지 않는다.');
+    // 2026-10-25 사용자: 청진기는 헬스케어 주제와 안 맞음 — '병원 가서 진찰받으세요' 같은 주제(타이틀 · 그릴 내용)일 때만
+    const clinic = /청진기|주사|병원|의사|간호|진료|진찰/.test(desc + ' ' + title);
+    if (!clinic) L.push('- 청진기 · 주사기 · 병원 침대 같은 진료 · 의료 도구는 넣지 않는다(병원 · 진찰 주제가 아니면).');
     // 2026-10-18 사용자: '안전보건' 주제에 안전모가 자꾸 나옴 — 산업안전이 아니라 직장인 건강관리
     L.push('- 주제의 \'안전 · 안전보건\'은 공사장 · 산업안전이 아니라 직장인 건강관리(건강검진 · 보건관리 · 건강한 생활습관)의 뜻으로 해석한다.');
 
     L.push('', '[구성]');
     // 지난 호 썸네일은 대부분 물건 2~3개 (예: 휴대폰 + 커피잔 + 물방울) — 2026-10-11 한 개만 나오는 문제로 '최대 2개' → '1~2개'
-    L.push('- 중심 대상 1개 + 보조 대상 최대 2개(꼭 필요할 때만). 보조 대상은 중심보다 작게, 앞이나 옆에 살짝 겹쳐 한 덩어리로 놓는다. 물건이 적고 여백이 넉넉할수록 좋다.');   // 2026-10-18 사용자: 물건은 최대 3개(중심 1 + 보조 2)
+    // 2026-10-25 사용자: 참고 이미지 18장 확인 — 대부분 '크고 살짝 기울어진 중심 1 + 그 앞쪽 아래에 작게 겹친 보조 1(~2)'. 뒤쪽 배치 · 양쪽 밑변 삼각형은 거의 없음
+    L.push('- 중심 대상 1개 + 보조 대상 1개가 기본(꼭 필요할 때만 보조 2개). 물건이 적을수록 좋다.');   // 2026-10-18 사용자: 물건은 최대 3개(중심 1 + 보조 2)
     L.push('- 보조 대상을 중심 대상 표면에 아이콘 · 그림으로 그려 넣지 않는다. 각각 입체 물건으로 세운다.');
     // 2026-10-18 사용자: 보조 물건의 크기 · 각도가 중심과 안 맞아 스티커처럼 보임 → 한 장면 · 한 카메라
     L.push('- 모든 물건은 하나의 장면으로 그린다: 같은 카메라 각도(중심 물건을 살짝 위에서 내려다보는 3/4 시점), 같은 원근, 같은 조명 방향.');
-    L.push('- 보조 물건은 중심 물건을 기준으로 크기를 맞춘다(중심의 약 30~50%). 중심 물건 바로 옆 · 앞에 붙여 겹치듯 한 덩어리로 놓고, 따로 떠 있거나 멀리 떨어뜨리지 않는다.');
+    // 2026-10-25 사용자: 70~80%로 키웠더니 썸네일(위아래 약 13% 잘림)에서 위가 꽉 참 → 55~60% + 위 · 아래 여백 넉넉히
+    L.push('- 중심 물건: 화면 높이의 약 55~60% 크기. 정면으로 똑바로 세우지 말고 살짝 기울이거나 3/4 각도로 놓는다.');
+    // 2026-10-25 사용자: 보조 물건이 자꾸 작은 차트 카드 · 클립보드 · 하트 카드(문서 조각)로 나옴 → 중심과 다른 종류의 실제 물건만
+    // 2026-10-25 사용자: 그래프 · 체크가 밖으로 나올 땐 납작한 카드가 아니라 그것 자체를 입체로 (참고: 10호 데이터 리포트의 입체 막대 · 원그래프)
+    L.push('- 보조 물건은 중심과 다른 종류의 것: 주제에 맞는 실제 소품, 또는 정보 자체를 입체 조형으로 만든 것(바닥에 선 입체 막대그래프 · 입체 원그래프 조각 · 입체 체크 표시처럼). 납작한 종이 카드 · 차트가 그려진 카드 · 클립보드 · 앱 화면 조각은 보조로 만들지 않는다.');
+    L.push('- 보조 물건: 중심의 약 25~40% 크기로, 중심 물건의 앞쪽 아래(주로 왼쪽 아래)에 살짝 겹쳐 놓는다. 단 보조 물건도 화면 가로 55% 선보다 오른쪽에 둔다(왼쪽은 타이틀 자리). 보조가 2개면 둘 다 앞쪽 아래에 두고, 중심 뒤쪽 · 위쪽에 따로 떠 있게 두지 않는다.');
     L.push('- 모든 물건이 같은 바닥면 위에 놓이고, 같은 방향으로 부드러운 바닥 그림자가 생긴다.');
-    // 2026-10-18 사용자: 강조할 것과 아닌 것을 나누고, 삼각형 구도로 안정감
-    L.push('- 위계: 중심 물건이 가장 크고 앞쪽에서 또렷하게 강조된다(물건 무리의 약 60%). 보조 물건은 작고 살짝 뒤 · 옆에 두어 채도와 대비를 한 단계 낮춘다.');
-    L.push('- 구도: 물건 무리는 오른쪽 영역 안에서 안정적인 삼각형을 이룬다. 중심 물건이 꼭짓점(가장 높고 큰 쪽), 보조 물건 둘이 아래 양쪽 밑변. 보조 물건이 하나면 중심과 대각선으로 놓는다.');
+    L.push('- 위계: 중심 물건이 가장 크고 또렷하게 강조된다. 보조 물건은 작고 채도 · 대비를 한 단계 낮춘다.');
     L.push('- 주제와 직접 관계없는 장식(메가폰 · 확성기 · 화살표 · 반짝이 · 말풍선 등)은 넣지 않는다.');
     // 2026-10-18: '안전보건'을 방패 · 안전모로 그려 보안 · 경비 느낌 → 그릴 내용에 직접 적지 않으면 넣지 않기
     // 2026-10-18 사용자: 방패는 좋음(보호 · 예방의 상징) → 방패는 허용, 산업안전 물건 · 자물쇠 · 열쇠만 금지
-    if (!/자물쇠|열쇠|안전모|헬멧|경찰|cctv|안전조끼|공사|소화기|경고/i.test(desc)) L.push('- 안전모 · 헬멧 · 안전조끼 · 공사 현장 · 경고 표지 · 소화기 같은 산업안전 물건과 자물쇠 · 열쇠 같은 보안 상징은 넣지 않는다. 보호 · 예방은 체크 방패로 표현해도 좋다.');
+    if (!/자물쇠|열쇠|안전모|헬멧|경찰|cctv|안전조끼|공사|소화기|경고/i.test(desc)) L.push('- 안전모 · 헬멧 · 안전조끼 · 공사 현장 · 경고 표지 · 소화기 같은 산업안전 물건과 자물쇠 · 열쇠 같은 보안 상징은 넣지 않는다.');
+    // 2026-10-25 사용자: 방패 · 체크가 너무 자주 나옴, 방패는 보안 · 안전 느낌(10/18 '방패 허용'을 바꿈) → 그릴 내용에 직접 적었을 때만
+    const noShield = !/방패|체크|check/i.test(desc);
+    if (noShield) L.push('- 방패 · 체크 표시 · 체크 배지 · 체크리스트는 그릴 내용에 직접 적지 않았으면 넣지 않는다(물건 표면의 작은 무늬로도 넣지 않는다).');
 
     if (chars.length || !T.is3d){
       const people = [];
@@ -928,7 +972,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     }
 
     L.push('', '[배경과 색]');
-    L.push(`- 배경색: ${P.name} ${bg}. 화면 위쪽은 정확히 이 색 단색으로 시작하고, 아래쪽으로만 아주 살짝 어두워지는 은은한 그라데이션은 괜찮다. 무늬 · 바닥선은 넣지 않는다.`);   // 2026-10-18 사용자: 위는 고른 색 그대로, 아래만 그라데이션
+    L.push(`- 배경색: ${P.name} ${bg}. 화면 위쪽은 정확히 이 색 단색으로 시작하고, 아래쪽 30% 정도는 같은 색 계열로 조금 더 어두워지며 은은한 바닥면처럼 깊이가 느껴지게 한다(물건 아래 부드러운 바닥 반사). 무늬 · 딱 떨어지는 바닥선은 넣지 않는다.`);   // 2026-10-18 사용자: 위는 고른 색 그대로, 아래만 그라데이션 · 2026-10-25 하단 깊이 더
     // 배경색별 물건 색 (지난 호 썸네일 기준 · 그린은 2026-10-11 사용자 결정)
     const key = S.preset === 'custom' ? (dark ? 'navy' : 'lightBlue') : S.preset;
     // 2026-10-18 사용자: 색이 너무 한정적 → 배경에 어울리는 톤 안에서 명도 단계를 넓게 + 포인트 1~2색 (DS 블루 · 그린 · 옐로)
@@ -946,9 +990,14 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push('', '[스타일]');
     // 2026-10-18 사용자: 올드해 보임 → '반광 3D 아이콘' 대신 세련된 3D. 2026-10-22: '스튜디오 제품 사진 같은'은 3D가 실사처럼 나와서 실사에만 씀
-    const STYLE3D = ['- 사진처럼 보이지 않는 세련된 3D 일러스트. 둥글고 매끈한 형태, 매트에 살짝 유광이 섞인 재질, 부드럽고 고른 조명, 은은한 그림자.',
-      '- 단순하고 정돈된 형태, 현대적이고 세련된 느낌. 실제 사진 · 실물 같은 질감, 장난감 · 클립아트 · 오래된 아이콘 같은 느낌은 피한다.',
-      '- 색은 2~3가지 차분한 색 + 포인트 1색. 과한 광택 · 반짝임 · 과한 채도 · 뽀얗게 날아간 과노출은 피한다.'];
+    // 2026-10-25 사용자: 3D가 촌스러움(진한 색 · 두꺼운 테두리 · 장난감 느낌) → 요즘 금융 앱 3D 아이콘처럼 단순 · 차분하게. 브랜드 이름은 프롬프트에 쓰지 않고 생김새로만
+    // 2026-10-25 사용자: 그다음엔 너무 사실적(실물 렌더링) → 앱 아이콘처럼 단순화한 3D 일러스트, 실물 질감 · 사실적 반사 금지
+    const STYLE3D = ['- 사진처럼 보이지 않는 세련된 3D 일러스트(요즘 앱 아이콘 같은 그림). 실제 물건보다 단순하고 통통하게 줄인 둥근 형태, 테두리 없음.',
+      '- 표면은 질감 없이 매끈한 단색 면 + 부드러운 그라데이션 음영. 나무결 · 종이결 · 천 · 도자기 · 금속의 실물 질감과 사실적인 반사 · 비침은 그리지 않는다.',
+      '- 블루와 흰색 중심에 포인트 한 색. 채도를 낮춘 차분한 색으로, 쨍하거나 진한 원색은 쓰지 않는다.',
+      '- 반투명 유리 조각 같은 포인트 하나를 더해도 좋다. 부드럽고 고른 빛, 아래로 떨어지는 은은한 그림자.',
+      '- 물건은 적고 크게, 여백은 넉넉하게. 두꺼운 외곽선 · 볼록하게 부푼 모서리 · 장난감 · 클립아트 · 스티커 · 오래된 아이콘 같은 느낌, 과한 광택 · 반짝임 · 과노출은 피한다.',
+      '- 물건 위 글자(따옴표로 적은 것)는 그 표지 · 화면의 제목으로, 표지 · 화면 크기에 맞게 깔끔한 글꼴로 넣는다(스티커처럼 두껍게 튀어나오지 않게).'];
     if (type === 'photo') L.push('- 스튜디오에서 촬영한 것 같은 깔끔한 고급 사진. 큰 소프트박스 조명, 자연스러운 반사와 재질, 가까이 보면 보이는 미세한 질감, 정돈된 구성.');
     else if (type === 'scene3d') L.push(...STYLE3D);
     else if (type === 'objPhoto') L.push('- 스튜디오에서 촬영한 실제 제품 사진 같은 재질과 조명.', '- 중심 물건 1개 + 필요한 보조 물건 최대 2개.');
@@ -972,7 +1021,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       L.push('- 가로 3:2 (1536×1024). 썸네일로 쓸 때 위아래가 조금 잘린다.');
       L.push('- 왼쪽 55~60%는 물건 · 소품 · 그림자 없이 배경색만 둔다 (타이틀 · 로고 자리).');
       // 2026-10-18 사용자: 크기를 줄이면 가장자리가 잘려 어색 → 물건 둘레에 배경 여백을 넉넉히, 가장자리에서 잘리지 않게
-      L.push('- 물건은 오른쪽 40~45%, 세로 가운데~아래쪽에 모은다. 물건 둘레(위 · 아래 · 오른쪽)에 배경 여백을 넉넉히 두고, 화면 가장자리에서 잘리지 않게 그린다.');
+      // 2026-10-25 사용자: 잘림은 사용자가 크기 · 위치로 조절 → 물건은 전체가 다 보이게 (가장자리 여백은 조금만, 중심은 크게)
+      L.push('- 물건은 오른쪽 40~45%, 세로 가운데~아래쪽에 모은다. 물건 전체가 다 보이게 그리고 화면 가장자리에서 잘리지 않게 한다(사용자가 썸네일에서 크기 · 위치를 맞춤). 썸네일에서 위아래가 잘리므로 물건 위 · 아래에 각각 화면 높이의 15% 이상, 오른쪽에 8% 이상 배경 여백을 넉넉히 둔다.');
       L.push('- 물건 아래에는 바닥에 닿는 부드럽고 은은한 그림자를 자연스럽게 넣는다. 배경색보다 살짝 어두운 같은 계열 톤으로, 진한 검은 그림자는 쓰지 않는다.');   // 2026-10-18 사용자 요청
     }
 
@@ -994,8 +1044,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const KO_RULE = quoted.length
       ? `이미지 속 글자는 그릴 내용에 적은 "${quoted.join('", "')}"만, 적힌 그대로(한글은 한글, 영어는 영어) 쓴다. 그 밖의 영어 · 로마자 · 가짜 글자는 어디에도 넣지 않는다.`   // 영어는 직접 적었을 때만
       : '이미지 속에는 글자를 넣지 않는다. 특히 영어 · 로마자 · 가짜 글자는 절대 넣지 않는다.';
-    if (quoted.length) L.push(`- 그릴 내용에 적은 글자(${quoted.map(q => `"${q}"`).join(', ')})만 해당 물건 위에 적힌 그대로 정확하고 또렷하게 넣는다. 한글을 영어로 바꾸거나 번역하지 않는다.`);
-    L.push('- 신문 · 문서 · 책자 · 화면 · 머그컵 · 표지판 · 라벨은 비워 두지 말고, 글자 자리를 회색 줄(글줄 느낌) · 작은 아이콘(십자 · 하트 · 방패 · 체크) · 작은 그래프로 채워 디자인된 물건처럼 보이게 한다. 그릴 내용에 직접 적지 않은 영어 제목 · 영어 기사 · 영어 문구(예: HEALTH, SAFETY, ANNOUNCEMENT)는 절대 넣지 않는다.');
+    if (quoted.length) L.push(`- 그릴 내용에 적은 글자(${quoted.map(q => `"${q}"`).join(', ')})만 해당 물건 위에 적힌 그대로 정확하고 또렷하게 넣는다. 한글을 영어로 바꾸거나 번역하지 않는다. 그릴 내용에 '타이틀 · 제목'이라고 적었으면 그림 속 물건의 제목이다: 책자 · 문서 표지나 휴대폰 · 모니터 화면 안에, 그 표지 · 화면 크기에 맞게 넣는다. 배경에 떠 있는 큰 제목 · 왼쪽 글자로는 쓰지 않는다.`);
+    L.push('- 신문 · 문서 · 책자 · 화면 · 머그컵 · 표지판 · 라벨은 비워 두지 말고, 글자 자리를 회색 줄(글줄 느낌) · 작은 그래프 · 작은 아이콘(십자 · 하트)으로 채워 디자인된 물건처럼 보이게 한다. 그릴 내용에 직접 적지 않은 영어 제목 · 영어 기사 · 영어 문구(예: HEALTH, SAFETY, ANNOUNCEMENT)는 절대 넣지 않는다.');
     L.push('- 주제 이해에 필요하지 않은 수치나 사실은 지어내지 않는다.');
 
     if (ref || chars.length){
@@ -1008,7 +1058,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           L.push('- 참고 이미지에 완성된 타이틀 · 문구 · 로고 · 칩이 들어 있어도 모두 무시한다. 그 글자를 옮겨 쓰지 않고, 글자가 있던 자리는 빈 배경으로 둔다(왼쪽은 타이틀 자리).');   // 2026-10-18 사용자: 완성 썸네일을 참고로 넣을 때
         } else {
           if (realPerson(ref)) L.push(`- 참고 분위기(사진은 첨부하지 않음): ${ref.desc} 인물은 비슷한 분위기(나이대 · 직군 · 옷차림)의 다른 가상의 한국인으로 그린다.`);
-          else L.push('- 첨부한 참고 이미지(우리 뉴스레터 지난 호 썸네일 배경)에서는 배치 · 구도 · 색 분위기만 참고한다. 재질 · 조명은 위 [스타일]을 따른다(지난 호보다 더 세련되게). 참고 이미지에 떠 있는 카드 · 배지 · 아이콘이 있어도 따라 그리지 않는다.');
+          // 2026-10-25 사용자: 참고 이미지가 그림체를 정함 → 그림체 · 재질 · 조명까지 참고 이미지가 [스타일]보다 우선
+          else L.push('- 첨부한 참고 이미지(우리 뉴스레터 썸네일 배경)의 그림체 · 재질 · 조명 · 배치 · 구도 · 색 분위기를 가장 중요하게 따른다. 위 [스타일]보다 참고 이미지의 그림체가 우선이다. 참고 이미지에 떠 있는 카드 · 배지 · 아이콘이 있어도 따라 그리지 않는다.');
           L.push(`- 참고 이미지 모습: ${ref.desc}`);
           L.push('- 참고 이미지의 물건 · 인물 · 글자는 따라 그리지 않는다. 대상은 이번 주제로 새로 정한다.');
           if (/인물/.test(ref.desc || '')) L.push('- 참고 이미지 속 사람은 실제 인물이다. 얼굴 · 머리 모양 · 옷을 절대 따라 그리지 않고, 완전히 다른 가상의 인물로 그린다.');
@@ -1027,15 +1078,22 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 2026-10-18 사용자: 라벨 영어 · 물건 5개 — 긴 한글 규칙 속에 묻힘 → 가장 중요한 규칙을 짧은 영어로 맨 앞 · 맨 끝에 (그림 모델은 짧은 영어를 가장 잘 따름)
     const mineR = (curRef() || {}).mine;
     const CRIT = [
-      quoted.length ? `TEXT: The only text allowed in the whole image is exactly: "${quoted.join('", "')}" (Korean stays Korean Hangul). No other text.`
+      // 2026-10-25 사용자: '타이틀로 넣어줘'를 화면 왼쪽 큰 제목으로 그려 진짜 타이틀과 겹침 → 물건 표면의 작은 글자로만
+      quoted.length ? `TEXT: The only text allowed in the whole image is exactly: "${quoted.join('", "')}" (Korean stays Korean Hangul), used as the title INSIDE the drawn object — on the cover of the booklet / document, or inside the phone / monitor screen — sized to fit that cover or screen. Never as a headline floating on the background, never on the left side. No other text.`
         : 'TEXT: Absolutely no text, letters or numbers anywhere in the image.',
       // 2026-10-18 사용자: 아예 비면 어색함 → 글자 대신 그래픽으로 채우기
-      'Labels, packaging, signs, screens and documents must not be empty: fill them with simple graphics instead of text — a small icon (cross, heart, shield, check), short gray placeholder lines like lines of text, or a tiny chart. Never real words or English such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
-      'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). No decorative plants, no extra props, no floating icons.',
+      'Labels, packaging, signs, screens and documents must not be empty: fill them with simple graphics instead of text — short gray placeholder lines like lines of text, a tiny chart, or a small cross or heart icon. Never real words or English such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
+      // 2026-10-25 사용자: 머그컵 · 책 · 화분 · 나무 · 건물 · 하트가 덧붙어 5개 이상 → 덧붙이는 소품 · 풍경을 이름으로 막음
+      'COMPOSITION: one main object about 55-60% of the image height, slightly tilted or at a 3/4 angle, never flat and frontal; 1 (at most 2) much smaller supporting object placed in FRONT of it, at its lower-left, slightly overlapping, but still right of the 55% mark. Leave generous empty background: at least 15% of the image height above and below the objects and 8% on the right (the image is cropped top and bottom). The supporting object is a different kind of thing: a real physical prop that fits the topic, or the information itself sculpted as a solid 3D object (e.g. free-standing 3D bar chart, 3D pie chart piece, 3D check mark) — never a flat paper card, a card with a chart printed on it, a clipboard or an app-screen piece. Nothing floating behind or above it. Every object fully visible, not cut by the image edge.',
+      'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). Do not add anything that is not described: no mugs, books, plants, trees, buildings, city skyline, hearts or other extra props, no scenery, no floating icons.',
       `LAYOUT: the left 55-60% is empty background close to ${bg}, continuous over the full image height; every object or person starts to the right of the 55% mark and never crosses into the left side.`,
       'ONE CONTINUOUS SCENE: no split panel, no hard vertical edge or seam — the background color flows smoothly and gradually from the left into the scene on the right.',
       ref && !ref.mine && /인물/.test(ref.desc || '') ? 'PEOPLE: the person in the reference photo is a real person — never copy their face, hair or outfit; draw a completely different fictional Korean person.' : '',
       NO_SITE ? 'No hard hats, helmets, safety vests, construction sites or warning signs (this is about employee health care).' : '',
+      T.is3d && !(ref && ref.mine) ? 'STYLE: stylized, simplified 3D illustration like modern app icons — NOT photorealistic. Smooth matte single-color surfaces with soft gradient shading, no realistic textures (wood grain, paper, fabric, ceramic) and no realistic reflections.' : '',
+      // 2026-10-25 사용자: 청진기가 자꾸 나옴 — 한글 규칙만으로는 안 막혀 짧은 영어로 앞 · 끝에
+      !clinic ? 'No stethoscopes, syringes, pills or other hospital / medical tools (this is workplace health care, not a clinic).' : '',
+      noShield ? 'No shields and no check marks / check badges anywhere (not even as small icons on objects) — shields read as security, not health care.' : '',
       mineR ? (desc ? 'Follow the attached reference image for style, composition and colors; draw the subject described below.' : 'Recreate the attached reference image almost exactly (objects, layout, colors, style).') : ''
     ].filter(Boolean).join('\n');
     return {text: ['[CRITICAL RULES]', CRIT, '', ...L, '', '[CRITICAL RULES — again]', CRIT].join('\n'), chars, ref, layout: T.obj ? 'object' : 'scene'};
@@ -1051,17 +1109,16 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('genBgChip').style.background = tok(P.bg);
     $('genBgName').textContent = P.name;
     $('genLayoutName').textContent = '';   // 배치 버튼을 없애 배치 이름은 안 보임
+    const {text, chars, ref} = buildPrompt();   // S.gen.style도 여기서 참고 이미지에 맞춰짐
     $('genHint').innerHTML = GEN_STYLE_HINT[S.gen.style] || '';
     $('genHint').hidden = !GEN_STYLE_HINT[S.gen.style];
-    const {text, chars, ref} = buildPrompt();
     if (!promptEdited) $('genPrompt').value = text;
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
-    $('genRefs').innerHTML = `<button data-ref="none" class="${!ref ? 'on' : ''}" title="참고 이미지 없이">없음</button>`
-      + `<button data-ref-add="1" class="ref-add${pasteTo === 'ref' ? ' ready' : ''}" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">${pasteTo === 'ref' ? 'Ctrl+V<br>또는 여기에 놓기' : '＋<br>이미지 첨부'}</button>`
-      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}${r.id === justAdded ? ' just' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>
+    $('genRefs').innerHTML = `<button data-ref-add="1" class="ref-add${pasteTo === 'ref' ? ' ready' : ''}" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">${pasteTo === 'ref' ? 'Ctrl+V<br>또는 여기에 놓기' : '＋<br>이미지 첨부'}</button>`
+      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}${r.id === justAdded ? ' just' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>   // 비슷한 것끼리 붙어 나옴 (묶음 이름은 2026-10-25 사용자 요청으로 뺌)
       `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
-    $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b>${S.gen.ref ? '' : ' (자동 추천)'} <span>· ${realPerson(ref) ? '실제 인물 사진이라 사진은 보내지 않고 분위기 설명만 참고해요' : ref.mine ? (S.gen.desc.trim() ? '이 이미지를 참고해 적은 내용대로 그려요' : '이 이미지를 거의 그대로 그려요 (무엇을 그릴까요?에 적으면 참고만 해요)') : '이 그림체에 맞춰 그려요'}</span>` : '';
+    $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b> <span>· ${realPerson(ref) ? '실제 인물 사진이라 사진은 보내지 않고 분위기 설명만 참고해요' : ref.mine ? (S.gen.desc.trim() ? '이 이미지를 참고해 적은 내용대로 그려요' : '이 이미지를 거의 그대로 그려요 (무엇을 그릴까요?에 적으면 참고만 해요)') : '이 그림체에 맞춰 그려요'}</span>` : '';
     $('genChars').hidden = !chars.length;
     $('genChars').innerHTML = chars.length ? '캐릭터 감지:' + chars.map(c => {
       const k = c.gender === 'female' ? 'charFemale' : 'charMale';
@@ -1194,6 +1251,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       gens.unshift({url, layout}); if (gens.length > 6) gens.pop();
       useGen(gens[0]);
       st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15) — 만든 이미지가 바로 들어가는 것으로 충분
+      // 2026-10-25 사용자: 만든 이미지가 왼쪽 ④에 들어가 거기서 맞춘다는 걸 알기 쉽게 → 왼쪽 ④를 잠깐 반짝
+      const sec = $('imgSec'); sec.classList.remove('flash'); void sec.offsetWidth; sec.classList.add('flash');
     } catch(e){
       st.className = 'gen-status err';
       st.textContent = e.name === 'AbortError' ? '시간이 너무 오래 걸려 멈췄어요. 다시 시도해 주세요.' : '만들지 못했어요: ' + (e.message || e);
@@ -1314,6 +1373,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       `<button class="sw" data-v="${k}"><i style="background:var(${p.bg});color:var(${p.title})">가<b style="color:var(${p.accent})">나</b></i><span>${p.name}</span></button>`).join('')
       + `<button class="sw sw-custom" data-v="custom" title="스포이트로 이미지나 화면의 색을 찍어요"><i id="customChip"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m2 22 1-1h3l9-9"/><path d="M3 21v-3l9-9"/><path d="m15 6 3.4-3.4a2.1 2.1 0 1 1 3 3L18 9l.4.4a2.1 2.1 0 1 1-3 3l-3.8-3.8a2.1 2.1 0 1 1 3-3l.4.4Z"/></svg></i><span>색 찍기</span></button>`;
     $('topLogo').src = A.logoTop || A.logoWhite || '';
+    $('no').innerHTML = NOS.map(n => `<option value="${n}">${n} (${n === '01' ? '메인' : '서브'})</option>`).join('');
     restore(); syncForm(); refresh();
 
     $('issue').addEventListener('input', e => { const n = Math.max(1, parseInt(e.target.value) || 1); Object.values(BOOK).forEach(s => s.issue = n); refresh(); notify({type:'issueChanged', issue:S.issue}); });
@@ -1371,13 +1431,6 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     });
     $('btnImgRemove').addEventListener('click', () => { S.image = null; S.sceneBlend = false; syncForm(); refresh(); });
 
-    // 이미지 유형을 고르면 ④ 이미지 레이아웃은 장면형으로 (이미지가 아직 없을 때)
-    $('genStyle').addEventListener('click', e => {
-      const b = e.target.closest('button'); if (!b) return;
-      S.gen.style = b.dataset.v; promptEdited = false;
-      if (S.layout !== 'scene' && !S.image){ S.layout = 'scene'; S.img = {scale:100, x:0, y:0}; }   // AI 이미지는 배경까지 그린 장면형
-      syncForm(); refresh();
-    });
     $('genDesc').addEventListener('input', e => { S.gen.desc = e.target.value; promptEdited = false; syncGen(); autosave(); });
     $('genPrompt').addEventListener('input', () => { promptEdited = true; });
     // 참고 이미지 고르기 · 내려받기 (ChatGPT에 같이 올릴 파일)
@@ -1396,7 +1449,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('myRefFile').addEventListener('change', e => addMyRef(e.target.files[0]));
     ['dragover', 'dragenter'].forEach(ev => $('genRefs').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
     $('genRefs').addEventListener('drop', e => { const f = [...(e.dataTransfer?.files || [])].find(x => x.type.startsWith('image/')); if (!f) return; e.preventDefault(); e.stopPropagation(); addMyRef(f); });
-    $('genRefs').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return; S.gen.ref = b.dataset.ref; promptEdited = false; syncGen(); autosave(); });
+    $('genRefs').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return; S.gen.ref = S.gen.ref === b.dataset.ref ? '' : b.dataset.ref; promptEdited = false; syncGen(); autosave(); });   // 고른 것을 다시 누르면 풀림
     // 마우스를 올리면 오른쪽(자리가 없으면 왼쪽)에 크게 미리보기
     $('genRefs').addEventListener('mouseover', e => {
       const b = e.target.closest('[data-ref]'), pk = $('refPeek'), r = b && [...myRefs, ...(window.REFS || [])].find(x => x.id === b.dataset.ref);
@@ -1512,6 +1565,22 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       if (confirm(`${S.issue}호 썸네일 ${list.length}장(${list.map(s => s.no).join(' · ')})을 모두 저장할까요?`)) exportThumbs(list);
     });
     // 셸 [전체 이미지 저장]: 셸에서 고른 폴더(dir)로 확인 없이 저장
+    // 셸 이번 호 화면: 작업한 썸네일을 완성 모양 그대로 작게 (셸이 이 화면을 잠깐 화면 밖에 펼쳐 놓고 부름)
+    hubPreview = async () => {
+      const keep = S, items = {};
+      try {
+        await document.fonts.ready;
+        for (const st of NOS.map(n => BOOK[n]).filter(s => s && used(s))){
+          S = st;
+          const node = await renderThumb($('exportHost'));
+          await Promise.all([...node.querySelectorAll('img')].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; })));
+          const c = await html2canvas(node, {scale:1, backgroundColor:null, useCORS:true, logging:false, width:W, height:H});
+          items[st.no] = c.toDataURL('image/png');
+        }
+      } catch(err){ console.error(err); }
+      finally { S = keep; $('exportHost').innerHTML = ''; }
+      return {issue: S.issue, items};
+    };
     hubExportAll = async dir => { const list = NOS.map(n => BOOK[n]).filter(s => s && used(s)); if (!list.length) return 0; if (dir) imgDir = dir; return await exportThumbs(list) || 0; };
   }
 
@@ -1534,7 +1603,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     return true;
   }
 
-  let hubExportAll = null;   // init()에서 채움
+  let hubExportAll = null, hubPreview = null;   // init()에서 채움
   // 셸 안에서는 하단 작업 파일 버튼이 숨으므로 안내 문구를 셸 버튼 이름으로
   function hubName(s){ return document.body.classList.contains('embedded') ? s.replace(/\[작업 파일 저장\]/g, '[전체 파일 저장]').replace(/\[작업 파일 열기\]/g, '[불러오기]') : s; }
   function bridge(){
@@ -1549,6 +1618,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       if (m.type === 'setIssue' && m.issue && m.issue !== S.issue){ Object.values(BOOK).forEach(s => s.issue = m.issue); syncForm(); refresh(); }
       if (m.type === 'setNo' && NOS.includes(m.no)){ useSlot(m.no); syncForm(); refresh(); }
       if (m.type === 'getState') notify({type:'state', reqId:m.reqId, state:bookData()});
+      if (m.type === 'preview') (hubPreview ? hubPreview() : Promise.resolve(null)).then(state => notify({type:'state', reqId:m.reqId, state}));
       if (m.type === 'pasteJSON' && m.text) loadState(m.text, 'Claude 결과를 넣었어요. 이미지만 넣으면 돼요.');   // 다른 화면에서 붙여 넣은 썸네일 결과
       if (m.type === 'setState' && m.state) loadState(JSON.stringify(m.state), m.msg == null ? '썸네일 작업을 불러왔어요.' : m.msg);
       if (m.type === 'exportAll') (hubExportAll ? hubExportAll(m.dir) : Promise.resolve(0)).then(n => notify({type:'exportDone', reqId:m.reqId, n}));
