@@ -851,10 +851,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       const score = (rec ? 100 : 0) + ((r.bg.includes('navy') === dark) ? 3 : 0) - i * 0.01;
       return Object.assign({rec, score}, r);
     });
-    // 비슷한 생김새(look)끼리 붙여서: 묶음은 그 안 가장 높은 점수 순, 묶음 안은 점수 순
-    const top = {}; list.forEach(r => { const k = r.look || r.type; top[k] = Math.max(top[k] ?? -1e9, r.score); });
-    return list.sort((a, b) => { const ka = a.look || a.type, kb = b.look || b.type;
-      return ka === kb ? b.score - a.score : (top[kb] - top[ka]) || (ka < kb ? -1 : 1); });
+    // 비슷한 생김새(look)끼리 붙여서, 묶음 순서는 고정(2026-10-25 사용자: 3D 장면 맨 앞 · 화면 목업 맨 뒤), 묶음 안은 점수 순(같으면 make_refs.py 순서)
+    const ORDER = {scene:0, object:1, photo:2, screen:3}, rank = r => ORDER[r.look] ?? 9;
+    return list.sort((a, b) => rank(a) - rank(b) || b.score - a.score);
   }
   // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
   const myRefs = [];
