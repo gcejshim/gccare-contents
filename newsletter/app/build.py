@@ -35,12 +35,13 @@ def tool(path, extra=(), h2c=True):
 
 tools = {
     'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs')]),
-    'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd')]),
+    'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd'), (r'<script src="[^"]*gifenc[^"]*"></script>', 'gifenc')]),   # gifenc: 콘텐츠 이미지 [GIF로 저장]
     'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), [(r'<script src="styles\.js"></script>', 'pdfStyles'), (r'<script src="examples\.js"></script>', 'pdfEx'), (r'<script src="moods\.js"></script>', 'pdfMoods')]),   # html2canvas는 이번 호 화면의 작은 표지 미리보기용
 }
 libs = {
     'h2c': read(os.path.join(TH, 'vendor', 'html2canvas.min.js')),
     'lucide': read(os.path.join(TH, 'vendor', 'lucide.min.js')),
+    'gifenc': read(os.path.join(TH, 'vendor', 'gifenc.js')),
     'assets': read(os.path.join(TH, 'assets.js')),
     'assetsEd': read(os.path.join(ED, 'assets-editor.js')),
     'refs': read(os.path.join(TH, 'refs.js')),   # 썸네일 참고 이미지 (썸네일 도구 · 에셋 › 배경 이미지)

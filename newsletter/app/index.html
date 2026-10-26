@@ -92,6 +92,27 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--coolNeutral-100);text-align:left;vertical-align:top;line-height:1.5}
 .tbl th{font-size:12px;color:var(--coolNeutral-600);font-weight:600;background:var(--coolNeutral-50)}
 .tbl code,.page code{background:var(--coolNeutral-50);padding:1px 6px;border-radius:4px;font-size:12px}
+/* 요청 보내기 (2026-10-26 사용자: 메일 대신 여기서 써서 전달 — 오른쪽 아래 떠 있는 아이콘) */
+.rq-fab{position:fixed;right:24px;bottom:24px;z-index:30;width:60px;height:60px;border:0;border-radius:50%;background:var(--careBlue-500);color:var(--neutral-0);cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(3,21,82,.25)}
+.rq-fab:hover{background:var(--careBlue-600);transform:translateY(-3px) scale(1.06);box-shadow:0 8px 20px rgba(3,21,82,.3)}
+.rq-fab{transition:transform .2s ease,box-shadow .2s ease,background .2s}
+.rq-fab svg{width:28px;height:28px;position:relative;z-index:1}
+/* 2026-10-26 사용자: 가만히 있을 땐 움직이지 않고, 마우스를 올리면 아이콘이 까딱 · 누르면 꾹 눌렸다가 물결이 퍼짐 */
+.rq-fab svg{transform-origin:50% 60%}
+.rq-fab:hover svg{animation:rqWiggle .6s ease-in-out}
+.rq-fab:active{transform:scale(.92);transition-duration:.08s}
+.rq-fab::after{content:'';position:absolute;inset:0;border-radius:50%;background:var(--careBlue-500);opacity:0;pointer-events:none}
+.rq-fab.ping::after{animation:rqRing .6s ease-out}
+@keyframes rqRing{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.8);opacity:0}}
+@keyframes rqWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg)}50%{transform:rotate(10deg)}75%{transform:rotate(-5deg)}}
+@media (prefers-reduced-motion:reduce){.rq-fab:hover svg,.rq-fab.ping::after{animation:none}}
+.rq-box{position:fixed;right:24px;bottom:96px;z-index:30;width:320px;background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:14px;box-shadow:0 10px 30px rgba(3,21,82,.18);padding:16px}
+.rq-box[hidden]{display:none}
+.rq-box h4{margin:0 0 4px;font-size:15px}
+.rq-box p{margin:0 0 12px;font-size:12px;color:var(--coolNeutral-600)}
+.rq-box select,.rq-box input,.rq-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--coolNeutral-200);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;margin-bottom:8px}
+.rq-box textarea{height:110px;resize:vertical}
+.rq-box .rq-row{display:flex;justify-content:flex-end;gap:6px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--careBlue-900);color:var(--neutral-0);padding:12px 20px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
 .toast.show{opacity:1}
 
@@ -194,6 +215,19 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .ai-ref .sp{flex:1}
 .gen-st{margin:12px 0 0;font-size:13px;color:var(--careBlue-600)}
 .gen-st.err{color:var(--careRed-500)}
+.ai-go{display:flex;gap:8px;margin-top:16px}
+.ai-go .btn{height:42px;font-size:14px;justify-content:center}
+.ai-go .btn.primary{flex:1}
+.ai-smp-w{margin-top:4px}
+.ai-smp-w summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--neutral-900);padding:4px 0 10px}
+.ai-smp-w summary small{font-weight:400;color:var(--neutral-500);margin-left:6px}
+.ai-out:not([hidden]) + .ai-smp-w{margin-top:18px;border-top:1px solid var(--coolNeutral-100);padding-top:12px}
+.ai-smp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.ai-smp button{padding:0;border:2px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;background:var(--coolNeutral-50);cursor:pointer;display:flex;flex-direction:column;text-align:left;transition:border-color .15s,transform .15s}
+.ai-smp button:hover{border-color:var(--careBlue-400);transform:translateY(-2px)}
+.ai-smp button.on{border-color:var(--careBlue-500);box-shadow:0 0 0 2px var(--careBlue-100)}
+.ai-smp img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;object-position:top;background:var(--neutral-0)}
+.ai-smp span{font-size:11px;color:var(--neutral-600);padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ai-out{margin-top:12px;display:flex;flex-direction:column;gap:10px}
 .ai-out[hidden]{display:none}
 .ai-out img{display:block;width:100%;border-radius:10px;border:1px solid var(--coolNeutral-100);background:repeating-conic-gradient(var(--coolNeutral-100) 0 25%, var(--neutral-0) 0 50%) 0 0/16px 16px}
@@ -227,7 +261,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <hr>
   <button class="menu" data-view="ai" data-icon="Sparkles">AI로 그리기</button>
   <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
-  <button class="menu" data-view="guide" data-icon="BookOpen">가이드</button>
+  <button class="menu" data-view="guide" data-icon="BookOpen">이용 가이드</button>
   <div class="foot">AX Studio · Newsletter <span id="ver">개발본</span><br>작업은 이 브라우저에 자동저장돼요</div>
 </nav>
 
@@ -300,7 +334,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <!-- AI로 그리기 -->
   <section class="view" id="v-ai"><div class="page">
     <h2>AI로 그리기</h2>
-    <p class="lead">콘텐츠 이미지에 쓸 배경과 일러스트를 그려요. 썸네일은 <b>뉴스레터 썸네일</b>에서 만들어요. <b>[바로 만들기]</b>로 여기서 그리거나, 프롬프트를 ChatGPT에 붙여 넣어 만든 뒤 각 도구에 <b>Ctrl+V</b>로 넣어요.</p>
+    <p class="lead"><b>콘텐츠 이미지</b>에 쓸 배경과 일러스트를 그려요. <b>[바로 만들기]</b>로 여기서 그리거나 <b>[ChatGPT에서 만들기]</b>로 만든 뒤, 콘텐츠 이미지 도구에 <b>Ctrl+V</b>로 넣어요.</p>
       <div class="grid2">
         <div class="card">
           <h3>무엇을 그릴까요?</h3>
@@ -309,26 +343,80 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
           <div class="field" style="margin-bottom:12px"><label>그림체</label><select id="aiStyle"></select></div>
           <div class="field" style="margin-bottom:12px"><label>참고 이미지 (선택 · 1장) — 그림체 · 분위기만 따라 그려요</label>
             <div class="ai-ref" id="aiRef"></div><input type="file" id="aiRefFile" accept="image/*" hidden></div>
-          <div class="field"><label>우리 팀 GPT 주소 (있으면 넣어 두세요)</label><input type="url" id="aiGpt" placeholder="https://chatgpt.com/g/…"></div>
-          <p class="hint" style="margin-top:10px">⚠️ 이미지 안에는 <b>글자를 넣지 않아요.</b> 글자는 썸네일 · 콘텐츠 도구에서 넣어요. 인물 <b>실사 사진</b>은 회사 보유 사진만 써요(AI 실사 인물 X).</p>
+          <!-- 2026-10-26 사용자: 다 적은 바로 아래에서 만들기 · [프롬프트 복사]+[ChatGPT 열기]는 한 버튼으로, 프롬프트 글은 안 보이게 -->
+          <div class="prompt" id="aiPrompt" hidden></div>
+          <div class="ai-go"><button class="btn primary" id="aiGen">바로 만들기</button>
+            <a class="btn" id="aiOpen" target="_blank" rel="noopener" title="프롬프트를 복사하고 ChatGPT를 열어요 · 붙여 넣고 참고 이미지가 있으면 같이 첨부해요">ChatGPT에서 만들기</a></div>
+          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 공용 서버로 30초~1분 안에 그려요(시안). 완성본은 <b>[ChatGPT에서 만들기]</b> → Ctrl+V로 붙여 넣어 만들어요.</p>
+          <p class="hint" style="margin-top:4px">⚠️ 이미지 안에는 <b>글자를 넣지 않아요.</b> 글자는 콘텐츠 이미지 도구에서 넣어요. 인물 <b>실사 사진</b>은 회사 보유 사진만 써요(AI 실사 인물 X).</p>
         </div>
         <div class="card">
-          <h3>프롬프트<span class="sp"></span><button class="btn sm" id="aiCopy">복사</button><a class="btn sm" id="aiOpen" target="_blank" rel="noopener">ChatGPT 열기</a><button class="btn sm primary" id="aiGen">바로 만들기</button></h3>
-          <div class="prompt" id="aiPrompt"></div>
-          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 공용 서버로 30초~1분 안에 그려요. 완성본은 프롬프트를 복사해 ChatGPT에서 만들고, 참고 이미지가 있으면 같이 첨부해요.</p>
+          <h3 id="aiRightT">결과</h3>
           <p class="gen-st" id="aiGenSt" hidden></p>
           <div class="ai-out" id="aiOut" hidden>
             <img id="aiOutImg" alt="">
-            <div class="row"><button class="btn sm" id="aiOutCopy">이미지 복사</button><button class="btn sm" id="aiOutSave">PNG 저장</button><span class="hint">각 도구에 Ctrl+V로 붙여 넣어요.</span></div>
+            <div class="row"><button class="btn sm" id="aiOutCopy">이미지 복사</button><button class="btn sm" id="aiOutSave">PNG 저장</button><span class="hint">콘텐츠 이미지 도구에 Ctrl+V로 붙여 넣어요.</span></div>
           </div>
+          <!-- 2026-10-26 사용자: 빈 칸 대신 지난 호 콘텐츠 이미지 샘플(그림이 들어간 것만) — 누르면 참고 이미지로. 그린 뒤엔 접힘 -->
+          <details class="ai-smp-w" id="aiSmpW" open><summary>이런 느낌으로 그릴까요? <small>지난 호 그림을 하나 고르면 비슷한 느낌으로 그려요 (안 골라도 돼요)</small></summary>
+            <div class="ai-smp" id="aiSmp"></div></details>
         </div>
       </div>
   </div></section>
 
   <!-- 가이드 -->
   <section class="view" id="v-guide"><div class="page">
-    <h2>가이드</h2>
-    <p class="lead">뉴스레터 산출물 규격과 디자인 원칙이에요. 바꾸지 말아야 할 기준이 모여 있어요.</p>
+    <h2>이용 가이드</h2>
+    <p class="lead">처음부터 저장까지 이 순서대로 하면 돼요. (2026-10-26 사용자: 가이드를 이용 가이드로)</p>
+    <div class="card"><h3>0. 처음 한 번만 · Claude 스킬 등록</h3>
+      <ol class="todo">
+        <li>팀에서 받은 <b>gc-ax-newsletter.zip</b>을 준비해요. (압축은 풀지 않아요)</li>
+        <li><b>claude.ai</b> 왼쪽 아래 내 이름 → <b>설정</b> → <b>기능</b> → <b>스킬</b>에서 <b>[스킬 업로드]</b>로 zip을 올려요.</li>
+        <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 새 버전을 받으면 같은 방법으로 다시 올려요.</li>
+      </ol>
+    </div>
+    <div class="card"><h3>1. 이번 호 준비</h3>
+      <ol class="todo">
+        <li>왼쪽 <b>이번 호</b>에서 호수와 콘텐츠 제목 · 마감일 · 메모를 적어요.</li>
+        <li>claude.ai 새 채팅에 <b>기획안</b>(PDF · PPT · 엑셀 · 글)을 넣고 "15호 썸네일 · 콘텐츠 이미지 만들어 줘"처럼 요청해요.</li>
+        <li>결과 창 위 <b>[복사]</b> → 이 화면 아무 곳에서 <b>Ctrl+V</b>. 썸네일 · 콘텐츠 이미지 · 리드마그넷 중 맞는 메뉴로 알아서 들어가요.</li>
+      </ol>
+    </div>
+    <div class="card"><h3>2. 뉴스레터 썸네일 <small>콘텐츠마다 1장</small></h3>
+      <ol class="todo">
+        <li>콘텐츠 번호(01 · 02 · 03)를 고르고 <b>타이틀</b>을 확인해요. 강조할 단어는 [대괄호].</li>
+        <li>오른쪽 <b>AI 이미지 생성하기</b>에서 위부터 차례로: <b>배경 색상</b> → <b>그림체</b>(참고 이미지) → <b>무엇을 그릴까요?</b> → <b>[이미지 만들기]</b>.</li>
+        <li>왼쪽 ④에서 크기 · 좌우 · 상하 · 흐림 막대로 맞추고, <b>자동 점검</b>에 주황 경고가 없는지 봐요.</li>
+        <li>바꿀 곳이 있으면 <b>만들어진 이미지 수정하기</b>에 한 줄로 적고 [수정하기].</li>
+      </ol>
+    </div>
+    <div class="card"><h3>3. 콘텐츠 이미지 <small>PC · 모바일</small></h3>
+      <ol class="todo">
+        <li>붙여 넣은 블록의 <b>글자를 기획안과 비교</b>해요.</li>
+        <li>PC · 모바일 미리보기를 번갈아 보며 줄바꿈 · 넘침을 확인해요.</li>
+        <li>어떤 모양이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 지난 호를 참고해요.</li>
+      </ol>
+    </div>
+    <div class="card"><h3>4. 리드마그넷 <small>PDF 자료가 있는 호만</small></h3>
+      <ol class="todo">
+        <li>스킬 결과를 붙여 넣거나 기획서로 <b>자동 만들기</b>를 해요.</li>
+        <li>쪽마다 확인하고 <b>[PDF 저장]</b>으로 받아요.</li>
+      </ol>
+    </div>
+    <div class="card"><h3>5. 저장 · 보관</h3>
+      <ol class="todo">
+        <li>위 <b>[전체 이미지 저장]</b> → 썸네일 · PC · 모바일 이미지를 한 번에 PNG로 받아요. (처음 한 번 폴더 선택)</li>
+        <li><b>[전체 파일 저장]</b> → 작업 파일 하나로 보관해요. 다른 PC에서는 <b>[불러오기]</b>로 이어서 해요.</li>
+      </ol>
+      <p class="hint" style="margin:8px 0 0">작업은 이 브라우저에 자동저장되지만, 브라우저 기록을 지우면 사라질 수 있어요.</p>
+    </div>
+    <div class="card"><h3>이럴 땐</h3>
+      <table class="tbl">
+        <tr><th style="width:200px">그림이 타이틀에 겹쳐요</th><td>썸네일 ④의 크기 막대를 줄이거나 좌우 막대로 오른쪽으로 밀어요.</td></tr>
+        <tr><th>그림 배경에 가로 띠가 보여요</th><td>만들어진 이미지 수정하기에 "배경의 가로 띠를 없애고 한 가지 색으로 부드럽게 이어 줘".</td></tr>
+        <tr><th>붙여 넣었는데 안 들어가요</th><td>스킬 결과 창 위 <b>[복사]</b>로 복사했는지 확인해요. 글자를 끌어서 복사하면 일부가 빠질 수 있어요.</td></tr>
+      </table>
+    </div>
     <div class="card"><h3>산출물 규격</h3>
       <table class="tbl"><tr><th>산출물</th><th>작업 크기</th><th>저장</th><th>비고</th></tr>
         <tr><td>PC 이미지</td><td>폭 900</td><td>2배 (1800px)</td><td>메일에서 약 660px로 줄어 보임 → 본문 최소 18, 가장 작은 글자 14, 선 1.5px 이상</td></tr>
@@ -338,14 +426,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <tr><td>파일 크기</td><td colspan="3">1MB 이하. 넘으면 사진이 많은 이미지만 JPG(품질 90)로 저장. 이미지 크기는 줄이지 않음(2·3배 의미가 사라짐)</td></tr>
       </table>
     </div>
-    <div class="card"><h3>파일 이름</h3>
-      <table class="tbl"><tr><th>구분</th><th>규칙</th><th>예시</th></tr>
-        <tr><td>PC</td><td><code>YYYYMM_contentsNN_pNN.png</code></td><td>202610_contents01_p01.png</td></tr>
-        <tr><td>모바일</td><td><code>YYYYMM_contentsNN_mNN.png</code></td><td>202610_contents01_m01.png</td></tr>
-        <tr><td>썸네일</td><td><code>(N호)NN.제목.png</code></td><td>(15호)01.하반기 검진 마무리.png</td></tr>
-        <tr><td>호 ↔ 년월</td><td colspan="2">10호 = 202605 … 14호 = 202609 · <b>15호 = 202610</b> (콘텐츠 01 = 메인, 02 · 03 = 서브)</td></tr>
-      </table>
-    </div>
+    <!-- 2026-10-26 사용자: 파일 이름은 각 도구 미리보기 아래에 이미 보임 → 가이드에서 뺌 -->
     <div class="card"><h3>디자인 원칙 <small>바꾸지 말 것</small></h3>
       <table class="tbl">
         <tr><th style="width:140px">관점</th><td>앱 화면이 아니라 B2B(HR · 보건 담당자) 정보 콘텐츠 → 편집 디자인 · 인포그래픽. 디자인 시스템은 컬러 · 타이포 토큰만 사용</td></tr>
@@ -356,27 +437,22 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <tr><th>작업 방식</th><td>초안을 넓게 먼저 잡고 점점 좁혀 감. 요청하지 않은 산출물은 늘리지 않음</td></tr>
       </table>
     </div>
-    <div class="card"><h3>자주 쓰는 블록 <small>지난 호 분석 · 에셋 › 샘플 모아보기에서 실제 이미지 확인</small></h3>
-      <table class="tbl"><tr><th>블록</th><th>언제 쓰나</th><th>도구</th></tr>
-        <tr><td>아이콘 리스트 카드</td><td>확인 항목 · 체크리스트 · 예방 수칙</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>순위 막대</td><td>설문 결과 (복수 응답, 공동 순위)</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>가로 막대</td><td>항목별 비율 · 건수 비교</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>표</td><td>판정 기준 · 방식 비교 · 과태료</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>목업 히어로</td><td>서비스 · 관리자 화면 소개</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>A vs B 비교</td><td>두 사업장 · 두 방식 비교</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>세로 막대 · 100% 누적 막대 · 꺾은선 · 도넛</td><td>전후 비교 · 구성비 · 추이</td><td>✅ 콘텐츠 이미지</td></tr>
-        <tr><td>단계 흐름 · 인용 · 인터뷰 · 사진</td><td>운영 흐름 · 기획자 한마디 · 고객사 인터뷰</td><td>15호에 나오면 추가</td></tr>
-      </table>
-    </div>
-    <div class="card"><h3>AI 이미지 비용</h3>
-      <p class="hint" style="font-size:13px;margin:0">건당 약 <b>₩35</b> (카드뉴스 실측 기준). 회사 공용 키 사용량은 UsageLog 시트에 기록돼요. 자세한 내용: <code>docs/AI비용_사용현황.md</code></p>
-    </div>
+    <!-- 2026-10-26 사용자: 자주 쓰는 블록(에셋 › 샘플에 있음) · AI 이미지 비용은 가이드에서 뺌 -->
   </div></section>
 </main>
 
 <div class="lb" id="lb" hidden><div class="lb-box"><div class="im"><img id="lbImg" alt=""></div>
   <div class="bar"><b id="lbName"></b><span id="lbMeta" class="hint"></span><span class="sp"></span><span class="hint" id="lbNote">예시 내용으로 추가돼요 → 기획안대로 고치기</span><button class="btn sm primary" id="lbMake">새로 만들기</button><button class="btn sm" id="lbClose">닫기</button></div></div></div>
 <div class="toast" id="toast"></div>
+<button class="rq-fab" id="rqFab" title="요청 보내기 · 고쳐 줬으면 하는 점이나 필요한 기능을 적어 주세요"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
+<div class="rq-box" id="rqBox" hidden>
+  <h4>요청 보내기</h4>
+  <p>고쳐 줬으면 하는 점이나 필요한 기능을 적어 주세요. 담당자에게 바로 전달돼요.</p>
+  <select id="rqView"><option value="home">이번 호</option><option value="thumb">뉴스레터 썸네일</option><option value="image">콘텐츠 이미지</option><option value="pdf">리드마그넷</option><option value="ai">AI로 그리기</option><option value="assets">에셋</option><option value="guide">이용 가이드</option><option value="etc">기타</option></select>
+  <input id="rqName" type="text" placeholder="이름 · 팀 (예: 홍길동 · 보건사업팀)" hidden>
+  <textarea id="rqText" placeholder="예: 썸네일 칩 글자를 8자까지 늘려 주세요"></textarea>
+  <div class="rq-row"><button class="btn" id="rqCancel">닫기</button><button class="btn primary" id="rqSend">보내기</button></div>
+</div>
 
 <script>
 (function(){
@@ -665,14 +741,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   function renderAI(){
     const ai = H.ai = Object.assign({style: 'soft3d', topic: '', items: '', gpt: ''}, H.ai || {});
     $('aiStyle').innerHTML = Object.entries(STYLES).map(([k, v]) => `<option value="${k}"${k === ai.style ? ' selected' : ''}>${v.name}</option>`).join('');
-    $('aiTopic').value = ai.topic; $('aiItems').value = ai.items; $('aiGpt').value = ai.gpt;
-    renderRef(); updatePrompt();
+    $('aiTopic').value = ai.topic; $('aiItems').value = ai.items;
+    renderRef(); updatePrompt(); renderAISmp();
+  }
+  // 지난 호 콘텐츠 이미지 중 그림이 들어간 것만 (썸네일 · 표 · 그래프는 그림체 참고가 안 돼서 뺌)
+  const AI_SMP_TYPES = ['illust', 'hero', 'steps', 'photo'];
+  let aiRefId = '';
+  const aiSmpList = () => (window.NL_SAMPLES || []).filter(s => AI_SMP_TYPES.includes(s.type)).sort((a, b) => AI_SMP_TYPES.indexOf(a.type) - AI_SMP_TYPES.indexOf(b.type) || b.issue - a.issue);
+  function renderAISmp(){
+    const L = aiSmpList();
+    $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.name === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${s.issue}호 · ${esc((TYPES[s.type] || [s.type])[0])}</span></button>`).join('')
+      : '<div class="empty">샘플이 없어요.</div>';
   }
   function updatePrompt(){
     $('aiPrompt').textContent = buildPrompt();
-    const g = (H.ai.gpt || '').trim();
-    $('aiOpen').href = /^https:\/\/(chatgpt\.com|chat\.openai\.com)\//.test(g) ? g : 'https://chatgpt.com/';
-    $('aiOpen').textContent = /^https:\/\//.test(g) ? '우리 팀 GPT 열기' : 'ChatGPT 열기';
+    $('aiOpen').href = 'https://chatgpt.com/';   // 2026-10-26 사용자: 우리 팀 GPT 주소 칸은 뺌
   }
 
   // 참고 이미지 (1장, 이 화면에만 · 자동저장 안 함) → 서버에는 썸네일 [바로 만들기]와 같은 styleRef로 보냄
@@ -681,7 +764,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   function renderRef(){
     $('aiRef').innerHTML = aiRef
       ? `<img src="${aiRef}" alt=""><span>이 그림체 · 분위기를 따라 그려요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">바꾸기</button><button class="btn sm" data-ref="clear">빼기</button>`
-      : `<span>이미지를 끌어다 놓거나 <b>Ctrl+V</b>로 붙여 넣어요.<br>에셋 › 배경 이미지에서 내려받은 것도 좋아요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">파일 선택</button>`;
+      : `<span>오른쪽 <b>지난 호 콘텐츠 이미지</b>를 누르거나,<br>이미지를 끌어다 놓거나 <b>Ctrl+V</b>로 붙여 넣어요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">파일 선택</button>`;
   }
   // 서버 제한(500KB) 안으로: 긴 쪽 1024px WebP, 크면 한 번 더 줄임
   function shrinkRef(src){
@@ -706,7 +789,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   function setRefFile(f){
     if (!f || !/^image\//.test(f.type)) return;
     const r = new FileReader();
-    r.onload = async () => { try { aiRef = await shrinkRef(r.result); renderRef(); updatePrompt(); } catch(e){ toast('이미지를 읽지 못했어요.'); } };
+    r.onload = async () => { try { aiRef = await shrinkRef(r.result); aiRefId = ''; renderRef(); updatePrompt(); renderAISmp(); } catch(e){ toast('이미지를 읽지 못했어요.'); } };
     r.readAsDataURL(f);
   }
   async function aiGenerate(){
@@ -721,7 +804,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
       if (window._0u) window._0u('AI로 그리기');
-      aiOutURL = data.dataURL; $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false;
+      aiOutURL = data.dataURL; $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiSmpW').open = false;   // 그린 뒤엔 샘플 접기
       st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15)
     } catch(e){
       st.className = 'gen-st err';
@@ -858,12 +941,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       if (lbItem.type === 'thumb'){ go('thumb'); return; }
       const b = TYPES[lbItem.type][1]; if (b){ send('image', {type: 'addBlock', blockType: b}); go('image'); }
     });
-    ['aiStyle', 'aiTopic', 'aiItems', 'aiGpt'].forEach(id => $(id).addEventListener('input', e => {
-      const k = {aiStyle: 'style', aiTopic: 'topic', aiItems: 'items', aiGpt: 'gpt'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
+    ['aiStyle', 'aiTopic', 'aiItems'].forEach(id => $(id).addEventListener('input', e => {
+      const k = {aiStyle: 'style', aiTopic: 'topic', aiItems: 'items'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
     }));
     $('aiRef').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return;
       if (b.dataset.ref === 'pick'){ $('aiRefFile').value = ''; $('aiRefFile').click(); }
-      else { aiRef = ''; renderRef(); updatePrompt(); } });
+      else { aiRef = ''; aiRefId = ''; renderRef(); updatePrompt(); renderAISmp(); } });
     $('aiRefFile').addEventListener('change', e => setRefFile(e.target.files[0]));
     $('aiRef').addEventListener('dragover', e => { e.preventDefault(); $('aiRef').classList.add('over'); });
     $('aiRef').addEventListener('dragleave', () => $('aiRef').classList.remove('over'));
@@ -877,7 +960,13 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       catch(e){ toast('복사가 막혀 있어요. [PNG 저장]으로 받아 주세요.'); } });
     $('aiOutSave').addEventListener('click', () => { const a = document.createElement('a'); a.href = aiOutURL;
       a.download = `AI_${(H.ai.topic || '이미지').trim().slice(0, 20).replace(/[\\/:*?"<>|\s]+/g, '_')}.png`; a.click(); });
-    $('aiCopy').addEventListener('click', async () => { try { await navigator.clipboard.writeText(buildPrompt()); toast('프롬프트를 복사했어요. ChatGPT에 붙여 넣어 주세요.'); } catch(e){ toast('복사가 막혀 있어요. 프롬프트를 직접 선택해서 복사해 주세요.'); } });
+    // [ChatGPT에서 만들기]: 프롬프트를 복사하고 ChatGPT를 엶 (링크는 그대로 열림)
+    $('aiOpen').addEventListener('click', async () => { try { await navigator.clipboard.writeText(buildPrompt()); toast(aiRef ? '프롬프트를 복사했어요. ChatGPT에 Ctrl+V 하고 참고 이미지도 첨부해 주세요.' : '프롬프트를 복사했어요. ChatGPT에 Ctrl+V로 붙여 넣어 주세요.', 4000); } catch(e){ toast('복사가 막혀 있어요. 다시 눌러 주세요.'); } });
+    $('aiSmp').addEventListener('click', async e => { const b = e.target.closest('[data-smp]'); if (!b) return;
+      const s = aiSmpList()[+b.dataset.smp]; if (!s) return;
+      if (aiRefId === s.name){ aiRef = ''; aiRefId = ''; }   // 한 번 더 누르면 빼기
+      else { try { aiRef = await shrinkRef(s.src); aiRefId = s.name; } catch(err){ toast('이미지를 읽지 못했어요.'); return; } }
+      renderRef(); updatePrompt(); renderAISmp(); });
     $('logos').addEventListener('click', async e => { const b = e.target.closest('[data-dl]'); if (!b) return; const blob = await (await fetch(A[b.dataset.dl])).blob(); download(blob, `GC케어_${b.dataset.dl}.png`); });
     $('sws').addEventListener('click', async e => { const b = e.target.closest('[data-hex]'); if (!b) return; try { await navigator.clipboard.writeText(b.dataset.hex); toast(`${b.dataset.hex} 복사했어요.`); } catch(err){ toast(b.dataset.hex); } });
     window.addEventListener('hashchange', () => { const v = location.hash.slice(1); if (v && v !== H.view && $('v-' + v)) go(v); });
@@ -918,6 +1007,35 @@ function _0m(us){return new Promise((res)=>{const saved=_0r();const COS=['GC케�
 const GATE=false;
 async function _0n(){try{if(!GATE){const sv=_0r();if(sv&&sv.n)_0k(sv.c,sv.t,sv.n);return;}const us=await _0l(),{c,t,n}=await _0m(us);await _0k(c,t,n);console.log('뉴스레터 게이트 통과 ('+c+' · '+t+' · '+n+')');}catch(e){console.error('게이트 로드 실패:',e);}}
 window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='usage'&&d.kind)window._0u(d.kind);});   // 도구(iframe)에서 AI를 쓰면 한 줄
+
+// 요청 보내기 (2026-10-26 사용자) — 같은 시트의 '뉴스레터 요청' 탭에 한 줄 (시트 쪽은 docs/시트_요청받기.gs).
+// 시트 스크립트가 아직 안 붙었으면 saved:'request'가 안 오므로 실패로 보고 쓴 글은 그대로 둠
+(function(){
+  const $=id=>document.getElementById(id), box=$('rqBox'), DRAFT='gc-nl-request-draft';
+  const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2600);};
+  const open=()=>{box.hidden=false;const v=(location.hash||'#home').slice(1);$('rqView').value=[...$('rqView').options].some(o=>o.value===v)?v:'etc';
+    $('rqName').hidden=!!(_0r()||{}).n;try{$('rqText').value=localStorage.getItem(DRAFT)||'';}catch(e){}$('rqText').focus();};
+  const fab=$('rqFab');
+  fab.addEventListener('click',()=>{fab.classList.remove('ping');void fab.offsetWidth;fab.classList.add('ping');box.hidden?open():box.hidden=true;});
+  fab.addEventListener('animationend',e=>{if(e.animationName==='rqRing')fab.classList.remove('ping');});
+  $('rqCancel').addEventListener('click',()=>{box.hidden=true;});
+  $('rqText').addEventListener('input',()=>{try{localStorage.setItem(DRAFT,$('rqText').value);}catch(e){}});
+  $('rqSend').addEventListener('click',async()=>{
+    const text=$('rqText').value.trim();if(!text){$('rqText').focus();return;}
+    const me=_0r()||{},who=$('rqName').value.trim();
+    if(!me.n&&!who){$('rqName').focus();return;}
+    const b=$('rqSend');b.disabled=true;b.textContent='보내는 중…';
+    try{
+      const r=await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'request',tool:TOOL,
+        c:me.c||'',t:me.t||'',n:me.n||who,screen:$('rqView').selectedOptions[0].text,text,ver:($('ver')||{}).textContent||''})});
+      const j=await r.json().catch(()=>({}));
+      if(j.saved!=='request')throw new Error('시트 준비 전');
+      $('rqText').value='';try{localStorage.removeItem(DRAFT);}catch(e){}
+      box.hidden=true;toast('요청을 보냈어요. 고마워요!');
+    }catch(e){console.warn('요청 보내기 실패:',e);toast('지금은 보내지 못했어요. 쓴 내용은 남아 있으니 잠시 뒤 다시 보내 주세요.');}
+    finally{b.disabled=false;b.textContent='보내기';}
+  });
+})();
 if(document.readyState==='loading')window.addEventListener('DOMContentLoaded',_0n);else _0n();
 })();
 </script>

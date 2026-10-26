@@ -31,6 +31,7 @@ replacements = [
     (r'<link rel="stylesheet" href="[^"]*pretendard[^"]*">', '<style>' + faces + '</style>'),
     (r'<script src="[^"]*html2canvas[^"]*"></script>', inline_script(read(os.path.join(SHARED, 'vendor', 'html2canvas.min.js')))),
     (r'<script src="[^"]*lucide[^"]*"></script>', inline_script(read(os.path.join(SHARED, 'vendor', 'lucide.min.js')))),
+    (r'<script src="[^"]*gifenc[^"]*"></script>', inline_script(read(os.path.join(SHARED, 'vendor', 'gifenc.js')))),
     (r'<script src="\.\./thumbnail/assets\.js"></script>', inline_script(read(os.path.join(SHARED, 'assets.js')))),
     (r'<script src="assets-editor\.js"></script>', inline_script(read(os.path.join(HERE, 'assets-editor.js')))),
 ]

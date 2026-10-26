@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <script src="../thumbnail/vendor/html2canvas.min.js"></script>
 <script src="../thumbnail/vendor/lucide.min.js"></script>
+<script src="../thumbnail/vendor/gifenc.js"></script>
 <script src="../thumbnail/assets.js"></script>
 <script src="assets-editor.js"></script>
 <style>
@@ -417,6 +418,24 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .win-bar i{width:10px;height:10px;border-radius:50%;display:block}
 .nl .win-bar span{color:var(--neutral-0);opacity:.85;font-size:12px;margin-left:8px}
 .nl .win img{display:block;width:100%}
+/* 휴대폰 틀 (2026-10-26) — 피그마 목업처럼 연한 회색 프레임 · 둥근 화면 · 위 가운데 알약 모양 카메라, 화면 비율 9:19.5 (긴 캡처는 위쪽부터) */
+.nl .phone{background:linear-gradient(160deg,#f4f5f8,#dfe3ea);border-radius:44px;padding:11px;box-shadow:0 14px 32px rgba(3,21,82,.14),inset 0 0 0 1.5px #cdd3dd}
+.nl .phone-in{position:relative;border-radius:34px;overflow:hidden;background:var(--neutral-0);aspect-ratio:9/19.5}
+.nl .phone-in{background:var(--neutral-0) no-repeat top center/100% auto}
+/* 강조할 곳 크게 띄우기 — 고른 영역을 같은 그림으로 잘라 키우고 그림자로 앞으로 */
+.nl .zw{position:relative}
+.nl .zl{position:absolute;z-index:2}
+.nl .zo{position:absolute;overflow:hidden;border-radius:18px;background:var(--neutral-0);box-shadow:0 18px 36px rgba(3,21,82,.26),0 0 0 1px rgba(3,21,82,.06)}
+.nl .zo-in{position:absolute;background:no-repeat top center/100% auto}
+.nl .zr-mark{display:none}
+.pv-frame .zl{cursor:crosshair}
+.pv-frame .zr-mark{display:block;position:absolute;border:1.5px dashed var(--careGreen-500);border-radius:4px;pointer-events:none}
+.pv-frame .zl.dragging .zo{opacity:.25}
+.nl-mo .zo{border-radius:12px}
+.nl .phone-isl{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:30%;height:22px;border-radius:12px;background:#1b1f2b}
+.nl-mo .phone{border-radius:34px;padding:8px}
+.nl-mo .phone-in{border-radius:27px}
+.nl-mo .phone-isl{top:7px;height:16px}
 .nl .hr-logo{display:flex;justify-content:flex-end;margin-top:20px}
 .nl .hr-logo img{height:19px;width:auto;display:block}
 .nl-mo.hero{padding:28px 16px 16px}
@@ -437,6 +456,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .sp-im{width:100%;height:var(--sh,330px);overflow:hidden;display:flex;justify-content:center}
 .nl .sp-im img{display:block;width:100%;height:auto;align-self:flex-start}
 .nl .sp-im .ph{width:100%;height:100%;padding:24px 10px;display:flex;align-items:center;justify-content:center}
+/* 단계별 화면: 캡처는 sp-clip 안에서 잘리고, 강조 카드는 화면 밖으로 튀어나올 수 있게 sp-im은 안 자름 (2026-10-26) */
+.nl .sp-im{overflow:visible;position:relative}
+.nl .sp-zw{position:relative;width:100%;height:100%}
+.nl .sp-clip{width:100%;height:100%;overflow:hidden}
+.nl .sp-clip img{display:block;width:100%;height:auto}
+.nl .phone.cut{width:86%;height:100%;margin:0 auto;padding-bottom:0;border-radius:40px 40px 0 0;box-sizing:border-box}
+.nl .phone.cut .phone-in{height:100%;aspect-ratio:auto;border-radius:30px 30px 0 0}
+.nl .sp-zl{top:var(--o);left:var(--o);right:var(--o)}
+.nl .sp-zl.on-ph{left:calc(7% + var(--o));right:calc(7% + var(--o))}
+.nl .zl-sz{display:block;width:100%;height:auto;visibility:hidden}
+.nl-mo .sp-im{max-height:none}
+.nl-mo .sp-clip{max-height:var(--shm,420px)}
+.nl-mo .sp-im.ph-on{height:var(--shm,420px)}
+.nl-mo .phone.cut{border-radius:32px 32px 0 0}
+.nl-mo .phone.cut .phone-in{border-radius:25px 25px 0 0}
 .nl .sp-band{margin:0 -28px;height:60px;padding:0 24px;background:linear-gradient(90deg,var(--careBlue-100),var(--careBlue-50));display:flex;align-items:center;justify-content:flex-end}
 .nl .sp-band img{height:19px;width:auto;display:block}
 .nl-mo.steps{padding:24px 16px 0}
@@ -708,6 +742,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   <button class="btn ico" id="btnUndo" title="되돌리기 (Ctrl+Z · ⌘Z)" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg></button>
   <button class="btn ico" id="btnRedo" title="다시 하기 (Ctrl+Shift+Z · ⌘⇧Z)" disabled><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg></button>
   <button class="btn primary" id="btnExport" title="지금 보고 있는 이미지 한 장을 PC(2배)·모바일(3배)로 저장해요">이 이미지 저장</button>
+  <button class="btn" id="btnGif" hidden title="막대가 자라는 움직이는 이미지(GIF)로 PC(2배)·모바일(3배)을 저장해요 · 완성에서 4초 쉬고 3번 움직여요">GIF로 저장</button>
   <button class="btn" id="btnExportAll" title="목록의 모든 이미지를 PC·모바일로 저장해요">전체 이미지 저장</button>
   <input type="file" id="fileLoad" accept=".json,application/json" hidden>
   <input type="file" id="fileImg" accept="image/*" hidden>
@@ -791,7 +826,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
       <div class="pv">
         <div class="pvp" id="pvPcBox">
-          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><b>PC</b><span class="lbl" id="pvPcLbl"></span><span class="sp"></span>
+          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><b>PC</b><span class="lbl" id="pvPcLbl"></span><button class="btn xs" id="btnPlay" hidden title="GIF로 저장했을 때의 움직임을 미리 봐요">▶ 움직임 보기</button><span class="sp"></span>
             <label class="switch" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><input type="checkbox" id="mail"> 메일 크기로 보기</label></div>
           <div class="pvb"><div class="pv-frame" id="pvPc"></div><p class="hint" id="mailHint" hidden></p></div>
         </div>
@@ -1056,22 +1091,39 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         {k:'tone', t:'select', label:'강조색', opts:[['green','그린'],['blue','블루']]},
         {k:'title', t:'area', label:'헤드라인 ([대괄호] = 그린 강조)', rows:2},
         {k:'image', t:'image', label:'화면 이미지 (캡처 · 앱/웹 화면, 2배 크기로 캡처 권장)'},
-        {k:'width', t:'num', label:'이미지 폭 (PC, %)', w:'s'},
-        {k:'frame', t:'toggle', label:'브라우저 창 틀 씌우기'},
-        {k:'winTitle', t:'text', label:'창 제목 (창 틀 켰을 때)', ph:'예: 어떠케어 - 내부 관리자'},
+        {k:'frame', t:'select', label:'틀', opts:[['browser','브라우저 창 (PC 화면)'],['phone','휴대폰 (앱 화면)'],['none','없음']]},
+        {k:'width', t:'num', label:'이미지 폭 (PC, % · 휴대폰은 40%까지)', w:'s'},
+        {k:'winTitle', t:'text', label:'창 제목 (브라우저 창일 때)', ph:'예: 어떠케어 - 내부 관리자'},
+        {k:'zoom', t:'toggle', label:'강조할 곳 크게 띄우기 — 켜고 PC 미리보기 화면에서 마우스로 끌어 골라요'},
+        {k:'zoomScale', t:'num', label:'강조 크기 (%, 기본 125)', w:'s'},
         {k:'bgStyle', t:'select', label:'배경 색', opts:[['flat','연파랑'],['grad','연파랑 그라데이션'],['white','흰색'],['gray','연회색'],['navy','남색 (글씨 · 로고 흰색)']]},
         {k:'logo', t:'select', label:'오른쪽 아래 로고', opts:[['ko','GC케어 (한글)'],['en','GC Care (영문)'],['none','없음']]}
       ],
-      sample: () => ({title:'우리 회사에 맞게 설정하고, [반복 업무는 줄이고]', image:'', width:84, frame:true, winTitle:'어떠케어 - 내부 관리자', bgStyle:'flat', logo:'ko'}),
+      sample: () => ({title:'우리 회사에 맞게 설정하고, [반복 업무는 줄이고]', image:'', width:84, frame:'browser', winTitle:'어떠케어 - 내부 관리자', bgStyle:'flat', logo:'ko'}),
       render(d, m){
-        const w = m === 'mo' ? 100 : Math.min(100, Math.max(30, Number(d.width) || 84));
+        // 틀: 예전 파일은 켜기/끄기(true/false) → 브라우저 창/없음. 2026-10-26 사용자: 휴대폰 틀 추가 (14호 앱 화면처럼, 피그마 없이)
+        const fr = d.frame === true ? 'browser' : (d.frame === 'phone' || d.frame === 'browser') ? d.frame : 'none';
+        const phone = fr === 'phone' && d.image;
+        const w = phone ? (m === 'mo' ? 64 : Math.min(40, Math.max(20, Number(d.width) || 34))) : m === 'mo' ? 100 : Math.min(100, Math.max(30, Number(d.width) || 84));
         let img = d.image ? `<img src="${d.image}" alt="">` : '<div class="ph">화면 이미지를 넣어 주세요<br>(왼쪽에 끌어다 놓기 · Ctrl+V)</div>';
-        if (d.image && d.frame) img = `<div class="win"><div class="win-bar"><i style="background:var(--careRed-400)"></i><i style="background:var(--careYellow-500)"></i><i style="background:var(--careGreen-500)"></i>${d.winTitle ? `<span>${esc(d.winTitle)}</span>` : ''}</div>${img}</div>`;
+        // 휴대폰 화면은 배경 그림으로 (저장 도구 html2canvas가 object-fit을 못 그려서) — 위쪽부터 폭에 맞춤
+        const bgImg = `background-image:url('${d.image}')`;
+        if (phone) img = `<div class="phone"><div class="phone-in" style="${bgImg}"><i class="phone-isl"></i></div></div>`;
+        if (d.image && fr === 'browser') img = `<div class="win"><div class="win-bar"><i style="background:var(--careRed-400)"></i><i style="background:var(--careYellow-500)"></i><i style="background:var(--careGreen-500)"></i>${d.winTitle ? `<span>${esc(d.winTitle)}</span>` : ''}</div>${img}</div>`;
+        // 강조할 곳 크게 띄우기 (2026-10-26 사용자: 14호처럼 중요한 카드가 크게 · 입체적으로 앞으로) — 영역 zr은 화면 기준 %, 미리보기에서 끌어 고름
+        if (d.image && d.zoom){
+          const r = d.zr || {x: 6, y: 30, w: 88, h: 18}, s = Math.min(200, Math.max(100, Number(d.zoomScale) || 125)) / 100;
+          const o = phone ? (m === 'mo' ? 8 : 11) : 0, top = fr === 'browser' ? (m === 'mo' ? 22 : 32) : o;
+          img = `<div class="zw">${img}<div class="zl" data-zsel style="top:${top}px;left:${o}px;right:${o}px;bottom:${o}px"><i class="zr-mark" style="left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%"></i>`
+            // 키운 크기로 바로 그림 (transform:scale은 저장 도구 html2canvas가 안쪽 그림 위치를 어긋나게 그림) — 가운데 기준으로 s배
+            + `<div class="zo" style="left:${r.x - r.w * (s - 1) / 2}%;top:${r.y - r.h * (s - 1) / 2}%;width:${r.w * s}%;height:${r.h * s}%"><div class="zo-in" style="left:${-r.x / r.w * 100}%;top:${-r.y / r.h * 100}%;width:${100 / r.w * 100}%;height:${100 / r.h * 100}%;${bgImg}"></div></div></div></div>`;
+        }
         const src = d.bgStyle === 'navy' ? logoSrcW(d.logo) : logoSrc(d.logo);
         const logo = src ? `<div class="hr-logo"><img src="${src}" alt="GC케어"></div>` : '';
         return `${d.title ? `<div class="hr-t"${E('title')}>${rich(d.title)}</div>` : ''}<div class="hr-img" style="width:${w}%">${img}</div>${logo}`;
       },
-      lint(d){ const w = []; if (!d.image) w.push(['warn', '화면 이미지가 없어요. 이대로 저장하면 빈 칸이 그대로 나가요.']); w.push(['info', '화면 캡처는 2배 크기로 받아야 저장 이미지가 또렷해요. (브라우저 200% 확대 후 캡처 등)']); return w; }
+      lint(d){ const w = []; if (!d.image) w.push(['warn', '화면 이미지가 없어요. 이대로 저장하면 빈 칸이 그대로 나가요.']); w.push(['info', '화면 캡처는 2배 크기로 받아야 저장 이미지가 또렷해요. (브라우저 200% 확대 후 캡처 등)']);
+        if (d.frame === 'phone') w.push(['info', '휴대폰 틀은 화면 위쪽부터 보여요. 캡처가 길면 아래가 잘려요.']); return w; }
     },
 
     steps: {
@@ -1081,13 +1133,26 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         {k:'title', t:'area', label:'헤드라인 (없으면 비워 두기, [대괄호] = 그린 강조)', rows:2},
         {k:'items', t:'list', label:'단계 (2~4개 · 화면 캡처는 Ctrl+V로 순서대로 채워져요)', add:{title:'새 단계', image:''}, sub:[{k:'title', t:'text', ph:'단계 제목'}, {k:'image', t:'image'}]},
         {k:'height', t:'num', label:'화면 보이는 높이 (PC, px · 아래는 잘림)', w:'s'},
+        {k:'frame', t:'select', label:'틀', opts:[['phone','휴대폰 (회색 프레임)'],['none','없음 (캡처만)']]},
+        {k:'zoom', t:'toggle', label:'강조할 곳 크게 띄우기 — 켜고 PC 미리보기의 각 화면에서 마우스로 끌어 골라요'},
+        {k:'zoomScale', t:'num', label:'강조 크기 (%, 기본 125)', w:'s'},
         {k:'logo', t:'select', label:'아래 띠 로고', opts:[['ko','GC케어 (한글)'],['en','GC Care (영문)'],['none','없음']]}
       ],
-      sample: () => ({title:'', items:[{title:'걸음 수 추이 확인', image:''}, {title:'나만의 캐릭터와 닉네임', image:''}, {title:'오늘의 미션과 걷기템', image:''}], height:390, logo:'ko'}),
+      sample: () => ({title:'', items:[{title:'걸음 수 추이 확인', image:''}, {title:'나만의 캐릭터와 닉네임', image:''}, {title:'오늘의 미션과 걷기템', image:''}], height:390, frame:'phone', zoom:true, logo:'ko'}),
       render(d, m){
         const items = (d.items || []).slice(0, 4);
+        // 2026-10-26 사용자: 14호처럼 휴대폰 틀(피그마 회색 목업) + 단계마다 강조할 곳을 크게 앞으로. 영역 zr은 캡처 그림 기준 %(PC · 모바일 같은 곳)
+        const phone = d.frame === 'phone', o = phone ? (m === 'mo' ? 8 : 11) : 0, s = Math.min(200, Math.max(100, Number(d.zoomScale) || 125)) / 100;
+        const scr = (it, i) => {
+          if (!it.image) return '<div class="ph">화면 캡처를<br>넣어 주세요</div>';
+          const bg = `background-image:url('${it.image}')`, r = it.zr || {x: 4, y: 26, w: 92, h: 14};
+          const body = phone ? `<div class="phone cut"><div class="phone-in" style="${bg}"><i class="phone-isl"></i></div></div>` : `<div class="sp-clip"><img src="${it.image}" alt=""></div>`;
+          const zoom = d.zoom ? `<div class="zl sp-zl${phone ? ' on-ph' : ''}" data-zsel="items.${i}" style="--o:${o}px"><img class="zl-sz" src="${it.image}" alt=""><i class="zr-mark" style="left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%"></i>`
+            + `<div class="zo" style="left:${r.x - r.w * (s - 1) / 2}%;top:${r.y - r.h * (s - 1) / 2}%;width:${r.w * s}%;height:${r.h * s}%"><div class="zo-in" style="left:${-r.x / r.w * 100}%;top:${-r.y / r.h * 100}%;width:${100 / r.w * 100}%;height:${100 / r.h * 100}%;${bg}"></div></div></div>` : '';
+          return `<div class="zw sp-zw">${body}${zoom}</div>`;
+        };
         const cols = items.map((it, i) => `<div class="sp-c"><div class="sp-h"><span class="sp-n">${i + 1}</span><span${E(`items.${i}.title`)}>${rich(it.title)}</span></div>
-          <div class="sp-im">${it.image ? `<img src="${it.image}" alt="">` : '<div class="ph">화면 캡처를<br>넣어 주세요</div>'}</div></div>`).join('');
+          <div class="sp-im${phone && it.image ? ' ph-on' : ''}">${scr(it, i)}</div></div>`).join('');
         const src = logoSrc(d.logo);
         return `${d.title ? `<div class="sp-t"${E('title')}>${rich(d.title)}</div>` : ''}<div class="sp-cols" style="--sh:${Math.max(160, Number(d.height) || 390)}px">${cols}</div><div class="sp-band">${src ? `<img src="${src}" alt="GC케어">` : ''}</div>`;
       },
@@ -1889,6 +1954,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     // 새 이미지(템플릿 고르기 전)는 예시 대신 빈 안내만 보여 줌
     const empty = w => `<div class="pv-empty" style="width:${w}px">이미지 템플릿을 선택해 주세요<br><small>② 만드는 방법에서 Claude 스킬 결과를 넣거나 템플릿을 고르면 여기에 보여요</small></div>`;
     $('pvPc').innerHTML = it.fresh ? empty(900) : renderItem(it, 'pc'); $('pvMo').innerHTML = it.fresh ? empty(350) : renderItem(it, 'mo');
+    $('btnPlay').hidden = !canAnim(it); $('btnGif').hidden = !canAnim(view());
     fixPills($('pvPc')); fixPills($('pvMo'));
     // 나란히에서 상세 편집 중인 그래프 표시 (미리보기에만, 저장 이미지에는 없음)
     const sub = cur() !== it ? cur().id : ''; document.querySelectorAll('#pvPc [data-src], #pvMo [data-src]').forEach(n => n.closest('.pr-c').classList.toggle('sub-on', n.dataset.src === sub));
@@ -2312,6 +2378,23 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     document.addEventListener('keydown', e => { if (e.key === 'Escape'){ if (!$('icPop').hidden) closeIcons(); if (!$('cpPop').hidden) closeColors(); } });
   }
   function bindInlineEdit(box){
+    // 목업 히어로 '강조할 곳 크게 띄우기': 화면 위를 끌어서 영역 고르기 (화면 기준 %로 저장 → PC · 모바일 같이)
+    box.addEventListener('pointerdown', e => {
+      const zl = e.target.closest('[data-zsel]'); if (!zl || e.button !== 0) return;
+      e.preventDefault(); if (editing) endEdit(true);
+      const R = zl.getBoundingClientRect(), mark = zl.querySelector('.zr-mark'), it = cur();
+      const pc = (v, a, l) => Math.min(100, Math.max(0, (v - a) / l * 100));
+      const x0 = pc(e.clientX, R.left, R.width), y0 = pc(e.clientY, R.top, R.height); let r = null;
+      zl.classList.add('dragging'); zl.setPointerCapture(e.pointerId);
+      const move = ev => { const x1 = pc(ev.clientX, R.left, R.width), y1 = pc(ev.clientY, R.top, R.height);
+        r = {x: +Math.min(x0, x1).toFixed(2), y: +Math.min(y0, y1).toFixed(2), w: +Math.abs(x1 - x0).toFixed(2), h: +Math.abs(y1 - y0).toFixed(2)};
+        Object.assign(mark.style, {left: r.x + '%', top: r.y + '%', width: r.w + '%', height: r.h + '%'}); };
+      const up = () => { zl.removeEventListener('pointermove', move); zl.removeEventListener('pointerup', up); zl.classList.remove('dragging');
+        const p = zl.dataset.zsel;   // 목업 히어로 = '' (블록에 하나), 단계별 화면 = 'items.N' (단계마다)
+        if (r && r.w > 3 && r.h > 2){ if (p) setPath(it.data, p + '.zr', r); else it.data.zr = r; } else if (r) toast('조금 더 크게 끌어서 골라 주세요.');
+        refresh(); };
+      zl.addEventListener('pointermove', move); zl.addEventListener('pointerup', up);
+    });
     box.addEventListener('click', e => {
       const ic = e.target.closest('[data-ic]'); if (ic){ if (editing) endEdit(true); openIcons(ic.dataset.ic, ic, !!ic.dataset.none); return; }
       const pp = e.target.closest('[data-pairpick]'); if (pp && !e.target.closest('[data-e], [data-cp]')){ if (editing) endEdit(true);
@@ -2411,6 +2494,70 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         r.jpg ? ` — 1MB 초과 · JPG로 저장하면 ${r.jpg.kb}KB<button class="btn xs" data-jpg="${i}">JPG로 저장</button>` : r.big ? ' — 1MB 초과: 사진·화면 이미지를 줄이거나 잘라 주세요' : ''}</li>`).join('');
     }
     return res.length / 2;   // 이미지 장수 (PC · 모바일 한 쌍 = 1장)
+  }
+
+  // ── 움직이는 GIF (2026-10-26 사용자: 콘텐츠 이미지를 홈페이지 · 메일에 움직이게) — 지금은 가로 막대만, 되면 다른 막대 · 도넛 · 숫자로 넓힘
+  // 막대가 0에서 자라고(위부터 조금씩 늦게 · 끝에서 천천히) 숫자도 함께 올라감 → 완성에서 4초 쉬고 3번, 마지막엔 완성에서 멈춤
+  // 메일은 열 때 재생돼 스크롤하면 이미 끝나 있으므로 반복 · 첫 장면은 완성(Outlook은 첫 장면만 보여 줌)
+  const ANIM = {hbar: 1};
+  const canAnim = it => !!(it && !it.fresh && ANIM[it.type]);
+  function animPrep(root){
+    return [...root.querySelectorAll('.hb-tr')].map(tr => { const i = tr.querySelector('i'), b = tr.querySelector('b'), txt = b.textContent, v = parseFloat(txt.replace(/[^\d.-]/g, '')) || 0;
+      return {i, b, txt, v, w: parseFloat(i.style.width) || 0, unit: txt.replace(/[\d.,-]/g, ''), dp: Number.isInteger(v) ? 0 : 1}; });
+  }
+  function animSet(bars, t){
+    bars.forEach((o, k) => { const d = Math.min(1, Math.max(0, t * 1.25 - k * 0.06)), e = 1 - Math.pow(1 - d, 3), n = o.v * e;
+      o.i.style.width = o.w * e + '%'; o.b.style.left = o.w * e + '%'; o.b.style.opacity = Math.min(1, d * 3);
+      o.b.textContent = d >= 1 ? o.txt : (Math.abs(o.v) >= 1000 ? Math.round(n).toLocaleString('ko-KR') : n.toFixed(o.dp)) + o.unit; });
+  }
+  let playing = 0;
+  function playPreview(){
+    const sets = [$('pvPc'), $('pvMo')].map(animPrep), id = ++playing, t0 = performance.now(), D = 1400;
+    const step = now => { if (id !== playing) return; const t = Math.min(1, (now - t0) / D); sets.forEach(s => animSet(s, t)); if (t < 1) requestAnimationFrame(step); };
+    requestAnimationFrame(step);
+  }
+  async function snapGif(it, m){
+    const host = $('exportHost');
+    host.innerHTML = renderItem(it, m);
+    const node = host.firstElementChild;
+    if (document.fonts) await document.fonts.ready;
+    fixPills(host);
+    const w = m === 'pc' ? 900 : 350, h = Math.ceil(node.getBoundingClientRect().height), sc = m === 'pc' ? 2 : 3, bars = animPrep(node), N = 18;
+    node.style.height = h + 'px';
+    const shot = async t => { animSet(bars, t); const c = await html2canvas(node, {scale: sc, backgroundColor: '#ffffff', useCORS: true, logging: false, width: w, height: h, windowWidth: 1400}); return c.getContext('2d').getImageData(0, 0, c.width, c.height); };
+    const fin = await shot(1), fr = [{d: fin, ms: 20}];
+    for (let k = 0; k <= N; k++) fr.push({d: await shot(k / N), ms: k ? 65 : 300});
+    fr.push({d: fin, ms: 4000});
+    host.innerHTML = '';
+    // 모든 장면을 같은 색 256개로 (장면마다 색표가 다르면 깜빡임) — 완성 · 중간 장면에서 색을 뽑음
+    const {width: W2, height: H2} = fin, px = W2 * H2 * 4, all = new Uint8ClampedArray(px * 3);
+    [fin, fr[4].d, fr[8].d].forEach((f, i) => all.set(f.data, i * px));
+    const {GIFEncoder, quantize, applyPalette} = window.gifenc, pal = quantize(all, 256), g = GIFEncoder();
+    fr.forEach((f, i) => g.writeFrame(applyPalette(f.d.data, pal), W2, H2, {palette: i ? undefined : pal, delay: f.ms, repeat: 2}));
+    g.finish();
+    return {blob: new Blob([g.bytes()], {type: 'image/gif'}), w: W2, h: H2};
+  }
+  async function exportGif(it){
+    if (busy || !canAnim(it)) return;
+    try { await getImgDir(); } catch(e){ if (e.name === 'AbortError') return; }
+    busy = true;
+    const btns = [$('btnExport'), $('btnExportAll'), $('btnGif')]; btns.forEach(b => b.disabled = true);
+    const res = [];
+    try {
+      for (const m of ['pc', 'mo']){
+        const name = `${fileBase(it, m)}.gif`;
+        toast(`GIF 만드는 중… ${name} (장면을 여러 장 찍어서 조금 걸려요)`, 120000);
+        const r = await snapGif(it, m);
+        await saveImg(r.blob, name);
+        res.push({name, w: r.w, h: r.h, kb: Math.round(r.blob.size / 1024), big: r.blob.size > MAX_BYTES});
+      }
+      const big = res.filter(r => r.big).length;
+      toast(big ? `GIF ${res.length}장 저장 · 1MB 넘는 파일 ${big}장 (아래 목록 확인)` : `GIF ${res.length}장 저장했어요 (${imgDir ? imgDir.name + ' 폴더' : '다운로드 폴더'})`, 4000);
+    } catch(err){ console.error(err); toast('GIF 저장 중 문제가 생겼어요. 다시 시도해 주세요.'); }
+    finally {
+      busy = false; btns.forEach(b => b.disabled = false);
+      $('results').innerHTML = res.map(r => `<li class="${r.big ? 'big' : ''}"><code>${esc(r.name)}</code> ${r.w}×${r.h} · ${r.kb}KB${r.big ? ' — 1MB 초과: 항목 수를 줄이거나 PNG로 저장해 주세요' : ''}</li>`).join('');
+    }
   }
 
   // ── 편집 원본 저장/열기 ──
@@ -2572,6 +2719,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     $('mail').addEventListener('change', refresh);
 
     $('btnExport').addEventListener('click', () => exportItems([view()]));
+    $('btnGif').addEventListener('click', () => exportGif(view()));
+    $('btnPlay').addEventListener('click', playPreview);
     $('btnExportAll').addEventListener('click', () => { const out = allOut(), nOut = out.length, nAll = S.items.filter(o => !o.owner).length; if (confirm(`목록의 ${nOut}장을 PC·모바일로 모두 저장할까요? (파일 ${nOut * 2}개${nOut < nAll ? ' · 나란히에 쓰인 원본 그래프는 빼고' : ''})`)) exportItems(out); });
     $('btnSave').addEventListener('click', () => saveJSON(false));
     $('btnLoad').addEventListener('click', openJSON);

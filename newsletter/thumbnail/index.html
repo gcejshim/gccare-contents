@@ -354,6 +354,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       <li><b>[이 이미지 저장]</b>을 누르면 처음 한 번 저장할 폴더를 고르고, 그다음부터 그 폴더에 저장돼요. <b>[전체 이미지 저장]</b>은 이번 호에서 작업한 썸네일을 모두 저장해요.</li>
       <li>콘텐츠 번호(01 · 02 · 03)를 바꾸면 그 번호의 썸네일로 바뀌어요. 한 호의 썸네일은 <b>[작업 파일 저장]</b> 파일 하나에 모두 들어가고, <b>[작업 파일 열기]</b>로 열면 한꺼번에 이어서 수정할 수 있어요.</li>
     </ol>
+    <p class="hint" style="margin:0 0 8px"><b>이럴 땐</b><br>
+      · 그림이 <b>타이틀 글자에 겹치면</b> ④의 크기 막대를 줄이거나 좌우 막대로 오른쪽으로 밀어요.<br>
+      · 그림 배경에 <b>가로 줄이나 띠</b>가 보이면 <b>만들어진 이미지 수정하기</b> 칸에 "배경의 가로 띠를 없애고 한 가지 색으로 부드럽게 이어 줘"라고 적고 [수정하기]를 눌러요.</p>
     <p class="hint">작업 내용은 이 브라우저에 자동저장돼요. 다른 PC로 옮기거나 보관하려면 [작업 파일 저장]으로 파일을 받아 두세요.</p>
     <div style="text-align:right;margin-top:16px"><button class="btn primary" id="btnHelpClose">확인</button></div>
   </div>
@@ -603,13 +606,16 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const key = [S.image.length, S.image.slice(-40), p.left.toFixed(1), p.top.toFixed(1), p.w.toFixed(1)].join('|');
     if (key === extKey) return extURL;
     const k = 3, c = document.createElement('canvas'); c.width = W * k; c.height = H * k;
-    const x = c.getContext('2d'), im = meta.el, w = meta.w, h = meta.h, e = Math.max(1, Math.round(Math.min(w, h) * 0.004));   // 가장자리 몇 줄 (압축 테두리 피함)
-    const L = p.left * k, T = p.top * k, R = (p.left + p.w) * k, B = (p.top + p.h) * k, CW = c.width, CH = c.height;
-    const d = (sx, sy, sw, sh, dx, dy, dw, dh) => { if (dw > 0 && dh > 0) x.drawImage(im, sx, sy, sw, sh, dx, dy, dw, dh); };
+    const x = c.getContext('2d'), im = meta.el, e = Math.max(1, Math.round(Math.min(meta.w, meta.h) * 0.004));   // 가장자리 몇 줄 (압축 테두리 피함)
+    // 2026-10-26 사용자: 옮기면 경계에 줄이 생김 — AI 그림 맨 끝 몇 줄이 안쪽보다 밝음 → 끝 m줄은 버리고 그 안쪽 줄을 늘려 채움
+    const m = Math.round(Math.min(meta.w, meta.h) * 0.012), w = meta.w - 2 * m, h = meta.h - 2 * m;
+    const fx = p.w * k / meta.w, fy = p.h * k / meta.h;
+    const L = (p.left * k) + m * fx, T = (p.top * k) + m * fy, R = (p.left + p.w) * k - m * fx, B = (p.top + p.h) * k - m * fy, CW = c.width, CH = c.height;
+    const d = (sx, sy, sw, sh, dx, dy, dw, dh) => { if (dw > 0 && dh > 0) x.drawImage(im, m + sx, m + sy, sw, sh, dx, dy, dw, dh); };
     d(0, 0, e, h, 0, T, L, B - T); d(w - e, 0, e, h, R, T, CW - R, B - T);   // 왼 · 오른쪽
     d(0, 0, w, e, L, 0, R - L, T); d(0, h - e, w, e, L, B, R - L, CH - B);   // 위 · 아래
     d(0, 0, e, e, 0, 0, L, T); d(w - e, 0, e, e, R, 0, CW - R, T); d(0, h - e, e, e, 0, B, L, CH - B); d(w - e, h - e, e, e, R, B, CW - R, CH - B);   // 네 귀퉁이
-    x.drawImage(im, L, T, R - L, B - T);
+    d(0, 0, w, h, L, T, R - L, B - T);
     extKey = key; extURL = c.toDataURL('image/jpeg', 0.95);
     return extURL;
   }
