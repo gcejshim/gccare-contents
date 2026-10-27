@@ -612,10 +612,48 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const fx = p.w * k / meta.w, fy = p.h * k / meta.h;
     const L = (p.left * k) + m * fx, T = (p.top * k) + m * fy, R = (p.left + p.w) * k - m * fx, B = (p.top + p.h) * k - m * fy, CW = c.width, CH = c.height;
     const d = (sx, sy, sw, sh, dx, dy, dw, dh) => { if (dw > 0 && dh > 0) x.drawImage(im, m + sx, m + sy, sw, sh, dx, dy, dw, dh); };
-    d(0, 0, e, h, 0, T, L, B - T); d(w - e, 0, e, h, R, T, CW - R, B - T);   // 왼 · 오른쪽
-    d(0, 0, w, e, L, 0, R - L, T); d(0, h - e, w, e, L, B, R - L, CH - B);   // 위 · 아래
-    d(0, 0, e, e, 0, 0, L, T); d(w - e, 0, e, e, R, 0, CW - R, T); d(0, h - e, e, e, 0, B, L, CH - B); d(w - e, h - e, e, e, R, B, CW - R, CH - B);   // 네 귀퉁이
+    // 2026-10-27 사용자: 그림 끝에 나무 · 잔디처럼 알록달록한 게 걸치면 늘린 줄이 가로 줄무늬가 됨
+    // → 그 쪽 끝 줄이 양 끝(하늘 · 바닥) 사이 매끈한 변화와 크게 다르면 물건이 걸친 것 → 늘리지 않고 양 끝 색 그라데이션으로 채움
+    //   늘린 바깥은 크게 흐리고, 그림 테두리는 그 위로 서서히 사라지게 (끝이 깨끗한 그림은 결과가 예전과 거의 같음)
+    const N = 48, sc = document.createElement('canvas'); sc.width = sc.height = N;
+    const scx = sc.getContext('2d'); scx.drawImage(im, m, m, w, h, 0, 0, N, N); const px = scx.getImageData(0, 0, N, N).data;
+    const at = (i, j) => { const o = (j * N + i) * 4; return [px[o], px[o + 1], px[o + 2]]; };
+    const line = side => Array.from({length: N}, (_, n) => side === 'l' ? at(0, n) : side === 'r' ? at(N - 1, n) : side === 't' ? at(n, 0) : at(n, N - 1));
+    const busy = side => { const v = line(side), a = v[0], b = v[N - 1];
+      return v.some((c0, n) => Math.hypot(...c0.map((ch, q) => ch - (a[q] + (b[q] - a[q]) * n / (N - 1)))) > 36); };
+    const rgb = c0 => `rgb(${c0.join(',')})`;
+    const side = (s, sx, sy, sw, sh, dx, dy, dw, dh) => {
+      if (!(dw > 0 && dh > 0)) return;
+      if (!busy(s)) return d(sx, sy, sw, sh, dx, dy, dw, dh);
+      const v = line(s), vert = s === 'l' || s === 'r';
+      const g = vert ? x.createLinearGradient(0, dy, 0, dy + dh) : x.createLinearGradient(dx, 0, dx + dw, 0);
+      g.addColorStop(0, rgb(v[0])); g.addColorStop(1, rgb(v[N - 1])); x.fillStyle = g; x.fillRect(dx, dy, dw, dh);
+    };
+    const iw = Math.round(R - L), ih = Math.round(B - T), Z = 40;   // Z: 흐림 = 1/Z로 줄였다 키우기 (ctx.filter는 Safari 일부에서 안 됨)
+    const fw = Math.min(iw * 0.25, CW * 0.06), fh = Math.min(ih * 0.25, CH * 0.08);   // 그림 테두리가 사라지는 폭
+    // 본체를 먼저 깔고(흐린 판에 빈 곳 → 검은 테두리 방지), 바깥 채움은 사라지는 폭 + 흐림만큼 그림 안쪽으로 겹쳐 그림
+    // → 테두리 아래 비치는 흐린 판에 그림 속 물건(얼굴 · 달력 등)이 섞여 얼룩지지 않게
     d(0, 0, w, h, L, T, R - L, B - T);
+    const ox = fw + 2 * CW / Z, oy = fh + 2 * CH / Z;
+    if (L > 0.5) side('l', 0, 0, e, h, 0, T, L + ox, B - T);
+    if (R < CW - 0.5) side('r', w - e, 0, e, h, R - ox, T, CW - R + ox, B - T);
+    if (T > 0.5) side('t', 0, 0, w, e, L, 0, R - L, T + oy);
+    if (B < CH - 0.5) side('b', 0, h - e, w, e, L, B - oy, R - L, CH - B + oy);
+    d(0, 0, e, e, 0, 0, L, T); d(w - e, 0, e, e, R, 0, CW - R, T); d(0, h - e, e, e, 0, B, L, CH - B); d(w - e, h - e, e, e, R, B, CW - R, CH - B);   // 네 귀퉁이
+    const sm = document.createElement('canvas'); sm.width = Math.max(2, Math.round(CW / Z)); sm.height = Math.max(2, Math.round(CH / Z));
+    const sx = sm.getContext('2d'); sx.imageSmoothingQuality = 'high'; sx.drawImage(c, 0, 0, sm.width, sm.height);
+    x.imageSmoothingQuality = 'high'; x.drawImage(sm, 0, 0, CW, CH);
+    if (iw > 0 && ih > 0){
+      const t = document.createElement('canvas'); t.width = iw; t.height = ih;
+      const tx = t.getContext('2d'); tx.drawImage(im, m, m, w, h, 0, 0, iw, ih);
+      tx.globalCompositeOperation = 'destination-in';   // 드러난 쪽마다 테두리를 투명으로 (곱해지므로 여러 쪽도 됨)
+      const ramp = (x0, y0, x1, y1) => { const g = tx.createLinearGradient(x0, y0, x1, y1); g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, '#000'); tx.fillStyle = g; tx.fillRect(0, 0, iw, ih); };
+      if (L > 0.5) ramp(0, 0, fw, 0);
+      if (R < CW - 0.5) ramp(iw, 0, iw - fw, 0);
+      if (T > 0.5) ramp(0, 0, 0, fh);
+      if (B < CH - 0.5) ramp(0, ih, 0, ih - fh);
+      x.drawImage(t, L, T, iw, ih);
+    }
     extKey = key; extURL = c.toDataURL('image/jpeg', 0.95);
     return extURL;
   }

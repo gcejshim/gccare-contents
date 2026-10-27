@@ -112,7 +112,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .rq-box p{margin:0 0 12px;font-size:12px;color:var(--coolNeutral-600)}
 .rq-box select,.rq-box input,.rq-box textarea{width:100%;box-sizing:border-box;border:1px solid var(--coolNeutral-200);border-radius:8px;padding:8px 10px;font:inherit;font-size:13px;margin-bottom:8px}
 .rq-box textarea{height:110px;resize:vertical}
+/* 2026-10-27 사용자: 기본 화살표가 오른쪽 끝에 붙어 보임 → 도구들과 같은 화살표 (thumbnail/index.html select) */
+.rq-box select{appearance:none;-webkit-appearance:none;padding-right:34px;cursor:pointer;
+  background:var(--neutral-0) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center}
 .rq-box .rq-row{display:flex;justify-content:flex-end;gap:6px}
+/* 첨부 (2026-10-27 사용자: 상황을 알아야 고칠 수 있음 — 캡처 붙여넣기 · 끌어 놓기 · 파일 고르기) */
+.rq-box.drag{outline:2px dashed var(--careBlue-500);outline-offset:-6px}
+.rq-att{display:flex;align-items:center;gap:6px;margin:-2px 0 8px;font-size:12px;color:var(--coolNeutral-600)}
+.rq-att .btn{padding:4px 10px;font-size:12px}
+.rq-files{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.rq-files:empty{display:none}
+.rq-file{position:relative;display:flex;align-items:center;gap:6px;max-width:100%;border:1px solid var(--coolNeutral-100);border-radius:8px;padding:4px 24px 4px 4px;font-size:12px;background:var(--coolNeutral-50)}
+.rq-file img{width:36px;height:36px;object-fit:cover;border-radius:5px}
+.rq-file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
+.rq-file button{position:absolute;right:4px;top:50%;transform:translateY(-50%);border:0;background:none;cursor:pointer;color:var(--coolNeutral-600);font-size:14px;line-height:1;padding:2px}
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--careBlue-900);color:var(--neutral-0);padding:12px 20px;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:50}
 .toast.show{opacity:1}
 
@@ -444,13 +457,15 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <div class="lb" id="lb" hidden><div class="lb-box"><div class="im"><img id="lbImg" alt=""></div>
   <div class="bar"><b id="lbName"></b><span id="lbMeta" class="hint"></span><span class="sp"></span><span class="hint" id="lbNote">예시 내용으로 추가돼요 → 기획안대로 고치기</span><button class="btn sm primary" id="lbMake">새로 만들기</button><button class="btn sm" id="lbClose">닫기</button></div></div></div>
 <div class="toast" id="toast"></div>
-<button class="rq-fab" id="rqFab" title="요청 보내기 · 고쳐 줬으면 하는 점이나 필요한 기능을 적어 주세요"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
+<button class="rq-fab" id="rqFab" title="의견 남기기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
 <div class="rq-box" id="rqBox" hidden>
-  <h4>요청 보내기</h4>
-  <p>고쳐 줬으면 하는 점이나 필요한 기능을 적어 주세요. 담당자에게 바로 전달돼요.</p>
+  <h4>의견 남기기</h4>
+  <p>써 보면서 불편했던 점이나 있었으면 하는 기능을 남겨 주세요. 모아서 다음 작업에 참고할게요.</p>
   <select id="rqView"><option value="home">이번 호</option><option value="thumb">뉴스레터 썸네일</option><option value="image">콘텐츠 이미지</option><option value="pdf">리드마그넷</option><option value="ai">AI로 그리기</option><option value="assets">에셋</option><option value="guide">이용 가이드</option><option value="etc">기타</option></select>
   <input id="rqName" type="text" placeholder="이름 · 팀 (예: 홍길동 · 보건사업팀)" hidden>
   <textarea id="rqText" placeholder="예: 썸네일 칩 글자를 8자까지 늘려 주세요"></textarea>
+  <div class="rq-att"><button class="btn" id="rqPick">파일 첨부</button><span>화면 캡처는 Ctrl+V로 붙여 넣어도 돼요</span><input type="file" id="rqFile" multiple hidden></div>
+  <div class="rq-files" id="rqFiles"></div>
   <div class="rq-row"><button class="btn" id="rqCancel">닫기</button><button class="btn primary" id="rqSend">보내기</button></div>
 </div>
 
@@ -1008,7 +1023,7 @@ const GATE=false;
 async function _0n(){try{if(!GATE){const sv=_0r();if(sv&&sv.n)_0k(sv.c,sv.t,sv.n);return;}const us=await _0l(),{c,t,n}=await _0m(us);await _0k(c,t,n);console.log('뉴스레터 게이트 통과 ('+c+' · '+t+' · '+n+')');}catch(e){console.error('게이트 로드 실패:',e);}}
 window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='usage'&&d.kind)window._0u(d.kind);});   // 도구(iframe)에서 AI를 쓰면 한 줄
 
-// 요청 보내기 (2026-10-26 사용자) — 같은 시트의 '뉴스레터 요청' 탭에 한 줄 (시트 쪽은 docs/시트_요청받기.gs).
+// 의견 남기기 (2026-10-26 사용자, 10/27 '요청 보내기'에서 이름 변경 — 고도화 중이라 반영을 약속하는 말은 피함) — 같은 시트의 '뉴스레터 요청' 탭에 한 줄 (시트 쪽은 docs/시트_요청받기.gs).
 // 시트 스크립트가 아직 안 붙었으면 saved:'request'가 안 오므로 실패로 보고 쓴 글은 그대로 둠
 (function(){
   const $=id=>document.getElementById(id), box=$('rqBox'), DRAFT='gc-nl-request-draft';
@@ -1020,18 +1035,40 @@ window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='u
   fab.addEventListener('animationend',e=>{if(e.animationName==='rqRing')fab.classList.remove('ping');});
   $('rqCancel').addEventListener('click',()=>{box.hidden=true;});
   $('rqText').addEventListener('input',()=>{try{localStorage.setItem(DRAFT,$('rqText').value);}catch(e){}});
+  // 첨부 (2026-10-27 사용자) — 시트 스크립트가 Drive '뉴스레터 요청 첨부' 폴더에 저장하고 링크를 시트에. 앱스 스크립트 받는 크기 때문에 3개 · 합쳐 10MB까지
+  const MAX_N=3,MAX_B=10*1024*1024;let files=[];
+  const kb=n=>n<1024*1024?Math.max(1,Math.round(n/1024))+'KB':(n/1024/1024).toFixed(1)+'MB';
+  const drawFiles=()=>{$('rqFiles').innerHTML='';files.forEach((f,i)=>{const d=document.createElement('div');d.className='rq-file';
+    if(f.type.startsWith('image/')){const im=document.createElement('img');im.src=URL.createObjectURL(f);im.onload=()=>URL.revokeObjectURL(im.src);d.appendChild(im);}
+    const s=document.createElement('span');s.textContent=f.name+' · '+kb(f.size);s.title=f.name;d.appendChild(s);
+    const x=document.createElement('button');x.textContent='×';x.title='빼기';x.onclick=()=>{files.splice(i,1);drawFiles();};d.appendChild(x);$('rqFiles').appendChild(d);});};
+  const addFiles=list=>{for(const f of list){
+      if(files.length>=MAX_N){toast('첨부는 '+MAX_N+'개까지예요.');break;}
+      if(files.reduce((a,x)=>a+x.size,0)+f.size>MAX_B){toast('첨부는 합쳐서 10MB까지예요.');break;}
+      files.push(f.name&&f.name!=='image.png'?f:new File([f],'캡처_'+new Date().toTimeString().slice(0,8).replace(/:/g,'')+'.png',{type:f.type||'image/png'}));}
+    drawFiles();};
+  $('rqPick').addEventListener('click',()=>$('rqFile').click());
+  $('rqFile').addEventListener('change',e=>{addFiles([...e.target.files]);e.target.value='';});
+  box.addEventListener('paste',e=>{const fs=[...(e.clipboardData?.items||[])].filter(x=>x.kind==='file').map(x=>x.getAsFile()).filter(Boolean);
+    if(!fs.length)return;e.preventDefault();e.stopPropagation();addFiles(fs);});   // stopPropagation: AI로 그리기 화면의 참고 이미지 붙여넣기로 가지 않게
+  box.addEventListener('dragover',e=>{e.preventDefault();box.classList.add('drag');});
+  box.addEventListener('dragleave',e=>{if(!box.contains(e.relatedTarget))box.classList.remove('drag');});
+  box.addEventListener('drop',e=>{e.preventDefault();box.classList.remove('drag');addFiles([...e.dataTransfer.files]);});
+  const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f);});
   $('rqSend').addEventListener('click',async()=>{
     const text=$('rqText').value.trim();if(!text){$('rqText').focus();return;}
     const me=_0r()||{},who=$('rqName').value.trim();
     if(!me.n&&!who){$('rqName').focus();return;}
     const b=$('rqSend');b.disabled=true;b.textContent='보내는 중…';
     try{
+      const att=await Promise.all(files.map(async f=>({name:f.name,type:f.type||'application/octet-stream',data:await b64(f)})));
       const r=await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'request',tool:TOOL,
-        c:me.c||'',t:me.t||'',n:me.n||who,screen:$('rqView').selectedOptions[0].text,text,ver:($('ver')||{}).textContent||''})});
+        c:me.c||'',t:me.t||'',n:me.n||who,screen:$('rqView').selectedOptions[0].text,text,ver:($('ver')||{}).textContent||'',files:att})});
       const j=await r.json().catch(()=>({}));
       if(j.saved!=='request')throw new Error('시트 준비 전');
-      $('rqText').value='';try{localStorage.removeItem(DRAFT);}catch(e){}
-      box.hidden=true;toast('요청을 보냈어요. 고마워요!');
+      const lost=att.length&&!(j.files>=att.length);   // 예전 시트 스크립트는 글만 저장하고 files를 안 돌려줌
+      $('rqText').value='';try{localStorage.removeItem(DRAFT);}catch(e){}files=[];drawFiles();
+      box.hidden=true;toast(lost?'의견은 남겼는데 첨부는 빠졌어요. 시트 스크립트를 새 버전으로 올려야 해요.':'남겨 주셔서 고마워요!');
     }catch(e){console.warn('요청 보내기 실패:',e);toast('지금은 보내지 못했어요. 쓴 내용은 남아 있으니 잠시 뒤 다시 보내 주세요.');}
     finally{b.disabled=false;b.textContent='보내기';}
   });

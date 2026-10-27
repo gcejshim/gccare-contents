@@ -135,6 +135,10 @@ function buildEditContent({ prompt, image, ref }) {
       'Keep everything else exactly the same — composition, camera angle, object positions and sizes, colors, lighting, rendering style and the background color. ' +
       'Any changed or newly added object must match the main object: same camera angle and perspective, proportional size (supporting objects about 30-50% of the main object), same lighting direction, and sit on the same floor with a soft contact shadow — the result must look like one coherent scene, not stickers. ' +
       'Keep the left side empty for a headline. Do not add new text; keep any existing Korean text exactly as it is unless the request says otherwise. Never add English or Latin-letter text unless the request explicitly asks for those exact words. ' +
+      // 2026-10-27 사용자: "머리 위에 걷기 통계 넣어 줘" → Steps · km 같은 영어 이름표가 나옴. 통계 · 그래프 · 배지처럼 글자가 필요한 것은 짧은 한글 + 숫자만
+      'If the requested change is information such as stats, a chart, a badge or a speech bubble that needs labels, write every label in short Korean Hangul with Arabic numerals and Korean units (e.g. "걸음 수 8,000보", "이동 거리 5.2킬로미터", "목표 달성 80%") — never English words, never Latin letters or abbreviations such as Steps, km, kcal, min; if unsure, use numbers with simple icons instead of words. ' +
+      // 같은 날: 통계 카드가 왼쪽 로고 · 타이틀 자리까지 넓게 들어옴 → 더한 것은 요청한 자리 가까이 작게, 오른쪽 그림 영역 안에만
+      'Anything you add stays small and close to where the request says (e.g. right above the person\'s head), inside the right 45% of the image — never in the left 55% where the logo and headline go, and never as a wide dashboard panel spanning the image. ' +
       'Output the full edited image at the same aspect ratio.' }
   ];
 }
