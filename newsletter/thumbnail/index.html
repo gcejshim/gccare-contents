@@ -978,7 +978,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push('', '[주제]');
     L.push(`썸네일 타이틀: "${title}"`);
-    if (desc) L.push(`그릴 내용: ${desc}`);
+    // 2026-10-27 사용자: '안전보건 · 보안'이라고 적으면 안전모 · 방패가 계속 나옴 — 이미지 AI는 금지보다 적힌 단어에 끌림 → 보내는 글에서 뜻을 바꿔 적고(따옴표 글자는 그대로), 대신 그릴 것을 지정
+    const SITE_OK = /안전모|헬멧|안전조끼|공사|소화기|경고/.test(desc), SHIELD_OK = /방패|체크|check/i.test(desc);
+    const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안/g, (m, q) => q ? q : m === '보안' ? (SHIELD_OK ? m : '개인 건강정보 보호') : (SITE_OK ? m : '직장인 건강관리'));
+    if (desc) L.push(`그릴 내용: ${descSend}`);
     L.push('- 타이틀과 그릴 내용으로 이번 주제를 해석해 줘. 타이틀은 내용 참고용이고, 이미지에 큰 제목으로 넣지 않는다.');
     if (desc) L.push('- 그릴 내용에 적은 대상을 중심으로 그린다. 주제와 관계없는 물건은 더하지 않는다.');
     // 2026-10-18 사용자: GC케어 중심은 건강검진 · 건강관리 → 그릴 내용을 비우면 타이틀에 맞는 물건을 이 목록에서 (추가는 사용자가 알려 줌)
@@ -1148,6 +1151,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 2026-10-18 사용자: 라벨 영어 · 물건 5개 — 긴 한글 규칙 속에 묻힘 → 가장 중요한 규칙을 짧은 영어로 맨 앞 · 맨 끝에 (그림 모델은 짧은 영어를 가장 잘 따름)
     const mineR = (curRef() || {}).mine;
     const CRIT = [
+      // 2026-10-27 사용자: 안전모 또 나옴 — 금지 대신 '대신 그릴 것'을 맨 앞에
+      !SITE_OK || !SHIELD_OK ? 'SYMBOLS FIRST: whenever the idea of safety, protection or security comes up, draw it ONLY as a small heart badge with a heartbeat line. Never draw ' + [!SITE_OK && 'hard hats, helmets, safety vests', !SHIELD_OK && 'shields, check-mark badges, locks'].filter(Boolean).join(', ') + ' — use the heart badge instead.' : '',
       // 2026-10-25 사용자: '타이틀로 넣어줘'를 화면 왼쪽 큰 제목으로 그려 진짜 타이틀과 겹침 → 물건 표면의 작은 글자로만
       quoted.length ? `TEXT: The only text allowed in the whole image is exactly: "${quoted.join('", "')}" (Korean stays Korean Hangul), used as the title INSIDE the object the user described — the front-page headline of a newspaper, the cover of a booklet / document, or inside a phone / monitor screen — sized to fit it. Keep the object type exactly as described (a newspaper stays a folded newspaper, never turned into a booklet). Never as a headline floating on the background, never on the left side. No other text.`
         : 'TEXT: Absolutely no text, letters or numbers anywhere in the image.',
