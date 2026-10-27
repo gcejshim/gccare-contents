@@ -1326,6 +1326,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .sp-n{flex:none;min-width:26px;height:26px;padding:0 8px;border:1px solid var(--neutral-700);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .nl .sp-im{width:100%;height:var(--sh,330px);overflow:hidden;display:flex;justify-content:center}
 .nl .sp-im img{display:block;width:100%;height:auto;align-self:flex-start}
+.nl .ph[data-pick]{cursor:pointer;transition:border-color .15s,background .15s}
+.nl .ph[data-pick]:hover,.nl .ph[data-pick].over{border-color:var(--careBlue-500);background:var(--careBlue-50);color:var(--careBlue-600)}
 .nl .sp-im .ph{width:100%;height:100%;padding:24px 10px;display:flex;align-items:center;justify-content:center}
 /* 단계별 화면: 캡처는 sp-clip 안에서 잘리고, 강조 카드는 화면 밖으로 튀어나올 수 있게 sp-im은 안 자름 (2026-10-26) */
 .nl .sp-im{overflow:visible;position:relative}
@@ -1976,7 +1978,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         const fr = d.frame === true ? 'browser' : (d.frame === 'phone' || d.frame === 'browser') ? d.frame : 'none';
         const phone = fr === 'phone' && d.image;
         const w = phone ? (m === 'mo' ? 64 : Math.min(40, Math.max(20, Number(d.width) || 34))) : m === 'mo' ? 100 : Math.min(100, Math.max(30, Number(d.width) || 84));
-        let img = d.image ? `<img src="${d.image}" alt="">` : '<div class="ph">화면 이미지를 넣어 주세요<br>(왼쪽에 끌어다 놓기 · Ctrl+V)</div>';
+        let img = d.image ? `<img src="${d.image}" alt="">` : '<div class="ph" data-pick="image">화면 이미지를 넣어 주세요<br>(클릭해서 파일 올리기 · 끌어다 놓기 · Ctrl+V)</div>';
         // 휴대폰 화면은 배경 그림으로 (저장 도구 html2canvas가 object-fit을 못 그려서) — 위쪽부터 폭에 맞춤
         const bgImg = `background-image:url('${d.image}')`;
         if (phone) img = `<div class="phone"><div class="phone-in" style="${bgImg}"><i class="phone-isl"></i></div></div>`;
@@ -2015,7 +2017,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         // 2026-10-26 사용자: 14호처럼 휴대폰 틀(피그마 회색 목업) + 단계마다 강조할 곳을 크게 앞으로. 영역 zr은 캡처 그림 기준 %(PC · 모바일 같은 곳)
         const phone = d.frame === 'phone', o = phone ? (m === 'mo' ? 8 : 11) : 0, s = Math.min(200, Math.max(100, Number(d.zoomScale) || 125)) / 100;
         const scr = (it, i) => {
-          if (!it.image) return '<div class="ph">화면 캡처를<br>넣어 주세요</div>';
+          if (!it.image) return `<div class="ph" data-pick="items.${i}.image">화면 캡처를<br>넣어 주세요<br><small>클릭 · 끌어다 놓기</small></div>`;
           const bg = `background-image:url('${it.image}')`, r = it.zr || {x: 4, y: 26, w: 92, h: 14};
           const body = phone ? `<div class="phone cut"><div class="phone-in" style="${bg}"><i class="phone-isl"></i></div></div>` : `<div class="sp-clip"><img src="${it.image}" alt=""></div>`;
           const zoom = d.zoom ? `<div class="zl sp-zl${phone ? ' on-ph' : ''}" data-zsel="items.${i}" style="--o:${o}px"><img class="zl-sz" src="${it.image}" alt=""><i class="zr-mark" style="left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%"></i>`
@@ -2293,7 +2295,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       sample: () => ({note:'', pc:'', mo:''}),
       render(d, m){
         const src = m === 'mo' ? (d.mo || d.pc) : d.pc;
-        return src ? `<img class="raw-img" src="${src}" alt="">` : '<div class="ph" style="margin:16px">이미지를 넣어 주세요<br>(왼쪽에 끌어다 놓기 · Ctrl+V)</div>';
+        return src ? `<img class="raw-img" src="${src}" alt="">` : '<div class="ph" data-pick="pc" style="margin:16px">이미지를 넣어 주세요<br>(클릭해서 파일 올리기 · 끌어다 놓기 · Ctrl+V)</div>';
       },
       lint(d){
         const w = []; if (!d.pc) return [['warn', 'PC 이미지가 없어요.']];
@@ -3023,6 +3025,12 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   // ── 이미지 넣기 ──
   let imgTarget = null;
   function pickImage(path){ imgTarget = path; $('fileImg').value = ''; $('fileImg').click(); }
+  // 2026-10-27 사용자: 미리보기의 빈 화면 칸도 눌러서 파일 올리기 · 끌어다 놓기 (캡처 붙여넣기만 되던 것)
+  document.addEventListener('click', e => { const ph = e.target.closest('.ph[data-pick]'); if (ph){ e.preventDefault(); pickImage(ph.dataset.pick); } });
+  document.addEventListener('dragover', e => { const ph = e.target.closest && e.target.closest('.ph[data-pick]'); if (ph){ e.preventDefault(); ph.classList.add('over'); } });
+  document.addEventListener('dragleave', e => { const ph = e.target.closest && e.target.closest('.ph[data-pick]'); if (ph) ph.classList.remove('over'); });
+  document.addEventListener('drop', e => { const ph = e.target.closest && e.target.closest('.ph[data-pick]'); const f = e.dataTransfer && e.dataTransfer.files[0];
+    if (ph && f && f.type.startsWith('image/')){ e.preventDefault(); e.stopPropagation(); ph.classList.remove('over'); readImage(f, ph.dataset.pick); } }, true);
   function readImage(file, path){
     if (!file || !/^image\//.test(file.type)) return;
     const r = new FileReader();
