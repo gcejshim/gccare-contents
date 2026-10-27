@@ -883,6 +883,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     const [thumb, image, pdf] = await Promise.all([ask('thumb', 'getState'), ask('image', 'getState'), ask('pdf', 'getState')]);
     const data = {v: 1, kind: 'nl-issue', issue: H.issue, ym: ymOf(H.issue), savedAt: new Date().toISOString(), hub: I(), thumb, image, pdf};
     const n = await saveOver(new Blob([JSON.stringify(data)], {type: 'application/json'}), `${ymOf(H.issue)}_뉴스레터_${H.issue}호_전체.json`); if (!n) return;
+    keepMine();
     toast(`${H.issue}호 전체 작업을 저장했어요. (${n})${!thumb || !image ? ' (열리지 않은 도구는 빠졌어요)' : ''}`, 3500);
   }
   function openAll(text){
@@ -892,12 +893,18 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (d && d.kind === 'nl-image'){ send('image', {type: 'setState', state: d, msg: '콘텐츠 이미지 작업 파일을 불러왔어요.'}); go('image'); return; }
     if (d && (d.kind === 'nl-pdf' || d.kind === 'nl-pdfs')){ send('pdf', {type: 'setState', state: d, msg: 'PDF 작업 파일을 불러왔어요.'}); go('pdf'); return; }
     if (!d || d.kind !== 'nl-issue'){ toast('작업 파일이 아니에요. [전체 파일 저장]으로 만든 파일을 열어 주세요.', 4000); return; }
+    keepMine();
     H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); setIssue(d.issue);
     if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: `${d.issue}호 썸네일 작업을 불러왔어요.`});
     if (d.image) send('image', {type: 'setState', state: d.image, msg: `${d.issue}호 콘텐츠 이미지 작업을 불러왔어요.`});
     if (d.pdf) send('pdf', {type: 'setState', state: d.pdf, msg: ''});
     save(); renderHome(); toast(`${d.issue}호 전체 작업을 열었어요.`);
   }
+
+  // 2026-10-27 사용자: 내가 저장하지 않으면 기본 호(빌드 때 넣은 15호)가 보이게 — [전체 파일 저장] · [불러오기]를 한 번 하면 그 브라우저는 자기 작업 유지
+  const MINE = 'gc-nl-mine';
+  function keepMine(){ try { localStorage.setItem(MINE, '1'); } catch(_){} }
+  function isMine(){ try { return localStorage.getItem(MINE) === '1'; } catch(_){ return false; } }
 
   // ── 시작 ──
   function init(){
@@ -916,7 +923,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     try { localStorage.setItem('gc-nl-base', BASE); } catch(_){}
     mountTools(); renderTop();
     // 처음 열면 기본 호(빌드 때 넣은 15호 완성본)를 채워서 시작 — 지난 호 예시 대신 (사용자 지정 10/15)
-    if (fresh && window.NL_DEFAULT_ISSUE){ const d = window.NL_DEFAULT_ISSUE;
+    // 저장하지 않은 브라우저가 기본 호를 보고 있으면 열 때마다 최신 기본 호로 (다른 호에서 작업 중이면 건드리지 않음)
+    const showDefault = fresh || (!isMine() && window.NL_DEFAULT_ISSUE && H.issue === window.NL_DEFAULT_ISSUE.issue);
+    if (showDefault && window.NL_DEFAULT_ISSUE){ const d = window.NL_DEFAULT_ISSUE;
       H.issues[d.issue] = Object.assign(blankIssue(d.issue), d.hub || {}); H.issue = d.issue; save(); renderTop();
       if (d.thumb) send('thumb', {type: 'setState', state: d.thumb, msg: ''});
       if (d.image) send('image', {type: 'setState', state: d.image, msg: ''});
