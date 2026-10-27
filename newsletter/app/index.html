@@ -1020,7 +1020,7 @@ function _0m(us){return new Promise((res)=>{const saved=_0r();const COS=['GC케�
 
 // 사용자 확인 창 (10/24 열 때마다 불편해서 끔 → 10/27 사업부 공유로 다시 켬). 한 번 확인한 브라우저는 다시 묻지 않고 접속 기록만
 // 명단은 ?tool=뉴스레터 → 시트 명단 탭 '뉴스레터' 칸에 표시한 사람만 (docs/시트_요청받기.gs handleUsersGet_), 없는 사람은 직접입력
-const GATE=false;   // 시트 명단 탭에 '뉴스레터' 칸 · doGet 한 줄을 넣은 뒤 true로
+const GATE=true;   // 10/27 시트 명단 탭 '뉴스레터' 칸 · doGet 한 줄 넣고 배포 완료 → 켬
 async function _0n(){try{const sv=_0r();if(!GATE||(sv&&sv.n)){if(sv&&sv.n)_0k(sv.c,sv.t,sv.n);return;}const us=await _0l(),{c,t,n}=await _0m(us);await _0k(c,t,n);console.log('뉴스레터 게이트 통과 ('+c+' · '+t+' · '+n+')');}catch(e){console.error('게이트 로드 실패:',e);}}
 window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='usage'&&d.kind)window._0u(d.kind);});   // 도구(iframe)에서 AI를 쓰면 한 줄
 

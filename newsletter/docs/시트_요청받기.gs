@@ -9,7 +9,7 @@
  *   2. 왼쪽 [파일 +] › [스크립트] → 이름 '요청받기' → 이 파일 내용을 전부 붙여 넣고 저장
  *   3. 원래 있던 doPost 함수를 찾아서, 함수 첫 줄에 아래 한 줄을 넣고 저장
  *        var rq = handleRequestPost_(e); if (rq) return rq;
- *   4. 위쪽 함수 고르기에서 testRequest_ 를 고르고 [실행] → 권한 허용 (메일 보내기 · Drive 권한 포함)
+ *   4. 위쪽 함수 고르기에서 testRequest 를 고르고 [실행] → 권한 허용 (메일 보내기 · Drive 권한 포함)
  *      → '뉴스레터 요청' 탭에 시험 줄이 생기고 메일이 오면 성공 (시험 줄은 지워도 됨)
  *   5. [배포 › 배포 관리] → 지금 쓰는 배포의 연필 → 버전 '새 버전' → [배포]
  *      (새 배포를 만들면 주소가 바뀌어서 안 됨 — 꼭 기존 배포를 새 버전으로)
@@ -96,7 +96,7 @@ function richLinks_(links) {
   return b.build();
 }
 
-function testRequest_() {
+function testRequest() {
   saveRequest_({ tool: '뉴스레터', c: 'GC케어', t: 'UX팀', n: '시험', screen: '이용 가이드', text: '요청 보내기 시험이에요. 이 줄은 지워도 돼요.', ver: '',
     files: [{ name: '시험.txt', type: 'text/plain', data: Utilities.base64Encode('첨부 시험이에요. 지워도 돼요.', Utilities.Charset.UTF_8) }] });
 }
