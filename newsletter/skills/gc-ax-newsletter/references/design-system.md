@@ -1,6 +1,6 @@
 # GC케어 뉴스레터 디자인 시스템
 
-썸네일 · 콘텐츠 이미지 공통 기준. **모체는 Figma Foundation(Pretendard DS) 토큰**이고, 뉴스레터 전용 예외 색(13·14호 원본)을 더한다. 값은 AX Studio · Newsletter 도구(에셋 › 컬러 · 편집기)와 같다. 이미지만 받아 다시 만들 때도 이 기준으로 바꾼다.
+콘텐츠 이미지 · PDF 공통 기준. **모체는 Figma Foundation(Pretendard DS) 토큰**이고, 뉴스레터 전용 예외 색(13·14호 원본)을 더한다. 값은 AX Studio · Newsletter 도구(에셋 › 컬러 · 편집기)와 같다. 이미지만 받아 다시 만들 때도 이 기준으로 바꾼다.
 
 ## 색 쓰는 원칙
 
@@ -79,7 +79,6 @@
 
 - 기본 글자색 neutral-900, 보조 글자 coolNeutral-600. 어두운 바탕 위 흰 글자는 600.
 - 줄 간격 1.5~1.65, 낱말 중간에서 줄바꿈하지 않기(keep-all).
-- 썸네일 타이틀은 26 하나(도구가 처리), 강조 단어는 프리셋의 강조색.
 
 ## 모양 (뉴스레터 기준)
 
@@ -101,16 +100,3 @@ DS는 모바일 앱(폭 390) 기준이라 **색 · 글꼴은 DS 그대로**, **�
 - 모바일은 PC를 그대로 줄이지 않고, 큰 모서리만 위 표처럼 작게 한다.
 - 아이콘: Lucide 라인 아이콘, 블루 500(또는 그린 600), 원 배경은 careBlue-50.
 - 장식(무늬 · 그라데이션 · 일러스트)은 넣지 않는다. 여백과 정렬로 정리한다.
-
-## 썸네일 배경 프리셋
-
-| `preset` | 배경 | 타이틀 | 강조 단어 | 로고 |
-|---|---|---|---|---|
-| lightBlue (기본) | careBlue-50 #f0f8ff | nl-title #002540 | careBlue-500 | 남색 |
-| white | coolNeutral-50 #f7f7fb | nl-title | careBlue-500 | 남색 |
-| navy | careBlue-900 #031552 | 흰색 | careGreen-400 #2bcf75 | 흰색 |
-| blue | careBlue-600 #1d55c4 | 흰색 | careBlue-100 | 흰색 |
-| lightGreen | careGreen-10 #f5fff8 | nl-title | careGreen-600 | 남색 |
-| green | nl-green #20b977 | 흰색 | nl-title | 남색 |
-
-이미지만 받아 썸네일을 만들 때는 원본 배경색과 가장 가까운 프리셋을 고른다(밝은 하늘색 → lightBlue, 짙은 남색 → navy, 선명한 파랑 → blue, 초록 → green · lightGreen, 흰색 · 회색 → white).

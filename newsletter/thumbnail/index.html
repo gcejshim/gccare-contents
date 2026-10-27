@@ -151,6 +151,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-list{display:flex;gap:8px;flex-wrap:wrap}
 .gen-list:empty{display:none}
 .gen-edit{margin-top:12px;display:flex;flex-direction:column;gap:6px}
+.desc-tips{margin-top:8px}
+.desc-tips summary{cursor:pointer;color:var(--careBlue-600);font-weight:600;width:max-content}
+.desc-tips ul{margin:6px 0 0;padding-left:18px;line-height:1.6}
 .gen-edit[hidden]{display:none}
 .gen-edit label{font-size:12px;font-weight:600;color:var(--neutral-700)}
 .gen-edit label span{font-weight:400;color:var(--neutral-500)}
@@ -318,6 +321,17 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           <h3><span class="stepn">3</span>무엇을 그릴까요?</h3>
           <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 펼쳐진 공시 책자, 막대그래프 카드. 책자 제목 &quot;안전보건 공시&quot; (따옴표 글자만 그림에 들어가요 · 비워 두면 타이틀로 정해요)"></textarea>
           <div class="gen-chars" id="genChars" hidden style="margin-top:8px"></div>
+          <!-- 2026-10-27 사용자: 썸네일은 스킬에서 빼고 도구에서만 → 스킬의 '그릴 것 키워드' 요령을 여기로 -->
+          <details class="hint desc-tips"><summary>적는 요령</summary>
+            <ul>
+              <li>주제를 보여 줄 <b>물건 이름</b>으로 적습니다. 중심 1개 + 보조 1~2개, 큰 것부터. 예: 건강검진 결과지, 결과 리포트 앱 화면 휴대폰</li>
+              <li>'안전' · '보안' 같은 말은 그대로 안전모 · 자물쇠가 되기 쉬우니 물건 이름으로 바꿔 적습니다.</li>
+              <li>색 · 그림체는 적지 않아도 됩니다. ① 배경 색상과 ② 그림체에서 맞춥니다.</li>
+              <li>그림 속 글자는 <b>따옴표</b>로 적은 것만 들어갑니다. 예: 책자 제목 "안전보건 공시"</li>
+              <li>사람은 누가 무엇을 하는지 적습니다. 예: 아이와 엄마가 함께 걷는 모습. 실제 인물은 그리지 않고 사진을 붙여 넣습니다.</li>
+              <li>비워 두면 타이틀을 보고 알아서 정합니다.</li>
+            </ul>
+          </details>
         </div>
         <div class="field" hidden><label>프롬프트</label>   <!-- 2026-10-15 ChatGPT 흐름 안 씀: 프롬프트는 안에서만 만들어 [이미지 만들기]로 보냄 -->
           <textarea id="genPrompt" spellcheck="false"></textarea>
