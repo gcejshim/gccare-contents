@@ -17,6 +17,13 @@
  * 첨부 (2026-10-27 추가): 요청에 붙인 파일(캡처 등, 3개 · 합쳐 10MB까지)은 내 Drive '뉴스레터 요청 첨부' 폴더에 저장되고
  * 시트 맨 끝 '첨부' 칸에 링크가 들어감. 이 파일로 바꿨으면 위 4 · 5번(권한 허용 · 새 버전 배포)을 한 번 더.
  * 파일은 공유하지 않음(스크립트 주인만 열림) — 다른 사람도 봐야 하면 폴더를 그 사람에게 공유
+ *
+ * 뉴스레터 사용자 명단 (2026-10-27 추가): 통합본 사용자 확인 창에는 명단 탭의 '뉴스레터' 칸에 O(아무 글자나)를 적은 사람만 보임.
+ *   1. 기존 명단 탭(회사 · 팀 · 이름이 있는 탭) 첫 줄 오른쪽 빈칸에 '뉴스레터'라고 적고, 보여 줄 사람 줄에 O
+ *   2. 원래 있던 doGet 함수 첫 줄에 아래 한 줄을 넣고 저장 → 위 5번처럼 기존 배포를 새 버전으로
+ *        var nu = handleUsersGet_(e); if (nu) return nu;
+ *   - 탭 이름은 몰라도 됨: 첫 줄에 '뉴스레터'와 '이름'이 함께 있는 탭을 찾음. '뉴스레터' 칸이 없으면 예전처럼 전체 명단
+ *   - 카드뉴스 편집기는 ?tool=뉴스레터 를 안 붙이므로 지금처럼 전체 명단
  */
 
 const REQUEST_FOLDER = '뉴스레터 요청 첨부';   // 첨부를 저장할 내 Drive 폴더 이름 (없으면 만듦)
@@ -92,4 +99,27 @@ function richLinks_(links) {
 function testRequest_() {
   saveRequest_({ tool: '뉴스레터', c: 'GC케어', t: 'UX팀', n: '시험', screen: '이용 가이드', text: '요청 보내기 시험이에요. 이 줄은 지워도 돼요.', ver: '',
     files: [{ name: '시험.txt', type: 'text/plain', data: Utilities.base64Encode('첨부 시험이에요. 지워도 돼요.', Utilities.Charset.UTF_8) }] });
+}
+
+// 뉴스레터 사용자 명단 — 통합본이 ?tool=뉴스레터 로 부르면 '뉴스레터' 칸에 표시한 사람만 [{c, t, n}]
+function handleUsersGet_(e) {
+  if (!e || !e.parameter || e.parameter.tool !== '뉴스레터') return null;
+  const list = newsletterUsers_();
+  if (!list) return null;   // '뉴스레터' 칸이 아직 없으면 원래 doGet이 전체 명단을 줌
+  return ContentService.createTextOutput(JSON.stringify(list)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function newsletterUsers_() {
+  for (const sh of SpreadsheetApp.getActiveSpreadsheet().getSheets()) {
+    if (sh.getLastRow() < 1 || sh.getLastColumn() < 1) continue;
+    const head = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(v => String(v).trim());
+    const mark = head.indexOf('뉴스레터'), name = head.findIndex(v => v.includes('이름'));
+    if (mark < 0 || name < 0) continue;
+    const co = head.findIndex(v => v.includes('회사')), team = head.findIndex(v => v.includes('팀') || v.includes('부서'));
+    if (sh.getLastRow() < 2) return [];
+    return sh.getRange(2, 1, sh.getLastRow() - 1, head.length).getValues()
+      .filter(r => String(r[mark]).trim() && String(r[name]).trim())
+      .map(r => ({ c: co >= 0 ? String(r[co]).trim() : '', t: team >= 0 ? String(r[team]).trim() : '', n: String(r[name]).trim() }));
+  }
+  return null;
 }
