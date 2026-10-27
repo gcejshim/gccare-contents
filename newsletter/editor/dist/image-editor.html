@@ -1100,6 +1100,16 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .pvh .lbl{font-size:12px;color:var(--neutral-500)}
 .pvh .lbl b{font-size:12px}
 .pvh .sp{flex:1}
+/* 2026-10-27 사용자: 움직임 보기를 눈에 띄게 — 재생 아이콘 + 블루 알약, 재생 중엔 아이콘이 돎 */
+.play-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 4px;margin-left:8px;border:0;border-radius:999px;background:var(--careBlue-50);color:var(--careBlue-600);font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
+.play-btn[hidden]{display:none}
+.play-btn svg{width:22px;height:22px}
+.play-btn svg circle{fill:var(--careBlue-500)}
+.play-btn svg path{fill:var(--neutral-0)}
+.play-btn:hover{background:var(--careBlue-100);transform:translateY(-1px)}
+.play-btn.on svg{animation:playPulse .7s ease-in-out 2}
+@keyframes playPulse{50%{transform:scale(1.18)}}
+@media (prefers-reduced-motion:reduce){.play-btn.on svg{animation:none}}
 .fold{width:24px;height:24px;border:0;border-radius:6px;background:var(--coolNeutral-50);cursor:pointer;font-size:12px;color:var(--coolNeutral-600);transition:transform .15s}
 .pvp.closed .fold{transform:rotate(-90deg)}
 .pvp.closed .pvb{display:none}
@@ -1687,7 +1697,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
       <div class="pv">
         <div class="pvp" id="pvPcBox">
-          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><b>PC</b><span class="lbl" id="pvPcLbl"></span><button class="btn xs" id="btnPlay" hidden title="GIF로 저장했을 때의 움직임을 미리 봐요">▶ 움직임 보기</button><span class="sp"></span>
+          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><b>PC</b><span class="lbl" id="pvPcLbl"></span><button class="play-btn" id="btnPlay" hidden title="GIF로 저장했을 때의 움직임을 미리 봐요"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M10 8l6 4-6 4z"/></svg>움직임 보기</button><span class="sp"></span>
             <label class="switch" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><input type="checkbox" id="mail"> 메일 크기로 보기</label></div>
           <div class="pvb"><div class="pv-frame" id="pvPc"></div><p class="hint" id="mailHint" hidden></p></div>
         </div>
@@ -3374,6 +3384,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   let playing = 0;
   function playPreview(){
     const sets = [$('pvPc'), $('pvMo')].map(animPrep), id = ++playing, t0 = performance.now(), D = 1400;
+    const pb = $('btnPlay'); pb.classList.remove('on'); void pb.offsetWidth; pb.classList.add('on');
     const step = now => { if (id !== playing) return; const t = Math.min(1, (now - t0) / D); sets.forEach(s => animSet(s, t)); if (t < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
   }
