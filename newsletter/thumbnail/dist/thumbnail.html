@@ -87,6 +87,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .panel{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:22px;align-self:stretch}   /* 2026-10-25 사용자: 왼쪽 패널 아래 끝을 오른쪽과 맞춤 */
 .sec h3{font-size:14px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:6px}
 .sec h3 small{font-weight:400;color:var(--neutral-500);font-size:12px}
+.gstep{gap:4px}   /* AI 이미지 생성하기 안 단계는 "1. 배경 색상"처럼 숫자만 (회색 원은 큰 단위에만, 2026-10-28 사용자) */
 .stepn{flex:none;width:18px;height:18px;border-radius:50%;background:#788da1;color:var(--neutral-0);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
 .stepn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}   /* 제목 아이콘 (콘텐츠 이미지와 같은 모양, 2026-10-28) */
 .row{display:flex;gap:8px;align-items:center}
@@ -342,20 +343,20 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       <h2><span class="stepn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/></svg></span>AI 이미지 생성하기</h2>
       <div class="gen">
         <div class="sec">
-          <h3><span class="stepn">1</span>배경 색상</h3>
+          <h3 class="gstep">1. 배경 색상</h3>
           <div class="swatches" id="presets"></div>
           <div class="hint" id="presetHint" hidden>지금은 <b>장면형</b>이라 이미지의 배경을 그대로 쓰고, 글자색은 이미지 밝기에 맞춰 자동으로 정해져요. 색을 고르면 배경색이 보이도록 사진형으로 바뀌어요.</div>
           <span id="genBgChip" hidden></span><span id="genBgName" hidden></span><span id="genLayoutName" hidden></span>
         </div>
         <div class="sec">   <!-- 2026-10-25 사용자: 그림체(3D · 실사) 버튼 없앰 — 참고 이미지가 그림체를 정함 -->
-          <h3><span class="stepn">2</span>그림체 <small>고른 참고 이미지의 그림체로 그려요</small></h3>
+          <h3 class="gstep">2. 그림체 <small>고른 참고 이미지의 그림체로 그려요</small></h3>
           <div class="gen-rwrap"><button type="button" class="gen-rarr l" id="genRefL" title="앞으로" hidden><i>‹</i></button><div class="gen-refs" id="genRefs"></div><button type="button" class="gen-rarr r" id="genRefR" title="더 보기" hidden><i>›</i></button></div>
           <div class="gen-refnow" id="genRefNow"></div>
           <div class="ref-peek" id="refPeek" hidden><img alt=""><b></b><span></span></div>
           <div class="hint" id="genHint" style="margin:6px 0 0"></div>
         </div>
         <div class="sec">
-          <h3><span class="stepn">3</span>무엇을 그릴까요?</h3>
+          <h3 class="gstep">3. 무엇을 그릴까요?</h3>
           <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 펼쳐진 공시 책자, 막대그래프 카드. 책자 제목 &quot;안전보건 공시&quot; (따옴표 글자만 그림에 들어가요 · 비워 두면 타이틀로 정해요)"></textarea>
           <div class="gen-chars" id="genChars" hidden style="margin-top:8px"></div>
           <!-- 2026-10-27 사용자: 썸네일은 스킬에서 빼고 도구에서만 → 스킬의 '그릴 것 키워드' 요령을 여기로 -->
