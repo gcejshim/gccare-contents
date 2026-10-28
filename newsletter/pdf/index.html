@@ -202,6 +202,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 .pg.sel{outline:3px solid var(--careBlue-500);outline-offset:4px}
 .pg em{font-style:normal;color:var(--ac)}
 .pg b{font-weight:700}
+.pg .tc-red{color:var(--careRed-500)} .pg .tc-blue{color:var(--careBlue-700)} .pg .tc-green{color:var(--careGreen-700)} .pg .tc-orange{color:var(--careOrange-600)} .pg .tc-gray{color:var(--coolNeutral-600)}
 /* 포인트 글꼴 Oswald: 세로로 긴 숫자 · 영문 (한글은 Pretendard로) */
 .nb,.tl .tn,.stats .sb:not(.word),.btag,.qa .qb,.end .es .sb{font-family:Oswald,Pretendard,sans-serif;font-weight:600;letter-spacing:0}
 .stats .sb small,.end .es .sb small{font-family:Pretendard,sans-serif;font-weight:700;letter-spacing:-0.01em}
@@ -465,7 +466,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   </aside>
 
   <section class="stage" id="stage">
-    <div class="hintbar">글자는 <b>미리보기에서 눌러 바로</b> 고쳐요. <b>[대괄호]</b> = 강조색, <b>**별표 두 개**</b> = 굵게. 체크 줄에서 <b>Enter</b> = 줄 추가, 빈 줄에서 <b>Backspace</b> = 줄 삭제. 아이콘은 눌러서 바꿔요.</div>
+    <div class="hintbar">글자는 <b>미리보기에서 눌러 바로</b> 고쳐요. 강조 <b>[대괄호]</b> · 굵게 <b>**글자**</b> · 빨강 <b>!!글자!!</b> · 줄바꿈은 엔터 (한 줄 칸은 <b>//</b>). 체크 줄에서 <b>Enter</b> = 줄 추가, 빈 줄에서 <b>Backspace</b> = 줄 삭제. 아이콘은 눌러서 바꿔요.</div>
     <div class="viewbar no-print"><span class="vl">보기 크기</span><div class="seg" id="viewSeg"><button data-v="fit" title="이 칸 폭에 맞춰 보기">화면 맞춤</button><button data-v="100" title="PDF 실제 크기(폭 900)">실제 크기 100%</button><button data-v="70" title="게시판에 올렸을 때처럼 작게 — 글자가 읽히는지 확인">게시판 70%</button></div></div>
     <div class="pages doc" id="pages"></div>
   </section>
@@ -480,8 +481,10 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   const KEY = 'gc-nl-pdf-v1';
   const $ = id => document.getElementById(id);
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  // [대괄호] = 강조색, **별표** = 굵게, 줄바꿈 그대로
-  const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\[(.+?)\]/g, '<em>$1</em>').replace(/\n/g, '<br>');
+  // 글자 서식 (콘텐츠 이미지와 같게 · 2026-10-28): [대괄호] = 강조색, **별표** = 굵게, !!느낌표!! = 빨강, 줄바꿈 엔터 · //
+  // 콘텐츠 이미지 색 도구로 넣은 {블루:글자} 같은 표시는 옮겨 붙여도 기호가 찍히지 않게 같은 색으로
+  const TC = {'블루': 'blue', '그린': 'green', '빨강': 'red', '주황': 'orange', '회색': 'gray'};
+  const fmt = s => esc(s).replace(/\{(블루|그린|빨강|주황|회색):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/!!(.+?)!!/g, '<span class="tc-red">$1</span>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>').replace(/\[(.+?)\]/g, '<em>$1</em>').replace(/\n|(?<!:)\/\//g, '<br>');   // https:// 주소의 // 는 그대로
   const pad = n => String(n).padStart(2, '0');
   const clone = o => JSON.parse(JSON.stringify(o));
   let toastT;
@@ -818,7 +821,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
   function markSel(){ document.querySelectorAll('.pg').forEach(p => p.classList.toggle('sel', p.dataset.pi === String(sel))); }
 
   // ── 왼쪽 패널 ──
-  function firstLine(s){ return String(s || '').split('\n').join(' ').replace(/\*\*|\[|\]/g, '').trim() || '(제목 없음)'; }
+  function firstLine(s){ return String(s || '').split('\n').join(' ').replace(/\*\*|!!|\[|\]/g, '').trim() || '(제목 없음)'; }
   function renderPanel(){
     $('pdfNo').innerHTML = Object.keys(BOOK.items).sort().map(k => `<option value="${k}"${k === BOOK.cur ? ' selected' : ''}>PDF${k} · ${esc(firstLine(BOOK.items[k].title || BOOK.items[k].cover.t1))}</option>`).join('');
     $('docTitle').value = S.title;

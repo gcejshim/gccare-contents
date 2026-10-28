@@ -827,7 +827,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         </div>
       </div>
       <div class="fgrid" id="form" style="margin-top:14px"></div>
-      <div class="hint">강조할 단어는 <b>[대괄호]</b>, 글자 색은 <b>{빨강:글자}</b>(블루 · 그린 · 빨강 · 미리보기에서 글자를 누르면 색 도구가 떠요, 꼭 필요한 곳만), 줄바꿈은 엔터 (한 줄 입력칸은 <b>//</b>)</div>
+      <div class="hint">강조 <b>[대괄호]</b> · 굵게 <b>**글자**</b> · 빨강 <b>!!글자!!</b> · 줄바꿈은 엔터 (한 줄 입력칸은 <b>//</b>). 다른 색은 미리보기에서 글자를 누르면 뜨는 색 도구로 (꼭 필요한 곳만)</div>
     </div>
   </aside>
 
@@ -887,10 +887,12 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
   // ── 유틸 ──
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  // 글자 색: {빨강:글자} (미리보기 색 도구 막대로 넣음). 어두운 바탕 위에서는 CSS가 밝은 단계로 바꿔 그림
+  // 글자 서식 (모든 도구 공통 · 2026-10-28): [강조] · **굵게** · !!빨강!! · 줄바꿈 엔터(한 줄 칸은 //)
+  // 빨강 말고 다른 색은 미리보기 색 도구로만 넣음 → {블루:글자}. 예전 {빨강:글자}도 그대로 보임. 어두운 바탕 위에서는 CSS가 밝은 단계로 바꿔 그림
   const TC = {'블루': 'blue', '그린': 'green', '빨강': 'red', '주황': 'orange', '회색': 'gray'};
   const tcFlat = s => { let o; do { o = s; s = s.replace(/\{(블루|그린|빨강|주황|회색):\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}\}/g, '{$1:$2}'); } while (s !== o); return s; };   // 겹친 색 표시는 바깥 색 하나로 (예전에 겹쳐 저장된 값도 바로 보이게)
-  const rich = s => esc(tcFlat(String(s == null ? '' : s))).replace(/\{(블루|그린|빨강|주황|회색):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]/g, '<em class="hl">$1</em>').replace(/\n|\/\//g, '<br>');
+  const noTc = t => { let o; t = String(t == null ? '' : t); do { o = t; t = t.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1'); } while (t !== o); return t; };   // 글자 색 표시 걷어내기 (겹친 것도 끝까지)
+  const rich = s => esc(tcFlat(String(s == null ? '' : s))).replace(/\{(블루|그린|빨강|주황|회색):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/!!(.+?)!!/g, '<span class="tc-red">$1</span>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]/g, '<em class="hl">$1</em>').replace(/\n|\/\//g, '<br>');
   const clone = o => JSON.parse(JSON.stringify(o));
   const pad2 = n => String(Math.max(1, parseInt(n, 10) || 1)).padStart(2, '0');
   const uid = () => Math.random().toString(36).slice(2, 9);
@@ -936,7 +938,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   // ── 블록 정의 ──
   // fields: t = text | area | num | select | icon | toggle | image | list(sub)
   const BADGE_BG = [['--careGreen-600','그린'],['--careGreen-700','진그린'],['--careGreen-50','연그린'],['--careBlue-500','블루'],['--careBlue-900','남색'],['--careBlue-100','연파랑'],['--careOrange-600','주황'],['--coolNeutral-600','회색']];   // 배지 배경색
-  const badgeTxt = s => esc(String(s).replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1'));   // 배지 글자는 늘 흰색이라 글자 색 표시는 걷어냄
+  const badgeTxt = s => esc(noTc(s));   // 배지 글자는 늘 흰색이라 글자 색 표시는 걷어냄
   const badgeStyle = d => { const t = d.badgeBg || '--careGreen-600'; return ` style="background:var(${t});color:var(${isDarkTok(t) ? '--neutral-0' : t === '--careBlue-100' ? '--careBlue-700' : '--careGreen-700'})"`; };
   const Y_LINES = [['', '자동'], ['3', '3개'], ['4', '4개'], ['5', '5개'], ['6', '6개'], ['7', '7개'], ['8', '8개']];   // 기준선 개수 선택
   // 누적 막대 오른쪽 보조 값 칸 색 (10/20 사용자: 글자색만 바뀌고 칸 배경은 그대로 → 칸 색을 통째로) [키, 이름, 대표 토큰]
@@ -1043,7 +1045,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       fields: [
         {k:'title', t:'text', label:'표 제목 (없으면 비워 두기)'},
         {k:'head', t:'text', label:'머리글 (칸은 | 로 구분)'},
-        {k:'rows', t:'area', label:'내용 (한 줄 = 한 행, 칸은 |, 칸 안 줄바꿈은 //, 빨간 경고는 !!글자!!)', rows:6},
+        {k:'rows', t:'area', label:'내용 (한 줄 = 한 행, 칸은 |, 칸 안 줄바꿈은 //)', rows:6},
         {k:'firstCol', t:'toggle', label:'첫 칸을 항목명으로 (연파랑 바탕 · 굵게)'},
         {k:'badge', t:'toggle', label:'첫 칸을 색 배지로 (판정 코드 A · C1 · D1 등)', when: d => d.firstCol},
         {k:'badges', t:'badgerows', label:'배지 색 (행마다 고르기)', when: d => d.firstCol && d.badge},
@@ -1073,7 +1075,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         const alignL = Array.from({length: n}, (_, i) => !(i === 0 && d.firstCol) && (d.align === 'left' || ((!d.align || d.align === 'auto') && longCol(i))));
         const cls = (i) => [i === 0 && d.firstCol ? 'c0' : '', i === 0 && !d.firstCol && d.lead && n >= 2 ? 'c0t' : '', i === n - 1 ? 'cl' : '', alignL[i] ? 'al' : ''].join(' ').trim();
         // 모바일은 폭이 좁아 // 강제 줄바꿈 대신 자연스럽게 줄바꿈
-        const cell = s => rich(m === 'mo' ? String(s).replace(/\s*\/\/\s*/g, ' ') : s).replace(/!!(.+?)!!/g, '<span class="warn">$1</span>');
+        const cell = s => rich(m === 'mo' ? String(s).replace(/\s*\/\/\s*/g, ' ') : s);
         // 머리글 색: 13호처럼 왼쪽 → 오른쪽으로 점점 진하게 (첫 칸 연파랑, 마지막 칸 남색)
         const mid = ['--nl-th1', '--nl-th2', '--nl-th3'];
         const thBg = i => { if (d.hl !== 'last' || (d.hc && d.hc !== 'navy')) return ''; if (i === 0 && d.firstCol) return ''; if (i === n - 1) return '';   // 남색이 아니면 머리글 전체 한 색
@@ -1768,7 +1770,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   function hkRaw(el){
     const c = el.cloneNode(true); const TCN = {blue:'블루', green:'그린', red:'빨강', orange:'주황', gray:'회색'};
     c.querySelectorAll('br').forEach(b => b.replaceWith('//'));
-    c.querySelectorAll('span[class^="tc-"]').forEach(s => { const n = TCN[s.className.replace('tc-', '')]; s.replaceWith(n ? `{${n}:${s.textContent}}` : s.textContent); });
+    c.querySelectorAll('span[class^="tc-"]').forEach(s => { const n = TCN[s.className.replace('tc-', '')]; s.replaceWith(n === '빨강' ? `!!${s.textContent}!!` : n ? `{${n}:${s.textContent}}` : s.textContent); });
     c.querySelectorAll('b,strong').forEach(b => b.replaceWith(`**${b.textContent}**`));
     return c.textContent.trim();
   }
@@ -2027,7 +2029,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     const it = view(); const B = BLOCKS[it.type];
     const out =(B.lint ? B.lint.call(B, it.data) : []).slice();
     if (S.items.some((o, j) => o !== it && o.contents === it.contents && pad2(o.no) === pad2(it.no))) out.unshift(['warn', '같은 콘텐츠에 이미지 번호가 겹쳐요. 저장하면 파일이 덮어써져요.']);
-    { const marks = JSON.stringify(it.data).match(/\{(블루|그린|빨강|주황|회색):/g) || [], kinds = new Set(marks.map(m => m.slice(1, -1)));   // 글자 색 남발 점검
+    { const marks = (JSON.stringify(it.data).match(/\{(블루|그린|빨강|주황|회색):|!!.+?!!/g) || []).map(m => m[0] === '!' ? '{빨강:' : m), kinds = new Set(marks.map(m => m.slice(1, -1)));   // 글자 색 남발 점검
       if (marks.length > 3 || kinds.size > 2) out.push(['info', `글자 색 강조가 ${marks.length}곳 · ${kinds.size}가지 색이에요. 강조가 흐려지지 않게 꼭 필요한 곳만 남겨 주세요. (3곳 · 2가지 색 이하 권장)`]); }
     if (it.fmt === 'jpg' && !(BLOCKS[it.type].fields.some(f => f.t === 'image') && it.data.image)) out.push(['info', 'JPG는 글자 테두리가 조금 번질 수 있어요. 사진이 없는 표·차트는 PNG가 더 또렷해요.']);
     if (!out.some(x => x[0] === 'warn')) out.unshift(['ok', `저장 준비 완료 · ${fileBase(it, 'pc')}.${ext(it)} / ${fileBase(it, 'mo')}.${ext(it)}`]);
@@ -2231,18 +2233,18 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     else bar.innerHTML = bar.dataset.text;
     if (!bar.hidden){ const a = el.getBoundingClientRect(); bar.style.left = Math.max(8, Math.min(innerWidth - bar.offsetWidth - 8, a.left)) + 'px'; bar.style.top = Math.max(8, a.top - bar.offsetHeight - 8) + 'px'; }
   }
-  // 색 도구 막대: 고른 부분(없으면 전체)에 {색:…} 표시를 씌우고 바로 반영. [기본]은 색 표시를 걷어냄
+  // 색 도구 막대: 고른 부분(없으면 전체)에 색 표시를 씌우고 바로 반영. [기본]은 색 표시를 걷어냄
   function applyTextColor(c){
     const ed = editing; if (!ed) return; const el = ed.el, txt = el.innerText.replace(/\u00a0/g, ' ');
     const sel = getSelection(); let a = 0, b = 0;
     if (sel.rangeCount && el.contains(sel.anchorNode)){ const r = sel.getRangeAt(0), pre = r.cloneRange(); pre.selectNodeContents(el); pre.setEnd(r.startContainer, r.startOffset); a = pre.toString().length; b = a + r.toString().length; }
-    const strip = t => { let o; do { o = t; t = t.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1'); } while (t !== o); return t; };   // 겹친 표시({그린:{그린:…}})도 끝까지 걷어냄
+    const strip = noTc, wrap = t => c === '빨강' ? `!!${t}!!` : `{${c}:${t}}`;   // 빨강은 !!…!!, 그 밖은 {색:…}
     let out;
-    if (b > a && !(a === 0 && b >= txt.length)){ const mid = strip(txt.slice(a, b)); out = txt.slice(0, a) + (c ? `{${c}:${mid}}` : mid) + txt.slice(b); }
+    if (b > a && !(a === 0 && b >= txt.length)){ const mid = strip(txt.slice(a, b)); out = txt.slice(0, a) + (c ? wrap(mid) : mid) + txt.slice(b); }
     else {
       const isHead = ['title', 'head', 'series'].includes(el.dataset.e) || !!el.closest('.hd, th, .blk-title, .hr-t');
       if (c && isHead){ toast('제목 · 헤더는 전체 색을 바꿀 수 없어요. 강조할 단어만 골라서 색을 눌러 주세요.', 3500); return; }
-      const all = strip(txt); out = c ? `{${c}:${all}}` : all;
+      const all = strip(txt); out = c ? wrap(all) : all;
     }
     el.textContent = out; endEdit(true);
   }
@@ -2353,15 +2355,15 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       const tn = e.target.closest('[data-tone]');
       if (tn && editing){ const it = srcOf(editing.el); endEdit(true); it.data.tone = tn.dataset.tone; buildForm(); refresh(); return; }
       const so = e.target.closest('[data-stone]');
-      if (so && editing){ const it = srcOf(editing.el); endEdit(true); const strip = t => String(t || '').replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1');
-        it.data.sideTone = so.dataset.stone; it.data.sideRows = strip(strip(it.data.sideRows)); it.data.side = strip(it.data.side); buildForm(); refresh(); return; }   // 칸 색을 고르면 값에 넣었던 글자 색 표시는 걷어냄
+      if (so && editing){ const it = srcOf(editing.el); endEdit(true); const strip = noTc;
+        it.data.sideTone = so.dataset.stone; it.data.sideRows = strip(it.data.sideRows); it.data.side = strip(it.data.side); buildForm(); refresh(); return; }   // 칸 색을 고르면 값에 넣었던 글자 색 표시는 걷어냄
       const hh = e.target.closest('[data-hhc]');
       if (hh && editing){ const it = srcOf(editing.el); endEdit(true); it.data.hc = hh.dataset.hhc; buildForm(); refresh(); return; }
       const hb = e.target.closest('[data-hbg]');
       if (hb && editing){ const box = editing.el.closest('[data-hcol]'); if (box) hkApply(srcOf(editing.el).data, '@hc:' + box.dataset.hcol, hb.dataset.hbg); endEdit(true); buildForm(); refresh(); return; }
       if (e.target.closest('[data-bold]')) applyBold();
       else if (b) applyTextColor(b.dataset.tc);
-      else if (g && editing){ const el = editing.el; el.textContent = el.innerText.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1');
+      else if (g && editing){ const el = editing.el; el.textContent = noTc(el.innerText);
         cur().data.badgeBg = g.dataset.bg; endEdit(true); buildForm(); refresh(); } });
     document.addEventListener('click', e => {
       const b = e.target.closest('[data-icpick]'); if (b){ e.preventDefault(); openIcons(b.dataset.icpick, b, !!b.dataset.none); return; }
