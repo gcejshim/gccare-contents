@@ -1481,7 +1481,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .pr .st-row:first-of-type{margin-top:0}
 .nl .pr .ch-lg{margin-top:20px}
 .nl .pr .dn{flex-direction:column;gap:20px;margin-top:0}   /* 도넛은 가운데, 주석은 도넛 아래 */
-.nl .pr .dn-l{min-width:0;width:100%}
+.nl .pr .dn-l{min-width:0;width:100%;margin:0}
 .nl-pc .pr .ch-plot{--ph:280px}   /* 2개 비교: 막대 · 꺾은선 높이를 도넛 쪽과 맞춤 */
 .nl-pc .pr .dn-l{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px}   /* 도넛 주석은 2열로 짧게 */
 .nl-pc .pr .hb-ch{--lw:124px;--rp:48px;--rh:40px;--bh:18px}   /* 반쪽 폭: 가로 막대 이름이 한 줄에 들어가게 글씨를 줄이고 줄 간격 넉넉히 */
@@ -1569,6 +1569,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .dn-c > div.dn-t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:var(--fs-cap);color:var(--coolNeutral-600);line-height:1.35}
 .nl .dn-c > div.dn-t b{font-size:var(--fs-valL);color:var(--neutral-900)}
 .nl .dn-l{display:flex;flex-direction:column;gap:10px;min-width:240px}
+.nl-pc .dn-l{margin:0 -40px 0 40px}   /* PC: 도넛은 그대로 두고 주석만 오른쪽으로 40 더 (도넛 ~ 주석 80, 2026-10-28 사용자) */
 .nl .dn-l div{display:flex;align-items:center;gap:10px;font-size:var(--fs-sub)}
 .nl .dn-l div i{width:12px;height:12px;border-radius:3px;flex:none}
 .nl .dn-l div span{flex:1}
