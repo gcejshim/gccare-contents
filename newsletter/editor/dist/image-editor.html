@@ -993,14 +993,19 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tselbox .pending{color:var(--careBlue-600);font-weight:700}
 h3:has(#formTitle){scroll-margin-top:16px}
 .tselbox i{flex:none;display:inline-flex;font-style:normal;color:var(--careBlue-500);font-size:12px;transition:transform .15s} .tselbox.open i{transform:rotate(180deg)}
+.tselbox{border-color:var(--careBlue-500)}   /* 접혀 있어도 파란 테두리로 "고른 템플릿" 느낌 (2026-10-28 사용자) */
 .tselbox.fresh{border-color:var(--careBlue-500);background:var(--careBlue-50)}
-.tdrop{margin-top:8px;background:var(--neutral-0);border:1px solid var(--coolNeutral-200);border-radius:12px;padding:8px}   /* 선택칸 아래로 펼쳐짐 (따로 스크롤 없이 패널과 같이 내려감) */
+/* 선택칸과 목록을 한 덩어리로: 파란 테두리를 이어 붙이고, 목록은 높이를 정해 안에서만 스크롤 (2026-10-28 사용자: 길어서 내려가면 드롭다운 소속인지 모름) */
+.tselbox.open{border-radius:10px 10px 0 0;box-shadow:none;border-bottom:1px solid var(--coolNeutral-200);background:var(--careBlue-50)}
+.tdrop{position:relative;margin-top:0;background:var(--neutral-0);border:1.5px solid var(--careBlue-500);border-top:0;border-radius:0 0 12px 12px;padding:4px 8px 8px;max-height:min(52vh,480px);overflow-y:auto;overscroll-behavior:contain}
 .tdrop[hidden]{display:none}
 .tdrop .tip{font-size:12px;color:var(--coolNeutral-500);padding:4px 6px 8px}
 .tdrop .gbox{background:none;border:0;padding:4px 0}
 /* 이미지 유형 목록 */
 .items{display:flex;flex-direction:column;gap:10px}
 .items .gbox{background:var(--coolNeutral-50);border:1px solid var(--coolNeutral-100);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:4px}
+.tdrop .items{gap:2px} .tdrop .items .gbox{background:none;border:0;border-radius:0;padding:6px 0 2px;gap:2px} .tdrop .items .gbox + .gbox{border-top:1px solid var(--coolNeutral-100)}
+.tdrop .item{border-color:transparent} .tdrop .item:hover{background:var(--coolNeutral-50);border-color:transparent} .tdrop .item.on{border-color:var(--careBlue-500);background:var(--careBlue-50)}
 .items .grp{font-size:13px;font-weight:700;color:var(--careBlue-700);margin:0 2px 4px}
 .item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:8px;cursor:pointer;font-size:13px}
 .item:hover{border-color:var(--careBlue-200)}
@@ -2879,6 +2884,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       $('items').innerHTML = GROUPS.map(([g, ks]) => `<div class="gbox"><div class="grp">${g}</div>${ks.filter(k => BLOCKS[k]).map(k =>
         `<div class="item" data-type="${k}"><span class="nm"><b>${esc(BLOCKS[k].name)}</b>${BLOCKS[k].hint ? `<small>${esc(BLOCKS[k].hint)}</small>` : ''}</span></div>`).join('')}</div>`).join(''); }
     $('tPop').hidden = false; $('btnPick').classList.add('open'); markPick();
+    const on = $('items').querySelector('.on'); $('tPop').scrollTop = on ? Math.max(0, on.offsetTop - 60) : 0;   // 고른 템플릿이 보이게 목록 안에서만 스크롤
   }
   function markPick(){ const it = view(); $('items').querySelectorAll('[data-type]').forEach(el => el.classList.toggle('on', !it.fresh && el.dataset.type === it.type)); }
   function hoverType(k){
