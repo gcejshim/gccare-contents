@@ -422,7 +422,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     <div class="card skill-card"><h3>1. 처음 한 번만 · Claude 스킬 등록</h3>
       <ol class="todo">
         <li>아래 <b>[스킬 내려받기]</b>로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
-        <li><b>claude.ai</b> 왼쪽 아래 내 이름 → <b>설정</b> → <b>기능</b> → <b>스킬</b>에서 <b>[스킬 업로드]</b>로 zip을 올려요.</li>
+        <li><b>claude.ai</b>의 <b>Skills</b> 화면(왼쪽 아래 내 이름 → 설정 안)에서 받은 zip을 올려요.</li>
         <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 스킬이 바뀌면 화면 위에 알림이 떠요. 그때 다시 내려받아 같은 방법으로 올려요.</li>
       </ol>
       <div class="sk-dl"><button class="btn primary" data-skill-dl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>스킬 내려받기</button><span class="hint" id="skillVer"></span></div>
@@ -499,7 +499,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <div class="sk-pop" id="skillPop" hidden><div class="in">
   <div class="hd"><span class="ic">!</span><div><b>Claude 스킬이 새로 바뀌었습니다</b><small id="skillPopDate"></small></div></div>
   <ul class="nt" id="skillPopNotes"></ul>
-  <ol class="st"><li><b>[스킬 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b> → 설정 → 기능 → 스킬 → <b>[스킬 업로드]</b></li><li>올렸으면 <b>[다시 올렸어요]</b></li></ol>
+  <ol class="st"><li><b>[스킬 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b>의 <b>Skills</b> 화면에서 zip 올리기</li><li>올렸으면 <b>[다시 올렸어요]</b></li></ol>
   <div class="ft"><button class="btn" id="skillPopLater">나중에</button><button class="btn" id="skillPopOk">다시 올렸어요</button><button class="btn primary" data-skill-dl>스킬 내려받기</button></div>
 </div></div>
 <button class="rq-fab" id="rqFab" title="의견 남기기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
