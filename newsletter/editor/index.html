@@ -317,6 +317,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .nl .hd .tag{margin-left:auto;flex:none;font-size:var(--fs-cap);font-weight:500;color:var(--careBlue-100);align-self:flex-end}
 .nl .hd img{flex:none}
 .nl .blk-title{font-size:var(--fs-title);font-weight:700;color:var(--neutral-900);line-height:1.45;letter-spacing:-0.088px;margin:0 0 20px}
+.nl .blk-title .tc-blue{color:var(--careBlue-500)}   /* 제목 강조 블루는 밝게 ([대괄호] 강조와 같은 색) */
 .nl .blk-title small{font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);margin-left:6px}
 .nl-mo .blk-title small{display:block;margin:4px 0 0}   /* 모바일: 제목 옆 작은 글씨는 아래 줄로 (중간에서 끊기지 않게) */
 .nl .ph{border:1.5px dashed var(--coolNeutral-300);border-radius:12px;padding:48px 16px;text-align:center;color:var(--coolNeutral-500);font-size:var(--fs-sub);background:var(--neutral-0)}
@@ -1091,7 +1092,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
           return ic ? `<span class="c0w"><span class="c0i${d.iconStyle === 'emoji' ? ' emo' : ''}" data-ic="@icons.${r}" data-none="1">${ic}</span><span${EC('rows', r, 0)}>${cell(s)}</span></span>` : `<span${EC('rows', r, 0)}>${cell(s)}</span>`; };
         const th = head.length ? `<tr>${head.map((h, i) => `<th class="${cls(i)}"${thBg(i)}><span${EC('head', 0, i)}>${cell(h)}</span></th>`).join('')}</tr>` : '';
         const tr = rows.map((r, ri) => `<tr>${Array.from({length: n}, (_, i) => `<td class="${cls(i)}">${i === 0 ? c0(r[i] || '', ri) : `<span${EC('rows', ri, i)}>${cell(r[i] || '')}</span>`}</td>`).join('')}</tr>`).join('');
-        const title = d.title ? `<div class="blk-title"${E('title')}>${rich(d.title)}</div>` : '';
+        const title = d.title ? `<div class="blk-title"${E('title')}>${rich(tTitle(d.title))}</div>` : '';
         const rh = d.rowH === 'l' ? '' : ' rh-' + (d.rowH === 's' ? 's' : 'm');   // 행 간격 (비어 있으면 보통)
         return `${title}<div class="tb${rh}${d.hl === 'last' ? ' hl-last' : ''}${d.hc && d.hc !== 'navy' ? ' hc-' + d.hc : ''}"><table>${th ? `<thead>${th}</thead>` : ''}<tbody>${tr}</tbody></table></div>`;
       },
@@ -1644,7 +1645,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     if (ticks[ticks.length - 1] < max - 1e-9) ticks.push(max);   // 간격이 딱 맞지 않아도 맨 위 선은 그림
     return {max, ticks};
   }
-  const chTitle = d => d.title ? `<div class="blk-title"><span${E('title')}>${rich(d.title)}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</div>` : '';
+  const tTitle = s => String(s || '').replace(/\{(?:그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1');   // 표 · 차트 제목은 블루만 (예전 파일 · 직접 친 다른 색은 기본색으로)
+  const chTitle = d => d.title ? `<div class="blk-title"><span${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</div>` : '';
   // 그래프 색 지정: 비워 두면 블록 규칙(자동), 고르면 d.cols[i] = DS 토큰 (사용자 지정 2026-10-02)
   const CHART_COLORS = [['블루', ['--careBlue-900', '--careBlue-700', '--careBlue-500', '--careBlue-400', '--careBlue-300', '--careBlue-200', '--careBlue-100', '--careBlue-50']],
     ['그린', ['--careGreen-800', '--careGreen-700', '--careGreen-600', '--careGreen-500', '--careGreen-300', '--careGreen-100', '--careGreen-50']],
@@ -2233,6 +2235,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       bar.innerHTML = '<span>보조 값 색</span>' + SIDE_TONES.map(([k, n, t]) => `<button type="button" class="tc-sw${k === now ? ' on' : ''}" data-stone="${k}" title="${n}" style="background:var(${t})"></button>`).join(''); }
     else if (el.closest('.bs-n, .fl-t')){ const now = srcOf(el).data.tone || 'green';
       bar.innerHTML = '<span>강조색</span>' + [['green', '그린', '--careGreen-500'], ['blue', '블루', '--careBlue-500']].map(([k, n, t]) => `<button type="button" class="tc-sw${k === now ? ' on' : ''}" data-tone="${k}" title="${n}" style="background:var(${t})"></button>`).join('') + `<small>${el.closest('.fl-t') ? '단계 박스 · 화살표도' : '카드 · 강조 글자도'} 같이 바뀌어요</small>`; }
+    // 표 · 차트 제목: 단어만 밝은 블루로 (제목 자체가 굵은 강조라 그린 · 빨강 · 굵게는 빼고, 전체는 applyTextColor에서 막음 — 사업부 요청 2026-10-28)
+    else if (el.dataset.e === 'title' && el.closest('.blk-title')) bar.innerHTML = '<span>글자 색</span><button type="button" data-tc="">기본</button><button type="button" data-tc="블루" style="color:var(--careBlue-500)">블루</button><small>강조할 단어를 드래그해 고르면 그 부분만</small>';
     else bar.innerHTML = bar.dataset.text;
     if (!bar.hidden){ const a = el.getBoundingClientRect(); bar.style.left = Math.max(8, Math.min(innerWidth - bar.offsetWidth - 8, a.left)) + 'px'; bar.style.top = Math.max(8, a.top - bar.offsetHeight - 8) + 'px'; }
   }
