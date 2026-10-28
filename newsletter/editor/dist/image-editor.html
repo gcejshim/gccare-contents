@@ -2222,9 +2222,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         const bounds = []; let acc = 0; items.forEach(it => { acc += it.v / sum * 360; bounds.push(acc); });
         let ring = '';
         for (let deg = 0; deg < 360; deg++){
-          const mid = deg + 0.5, k = bounds.findIndex(b => mid < b); if (k < 0) continue;
-          const start = k ? bounds[k - 1] : 0, gapDeg = items.length > 1 ? 1.2 : 0;
-          if (mid - start < gapDeg / 2 || bounds[k] - mid < gapDeg / 2) continue;   // 조각 사이 흰 틈
+          const mid = deg + 0.5, k = bounds.findIndex(b => mid < b); if (k < 0) continue;   // 조각 사이 틈 없이 (예전 흰 틈은 12시에만 벌어져 보여 뺌, 2026-10-28)
           ring += `<i data-cp="${k}" style="width:${w}px;height:${R}px;margin-left:-${(w / 2).toFixed(2)}px;transform:rotate(${mid}deg);background:var(${cols[k]})"></i>`;
         }
         // 파이: 조각 가운데(반지름 62%)에 이름 + 값. 진한 조각은 흰 글씨
