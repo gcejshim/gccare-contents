@@ -1104,7 +1104,6 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .vw-sw{display:inline-grid;grid-template-columns:1fr 1fr;padding:2px;border-radius:999px;background:var(--coolNeutral-50);border:1px solid var(--coolNeutral-100)}
 .vw-sw button{display:inline-flex;align-items:center;justify-content:center;height:26px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--coolNeutral-500);font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,color .15s}
 .vw-sw button.on{background:var(--neutral-0);color:var(--careBlue-900);font-weight:700;box-shadow:0 1px 4px rgba(0,42,140,.18)}
-.mail-hint .bad{color:var(--careOrange-600);font-weight:600}
 /* 2026-10-27 사용자: 움직임 보기를 눈에 띄게 — 재생 아이콘 + 블루 알약, 재생 중엔 아이콘이 돎 */
 .play-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 4px;margin-left:8px;border:0;border-radius:999px;background:var(--careBlue-50);color:var(--careBlue-600);font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
 .play-btn[hidden]{display:none}
@@ -2854,13 +2853,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       // 크기 정보는 빼고(저장은 늘 2 · 3배라 운영자가 볼 일 없음 · 2026-10-28) 줄여 볼 때만 표시, 정확한 크기는 툴팁으로
       $('pvPcLbl').textContent = !mail && z < 0.999 ? `${Math.round(z * 100)}%로 줄여 보는 중` : '';
       $('pvPcBox').querySelector('.vw-sw').title = `PC 900 × ${ph} → 저장 1800 × ${ph * 2} · 메일(Outlook)에서는 630px로 줄어 보여요`;
-      if (mail){   // 메일에서 실제로 보이는 글자 크기: 본문 · 이 이미지에서 가장 작은 글자 (0.7배, 9px 밑은 주황)
-        const R = 0.7, px = n => +(n * R).toFixed(1), fsz = e => parseFloat(getComputedStyle(e).fontSize);   // zoom 전 크기로 나옴
-        const body = parseFloat(getComputedStyle(p).getPropertyValue('--fs-body')) || 18;
-        let min = Infinity; p.querySelectorAll('.nl *').forEach(e => { if (e.offsetParent !== null && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) min = Math.min(min, Math.round(fsz(e))); });
-        const sm = isFinite(min) ? ` · 가장 작은 글자 ${min} → <span class="${px(min) < 9 ? 'bad' : ''}">${px(min)}px</span>` : '';
-        $('mailHint').innerHTML = `메일에서는 0.7배로 줄어 보여요 · 본문 ${body} → <b>${px(body)}px</b>${sm}`;
-      }
+      if (mail) $('mailHint').textContent = '메일에서는 0.7배로 줄어 보여요';
       $('pvMoLbl').textContent = ''; $('pvMoLbl').parentElement.title = `모바일 350 × ${mh} → 저장 1050 × ${mh * 3}`;
     };
     sz(); document.fonts && document.fonts.ready.then(sz);
