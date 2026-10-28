@@ -2542,7 +2542,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   // 막대는 0에서 자라고(앞 항목부터 조금씩 늦게 · 끝에서 천천히) 숫자도 함께 올라감, 누적은 왼쪽부터 채움, 꺾은선은 첫 점부터 이어 그림, 도넛은 12시부터 시계 방향
   // → 완성에서 7초 쉬고 끝없이 반복(2026-10-28: GIF는 스크롤을 몰라 메일을 연 순간 재생됨 → 늦게 내려가도 다음 재생을 보게). 첫 장면은 완성(Outlook은 첫 장면만 보여 줌)
   const ANIM = {hbar: 1, rank: 1, vbar: 1, stack: 1, line: 1, donut: 1, pair: 1};
-  const canAnim = it => !!(it && !it.fresh && ANIM[it.type]);
+  // 직접 만든 블록(스킬 HTML)은 그래프가 들어 있을 때만 (템플릿 클래스 · data-bar · data-stack, 2026-10-28)
+  const canAnim = it => !!(it && !it.fresh && (ANIM[it.type] || (it.type === 'html' && /vb-gs|hb-ch|rk-rows|st-tr|ln-pt|dn-ring|data-bar|data-stack/.test((it.data || {}).html || ''))));
   const ease = d => 1 - Math.pow(1 - d, 3), clamp = x => Math.min(1, Math.max(0, x));
   const stg = (t, k, K) => clamp(t * 1.25 - k * Math.min(0.06, 0.25 / Math.max(1, K - 1)));   // 항목이 많아도 t=1에 모두 끝나게
   const fadeEnd = t => clamp((t - 0.8) / 0.2);
@@ -2560,9 +2561,15 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       rows.forEach((r, k) => { const i = r.querySelector('.rk-bar i'), w = parseFloat(i.style.width) || 0, n = cnt(r.querySelector('.rk-v'));
         fs.push(t => { const d = stg(t, k, rows.length), e = ease(d); i.style.width = w * e + '%'; cntSet(n, e, d >= 1); }); }); })();
     all(root, '.vb-gs').forEach(gs => { const gr = all(gs, '.vb-g');
-      gr.forEach((g, k) => { const bars = all(g, ':scope > i').map(i => ({i, h: parseFloat(i.style.height) || 0, n: i.querySelector('b') && cnt(i.querySelector('b'))})), bd = g.querySelector('.vb-d');
+      gr.forEach((g, k) => { const bars = all(g, ':scope > i').map(i => ({i, h: parseFloat(i.style.height) || 0, n: i.querySelector('b') && cnt(i.querySelector('b'))})), bd = all(g, '.vb-d');
         fs.push(t => { const d = stg(t, k, gr.length), e = ease(d);
-          bars.forEach(o => { o.i.style.height = o.h * e + '%'; if (o.n) cntSet(o.n, e, d >= 1); }); if (bd) bd.style.opacity = fadeEnd(t); }); }); });
+          bars.forEach(o => { o.i.style.height = o.h * e + '%'; if (o.n) cntSet(o.n, e, d >= 1); }); bd.forEach(el => { el.style.opacity = fadeEnd(t); }); }); }); });
+    // 스킬 HTML: 템플릿 클래스 밖의 막대(data-bar) · 숫자(data-edit=value) · 따라가는 배지(data-follow) · 누적 칸(data-stack)
+    const hb = all(root, '[data-bar]').filter(el => !el.closest('.vb-gs')).map(el => ({el, h: parseFloat(el.style.height) || 0}));
+    const hv = all(root, '[data-edit="value"]').filter(el => !el.closest('.vb-gs')).map(cnt), hf = all(root, '[data-follow]').filter(el => !el.closest('.vb-gs'));
+    if (hb.length) fs.push(t => { const e = ease(clamp(t * 1.15)); hb.forEach(o => { o.el.style.height = o.h * e + '%'; }); hv.forEach(o => cntSet(o, e, t >= 1)); hf.forEach(el => { el.style.opacity = fadeEnd(t); }); });
+    all(root, '[data-stack]').forEach((par, k, rows) => { const sg = [...par.children].filter(c => c.hasAttribute('data-seg')).map(c => ({c, w: parseFloat(c.style.width) || 0}));
+      fs.push(t => { const e = ease(stg(t, k, rows.length)); sg.forEach(o => { o.c.style.width = o.w * e + '%'; o.c.style.flex = `0 0 ${o.w * e}%`; o.c.style.color = e < 1 ? 'transparent' : ''; }); }); });
     all(root, '.st-tr').forEach((tr, k, rows) => { const segs = all(tr, ':scope > i').map(i => ({i, w: parseFloat(i.style.width) || 0, html: i.innerHTML}));
       fs.push(t => { const d = stg(t, k, rows.length), e = ease(d);
         segs.forEach(o => { o.i.style.width = o.w * e + '%'; const h = d >= 1 ? o.html : ''; if (o.i.innerHTML !== h) o.i.innerHTML = h; }); }); });
