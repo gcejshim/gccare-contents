@@ -1027,7 +1027,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       name: '가로 막대', hint: '항목별 비율 · 건수 비교',
       fields: [
         {k:'title', t:'text', label:'차트 제목'},
-        {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:'예: (*전체 대비 비율)'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
+        {k:'sub', t:'text', label:'타이틀 보조문구 · 제목 옆', ph:'예: (*전체 대비 비율)'}, {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위', ph:'%, 건, 배 …', w:'s'},
         {k:'top', t:'toggle', label:'1위를 그린으로 강조'},
         {k:'items', t:'list', label:'항목 (입력 순서대로 표시)', add:{label:'새 항목', value:1}, sub:[{k:'label', t:'text', ph:'항목명'}, {k:'value', t:'num', w:'s'}]},
@@ -1066,7 +1066,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     table: {
       name: '표', hint: '판정 기준 · 방식 비교',
       fields: [
-        {k:'title', t:'text', label:'표 제목 (없으면 비워 두기)'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 단위: 원'},
+        {k:'title', t:'text', label:'표 제목 (없으면 비워 두기)'}, {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 단위: 원'},
         {k:'head', t:'text', label:'머리글 (칸은 | 로 구분)'},
         {k:'rows', t:'area', label:'내용 (한 줄 = 한 행, 칸은 |, 칸 안 줄바꿈은 //)', rows:6},
         {k:'firstCol', t:'toggle', label:'첫 칸을 항목명으로 (연파랑 바탕 · 굵게)'},
@@ -1200,7 +1200,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     vbar: {
       name: '세로 막대', hint: '전후 · 그룹 비교',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:'예: (N=96)'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'타이틀 보조문구 · 제목 옆', ph:'예: (N=96)'}, {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위', w:'s'},
         {k:'series', t:'text', label:'계열 이름 (| 로 구분, 1~5개)', ph:'참여 전 | 참여 후'},
         {k:'rows', t:'area', label:'값 (한 줄 = 항목 | 값1 | 값2 …)', rows:4},
@@ -1287,7 +1287,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     stack: {
       name: '100% 누적 막대', hint: '구성비',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'타이틀 보조문구 · 제목 옆'}, {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'series', t:'text', label:'구성 항목 (| 로 구분)', ph:'정상 | 전단계 | 유병'},
         {k:'rows', t:'area', label:'값 (한 줄 = 막대 이름 | 값1 | 값2 …, 합계로 % 자동 계산)', rows:4},
         {k:'show', t:'select', label:'막대 안 글씨', opts:[['pct','비율(%)'],['value','입력한 값'],['both','값 + 비율']]},
@@ -1323,7 +1323,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     line: {
       name: '꺾은선', hint: '추이',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:"예: ('21~'25년)"}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'타이틀 보조문구 · 제목 옆', ph:"예: ('21~'25년)"}, {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위', w:'s'},
         {k:'series', t:'text', label:'계열 이름 (1~2개, | 로 구분)', ph:'온열질환 산업재해'},
         {k:'rows', t:'area', label:'값 (한 줄 = 가로축 | 값1 | 값2)', rows:5},
@@ -1362,7 +1362,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     donut: {
       name: '도넛', hint: '구성비',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'타이틀 보조문구 · 제목 옆'}, {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위 (비율이면 %)', w:'s'},
         {k:'center', t:'area', label:'가운데 글씨 (선택, 첫 줄은 크게)', rows:2, ph:'총\n71명'},
         {k:'accent', t:'toggle', label:'가장 큰 항목을 그린으로 강조'},
@@ -1402,6 +1402,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       name: '직접 만든 블록', hint: '블록에 없는 형태 (HTML)',
       fields: [
         {k:'note', t:'text', label:'메모 (어떤 형태인지)', ph:'예: 인터뷰 말풍선 3개'},
+        {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},   // 2026-10-28 사업부 요청 1번 — 맨 첫 글자 줄(제목) 오른쪽 끝에 붙임
         {k:'texts', t:'texts', label:'글자 (미리보기에서 글자를 눌러도 고쳐져요 · PC · 모바일 같이 바뀜)', when: d => d.texts && Object.keys(d.texts).length},
         {k:'nums', t:'texts', num:true, label:'그래프 값 (막대 길이 · 숫자가 같이 바뀜)', when: d => d.nums && Object.keys(d.nums).length},
         {k:'colors', t:'colorslots', label:'색 (눌러서 고르기)', when: d => d.colors && Object.keys(d.colors).length},
@@ -1428,6 +1429,9 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         let out = body;
         if (m === 'mo' && /data-sub/.test(out)){ const t = document.createElement('template'); t.innerHTML = out;
           t.content.querySelectorAll('[data-sub]').forEach(el => { const f = el.firstChild; if (f && f.nodeType === 3) f.textContent = f.textContent.replace(/^\s*[-·–—]\s*/, ''); }); out = t.innerHTML; }   // 아래 줄로 내려가니 앞 기호는 빼고
+        if (String(d.tag || '').trim()){ const t = document.createElement('template'); t.innerHTML = out; const first = t.content.querySelector('[data-edit="text"]'), row = first && first.parentElement;
+          if (row){ row.style.display = 'flex'; row.style.alignItems = 'baseline'; row.style.flexWrap = 'wrap'; row.querySelectorAll(':scope > [data-sub]').forEach(x => { if (m === 'mo'){ x.style.order = '3'; x.style.flexBasis = '100%'; } });
+            row.insertAdjacentHTML('beforeend', `<span class="bt-tag"${E('tag')} style="order:2;margin-left:auto;padding-left:12px;font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);white-space:nowrap">${rich(d.tag)}</span>`); out = t.innerHTML; } }
         return `<div class="cx cx-${(it && it.id) || 'x'}-${m}"${vars.length ? ` style="${esc(vars.join(';'))}"` : ''}>${out}</div>`;
       },
       lint(d){
