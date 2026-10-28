@@ -1207,6 +1207,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {k:'labels', t:'select', label:'막대 위 숫자', opts:[['all','전부'],['accent','강조한 막대만'],['none','숨김']]},
         {k:'dec', t:'select', label:'소수점', opts:[['auto','입력한 그대로'],['0','정수로'],['1','한 자리'],['2','두 자리']]},
         {k:'cols', t:'colors', label:'색 지정 (눌러서 고르기 · 비우면 자동)', names: d => splitBar(d.series).slice(0, 5)},
+        {k:'noLg', t:'toggle', label:'범례 빼기 (그래프 아래 색 · 이름 표시)', when: d => splitBar(d.series).length > 1},   // 2026-10-28 사용자: 범례는 고를 수 있게
         {k:'yLines', t:'select', label:'기준선 개수 (가로 점선)', opts:Y_LINES}, {k:'yMax', t:'num', label:'세로축 최대값 (비우면 자동)', w:'s'}, {k:'yStep', t:'num', label:'눈금 간격 (비우면 자동)', w:'s'}
       ],
       sample: () => ({title:'혈압 관리 프로그램 참여 전후', sub:'(N=83, mmHg)', unit:'', series:'참여 전 | 참여 후', rows:'수축기 혈압 | 143 | 125\n이완기 혈압 | 92 | 84',
@@ -1256,7 +1257,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           return `<div class="vb-g">${bars}${dl ? badge(r, ri, top, anyL) : ''}</div>`; }).join('');
         const ref = refV == null ? '' : `<div class="vb-ref" style="bottom:${(refV / max * 100).toFixed(3)}%"><span${E('ref')}>${rl ? esc(rl) + ' ' : ''}${fmtV(refV)}${unit}</span></div>`;
         const xs = rows.map((r, i) => `<span class="${ac === 'row' && i === aR ? 'ac' : ''}" style="left:${(i + 0.5) / rows.length * 100}%"${EC('rows', i, 0)}>${rich(r[0])}</span>`).join('');
-        return `<div class="box ch">${chTitle(d)}<div class="ch-plot${dl ? ' dt' : ''}" style="--bw:${bw}px;--gap:${gap}px">${gridY(ticks, max, unit)}<div class="vb-gs">${gs}</div>${ref}</div><div class="ch-x">${xs}</div>${legend(names.slice(0, n), lgCols)}</div>`;
+        return `<div class="box ch">${chTitle(d)}<div class="ch-plot${dl ? ' dt' : ''}" style="--bw:${bw}px;--gap:${gap}px">${gridY(ticks, max, unit)}<div class="vb-gs">${gs}</div>${ref}</div><div class="ch-x">${xs}</div>${d.noLg ? '' : legend(names.slice(0, n), lgCols)}</div>`;
       },
       lint(d){ const w0 = []; const mx = Math.max(0, ...rowsOf(d.rows).flatMap(r => r.slice(1).map(numOf))); if (parseFloat(d.yMax) > 0 && mx > parseFloat(d.yMax)) w0.push(['warn', `가장 큰 값(${fmtN(mx)})이 세로축 최대값(${d.yMax})보다 커서 위로 잘려요.`]);
         return w0.concat(this.lint0 ? this.lint0(d) : []); },
@@ -1286,6 +1287,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {k:'unit', t:'text', label:'값 단위 (입력한 값을 보일 때)', w:'s'},
         {k:'accent', t:'num', label:'그린으로 강조할 항목 번호 (0 = 없음)', w:'s'},
         {k:'cols', t:'colors', label:'색 지정 (눌러서 고르기 · 비우면 자동)', names: d => splitBar(d.series)},
+        {k:'noLg', t:'toggle', label:'범례 빼기 (그래프 아래 색 · 이름 표시)', when: d => splitBar(d.series).length > 1},   // 2026-10-28 사용자: 범례는 고를 수 있게
         {k:'side', t:'text', label:'오른쪽 보조 값 제목 (비우면 없음)', ph:'예: 5점 평균(점)'},
         {k:'sideRows', t:'area', label:'보조 값 (한 줄 = 막대 하나, 위에서부터)', rows:3, when: d => !!String(d.side || '').trim()},
         {k:'sideTone', t:'select', label:'보조 값 색 (칸 배경 · 글자 · 제목 같이, 미리보기에서 값을 눌러도 바꿔요)', opts:SIDE_TONES.map(([k, n]) => [k, n]), when: d => !!String(d.side || '').trim()}
@@ -1306,7 +1308,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           return `<div class="st-row"><span class="st-lb"${EC('rows', ri, 0)}>${rich(r[0])}</span>${side ? `<span class="st-w">${tr}<span class="st-sd"${EC('sideRows', ri, 0)}>${rich((sv[ri] || '').trim())}</span></span>` : tr}</div>`; }).join('');
         const sh = side ? `<div class="st-sh"><span${E('side')}>${rich(side)}</span></div>` : '';
         const st = SIDE_TONES.some(([k]) => k === d.sideTone) ? d.sideTone : 'red';
-        return `<div class="box ch st-t-${st}">${chTitle(d)}${sh}${body}${legend(names, cols)}</div>`;
+        return `<div class="box ch st-t-${st}">${chTitle(d)}${sh}${body}${d.noLg ? '' : legend(names, cols)}</div>`;
       },
       lint(d){ const w = []; if (rowsOf(d.rows).some(r => r.slice(1).some(v => numOf(v) < 0))) w.push(['warn', '음수 값은 그릴 수 없어요.']); w.push(['info', '막대가 좁아 글씨가 안 들어가는 칸은 비워 둬요. 범례로 구분돼요.']); return w; }
     },
@@ -1322,6 +1324,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {k:'green', t:'toggle', label:'첫 계열 그린 (끄면 파랑)'},
         {k:'simple', t:'toggle', label:'간단 스타일 (세로축 · 눈금 숨김, 꽉 찬 점)'},
         {k:'cols', t:'colors', label:'색 지정 (눌러서 고르기 · 비우면 자동)', names: d => splitBar(d.series).slice(0, 2).length ? splitBar(d.series).slice(0, 2) : ['선']},
+        {k:'noLg', t:'toggle', label:'범례 빼기 (그래프 아래 색 · 이름 표시)', when: d => splitBar(d.series).length > 1},   // 2026-10-28 사용자: 범례는 고를 수 있게
         {k:'ref', t:'text', label:'기준선 (값 | 이름 · 비우면 없음)', ph:'140 | 정상'},
         {k:'yLines', t:'select', label:'기준선 개수 (가로 점선)', opts:Y_LINES}, {k:'yMax', t:'num', label:'세로축 최대값 (비우면 자동)', w:'s'}, {k:'yStep', t:'num', label:'눈금 간격 (비우면 자동)', w:'s'}
       ],
@@ -1342,7 +1345,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         const pts = Array.from({length: n}, (_, s) => rows.map((r, i) => { const v = numOf(r[s + 1]);
           return `<span data-cp="${s}" class="ln-pt${d.simple ? ' solid' : ''}" style="${d.simple ? `background:var(${cols[s]});` : ''}left:${X(i).toFixed(2)}px;bottom:${Y(v).toFixed(2)}px;border-color:var(${cols[s]})"></span>${!s && d.labels ? `<span class="ln-v" style="left:${X(i).toFixed(2)}px;bottom:${(Y(v) + 10).toFixed(2)}px;color:var(${d.cols && d.cols[0] ? d.cols[0] : green ? '--careGreen-700' : '--neutral-900'})"${EC('rows', i, 1, 1)}>${fmtN(v)}${unit}</span>` : ''}`; }).join('')).join('');
         const xs = rows.map((r, i) => `<span style="left:${X(i).toFixed(2)}px"${EC('rows', i, 0)}>${rich(r[0])}</span>`).join('');
-        return `<div class="box ch">${chTitle(d)}<div class="ch-plot${d.simple ? ' simple' : ''}" style="--ph:${PH}px;--yw:${yw}px;width:${PW}px">${d.simple ? '<div class="ch-base"></div>' : gridY(ticks, max, unit)}${refV == null ? '' : `<div class="vb-ref ln-ref" style="bottom:${Y(refV).toFixed(2)}px"><span${E('ref')}>${rl ? esc(rl) + ' ' : ''}${fmtN(refV)}${unit}</span></div>`}${segs}${pts}</div><div class="ch-x" style="--yw:${yw}px;width:${PW}px">${xs}</div>${legend(names.slice(0, n), cols)}</div>`;
+        return `<div class="box ch">${chTitle(d)}<div class="ch-plot${d.simple ? ' simple' : ''}" style="--ph:${PH}px;--yw:${yw}px;width:${PW}px">${d.simple ? '<div class="ch-base"></div>' : gridY(ticks, max, unit)}${refV == null ? '' : `<div class="vb-ref ln-ref" style="bottom:${Y(refV).toFixed(2)}px"><span${E('ref')}>${rl ? esc(rl) + ' ' : ''}${fmtN(refV)}${unit}</span></div>`}${segs}${pts}</div><div class="ch-x" style="--yw:${yw}px;width:${PW}px">${xs}</div>${d.noLg ? '' : legend(names.slice(0, n), cols)}</div>`;
       },
       lint(d){ const w0 = []; const mx = Math.max(0, ...rowsOf(d.rows).flatMap(r => r.slice(1).map(numOf))); if (parseFloat(d.yMax) > 0 && mx > parseFloat(d.yMax)) w0.push(['warn', `가장 큰 값(${fmtN(mx)})이 세로축 최대값(${d.yMax})보다 커서 위로 잘려요.`]);
         return w0.concat(this.lint0 ? this.lint0(d) : []); },
