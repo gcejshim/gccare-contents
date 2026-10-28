@@ -1972,7 +1972,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   function renderPreview(){
     if (editing) return;   // 미리보기에서 고치는 중에는 다시 그리지 않음 (끝나면 다시 그림)
     const it = hoverIt || view(), fold = S.fold || {};   // hoverIt: 템플릿 목록에서 마우스를 올린 템플릿 (잠깐 보기)
-    $('pvName').textContent = it.hover ? `${BLOCKS[it.type].name} 모양 미리보기 (예시 내용 · 눌러야 적용돼요)` : `${fileBase(it, 'pc')}.${ext(it)}${it.fresh ? ' · 템플릿 고르기 전' : ' · ' + BLOCKS[it.type].name}`;
+    $('pvName').textContent = it.hover ? `${BLOCKS[it.type].name} 모양 미리보기 (예시 내용 · 눌러야 적용돼요)` : '';   // 파일명 · 유형 이름은 뺌 (2026-10-28 사용자, 파일명은 ① 콘텐츠 정보에 있음)
     $('pvPcBox').classList.toggle('closed', !!fold.pc); $('pvMoBox').classList.toggle('closed', !!fold.mo);
     // 새 이미지(템플릿 고르기 전)는 예시 대신 빈 안내만 보여 줌
     const empty = w => `<div class="pv-empty" style="width:${w}px">이미지 템플릿을 선택해 주세요<br><small>② 만드는 방법에서 Claude 스킬 결과를 넣거나 템플릿을 고르면 여기에 보여요</small></div>`;
