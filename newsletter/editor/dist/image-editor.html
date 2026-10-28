@@ -1196,6 +1196,8 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .blk-title{font-size:var(--fs-title);font-weight:700;color:var(--neutral-900);line-height:1.45;letter-spacing:-0.088px;margin:0 0 20px}
 .nl .blk-title .tc-blue{color:var(--careBlue-500)}   /* 제목 강조 블루는 밝게 ([대괄호] 강조와 같은 색) */
 .nl .blk-title small{font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);margin-left:6px}
+.nl .blk-title.has-tag{display:flex;align-items:baseline;gap:12px} .nl .blk-title .bt-l{flex:1;min-width:0}
+.nl .blk-title .bt-tag{flex:none;margin-left:auto;font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);white-space:nowrap}   /* 제목 오른쪽 작은 글씨 */
 .nl-mo .blk-title small{display:block;margin:4px 0 0}   /* 모바일: 제목 옆 작은 글씨는 아래 줄로 (중간에서 끊기지 않게) */
 .nl .ph{border:1.5px dashed var(--coolNeutral-300);border-radius:12px;padding:48px 16px;text-align:center;color:var(--coolNeutral-500);font-size:var(--fs-sub);background:var(--neutral-0)}
 
@@ -1886,7 +1888,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       name: '가로 막대', hint: '항목별 비율 · 건수 비교',
       fields: [
         {k:'title', t:'text', label:'차트 제목'},
-        {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:'예: (*전체 대비 비율)'},
+        {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:'예: (*전체 대비 비율)'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위', ph:'%, 건, 배 …', w:'s'},
         {k:'top', t:'toggle', label:'1위를 그린으로 강조'},
         {k:'items', t:'list', label:'항목 (입력 순서대로 표시)', add:{label:'새 항목', value:1}, sub:[{k:'label', t:'text', ph:'항목명'}, {k:'value', t:'num', w:'s'}]},
@@ -1925,7 +1927,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     table: {
       name: '표', hint: '판정 기준 · 방식 비교',
       fields: [
-        {k:'title', t:'text', label:'표 제목 (없으면 비워 두기)'},
+        {k:'title', t:'text', label:'표 제목 (없으면 비워 두기)'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 단위: 원'},
         {k:'head', t:'text', label:'머리글 (칸은 | 로 구분)'},
         {k:'rows', t:'area', label:'내용 (한 줄 = 한 행, 칸은 |, 칸 안 줄바꿈은 //)', rows:6},
         {k:'firstCol', t:'toggle', label:'첫 칸을 항목명으로 (연파랑 바탕 · 굵게)'},
@@ -1970,7 +1972,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           return ic ? `<span class="c0w"><span class="c0i${d.iconStyle === 'emoji' ? ' emo' : ''}" data-ic="@icons.${r}" data-none="1">${ic}</span><span${EC('rows', r, 0)}>${cell(s)}</span></span>` : `<span${EC('rows', r, 0)}>${cell(s)}</span>`; };
         const th = head.length ? `<tr>${head.map((h, i) => `<th class="${cls(i)}"${thBg(i)}><span${EC('head', 0, i)}>${cell(h)}</span></th>`).join('')}</tr>` : '';
         const tr = rows.map((r, ri) => `<tr>${Array.from({length: n}, (_, i) => `<td class="${cls(i)}">${i === 0 ? c0(r[i] || '', ri) : `<span${EC('rows', ri, i)}>${cell(r[i] || '')}</span>`}</td>`).join('')}</tr>`).join('');
-        const title = d.title ? `<div class="blk-title"${E('title')}>${rich(tTitle(d.title))}</div>` : '';
+        const title = d.title ? (tagR(d) ? `<div class="blk-title has-tag"><span class="bt-l"${E('title')}>${rich(tTitle(d.title))}</span>${tagR(d)}</div>` : `<div class="blk-title"${E('title')}>${rich(tTitle(d.title))}</div>`) : '';
         const rh = d.rowH === 'l' ? '' : ' rh-' + (d.rowH === 's' ? 's' : 'm');   // 행 간격 (비어 있으면 보통)
         return `${title}<div class="tb${rh}${d.hl === 'last' ? ' hl-last' : ''}${d.hc && d.hc !== 'navy' ? ' hc-' + d.hc : ''}"><table>${th ? `<thead>${th}</thead>` : ''}<tbody>${tr}</tbody></table></div>`;
       },
@@ -2059,7 +2061,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     vbar: {
       name: '세로 막대', hint: '전후 · 그룹 비교',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:'예: (N=96)'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:'예: (N=96)'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위', w:'s'},
         {k:'series', t:'text', label:'계열 이름 (| 로 구분, 1~5개)', ph:'참여 전 | 참여 후'},
         {k:'rows', t:'area', label:'값 (한 줄 = 항목 | 값1 | 값2 …)', rows:4},
@@ -2146,7 +2148,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     stack: {
       name: '100% 누적 막대', hint: '구성비',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'series', t:'text', label:'구성 항목 (| 로 구분)', ph:'정상 | 전단계 | 유병'},
         {k:'rows', t:'area', label:'값 (한 줄 = 막대 이름 | 값1 | 값2 …, 합계로 % 자동 계산)', rows:4},
         {k:'show', t:'select', label:'막대 안 글씨', opts:[['pct','비율(%)'],['value','입력한 값'],['both','값 + 비율']]},
@@ -2182,7 +2184,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     line: {
       name: '꺾은선', hint: '추이',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:"예: ('21~'25년)"},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨', ph:"예: ('21~'25년)"}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위', w:'s'},
         {k:'series', t:'text', label:'계열 이름 (1~2개, | 로 구분)', ph:'온열질환 산업재해'},
         {k:'rows', t:'area', label:'값 (한 줄 = 가로축 | 값1 | 값2)', rows:5},
@@ -2221,7 +2223,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     donut: {
       name: '도넛', hint: '구성비',
       fields: [
-        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨'},
+        {k:'title', t:'text', label:'차트 제목'}, {k:'sub', t:'text', label:'제목 옆 작은 글씨'}, {k:'tag', t:'text', label:'제목 오른쪽 작은 글씨 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},
         {k:'unit', t:'text', label:'단위 (비율이면 %)', w:'s'},
         {k:'center', t:'area', label:'가운데 글씨 (선택, 첫 줄은 크게)', rows:2, ph:'총\n71명'},
         {k:'accent', t:'toggle', label:'가장 큰 항목을 그린으로 강조'},
@@ -2525,7 +2527,10 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     return {max, ticks};
   }
   const tTitle = s => String(s || '').replace(/\{(?:그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1');   // 표 · 차트 제목은 블루만 (예전 파일 · 직접 친 다른 색은 기본색으로)
-  const chTitle = d => d.title ? `<div class="blk-title"><span${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</div>` : '';
+  // 제목 오른쪽 작은 글씨 tag (2026-10-28 사업부 요청 1번: 타이틀 옆 보조문구, 비우면 없음)
+  const tagR = d => String(d.tag || '').trim() ? `<span class="bt-tag"${E('tag')}>${rich(d.tag)}</span>` : '';
+  const chTitle = d => d.title ? (tagR(d) ? `<div class="blk-title has-tag"><span class="bt-l"><span${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</span>${tagR(d)}</div>`
+    : `<div class="blk-title"><span${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</div>`) : '';
   // 그래프 색 지정: 비워 두면 블록 규칙(자동), 고르면 d.cols[i] = DS 토큰 (사용자 지정 2026-10-02)
   const CHART_COLORS = [['블루', ['--careBlue-900', '--careBlue-700', '--careBlue-500', '--careBlue-400', '--careBlue-300', '--careBlue-200', '--careBlue-100', '--careBlue-50']],
     ['그린', ['--careGreen-800', '--careGreen-700', '--careGreen-600', '--careGreen-500', '--careGreen-300', '--careGreen-100', '--careGreen-50']],
