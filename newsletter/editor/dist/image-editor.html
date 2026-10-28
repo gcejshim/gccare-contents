@@ -1549,6 +1549,8 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .vb-g i b{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);padding-bottom:4px;font-size:var(--fs-val);font-weight:700;color:var(--neutral-900);white-space:nowrap}
 .nl .ch-plot.dt{margin-top:64px}   /* 변화량 배지 자리 */
 .nl .vb-d{position:absolute;left:50%;transform:translateX(-50%);padding:3px 10px;border-radius:999px;border:1px solid var(--coolNeutral-200);background:var(--coolNeutral-50);color:var(--coolNeutral-600);font-size:var(--fs-val);font-weight:700;line-height:1.4;white-space:nowrap}
+.nl .vb-d:has(br){border-radius:8px;padding:4px 10px;line-height:1.3;text-align:center}   /* 두 줄 배지: 알약 대신 둥근 상자 (2026-10-28 사용자) */
+.nl .vb-d .vb-ar{font-size:.85em;vertical-align:.04em}   /* ▲▼는 글자 기호라 숫자만큼 커 보여서 작게 (2026-10-28 사용자) */
 .nl .vb-d.vb-l{left:0;transform:none} .nl .vb-d.vb-r{left:auto;right:0;transform:none}   /* 맨 왼쪽 · 오른쪽 배지가 칸보다 넓을 때만 안쪽으로 (render에서 붙임) */
 .nl .vb-d.good{border-color:var(--careGreen-500);background:var(--careGreen-10);color:var(--careGreen-700)}
 .nl .vb-d.bad{border-color:var(--careRed-500);background:var(--careRed-50);color:var(--careRed-500)}   /* 나빠진 방향 */
@@ -2110,7 +2112,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           // 배지 색은 방향대로 자동(좋아짐 그린 · 나빠짐 빨강 · 구분 없음 회색). 미리보기에서 배지를 눌러 하나만 바꾼 경우는 dTone
           const BC = {green:' good', red:' bad', gray:''}, tone = BC[(d.dTone || {})[ri]] ?? (good ? ' good' : bad ? ' bad' : '');
           const bdw = (txt.length + 1) * (mo ? 7 : 10) + (mo ? 14 : 22), edge = bdw > gw - 4 ? (ri === 0 ? ' vb-l' : ri === rows.length - 1 ? ' vb-r' : '') : '';   // 배지 폭 어림값이 칸에 안 들어갈 때만 가장자리로
-          return `<span class="vb-d${tone}${edge}" data-dbadge="${ri}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '▲' : df < 0 ? '▼' : ''}${txt}</span>`;
+          return `<span class="vb-d${tone}${edge}" data-dbadge="${ri}" style="bottom:calc(${top.toFixed(3)}% + ${anyL ? (mo ? 27 : 30) : 8}px)">${df > 0 ? '<span class="vb-ar">▲</span>' : df < 0 ? '<span class="vb-ar">▼</span>' : ''}${txt}</span>`;
         };
         const gs = rows.map((r, ri) => { let top = 0, anyL = false;
           const bars = Array.from({length: n}, (_, s) => { if (blank(r[s + 1])) return '<i style="height:0"></i>';   // 값이 비어 있으면 자리만 비워 둠 (0으로 그리지 않음)
@@ -2637,7 +2639,6 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       const top = Math.max(0, ...bars.map(b => parseFloat((b.getAttribute('style').match(/height\s*:\s*([\d.]+)%/) || [])[1]) || 0));
       [...g.children].filter(c => !isBar(c) && /[▲▼]|증가|감소/.test(c.textContent)).forEach(c => {
         c.className = 'vb-d ' + (/▼|감소/.test(c.textContent) ? 'good' : 'bad'); c.removeAttribute('style');
-        c.querySelectorAll('br').forEach(b => b.replaceWith(' ')); c.innerHTML = c.innerHTML.replace(/\s*<br\s*\/?>\s*/g, ' ');
         c.style.bottom = `calc(${top}% + 30px)`;
         const sib = [...g.parentElement.children].filter(x => groups.includes(x)); if (sib.length > 1 && sib[0] === g) c.classList.add('vb-l'); else if (sib.length > 1 && sib[sib.length - 1] === g) c.classList.add('vb-r'); });
     });
@@ -2662,13 +2663,15 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       sg.forEach((c, i) => { c.style.flex = `0 0 ${vs[i] / sum * 100}%`; c.style.width = `${vs[i] / sum * 100}%`; }); });   // 누적 막대 칸 폭 = 값 ÷ 합계
     hkChart(r);
     // 막대를 따라가는 말풍선(data-follow)은 스킬이 상자 · 꼬리를 따로 그려 와도 도구의 변화 배지(vb-d) 모양으로 (10/20 사용자: 몇 번이나 고침 → 먼저 적용)
-    // ▼ · 감소면 그린, 그 밖(▲ · 증가)은 빨강. 안의 글자 칸(data-edit)은 그대로 두고 줄바꿈 · 빈 장식 요소(꼬리)만 걷어냄
+    // ▼ · 감소면 그린, 그 밖(▲ · 증가)은 빨강. 안의 글자 칸(data-edit)은 그대로 두고 빈 장식 요소(꼬리)만 걷어냄. 줄바꿈은 그대로(한 줄 · 두 줄 모두, 2026-10-28 사용자)
     r.querySelectorAll('[data-follow]').forEach(el => { if (el.classList.contains('vb-d') && !el.getAttribute('style')) return;
       const t = el.textContent; el.className = 'vb-d ' + (/▼|감소/.test(t) ? 'good' : 'bad'); el.removeAttribute('style');
-      el.querySelectorAll('br').forEach(b => b.replaceWith(' ')); [...el.querySelectorAll('*')].forEach(c => { if (!c.textContent.trim() && !c.querySelector('img')) c.remove(); });
+      [...el.querySelectorAll('*')].forEach(c => { if (!c.textContent.trim() && !c.querySelector('img')) c.remove(); });
       if (!(parseFloat(el.dataset.gap) <= 34)) el.dataset.gap = '30';   // 막대 숫자 바로 위 (템플릿과 같은 간격)
       const g = el.parentElement, gs = g && g.parentElement ? [...g.parentElement.children].filter(c => c.querySelector('[data-bar]')) : [];
       if (gs.length > 1 && gs[0] === g) el.classList.add('vb-l'); else if (gs.length > 1 && gs[gs.length - 1] === g) el.classList.add('vb-r'); });   // 맨 왼쪽 · 오른쪽 막대는 배지를 안쪽으로 (축 숫자 · 칸 밖으로 안 나가게)
+    r.querySelectorAll('.vb-d').forEach(el => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), ns = []; let n; while ((n = w.nextNode())) if (/[▲▼]/.test(n.textContent) && !n.parentElement.classList.contains('vb-ar')) ns.push(n);
+      ns.forEach(t => { const f = document.createDocumentFragment(); t.textContent.split(/([▲▼])/).forEach(x => { if (!x) return; if (/[▲▼]/.test(x)){ const i = document.createElement('span'); i.className = 'vb-ar'; i.textContent = x; f.appendChild(i); } else f.appendChild(document.createTextNode(x)); }); t.replaceWith(f); }); });   // 배지 화살표만 작게
     r.querySelectorAll('[data-follow]').forEach(el => { const h = hs[el.dataset.follow]; if (h == null) return; const g = parseFloat(el.dataset.gap) || 0; el.style.bottom = g ? `calc(${h}% + ${g}px)` : h + '%'; });
     r.querySelectorAll('[data-tick]').forEach(el => { const mx = axes[el.dataset.axis] || Object.values(axes)[0]; const f = parseFloat(el.dataset.tick); if (mx > 0 && !isNaN(f)) el.textContent = String(+(mx * f).toFixed(2)); });
     r.querySelectorAll('[data-color]').forEach(el => { const c = el.dataset.color; if (!/^--[\w-]+$/.test(c)) return; el.style.background = `var(${c})`; const ck = el.dataset.ckey || el.dataset.key; if (ck) el.setAttribute('data-hcol', ck); });
