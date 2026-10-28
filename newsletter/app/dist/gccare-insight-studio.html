@@ -316,7 +316,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 </nav>
 
 <main class="main">
-  <div class="skill-nt" id="skillNt" hidden><span class="ic">!</span><b>Claude Skill이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn dl" data-skill-dl>Skill 내려받기</button><button class="btn ok" id="skillNtOk" title="claude.ai에 새 Skill을 업로드했으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">등록 완료</button></div>
+  <div class="skill-nt" id="skillNt" hidden><span class="ic">!</span><b>Claude Skill이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn dl" data-skill-dl>Skill 내려받기</button><button class="btn ok" id="skillNtOk" title="claude.ai에 새 Skill을 업로드했으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">더 이상 보지 않기</button></div>
   <!-- 이번 호 -->
   <section class="view" id="v-home"><div class="page">
     <div class="hero">
@@ -500,8 +500,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <div class="sk-pop" id="skillPop" hidden><div class="in">
   <div class="hd"><span class="ic">!</span><div><b>Claude Skill이 새로 바뀌었습니다</b><small id="skillPopDate"></small></div></div>
   <ul class="nt" id="skillPopNotes"></ul>
-  <ol class="st"><li><b>[Skill 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b> 사용자 지정 → Skills → <b>[+ 추가]</b> → <b>[Skill 업로드]</b>, zip을 끌어다 놓고 <b>[업로드]</b></li><li>업로드했으면 <b>[등록 완료]</b></li></ol>
-  <div class="ft"><button class="btn" id="skillPopLater">나중에</button><button class="btn" id="skillPopOk">등록 완료</button><button class="btn primary" data-skill-dl>Skill 내려받기</button></div>
+  <ol class="st"><li><b>[Skill 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b> 사용자 지정 → Skills → <b>[+ 추가]</b> → <b>[Skill 업로드]</b>, zip을 끌어다 놓고 <b>[업로드]</b></li><li>업로드를 마쳤으면 <b>[더 이상 보지 않기]</b>로 닫아요</li></ol>
+  <div class="ft"><button class="btn" id="skillPopLater">나중에</button><button class="btn" id="skillPopOk">더 이상 보지 않기</button><button class="btn primary" data-skill-dl>Skill 내려받기</button></div>
 </div></div>
 <button class="rq-fab" id="rqFab" title="의견 남기기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
 <div class="rq-box" id="rqBox" hidden>
@@ -526,7 +526,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const ymOf = n => { const m = 5 + (n - 10); const y = 2026 + Math.floor((m - 1) / 12); return `${y}${String(((m - 1) % 12 + 12) % 12 + 1).padStart(2, '0')}`; };
   const DUE = {15: '2026-10-14'};               // 알고 있는 게시 마감일
   let toastT;
-  // Claude 스킬: 내려받기 + 새 버전 알림 (skills/skill_version.json의 announce가 켜진 버전만, 이 브라우저에서 [등록 완료] 전까지)
+  // Claude 스킬: 내려받기 + 새 버전 알림 (skills/skill_version.json의 announce가 켜진 버전만, 이 브라우저에서 [더 이상 보지 않기] 전까지)
   const SK = window.NL_SKILL || null, SK_SEEN = 'gc-nl-skill-seen';
   function skillDl(){ if (!SK) return; const b = Uint8Array.from(atob(SK.zip), c => c.charCodeAt(0)), a = document.createElement('a');
     a.href = URL.createObjectURL(new Blob([b], {type: 'application/zip'})); a.download = 'gc-ax-newsletter.zip'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
