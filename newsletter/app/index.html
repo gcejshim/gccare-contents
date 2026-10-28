@@ -301,7 +301,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 </nav>
 
 <main class="main">
-  <div class="skill-nt" id="skillNt" hidden><span class="ic">!</span><b>Claude 스킬이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn dl" data-skill-dl>스킬 내려받기</button><button class="btn ok" id="skillNtOk" title="claude.ai에 새 스킬을 올렸으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">다시 올렸어요</button></div>
+  <div class="skill-nt" id="skillNt" hidden><span class="ic">!</span><b>Claude Skill이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn dl" data-skill-dl>Skill 내려받기</button><button class="btn ok" id="skillNtOk" title="claude.ai에 새 스킬을 올렸으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">다시 올렸어요</button></div>
   <!-- 이번 호 -->
   <section class="view" id="v-home"><div class="page">
     <div class="hero">
@@ -404,13 +404,13 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <section class="view" id="v-guide"><div class="page">
     <h2>이용 가이드</h2>
     <p class="lead">처음부터 저장까지 이 순서대로 하면 돼요. (2026-10-26 사용자: 가이드를 이용 가이드로)</p>
-    <div class="card skill-card"><h3>1. 처음 한 번만 · Claude 스킬 등록</h3>
+    <div class="card skill-card"><h3>1. 처음 한 번만 · Claude Skill 등록</h3>
       <ol class="todo">
-        <li>아래 <b>[스킬 내려받기]</b>로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
-        <li><b>claude.ai</b>의 <b>Skills</b> 화면(왼쪽 아래 내 이름 → 설정 안)에서 받은 zip을 올려요.</li>
-        <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 스킬이 바뀌면 화면 위에 알림이 떠요. 그때 다시 내려받아 같은 방법으로 올려요.</li>
+        <li>아래 <b>[Skill 내려받기]</b>로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
+        <li><b>claude.ai</b> <b>사용자 지정</b> → <b>Skills</b> → <b>[+ 추가]</b> → <b>[Skill 업로드]</b>로 받은 zip을 올려요.</li>
+        <li><b>내가 만듦</b> 목록에 <b>gc-ax-newsletter</b>가 보이면 끝이에요. Skill이 바뀌면 화면 위에 알림이 떠요. 그때 다시 내려받아 같은 방법으로 올려요.</li>
       </ol>
-      <div class="sk-dl"><button class="btn primary" data-skill-dl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>스킬 내려받기</button><span class="hint" id="skillVer"></span></div>
+      <div class="sk-dl"><button class="btn primary" data-skill-dl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>Skill 내려받기</button><span class="hint" id="skillVer"></span></div>
     </div>
     <div class="card"><h3>2. 이번 호 준비</h3>
       <ol class="todo">
@@ -482,10 +482,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <div class="bar"><b id="lbName"></b><span id="lbMeta" class="hint"></span><span class="sp"></span><span class="hint" id="lbNote">예시 내용으로 추가돼요 → 기획안대로 고치기</span><button class="btn sm primary" id="lbMake">새로 만들기</button><button class="btn sm" id="lbClose">닫기</button></div></div></div>
 <div class="toast" id="toast"></div>
 <div class="sk-pop" id="skillPop" hidden><div class="in">
-  <div class="hd"><span class="ic">!</span><div><b>Claude 스킬이 새로 바뀌었습니다</b><small id="skillPopDate"></small></div></div>
+  <div class="hd"><span class="ic">!</span><div><b>Claude Skill이 새로 바뀌었습니다</b><small id="skillPopDate"></small></div></div>
   <ul class="nt" id="skillPopNotes"></ul>
-  <ol class="st"><li><b>[스킬 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b>의 <b>Skills</b> 화면에서 zip 올리기</li><li>올렸으면 <b>[다시 올렸어요]</b></li></ol>
-  <div class="ft"><button class="btn" id="skillPopLater">나중에</button><button class="btn" id="skillPopOk">다시 올렸어요</button><button class="btn primary" data-skill-dl>스킬 내려받기</button></div>
+  <ol class="st"><li><b>[Skill 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b> 사용자 지정 → Skills → <b>[+ 추가]</b> → <b>[Skill 업로드]</b></li><li>올렸으면 <b>[다시 올렸어요]</b></li></ol>
+  <div class="ft"><button class="btn" id="skillPopLater">나중에</button><button class="btn" id="skillPopOk">다시 올렸어요</button><button class="btn primary" data-skill-dl>Skill 내려받기</button></div>
 </div></div>
 <button class="rq-fab" id="rqFab" title="의견 남기기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
 <div class="rq-box" id="rqBox" hidden>
