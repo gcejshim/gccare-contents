@@ -2262,7 +2262,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     html: {
       name: '직접 만든 블록', hint: '블록에 없는 형태 (HTML)',
       fields: [
-        {k:'note', t:'text', label:'메모 (어떤 형태인지)', ph:'예: 인터뷰 말풍선 3개'},
+        // 메모(note)는 스킬이 적어 둔 설명 — 이미지에 안 쓰여 입력칸은 뺌, 값은 작업 파일에 그대로 (2026-10-28 사용자)
         {k:'tag', t:'text', label:'타이틀 보조문구 · 오른쪽 끝 (비우면 없음)', ph:'예: 복수 응답 · 단위: %'},   // 2026-10-28 사업부 요청 1번 — 맨 첫 글자 줄(제목) 오른쪽 끝에 붙임
         {k:'texts', t:'texts', label:'글자 (미리보기에서 글자를 눌러도 고쳐져요 · PC · 모바일 같이 바뀜)', when: d => d.texts && Object.keys(d.texts).length},
         {k:'nums', t:'texts', num:true, label:'그래프 값 (막대 길이 · 숫자가 같이 바뀜)', when: d => d.nums && Object.keys(d.nums).length},
