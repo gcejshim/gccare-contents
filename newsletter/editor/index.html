@@ -708,7 +708,7 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .dn-ring{position:relative;border-radius:50%;overflow:hidden}
 .nl .dn-ring i{position:absolute;left:50%;bottom:50%;transform-origin:50% 100%;display:block}
 .nl .dn-hole{position:absolute;border-radius:50%;background:var(--neutral-0)}
-.nl .dn-c > div.dn-t{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:var(--fs-cap);color:var(--coolNeutral-600);line-height:1.35}
+.nl .dn-c > div.dn-t{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:56%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-size:var(--fs-cap);color:var(--coolNeutral-600);line-height:1.35}   /* 가운데 구멍 안 글자만큼만 — 도넛 전체를 덮으면 조각을 눌러도 글자 편집이 열리고 색 바꾸기가 안 나옴 (2026-10-28) */
 .nl .dn-c > div.dn-t b{font-size:var(--fs-valL);color:var(--neutral-900)}
 .nl .dn-l{display:flex;flex-direction:column;gap:10px;min-width:240px}
 .nl-pc .dn-l{margin:0 -40px 0 40px}   /* PC: 도넛은 그대로 두고 주석만 오른쪽으로 40 더 (도넛 ~ 주석 80, 2026-10-28 사용자) */
