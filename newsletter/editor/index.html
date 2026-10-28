@@ -892,6 +892,9 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   const TC = {'블루': 'blue', '그린': 'green', '빨강': 'red', '주황': 'orange', '회색': 'gray'};
   const tcFlat = s => { let o; do { o = s; s = s.replace(/\{(블루|그린|빨강|주황|회색):\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}\}/g, '{$1:$2}'); } while (s !== o); return s; };   // 겹친 색 표시는 바깥 색 하나로 (예전에 겹쳐 저장된 값도 바로 보이게)
   const noTc = t => { let o; t = String(t == null ? '' : t); do { o = t; t = t.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1'); } while (t !== o); return t; };   // 글자 색 표시 걷어내기 (겹친 것도 끝까지)
+  // 예전 표기 {빨강:글자} → !!글자!! (예전 스킬 결과 · 작업 파일이 들어와도 입력칸에 새 기호로만 보이게). 그리기 직전에 데이터 자체를 바꿈
+  const redMark = o => { if (o && typeof o === 'object') Object.keys(o).forEach(k => { const v = o[k];
+    if (typeof v !== 'string') redMark(v); else if (v.includes('{빨강:')){ let t = v, p; do { p = t; t = t.replace(/\{빨강:([^{}]*)\}/g, '!!$1!!'); } while (t !== p); o[k] = t.replace(/!!!!(.+?)!!!!/g, '!!$1!!'); } }); return o; };
   const rich = s => esc(tcFlat(String(s == null ? '' : s))).replace(/\{(블루|그린|빨강|주황|회색):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/!!(.+?)!!/g, '<span class="tc-red">$1</span>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]/g, '<em class="hl">$1</em>').replace(/\n|\/\//g, '<br>');
   const clone = o => JSON.parse(JSON.stringify(o));
   const pad2 = n => String(Math.max(1, parseInt(n, 10) || 1)).padStart(2, '0');
@@ -1582,7 +1585,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       render(d, m, it){
         const one = id => { const o = S.items.find(x => x.id === id); if (!o || !PAIR_OK.includes(o.type)) return '<div class="ph">그래프를 골라 주세요</div>';
           // 원본 그래프를 반쪽 폭으로 그림. 미리보기에서 글자 · 숫자 · 색을 누르면 원본 그래프(data-src)가 바로 고쳐짐
-          return `<div data-src="${o.id}">${BLOCKS[o.type].render(o.data, m, Object.assign({}, o, {half: true, bg: it && it.bg}))}</div>`; };
+          return `<div data-src="${o.id}">${BLOCKS[o.type].render(redMark(o.data), m, Object.assign({}, o, {half: true, bg: it && it.bg}))}</div>`; };
         return `<div class="box pr"><div class="pr-c" data-pairpick="left">${one(d.left)}</div><div class="pr-c" data-pairpick="right">${one(d.right)}</div></div>`;
       },
       lint(d){ const w = []; if (!d.left || !d.right) w.push(['warn', '왼쪽 · 오른쪽 그래프 종류를 모두 골라 주세요.']);
@@ -1932,7 +1935,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
   // ── 렌더 ──
   function renderItem(it, m){
-    const B = BLOCKS[it.type];
+    const B = BLOCKS[it.type]; redMark(it.data);
     const bgCls = B.bg === 'hero' ? 'hero' + (['grad', 'white', 'gray', 'navy'].includes(it.data.bgStyle) ? ' ' + it.data.bgStyle : '') : B.bg === 'steps' ? 'steps' : B.bg === 'raw' ? 'raw' : B.bg === 'cta' ? 'cta' : 'bg-' + (it.bg || 'gray');
     let body = B.render(it.data, m, it);
     const lg = !B.bg && (it.logo === 'top' || it.logo === 'bottom') && A.logoBlue ? it.logo : '';
