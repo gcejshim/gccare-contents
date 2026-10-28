@@ -2650,7 +2650,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       && ks.every(k => sw(k) && k.textContent.trim() && k.textContent.trim().length <= 20); });
     if (lg){ let card = lg.parentElement; while (card && !groups.some(g => card.contains(g))) card = card.parentElement;
       if (card){ const last = card.lastElementChild, src = last && last !== lg && /자료|출처/.test(last.textContent) && !groups.some(g => last.contains(g)) ? last : null;
-        card.insertBefore(lg, src); lg.style.cssText += ';display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:16px 0 0;font-size:var(--fs-cap)'; } }
+        card.insertBefore(lg, src); lg.style.cssText += ';display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:32px 0 0;font-size:var(--fs-cap)'; } }
     // 축 숫자: 막대 밖, 인라인 bottom %인 숫자 글자
     r.querySelectorAll('[style*="bottom"]').forEach(el => { if (el.closest('.ch-grid') || groups.some(g => g.contains(el))) return;
       if (/^-?[\d,.]+%?$/.test(el.textContent.trim()) && /bottom\s*:\s*[\d.]+%/.test(el.getAttribute('style'))) el.style.fontSize = 'var(--fs-cap)'; });
