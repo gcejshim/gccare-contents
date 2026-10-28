@@ -239,6 +239,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .pvh .lbl{font-size:12px;color:var(--neutral-500)}
 .pvh .lbl b{font-size:12px}
 .pvh .sp{flex:1}
+/* 2026-10-28 사용자: 메일 크기 체크 칸 → 스위치 [PC | 이메일], 고른 쪽은 흰 바탕 + '모바일' 제목 글자색(careBlue/900) */
+.vw-sw{display:inline-flex;padding:2px;border-radius:999px;background:var(--coolNeutral-50);border:1px solid var(--coolNeutral-100)}
+.vw-sw button{display:inline-flex;align-items:center;height:26px;padding:0 12px;border:0;border-radius:999px;background:none;color:var(--coolNeutral-500);font:inherit;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s,color .15s}
+.vw-sw button.on{background:var(--neutral-0);color:var(--careBlue-900);font-weight:700;box-shadow:0 1px 4px rgba(0,42,140,.18)}
+.mail-hint .bad{color:var(--careOrange-600);font-weight:600}
 /* 2026-10-27 사용자: 움직임 보기를 눈에 띄게 — 재생 아이콘 + 블루 알약, 재생 중엔 아이콘이 돎 */
 .play-btn{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 12px 0 4px;margin-left:8px;border:0;border-radius:999px;background:var(--careBlue-50);color:var(--careBlue-600);font:inherit;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s,transform .15s}
 .play-btn[hidden]{display:none}
@@ -839,9 +844,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
       <div class="pv">
         <div class="pvp" id="pvPcBox">
-          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><b>PC</b><span class="lbl" id="pvPcLbl"></span><button class="play-btn" id="btnPlay" hidden title="GIF 애니메이션으로 저장했을 때의 움직임을 미리 봐요"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M10 8l6 4-6 4z"/></svg>움직임 보기</button><span class="sp"></span>
-            <label class="switch" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><input type="checkbox" id="mail"> 메일 크기로 보기</label></div>
-          <div class="pvb"><div class="pv-frame" id="pvPc"></div><p class="hint" id="mailHint" hidden></p></div>
+          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><span class="vw-sw" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><button type="button" data-vw="" class="on">PC</button><button type="button" data-vw="mail">이메일</button><input type="checkbox" id="mail" hidden></span><span class="lbl" id="pvPcLbl"></span><span class="sp"></span><button class="play-btn" id="btnPlay" hidden title="GIF 애니메이션으로 저장했을 때의 움직임을 미리 봐요"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M10 8l6 4-6 4z"/></svg>애니메이션</button></div>
+          <div class="pvb"><div class="pv-frame" id="pvPc"></div><p class="hint mail-hint" id="mailHint" hidden></p></div>
         </div>
         <div class="pvp" id="pvMoBox">
           <div class="pvh"><button class="fold" data-fold="mo" title="접기 · 펼치기">▾</button><b>모바일</b><span class="lbl" id="pvMoLbl"></span></div>
@@ -865,7 +869,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       <li><b>① 콘텐츠 정보</b>에서 콘텐츠 · 이미지 번호를 고르고(없는 번호면 새 이미지), <b>② 이미지 템플릿</b>을 고른 뒤, <b>③ 상세 편집</b>에서 고쳐요. 같은 템플릿을 한 장 더 만들 때는 <b>[이 이미지 복제]</b>.</li>
       <li><b>콘텐츠 번호</b>와 <b>이미지 번호</b>를 기획안대로 맞춰요. 파일명: <b>202610_contents01_p01.png</b> (PC) · <b>_m01.png</b> (모바일)</li>
       <li>왼쪽 <b>내용</b>을 기획안대로 고쳐요. 오른쪽에서 PC·모바일이 같이 바뀌어요. 미리보기의 글자·숫자를 <b>클릭</b>해서 바로 고쳐도 돼요. (Enter 확인 · Esc 취소)</li>
-      <li><b>자동 점검</b>에 주황색 경고가 없는지 확인해요. <b>[메일 크기로 보기]</b>로 실제 메일에서 보이는 크기도 확인해요.</li>
+      <li><b>자동 점검</b>에 주황색 경고가 없는지 확인해요. <b>[이메일]</b>을 눌러 실제 메일에서 보이는 크기도 확인해요.</li>
       <li><b>[이 이미지 저장]</b>을 누르면 PC 2배(1800px)·모바일 3배(1050px) 이미지가 저장돼요. 처음 저장할 때 고른 폴더에 계속 저장되고, 같은 이름은 덮어써요. <b>[전체 이미지 저장]</b>은 목록의 모든 이미지를 한 번에 저장해요. 크롬이 "여러 파일 다운로드"를 물으면 허용해 주세요.</li>
       <li><b>저장 형식</b>은 기본 PNG예요. 사진·화면 캡처가 큰 이미지만 JPG로 바꿔요. PNG가 1MB를 넘으면 자동 점검 아래에 <b>[JPG로 저장]</b> 버튼이 나와요.</li>
       <li>나중에 고치려면 <b>[작업 파일 저장]</b> (.json) → <b>[작업 파일 열기]</b></li>
@@ -1986,6 +1990,13 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       $('pvPc').style.zoom = z < 0.999 ? z.toFixed(4) : '';
       const ph = Math.round(p.offsetHeight), mh = Math.round(mo.offsetHeight);
       $('pvPcLbl').innerHTML = `900 × ${ph} → 저장 <b>1800 × ${ph * 2}</b> · ${mail ? '메일 크기 <b>630</b> (70%)' : z < 0.999 ? `${Math.round(z * 100)}%` : '실제 크기'}`;
+      if (mail){   // 메일에서 실제로 보이는 글자 크기: 본문 · 이 이미지에서 가장 작은 글자 (0.7배, 9px 밑은 주황)
+        const R = 0.7, px = n => +(n * R).toFixed(1), fsz = e => parseFloat(getComputedStyle(e).fontSize);   // zoom 전 크기로 나옴
+        const body = parseFloat(getComputedStyle(p).getPropertyValue('--fs-body')) || 18;
+        let min = Infinity; p.querySelectorAll('.nl *').forEach(e => { if (e.offsetParent !== null && [...e.childNodes].some(n => n.nodeType === 3 && n.textContent.trim())) min = Math.min(min, Math.round(fsz(e))); });
+        const sm = isFinite(min) ? ` · 가장 작은 글자 ${min} → <span class="${px(min) < 9 ? 'bad' : ''}">${px(min)}px</span>` : '';
+        $('mailHint').innerHTML = `메일에서는 0.7배로 줄어 보여요 · 본문 ${body} → <b>${px(body)}px</b>${sm}`;
+      }
       $('pvMoLbl').innerHTML = `350 × ${mh} → 저장 <b>1050 × ${mh * 3}</b>`;
     };
     sz(); document.fonts && document.fonts.ready.then(sz);
@@ -2745,6 +2756,8 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(renderPreview, 120); });
     bindIcons(); bindInlineEdit($('pvPc')); bindInlineEdit($('pvMo'));
     $('mail').addEventListener('change', refresh);
+    document.querySelectorAll('.vw-sw [data-vw]').forEach(b => b.addEventListener('click', () => {
+      $('mail').checked = b.dataset.vw === 'mail'; document.querySelectorAll('.vw-sw [data-vw]').forEach(x => x.classList.toggle('on', x === b)); refresh(); }));
 
     $('btnExport').addEventListener('click', () => exportItems([view()]));
     $('btnGif').addEventListener('click', () => exportGif(view()));
