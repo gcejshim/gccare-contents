@@ -134,7 +134,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .card h2 small{font-weight:400;color:var(--neutral-500);font-size:12px}
 .gen{display:flex;flex-direction:column;gap:12px}
 /* 2026-10-25 이미지 카드: 단계마다 번호 · 구분선, 미리보기 카드는 위에 고정(막대를 움직이며 결과 보기) */
-.gen > .sec + .sec, .gen > .sec-h{padding-top:16px;border-top:1px solid var(--coolNeutral-100);margin-top:4px}
+.gen > .sec + .sec, .gen > .sec-h{margin-top:14px}   /* 단계 사이 회색 선 없앰 — 여백으로만 나눔 (2026-10-28 사용자: 지저분해) */
 .gen .sec-h{font-size:14px;font-weight:700;margin:4px 0 0;display:flex;align-items:center;gap:6px}
 .gen .sec-h small{font-weight:400;color:var(--neutral-500);font-size:12px}
 .gen .swatches{grid-template-columns:repeat(7,minmax(0,80px))}
