@@ -40,8 +40,10 @@ a{color:var(--careBlue-500)}
 .brand span{flex:none;width:1px;height:14px;background:rgba(255,255,255,.3)}
 .brand h1{font-size:15px;font-weight:600;margin:0;white-space:nowrap}
 .issue{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:4px 6px}
-.issue button{width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:var(--neutral-0);cursor:pointer;font-size:14px}
+.issue button{width:28px;height:28px;border:0;border-radius:6px;background:transparent;color:var(--neutral-0);cursor:pointer;font-size:14px;display:inline-flex;align-items:center;justify-content:center}
 .issue button:hover{background:rgba(255,255,255,.14)}
+svg.tri{width:1em;height:1em;flex:none;vertical-align:-0.125em}   /* 도구 화살표: 꼭짓점을 살짝 둥글게 (2026-10-28 사용자) */
+svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
 .issue b{font-size:15px;min-width:44px;text-align:center;white-space:nowrap}
 .issue small{font-size:12px;opacity:.75;padding-right:4px}
 .dday{font-size:12px;font-weight:700;padding:3px 9px;border-radius:10px;background:var(--careGreen-500);color:var(--neutral-0)}
@@ -255,7 +257,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <header class="topbar">
   <div class="brand"><img id="topLogo" alt="GC Care"><span></span><h1>AX Studio · Newsletter</h1></div>
   <div class="issue" title="호수를 바꾸면 썸네일 · 콘텐츠 이미지 도구에 같이 적용돼요">
-    <button id="issuePrev" aria-label="이전 호">◀</button><b id="issueNo"></b><small id="issueYm"></small><button id="issueNext" aria-label="다음 호">▶</button>
+    <button id="issuePrev" aria-label="이전 호"><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M8 2.5v7L3.5 6z"/></svg></button><b id="issueNo"></b><small id="issueYm"></small><button id="issueNext" aria-label="다음 호"><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M4 2.5v7L8.5 6z"/></svg></button>
   </div>
   <span class="dday" id="dday" hidden></span>
   <span class="sp"></span>

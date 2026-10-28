@@ -991,7 +991,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tselbox:hover,.tselbox.open{border-color:var(--careBlue-500)} .tselbox.open{box-shadow:0 0 0 3px var(--careBlue-100)}
 .tselbox .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .tselbox .nm b{color:var(--careBlue-900);font-weight:700} .tselbox .nm small{margin-left:6px;font-size:12px;color:var(--coolNeutral-500)}
 .tselbox .pending{color:var(--careBlue-600);font-weight:700}
-.tselbox i{flex:none;font-style:normal;color:var(--careBlue-500);font-size:12px;transition:transform .15s} .tselbox.open i{transform:rotate(180deg)}
+.tselbox i{flex:none;display:inline-flex;font-style:normal;color:var(--careBlue-500);font-size:12px;transition:transform .15s} .tselbox.open i{transform:rotate(180deg)}
 .tselbox.fresh{border-color:var(--careBlue-500);background:var(--careBlue-50)}
 .tdrop{margin-top:8px;background:var(--neutral-0);border:1px solid var(--coolNeutral-200);border-radius:12px;padding:8px}   /* 선택칸 아래로 펼쳐짐 (따로 스크롤 없이 패널과 같이 내려감) */
 .tdrop[hidden]{display:none}
@@ -1014,7 +1014,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 /* 아이콘 고르기 */
 .icbtn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 10px;border:1px solid var(--coolNeutral-200);border-radius:8px;background:var(--neutral-0);cursor:pointer;font-size:13px;white-space:nowrap}
 .icbtn:hover{border-color:var(--careBlue-500)}
-.icbtn i{font-style:normal;color:var(--coolNeutral-500);font-size:11px}
+.icbtn i{font-style:normal;color:var(--coolNeutral-500);font-size:11px;display:inline-flex}
 .icbtn .emo,.icpop .emo{font-size:18px;line-height:1}
 .icrows{display:flex;flex-direction:column;gap:6px}
 .icrow{display:flex;align-items:center;gap:8px}.icrow > span{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -1116,6 +1116,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 @media (prefers-reduced-motion:reduce){.play-btn.on svg{animation:none}}
 .fold{width:24px;height:24px;border:0;border-radius:6px;background:var(--coolNeutral-50);cursor:pointer;font-size:12px;color:var(--coolNeutral-600);transition:transform .15s}
 .pvp.closed .fold{transform:rotate(-90deg)}
+svg.tri{width:1em;height:1em;flex:none;vertical-align:-0.125em}   /* 도구 화살표: 꼭짓점을 살짝 둥글게 (2026-10-28 사용자) */
+svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+.fold{display:inline-flex;align-items:center;justify-content:center;padding:0}
 .pvp.closed .pvb{display:none}
 .pvb .hint{margin:8px 0 0}
 .lint{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
@@ -1670,7 +1673,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       <div class="tsel" id="typeSel" hidden style="margin-bottom:8px"></div>
       <!-- 템플릿: 선택칸을 누르면 아래로 목록이 열림 (마우스 올림 미리보기는 사용자 요청으로 없앰, 2026-10-07) -->
       <div class="tpick">
-        <button type="button" class="tselbox" id="btnPick"><span class="nm" id="typeNow"></span><i>▼</i></button>
+        <button type="button" class="tselbox" id="btnPick"><span class="nm" id="typeNow"></span><i><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></i></button>
         <div class="tdrop" id="tPop" hidden><div class="tip">눌러서 고르기 · 위 칸을 누르면 접혀요</div><div class="items" id="items"></div></div>
       </div>
       </div>
@@ -1705,11 +1708,11 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
 
       <div class="pv">
         <div class="pvp" id="pvPcBox">
-          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기">▾</button><span class="vw-sw" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><button type="button" data-vw="" class="on">PC</button><button type="button" data-vw="mail">이메일</button><input type="checkbox" id="mail" hidden></span><span class="lbl" id="pvPcLbl"></span><span class="sp"></span><button class="play-btn" id="btnPlay" hidden title="GIF 애니메이션으로 저장했을 때의 움직임을 미리 봐요"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M10 8l6 4-6 4z"/></svg>애니메이션</button></div>
+          <div class="pvh"><button class="fold" data-fold="pc" title="접기 · 펼치기"><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></button><span class="vw-sw" title="메일(Outlook)에서는 PC 이미지가 630px로 줄어 보여요"><button type="button" data-vw="" class="on">PC</button><button type="button" data-vw="mail">이메일</button><input type="checkbox" id="mail" hidden></span><span class="lbl" id="pvPcLbl"></span><span class="sp"></span><button class="play-btn" id="btnPlay" hidden title="GIF 애니메이션으로 저장했을 때의 움직임을 미리 봐요"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11"/><path d="M10 8l6 4-6 4z"/></svg>애니메이션</button></div>
           <div class="pvb"><div class="pv-frame" id="pvPc"></div><p class="hint mail-hint" id="mailHint" hidden></p></div>
         </div>
         <div class="pvp" id="pvMoBox">
-          <div class="pvh"><button class="fold" data-fold="mo" title="접기 · 펼치기">▾</button><b>모바일</b><span class="lbl" id="pvMoLbl"></span></div>
+          <div class="pvh"><button class="fold" data-fold="mo" title="접기 · 펼치기"><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></button><b>모바일</b><span class="lbl" id="pvMoLbl"></span></div>
           <div class="pvb"><div class="pv-frame" id="pvMo"></div></div>
         </div>
       </div>
@@ -2918,7 +2921,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
   function icBtn(path, v, none){
     const st = cur() && cur().data.iconStyle, r = ICON_BY[v];
     const pic = r ? (st === 'emoji' ? `<span class="emo">${r[3]}</span>` : icon(v, css('--careBlue-700'), 18)) : '';
-    return `<button type="button" class="icbtn" data-icpick="${path}"${none ? ' data-none="1"' : ''}>${pic}<span>${r ? r[1] : '없음'}</span><i>▾</i></button>`;
+    return `<button type="button" class="icbtn" data-icpick="${path}"${none ? ' data-none="1"' : ''}>${pic}<span>${r ? r[1] : '없음'}</span><i><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></i></button>`;
   }
   function control(f, path, v){
     const p = `data-path="${path}"`, ph = f.ph ? ` placeholder="${esc(f.ph)}"` : '', cls = f.w ? ` class="w-${f.w}"` : '';
@@ -2982,7 +2985,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       if (f.t === 'toggle') return `<div class="field">${control(f, f.k, v)}</div>`;
       if (f.t === 'list'){
         const rows = (v || []).map((row, i) => `<div class="lrow"><div class="lf">${f.sub.map(sf => control(sf, `${f.k}.${i}.${sf.k}`, row[sf.k])).join('')}</div>
-          <div class="la"><button class="btn xs ghost" data-act="up" data-list="${f.k}" data-i="${i}" title="위로">▲</button><button class="btn xs ghost" data-act="down" data-list="${f.k}" data-i="${i}" title="아래로">▼</button><button class="btn xs ghost" data-act="del" data-list="${f.k}" data-i="${i}" title="삭제">✕</button></div></div>`).join('');
+          <div class="la"><button class="btn xs ghost" data-act="up" data-list="${f.k}" data-i="${i}" title="위로"><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 8h7L6 3.5z"/></svg></button><button class="btn xs ghost" data-act="down" data-list="${f.k}" data-i="${i}" title="아래로"><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></button><button class="btn xs ghost" data-act="del" data-list="${f.k}" data-i="${i}" title="삭제">✕</button></div></div>`).join('');
         return `<div class="field"><label>${esc(f.label)}</label><div class="lrows">${rows}</div><button class="btn sm" data-act="add" data-list="${f.k}">+ 항목 추가</button></div>`;
       }
       return `<div class="field"><label>${esc(f.label)}</label>${control(f, f.k, v)}</div>`;

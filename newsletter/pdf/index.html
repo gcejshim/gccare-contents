@@ -163,6 +163,8 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 .pages{display:flex;flex-direction:column;align-items:center;gap:28px;zoom:var(--z,1)}
 /* 예시 보기 메뉴 */
 .exwrap{position:relative}
+svg.tri{width:1em;height:1em;flex:none;vertical-align:-0.125em}   /* 도구 화살표: 꼭짓점을 살짝 둥글게 (2026-10-28 사용자) */
+svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
 .exmenu{position:absolute;top:calc(100% + 6px);left:0;z-index:30;width:320px;padding:6px;background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:10px;box-shadow:0 8px 24px rgba(3,21,82,.14)}
 .exmenu button{display:flex;align-items:center;gap:10px;width:100%;padding:6px;border:0;border-radius:8px;background:none;cursor:pointer;text-align:left;color:var(--neutral-900)}
 .exmenu button:hover{background:var(--careBlue-50)}
@@ -407,7 +409,7 @@ details.pr pre{white-space:pre-wrap;background:var(--coolNeutral-50);border-radi
 <header class="topbar">
   <h1>리드마그넷 만들기</h1>
   <button class="btn sm" id="btnNew" title="빈 문서로 새로 시작해요 (마무리 구독 쪽은 그대로 들어가요)">새로 만들기</button>
-  <span class="exwrap"><button class="btn sm" id="btnExample" title="잘 만들어진 예시 문서를 골라 불러와요">예시 보기 ▾</button><div class="exmenu" id="exMenu" hidden></div></span>
+  <span class="exwrap"><button class="btn sm" id="btnExample" title="잘 만들어진 예시 문서를 골라 불러와요">예시 보기 <svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></button><div class="exmenu" id="exMenu" hidden></div></span>
   <span class="sp"></span>
   <button class="btn" id="btnLoad" title="저장해 둔 PDF 작업 파일(.json)을 열어요">작업 파일 열기</button>
   <button class="btn" id="btnSave" title="지금 PDF 작업을 파일로 저장해요">작업 파일 저장</button>
