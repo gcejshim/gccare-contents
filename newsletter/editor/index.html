@@ -2530,23 +2530,52 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
     return res.length / 2;   // 이미지 장수 (PC · 모바일 한 쌍 = 1장)
   }
 
-  // ── 움직이는 GIF (2026-10-26 사용자: 콘텐츠 이미지를 홈페이지 · 메일에 움직이게) — 지금은 가로 막대만, 되면 다른 막대 · 도넛 · 숫자로 넓힘
-  // 막대가 0에서 자라고(위부터 조금씩 늦게 · 끝에서 천천히) 숫자도 함께 올라감 → 완성에서 4초 쉬고 3번, 마지막엔 완성에서 멈춤
-  // 메일은 열 때 재생돼 스크롤하면 이미 끝나 있으므로 반복 · 첫 장면은 완성(Outlook은 첫 장면만 보여 줌)
-  const ANIM = {hbar: 1};
+  // ── 움직이는 GIF (2026-10-26 사용자: 콘텐츠 이미지를 홈페이지 · 메일에 움직이게) — 2026-10-28 그래프 전부로 넓힘
+  // 막대는 0에서 자라고(앞 항목부터 조금씩 늦게 · 끝에서 천천히) 숫자도 함께 올라감, 누적은 왼쪽부터 채움, 꺾은선은 첫 점부터 이어 그림, 도넛은 12시부터 시계 방향
+  // → 완성에서 4초 쉬고 3번, 마지막엔 완성에서 멈춤. 메일은 열 때 재생돼 스크롤하면 이미 끝나 있으므로 반복 · 첫 장면은 완성(Outlook은 첫 장면만 보여 줌)
+  const ANIM = {hbar: 1, rank: 1, vbar: 1, stack: 1, line: 1, donut: 1, pair: 1};
   const canAnim = it => !!(it && !it.fresh && ANIM[it.type]);
+  const ease = d => 1 - Math.pow(1 - d, 3), clamp = x => Math.min(1, Math.max(0, x));
+  const stg = (t, k, K) => clamp(t * 1.25 - k * Math.min(0.06, 0.25 / Math.max(1, K - 1)));   // 항목이 많아도 t=1에 모두 끝나게
+  const fadeEnd = t => clamp((t - 0.8) / 0.2);
+  const cnt = el => { const txt = el.textContent, v = parseFloat(txt.replace(/[^\d.-]/g, '')) || 0;
+    return {el, html: el.innerHTML, v, unit: txt.replace(/[\d.,-]/g, ''), dp: Number.isInteger(v) ? 0 : 1}; };
+  const cntSet = (o, e, done) => { if (done){ if (o.el.innerHTML !== o.html) o.el.innerHTML = o.html; return; }
+    const n = o.v * e; o.el.textContent = (Math.abs(o.v) >= 1000 ? Math.round(n).toLocaleString('ko-KR') : n.toFixed(o.dp)) + o.unit; };
+  // 그래프마다 t(0~1)를 받아 그 순간 모양으로 바꾸는 함수 목록. 그래프 2개 나란히는 안쪽 그래프를 각각 찾음
   function animPrep(root){
-    return [...root.querySelectorAll('.hb-tr')].map(tr => { const i = tr.querySelector('i'), b = tr.querySelector('b'), txt = b.textContent, v = parseFloat(txt.replace(/[^\d.-]/g, '')) || 0;
-      return {i, b, txt, v, w: parseFloat(i.style.width) || 0, unit: txt.replace(/[\d.,-]/g, ''), dp: Number.isInteger(v) ? 0 : 1}; });
+    const fs = [], all = (el, s) => [...el.querySelectorAll(s)];
+    all(root, '.hb-ch').forEach(ch => { const rows = all(ch, '.hb-tr');
+      rows.forEach((tr, k) => { const i = tr.querySelector('i'), b = tr.querySelector('b'), w = parseFloat(i.style.width) || 0, n = cnt(b);
+        fs.push(t => { const d = stg(t, k, rows.length), e = ease(d); i.style.width = w * e + '%'; b.style.left = w * e + '%'; b.style.opacity = Math.min(1, d * 3); cntSet(n, e, d >= 1); }); }); });
+    all(root, '.rk-rows').length && (() => { const rows = all(root, '.rk-r');
+      rows.forEach((r, k) => { const i = r.querySelector('.rk-bar i'), w = parseFloat(i.style.width) || 0, n = cnt(r.querySelector('.rk-v'));
+        fs.push(t => { const d = stg(t, k, rows.length), e = ease(d); i.style.width = w * e + '%'; cntSet(n, e, d >= 1); }); }); })();
+    all(root, '.vb-gs').forEach(gs => { const gr = all(gs, '.vb-g');
+      gr.forEach((g, k) => { const bars = all(g, ':scope > i').map(i => ({i, h: parseFloat(i.style.height) || 0, n: i.querySelector('b') && cnt(i.querySelector('b'))})), bd = g.querySelector('.vb-d');
+        fs.push(t => { const d = stg(t, k, gr.length), e = ease(d);
+          bars.forEach(o => { o.i.style.height = o.h * e + '%'; if (o.n) cntSet(o.n, e, d >= 1); }); if (bd) bd.style.opacity = fadeEnd(t); }); }); });
+    all(root, '.st-tr').forEach((tr, k, rows) => { const segs = all(tr, ':scope > i').map(i => ({i, w: parseFloat(i.style.width) || 0, html: i.innerHTML}));
+      fs.push(t => { const d = stg(t, k, rows.length), e = ease(d);
+        segs.forEach(o => { o.i.style.width = o.w * e + '%'; const h = d >= 1 ? o.html : ''; if (o.i.innerHTML !== h) o.i.innerHTML = h; }); }); });
+    all(root, '.ch-plot').filter(p => p.querySelector('.ln-pt')).forEach(p => {   // 꺾은선: 왼쪽 첫 점부터 오른쪽으로 이어 그림, 점 · 숫자는 선이 닿을 때
+      const segs = all(p, '.ln-seg').map(i => { const x1 = parseFloat(i.style.left), len = parseFloat(i.style.width), a = parseFloat((i.style.transform.match(/-?[\d.]+/) || [0])[0]) * Math.PI / 180;
+        return {i, x1, len, x2: x1 + len * Math.cos(a)}; });
+      const dots = all(p, '.ln-pt, .ln-v').map(el => ({el, x: parseFloat(el.style.left)}));
+      const xs = dots.map(o => o.x), x0 = Math.min(...xs), xN = Math.max(...xs);
+      fs.push(t => { const q = x0 + (xN - x0) * ease(clamp(t * 1.1));
+        segs.forEach(o => { o.i.style.width = o.len * clamp((q - o.x1) / ((o.x2 - o.x1) || 1)) + 'px'; });
+        dots.forEach(o => { o.el.style.opacity = q >= o.x - 0.5 ? 1 : 0; }); }); });
+    all(root, '.dn').forEach(dn => {   // 도넛 · 파이: 12시부터 시계 방향으로 채우고, 가운데 글자 · 조각 이름은 끝에
+      const sl = all(dn, '.dn-ring > i').map(i => ({i, a: parseFloat((i.style.transform.match(/-?[\d.]+/) || [0])[0])})), tx = all(dn, '.dn-t, .pi-l');
+      fs.push(t => { const A = 360 * ease(clamp(t * 1.1)); sl.forEach(o => { o.i.style.visibility = o.a <= A ? '' : 'hidden'; }); tx.forEach(el => { el.style.opacity = fadeEnd(t); }); }); });
+    return fs;
   }
-  function animSet(bars, t){
-    bars.forEach((o, k) => { const d = Math.min(1, Math.max(0, t * 1.25 - k * 0.06)), e = 1 - Math.pow(1 - d, 3), n = o.v * e;
-      o.i.style.width = o.w * e + '%'; o.b.style.left = o.w * e + '%'; o.b.style.opacity = Math.min(1, d * 3);
-      o.b.textContent = d >= 1 ? o.txt : (Math.abs(o.v) >= 1000 ? Math.round(n).toLocaleString('ko-KR') : n.toFixed(o.dp)) + o.unit; });
-  }
-  let playing = 0;
+  function animSet(fs, t){ fs.forEach(f => f(t)); }
+  let playing = 0, lastSets = null;
   function playPreview(){
-    const sets = [$('pvPc'), $('pvMo')].map(animPrep), id = ++playing, t0 = performance.now(), D = 1400;
+    if (lastSets) lastSets.forEach(s => animSet(s, 1));   // 재생 중에 다시 누르면 완성 모양에서 다시 읽음
+    const sets = lastSets = [$('pvPc'), $('pvMo')].map(animPrep), id = ++playing, t0 = performance.now(), D = 1400;
     const pb = $('btnPlay'); pb.classList.remove('on'); void pb.offsetWidth; pb.classList.add('on');
     const step = now => { if (id !== playing) return; const t = Math.min(1, (now - t0) / D); sets.forEach(s => animSet(s, t)); if (t < 1) requestAnimationFrame(step); };
     requestAnimationFrame(step);
