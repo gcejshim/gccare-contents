@@ -130,6 +130,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .tselbox:hover,.tselbox.open{border-color:var(--careBlue-500)} .tselbox.open{box-shadow:0 0 0 3px var(--careBlue-100)}
 .tselbox .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .tselbox .nm b{color:var(--careBlue-900);font-weight:700} .tselbox .nm small{margin-left:6px;font-size:12px;color:var(--coolNeutral-500)}
 .tselbox .pending{color:var(--careBlue-600);font-weight:700}
+h3:has(#formTitle){scroll-margin-top:16px}
 .tselbox i{flex:none;display:inline-flex;font-style:normal;color:var(--careBlue-500);font-size:12px;transition:transform .15s} .tselbox.open i{transform:rotate(180deg)}
 .tselbox.fresh{border-color:var(--careBlue-500);background:var(--careBlue-50)}
 .tdrop{margin-top:8px;background:var(--neutral-0);border:1px solid var(--coolNeutral-200);border-radius:12px;padding:8px}   /* 선택칸 아래로 펼쳐짐 (따로 스크롤 없이 패널과 같이 내려감) */
@@ -810,7 +811,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       <!-- 템플릿: 선택칸을 누르면 아래로 목록이 열림 (마우스 올림 미리보기는 사용자 요청으로 없앰, 2026-10-07) -->
       <div class="tpick">
         <button type="button" class="tselbox" id="btnPick"><span class="nm" id="typeNow"></span><i><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></i></button>
-        <div class="tdrop" id="tPop" hidden><div class="tip">눌러서 고르기 · 위 칸을 누르면 접혀요</div><div class="items" id="items"></div></div>
+        <div class="tdrop" id="tPop" hidden><div class="tip">고르면 자동으로 접혀요 · 다시 고를 때는 위 칸을 눌러요</div><div class="items" id="items"></div></div>
       </div>
       </div>
     </div>
@@ -2700,7 +2701,11 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     $('lint').addEventListener('click', e => { const b = e.target.closest('[data-lintact]'); if (!b) return;
       if (b.dataset.lintact === 'trimCols'){ const d = view().data, n = BLOCKS.table.parse(d).n; d.rows = String(d.rows || '').split('\n').map(l => l.split('|').slice(0, n).join('|').replace(/\s+$/, '')).join('\n'); buildForm(); refresh(); toast('내용에서 넘친 칸을 지웠어요.'); }
     });
-    $('items').addEventListener('click', e => { const el = e.target.closest('[data-type]'); if (el){ hoverType(null); pickType(el.dataset.type); markPick(); } });   // 고른 뒤에도 목록은 그대로 (접고 펴기는 사용자가)
+    // 고르면 목록을 접고 ③ 상세 편집이 화면에 들어오게 (2026-10-28 사용자: 자주 쓰는 메뉴라 접혀야 아래 편집이 편함 · 예전엔 고른 뒤에도 펼친 채로)
+    const pickDone = () => { closePick(); try { localStorage.setItem('gc-nl-tpick-open', '0'); } catch(_){}
+      requestAnimationFrame(() => { const h = $('formTitle').closest('h3'); if (h.getBoundingClientRect().top > innerHeight - 220) h.scrollIntoView({behavior: 'smooth', block: 'start'}); }); };
+    $('items').addEventListener('click', e => { const el = e.target.closest('[data-type]'); if (el){ hoverType(null); pickType(el.dataset.type); markPick(); pickDone(); } });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('tPop').hidden && !e.target.closest('input,textarea,select,[contenteditable="true"]')) pickDone(); });
     $('btnPick').addEventListener('click', () => { if ($('tPop').hidden) openPick(); else closePick(); try { localStorage.setItem('gc-nl-tpick-open', $('tPop').hidden ? '0' : '1'); } catch(_){} });
     setTimeout(() => { try { if (localStorage.getItem('gc-nl-tpick-open') === '1') openPick(); } catch(_){} }, 0);   // 지난번에 펼쳐 두었으면 펼친 채로
     // ② 만드는 방법: 템플릿(기본) / Claude 스킬 — 고른 쪽만 보임, 마지막 선택 기억
