@@ -162,7 +162,7 @@ h3:has(#formTitle){scroll-margin-top:16px}
 /* 아이콘 고르기 */
 .icbtn{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 10px;border:1px solid var(--coolNeutral-200);border-radius:8px;background:var(--neutral-0);cursor:pointer;font-size:13px;white-space:nowrap}
 .icbtn:hover{border-color:var(--careBlue-500)}
-.icbtn i{font-style:normal;color:var(--coolNeutral-500);font-size:11px;display:inline-flex}
+.icbtn i{font-style:normal;color:var(--coolNeutral-500);font-size:14px;display:inline-flex}   /* 고르기 화살표 11 → 14 (2026-10-28 사용자: 작음) */
 .icbtn .emo,.icpop .emo{font-size:18px;line-height:1}
 .icrows{display:flex;flex-direction:column;gap:6px}
 .icrow{display:flex;align-items:center;gap:8px}.icrow > span{flex:1;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -2115,7 +2115,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   const iconOpts = (v, none) => (none ? `<option value=""${!v ? ' selected' : ''}>(없음)</option>` : '') + ICONS.map(([k, l]) => `<option value="${k}"${k === v ? ' selected' : ''}>${l}</option>`).join('');
 
   const tokName = t => t.replace(/^--/, '').replace(/-(\d+)$/, ' $1');
-  function cpBtn(i, t){ return `<button type="button" class="icbtn" data-colpick="${i}"><span class="sw${t ? '' : ' auto'}"${t ? ` style="background:var(${t})"` : ''}></span><span>${t ? tokName(t) : '자동'}</span><i>▾</i></button>`; }
+  function cpBtn(i, t){ return `<button type="button" class="icbtn" data-colpick="${i}"><span class="sw${t ? '' : ' auto'}"${t ? ` style="background:var(${t})"` : ''}></span><span>${t ? tokName(t) : '자동'}</span><i><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></i></button>`; }
   function icBtn(path, v, none){
     const st = cur() && cur().data.iconStyle, r = ICON_BY[v];
     const pic = r ? (st === 'emoji' ? `<span class="emo">${r[3]}</span>` : icon(v, css('--careBlue-700'), 18)) : '';
