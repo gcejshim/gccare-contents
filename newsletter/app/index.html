@@ -71,9 +71,20 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 /* ── 본문 ── */
 .main{position:fixed;top:var(--top);left:var(--side);right:0;bottom:0;overflow:auto}
 /* Claude 스킬 새 버전 알림 (2026-10-28) */
-.skill-nt{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 28px;background:var(--careBlue-50);border-bottom:1px solid var(--careBlue-100);font-size:13px;color:var(--careBlue-900)}
+.skill-nt{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:12px;padding:12px 28px;background:var(--careBlue-600);font-size:14px;color:var(--neutral-0);box-shadow:0 2px 10px rgba(0,42,140,.25)}
+.skill-nt b{font-size:15px} .skill-nt .ic{flex:none;width:28px;height:28px;border-radius:50%;background:var(--neutral-0);color:var(--careBlue-600);display:inline-flex;align-items:center;justify-content:center;font-weight:800}
+.skill-nt .btn{height:34px} .skill-nt .btn.dl{background:var(--neutral-0);border-color:var(--neutral-0);color:var(--careBlue-700);font-weight:700;padding:0 16px} .skill-nt .btn.ok{background:transparent;border-color:rgba(255,255,255,.6);color:var(--neutral-0)}
 .skill-nt[hidden]{display:none}
-.skill-nt b,.skill-nt button{flex:none} .skill-nt .nt{flex:1;min-width:0;color:var(--coolNeutral-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.skill-nt b,.skill-nt button{flex:none} .skill-nt .nt{flex:1;min-width:0;color:rgba(255,255,255,.85);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sk-pop{position:fixed;inset:0;z-index:60;background:rgba(10,20,50,.45);display:flex;align-items:center;justify-content:center;padding:20px}
+.sk-pop[hidden]{display:none}
+.sk-pop .in{width:min(480px,100%);background:var(--neutral-0);border-radius:16px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.25);border-top:6px solid var(--careBlue-500)}
+.sk-pop .hd{display:flex;gap:12px;align-items:center;margin-bottom:14px} .sk-pop .hd b{display:block;font-size:18px;color:var(--careBlue-900)} .sk-pop .hd small{font-size:13px;color:var(--coolNeutral-500)}
+.sk-pop .ic{flex:none;width:36px;height:36px;border-radius:50%;background:var(--careBlue-500);color:var(--neutral-0);display:inline-flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+.sk-pop .nt{margin:0 0 14px;padding:12px 14px 12px 30px;background:var(--coolNeutral-50);border-radius:10px;font-size:13px;line-height:1.7;color:var(--neutral-900)}
+.sk-pop .st{display:block;margin:0 0 18px;padding:12px 14px 12px 32px;border:1px solid var(--careBlue-100);border-radius:10px;font-size:14px;line-height:1.9;list-style:decimal}
+.sk-pop .st li{display:list-item;width:auto}
+.sk-pop .ft{display:flex;gap:8px;justify-content:flex-end} .sk-pop .ft .btn.primary{height:40px;padding:0 18px;font-size:14px}
 .menu .dot{width:7px;height:7px;border-radius:50%;background:var(--careOrange-500);margin-left:auto}
 .view{display:none;min-height:100%}
 .view.on{display:block}
@@ -83,6 +94,7 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .page h2{font-size:22px;margin:0 0 6px;color:var(--careBlue-900)}
 .page > p.lead{margin:0 0 22px;color:var(--coolNeutral-600);font-size:14px;line-height:1.6}
 .card{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:14px;padding:20px 22px;margin-bottom:16px}
+.card.skill-card{border:2px solid var(--careBlue-500);background:var(--careBlue-50)}   /* 스킬 등록은 꼭 해야 해서 강조 (2026-10-28 사용자) */
 .card h3{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--careBlue-900)}
 .card h3 small{font-weight:400;font-size:12px;color:var(--neutral-500)}
 .card h3 .sp{flex:1}
@@ -287,7 +299,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 </nav>
 
 <main class="main">
-  <div class="skill-nt" id="skillNt" hidden><b>Claude 스킬이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn primary sm" data-skill-dl>스킬 내려받기</button><button class="btn sm" id="skillNtOk" title="claude.ai에 새 스킬을 올렸으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">다시 올렸어요</button></div>
+  <div class="skill-nt" id="skillNt" hidden><span class="ic">!</span><b>Claude 스킬이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn dl" data-skill-dl>스킬 내려받기</button><button class="btn ok" id="skillNtOk" title="claude.ai에 새 스킬을 올렸으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">다시 올렸어요</button></div>
   <!-- 이번 호 -->
   <section class="view" id="v-home"><div class="page">
     <div class="hero">
@@ -390,21 +402,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <section class="view" id="v-guide"><div class="page">
     <h2>이용 가이드</h2>
     <p class="lead">처음부터 저장까지 이 순서대로 하면 돼요. (2026-10-26 사용자: 가이드를 이용 가이드로)</p>
-    <div class="card"><h3>0. 처음 한 번만 · Claude 스킬 등록</h3>
+    <div class="card skill-card"><h3>1. 처음 한 번만 · Claude 스킬 등록</h3>
       <ol class="todo">
         <li><button class="btn primary sm" data-skill-dl>스킬 내려받기</button> <span class="hint" id="skillVer"></span> 로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
         <li><b>claude.ai</b> 왼쪽 아래 내 이름 → <b>설정</b> → <b>기능</b> → <b>스킬</b>에서 <b>[스킬 업로드]</b>로 zip을 올려요.</li>
         <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 스킬이 바뀌면 화면 위에 알림이 떠요. 그때 다시 내려받아 같은 방법으로 올려요.</li>
       </ol>
     </div>
-    <div class="card"><h3>1. 이번 호 준비</h3>
+    <div class="card"><h3>2. 이번 호 준비</h3>
       <ol class="todo">
         <li>왼쪽 <b>이번 호</b>에서 호수와 콘텐츠 제목 · 마감일 · 메모를 적어요.</li>
         <li>claude.ai 새 채팅에 <b>기획안</b>(PDF · PPT · 엑셀 · 글)을 넣고 "15호 콘텐츠 이미지 만들어 줘"처럼 요청해요.</li>
         <li>결과 창 위 <b>[복사]</b> → 이 화면 아무 곳에서 <b>Ctrl+V</b>. 콘텐츠 이미지 · 리드마그넷 중 맞는 메뉴로 알아서 들어가요.</li>
       </ol>
     </div>
-    <div class="card"><h3>2. 뉴스레터 썸네일 <small>콘텐츠마다 1장</small></h3>
+    <div class="card"><h3>3. 뉴스레터 썸네일 <small>콘텐츠마다 1장</small></h3>
       <ol class="todo">
         <li>콘텐츠 번호(01 · 02 · 03)를 고르고 <b>타이틀</b>을 확인해요. 강조할 단어는 [대괄호].</li>
         <li>오른쪽 <b>AI 이미지 생성하기</b>에서 위부터 차례로: <b>배경 색상</b> → <b>그림체</b>(참고 이미지) → <b>무엇을 그릴까요?</b> → <b>[이미지 만들기]</b>. 무엇을 적을지는 칸 아래 <b>적는 요령</b>을 펼쳐 봐요.</li>
@@ -412,20 +424,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <li>바꿀 곳이 있으면 <b>만들어진 이미지 수정하기</b>에 한 줄로 적고 [수정하기].</li>
       </ol>
     </div>
-    <div class="card"><h3>3. 콘텐츠 이미지 <small>PC · 모바일</small></h3>
+    <div class="card"><h3>4. 콘텐츠 이미지 <small>PC · 모바일</small></h3>
       <ol class="todo">
         <li>붙여 넣은 블록의 <b>글자를 기획안과 비교</b>해요.</li>
         <li>PC · 모바일 미리보기를 번갈아 보며 줄바꿈 · 넘침을 확인해요.</li>
         <li>어떤 모양이 맞을지 모르겠으면 <b>에셋 › 샘플 모아보기</b>에서 지난 호를 참고해요.</li>
       </ol>
     </div>
-    <div class="card"><h3>4. 리드마그넷 <small>PDF 자료가 있는 호만</small></h3>
+    <div class="card"><h3>5. 리드마그넷 <small>PDF 자료가 있는 호만</small></h3>
       <ol class="todo">
         <li>두 가지 방법 중 편한 쪽으로 만들어요. ① 리드마그넷 메뉴 ⓪ 기획서 칸에 기획서를 붙여 넣거나 파일(PPT · PDF · Word)을 넣으면 <b>자동으로 만들어져요</b>. ② 또는 기획서를 <b>Claude 스킬</b>에 넣고 받은 결과를 <b>Ctrl+V</b>로 붙여 넣어요.</li>
         <li>쪽마다 확인하고 <b>[PDF 저장]</b>으로 받아요.</li>
       </ol>
     </div>
-    <div class="card"><h3>5. 저장 · 보관</h3>
+    <div class="card"><h3>6. 저장 · 보관</h3>
       <ol class="todo">
         <li>위 <b>[전체 이미지 저장]</b> → 썸네일 · PC · 모바일 이미지를 한 번에 PNG로 받아요. (처음 한 번 폴더 선택)</li>
         <li><b>[전체 파일 저장]</b> → 작업 파일 하나로 보관해요. 다른 PC에서는 <b>[파일 열기]</b>로 이어서 해요.</li>
@@ -466,6 +478,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 <div class="lb" id="lb" hidden><div class="lb-box"><div class="im"><img id="lbImg" alt=""></div>
   <div class="bar"><b id="lbName"></b><span id="lbMeta" class="hint"></span><span class="sp"></span><span class="hint" id="lbNote">예시 내용으로 추가돼요 → 기획안대로 고치기</span><button class="btn sm primary" id="lbMake">새로 만들기</button><button class="btn sm" id="lbClose">닫기</button></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="sk-pop" id="skillPop" hidden><div class="in">
+  <div class="hd"><span class="ic">!</span><div><b>Claude 스킬이 새로 바뀌었습니다</b><small id="skillPopDate"></small></div></div>
+  <ul class="nt" id="skillPopNotes"></ul>
+  <ol class="st"><li><b>[스킬 내려받기]</b>로 zip 받기</li><li><b>claude.ai</b> → 설정 → 기능 → 스킬 → <b>[스킬 업로드]</b></li><li>올렸으면 <b>[다시 올렸어요]</b></li></ol>
+  <div class="ft"><button class="btn" id="skillPopLater">나중에</button><button class="btn" id="skillPopOk">다시 올렸어요</button><button class="btn primary" data-skill-dl>스킬 내려받기</button></div>
+</div></div>
 <button class="rq-fab" id="rqFab" title="의견 남기기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></button>
 <div class="rq-box" id="rqBox" hidden>
   <h4>의견 남기기</h4>
@@ -501,6 +519,13 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     const on = SK.announce && seen !== SK.id, g = document.querySelector('.menu[data-view="guide"]');
     $('skillNt').hidden = !on; $('skillNtDate').textContent = dt ? `(${dt})` : ''; $('skillNtNotes').textContent = (SK.notes || []).length ? '· ' + SK.notes.join(' · ') : ''; $('skillNtNotes').title = (SK.notes || []).join('\n');
     if (g && on && !g.querySelector('.dot')) g.insertAdjacentHTML('beforeend', '<i class="dot"></i>');
+    // 처음 보는 버전이면 가운데 안내 창 한 번 (나중에 → 띠만 남김)
+    let popped = ''; try { popped = localStorage.getItem(SK_SEEN + '-pop') || ''; } catch(_){}
+    const done = () => { try { localStorage.setItem(SK_SEEN, SK.id); } catch(_){} $('skillNt').hidden = true; $('skillPop').hidden = true; const d = g && g.querySelector('.dot'); if (d) d.remove(); };
+    $('skillPopDate').textContent = dt ? `${dt} 버전` : ''; $('skillPopNotes').innerHTML = (SK.notes || []).map(n => `<li>${esc(n)}</li>`).join('');
+    $('skillPopNotes').hidden = !(SK.notes || []).length;
+    if (on && popped !== SK.id){ $('skillPop').hidden = false; try { localStorage.setItem(SK_SEEN + '-pop', SK.id); } catch(_){} }
+    $('skillPopLater').onclick = () => { $('skillPop').hidden = true; }; $('skillPopOk').onclick = done;
     $('skillNtOk').onclick = () => { try { localStorage.setItem(SK_SEEN, SK.id); } catch(_){} $('skillNt').hidden = true; const d = g && g.querySelector('.dot'); if (d) d.remove(); };
   }
   function toast(m, ms){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2600); }
