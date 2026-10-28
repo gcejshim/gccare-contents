@@ -924,6 +924,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .btn.primary:hover{background:var(--careBlue-600);color:var(--neutral-0)}
 .btn.sm{height:30px;padding:0 10px;font-size:13px}
 .btn.xs{height:26px;padding:0 7px;font-size:12px}
+.it-act{display:inline-flex;align-items:center;gap:4px} .it-act .ic{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}   /* 이미지 복제 · 삭제: 오른쪽에 모으고 아이콘 (Lucide copy · trash-2) */
 .btn.ghost{border-color:transparent;background:transparent}
 
 /* ── 레이아웃 ── */
@@ -1649,9 +1650,9 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         <div class="fname" id="fname"></div>
         <div class="hint" style="margin:0">콘텐츠 · 번호를 바꾸면 그 이미지로 이동해요. 없는 번호면 새 이미지가 만들어져요.</div>
         <div class="row">
-          <button class="btn xs" data-it="dup">이 이미지 복제</button>
           <span style="flex:1"></span>
-          <button class="btn xs" data-it="del">이 이미지 삭제</button>
+          <button class="btn xs it-act" data-it="dup" title="이 이미지를 복제해요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>복제</button>
+          <button class="btn xs it-act" data-it="del" title="이 이미지를 삭제해요"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2M10 11v6M14 11v6"/></svg>삭제</button>
         </div>
       </div>
     </div>
