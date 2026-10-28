@@ -292,7 +292,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <hr>
   <button class="menu" data-view="thumb" data-icon="Image">뉴스레터 썸네일</button>
   <button class="menu" data-view="image" data-icon="LayoutTemplate">콘텐츠 이미지</button>
-  <button class="menu" data-view="pdf" data-icon="FileText" title="PDF 자료 (보건관리 자료실 · 실무 가이드)">리드마그넷</button>
+  <button class="menu" data-view="pdf" data-icon="FilePdf" title="PDF 자료 (보건관리 자료실 · 실무 가이드)">리드마그넷</button>
   <hr>
   <button class="menu" data-view="ai" data-icon="Sparkles">AI로 그리기</button>
   <button class="menu" data-view="assets" data-icon="Shapes">에셋</button>
@@ -535,7 +535,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('skillNtOk').onclick = () => { try { localStorage.setItem(SK_SEEN, SK.id); } catch(_){} $('skillNt').hidden = true; const d = g && g.querySelector('.dot'); if (d) d.remove(); };
   }
   function toast(m, ms){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2600); }
-  function svg(name){ const n = window.lucide && lucide.icons[name]; if (!n) return ''; const el = lucide.createElement(n); el.setAttribute('stroke-width', '2'); return el.outerHTML; }
+  // Lucide에 없는 아이콘: 리드마그넷 = PDF 문서 (Lucide file 외곽선 + PDF 글자, 2026-10-28 사용자)
+  const ICON_X = {FilePdf: '<svg class="lucide" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><text x="12" y="17.6" text-anchor="middle" font-size="6.6" font-weight="800" font-family="Pretendard, sans-serif" letter-spacing="-.2" fill="currentColor" stroke="none">PDF</text></svg>'};
+  function svg(name){ const n = window.lucide && lucide.icons[name]; if (!n) return ICON_X[name] || ''; const el = lucide.createElement(n); el.setAttribute('stroke-width', '2'); return el.outerHTML; }
   function download(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
   // JSON 저장: 처음 한 번 위치를 고르면 그다음부터 같은 파일에 덮어씀 (새로 고침 전까지). 이 기능이 없는 브라우저는 다운로드
 
