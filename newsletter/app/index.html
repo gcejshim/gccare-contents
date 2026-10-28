@@ -94,7 +94,9 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .page h2{font-size:22px;margin:0 0 6px;color:var(--careBlue-900)}
 .page > p.lead{margin:0 0 22px;color:var(--coolNeutral-600);font-size:14px;line-height:1.6}
 .card{background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:14px;padding:20px 22px;margin-bottom:16px}
-.card.skill-card{border:2px solid var(--careBlue-500);background:var(--careBlue-50)}   /* 스킬 등록은 꼭 해야 해서 강조 (2026-10-28 사용자) */
+.card.skill-card{border:2px solid var(--careBlue-500);background:var(--careBlue-50)}
+.skill-card .sk-hd{display:flex;align-items:flex-start;gap:16px} .skill-card .sk-hd h3{flex:1}
+.skill-card .sk-dl{display:flex;flex-direction:column;align-items:center;gap:4px} .skill-card .sk-dl .btn{height:54px;padding:0 30px;font-size:17px;font-weight:700;gap:8px;border-radius:12px;box-shadow:0 4px 14px rgba(47,116,232,.35)} .skill-card .sk-dl .btn svg{width:20px;height:20px}   /* 스킬 등록은 꼭 해야 해서 강조 (2026-10-28 사용자) */
 .card h3{font-size:15px;margin:0 0 12px;display:flex;align-items:center;gap:8px;color:var(--careBlue-900)}
 .card h3 small{font-weight:400;font-size:12px;color:var(--neutral-500)}
 .card h3 .sp{flex:1}
@@ -402,9 +404,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <section class="view" id="v-guide"><div class="page">
     <h2>이용 가이드</h2>
     <p class="lead">처음부터 저장까지 이 순서대로 하면 돼요. (2026-10-26 사용자: 가이드를 이용 가이드로)</p>
-    <div class="card skill-card"><h3>1. 처음 한 번만 · Claude 스킬 등록</h3>
+    <div class="card skill-card"><div class="sk-hd"><h3>1. 처음 한 번만 · Claude 스킬 등록</h3><div class="sk-dl"><button class="btn primary" data-skill-dl><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg>스킬 내려받기</button><span class="hint" id="skillVer"></span></div></div>
       <ol class="todo">
-        <li><button class="btn primary sm" data-skill-dl>스킬 내려받기</button> <span class="hint" id="skillVer"></span> 로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
+        <li>오른쪽 <b>[스킬 내려받기]</b>로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
         <li><b>claude.ai</b> 왼쪽 아래 내 이름 → <b>설정</b> → <b>기능</b> → <b>스킬</b>에서 <b>[스킬 업로드]</b>로 zip을 올려요.</li>
         <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 스킬이 바뀌면 화면 위에 알림이 떠요. 그때 다시 내려받아 같은 방법으로 올려요.</li>
       </ol>
@@ -514,7 +516,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   function skillInit(){
     document.querySelectorAll('[data-skill-dl]').forEach(b => { b.hidden = !SK; b.addEventListener('click', skillDl); });
     if (!SK) return; const dt = SK.date ? SK.date.slice(5).replace('-', '/') : '';
-    $('skillVer').textContent = dt ? `(${dt} 버전)` : '';
+    $('skillVer').textContent = dt ? `${dt} 버전` : '';
     let seen = ''; try { seen = localStorage.getItem(SK_SEEN) || ''; } catch(_){}
     const on = SK.announce && seen !== SK.id, g = document.querySelector('.menu[data-view="guide"]');
     $('skillNt').hidden = !on; $('skillNtDate').textContent = dt ? `(${dt})` : ''; $('skillNtNotes').textContent = (SK.notes || []).length ? '· ' + SK.notes.join(' · ') : ''; $('skillNtNotes').title = (SK.notes || []).join('\n');
