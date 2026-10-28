@@ -83,7 +83,15 @@ data = json.dumps({'version': VERSION, 'tools': tools, 'libs': libs, 'fonts': fo
 # 기본 호: 처음 여는 브라우저에 채워 줄 최신 완성 호 (issues/NN/work/*_전체.json)
 DEFAULT_ISSUE = os.path.join(ROOT, 'issues', '15', 'work', '202610_뉴스레터_15호_전체.json')
 default_issue = read(DEFAULT_ISSUE).replace('<', '\\u003c')
-pack = '<script>window.__NL_DATA=' + data + ';</script>\n<script>window.NL_DEFAULT_ISSUE=' + default_issue + ';</script>\n<script>' + BOOT + '</script>\n'
+# Claude 스킬: 이용 가이드에서 내려받기 + 새 버전 알림 (2026-10-28 사용자: zip을 따로 전달하지 않게)
+import base64, hashlib, zipfile
+SKILL_ZIP = os.path.join(HERE, '..', 'skills', 'gc-ax-newsletter.zip')
+with zipfile.ZipFile(SKILL_ZIP) as z:   # 버전 id = 파일 내용 (zip 만든 시각이 달라도 내용이 같으면 같은 버전)
+    skill_id = hashlib.sha1(b''.join(n.encode() + z.read(n) for n in sorted(z.namelist()))).hexdigest()[:10]
+sv = json.loads(read(os.path.join(HERE, '..', 'skills', 'skill_version.json')))
+skill = json.dumps({'id': skill_id, 'date': sv.get('date', ''), 'announce': bool(sv.get('announce')), 'notes': sv.get('notes', []),
+                    'zip': base64.b64encode(open(SKILL_ZIP, 'rb').read()).decode()}, ensure_ascii=False).replace('<', '\\u003c')
+pack = '<script>window.__NL_DATA=' + data + ';</script>\n<script>window.NL_DEFAULT_ISSUE=' + default_issue + ';</script>\n<script>window.NL_SKILL=' + skill + ';</script>\n<script>' + BOOT + '</script>\n'
 shell = shell.replace('</head>', pack + '</head>', 1)
 shell = shell.replace('<title>AX Studio · Newsletter</title>', f'<title>AX Studio · Newsletter v{VERSION}</title>')
 os.makedirs(os.path.join(HERE, 'dist'), exist_ok=True)

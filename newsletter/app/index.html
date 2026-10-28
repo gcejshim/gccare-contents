@@ -70,6 +70,11 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 
 /* ── 본문 ── */
 .main{position:fixed;top:var(--top);left:var(--side);right:0;bottom:0;overflow:auto}
+/* Claude 스킬 새 버전 알림 (2026-10-28) */
+.skill-nt{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:10px;padding:10px 28px;background:var(--careBlue-50);border-bottom:1px solid var(--careBlue-100);font-size:13px;color:var(--careBlue-900)}
+.skill-nt[hidden]{display:none}
+.skill-nt b,.skill-nt button{flex:none} .skill-nt .nt{flex:1;min-width:0;color:var(--coolNeutral-600);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu .dot{width:7px;height:7px;border-radius:50%;background:var(--careOrange-500);margin-left:auto}
 .view{display:none;min-height:100%}
 .view.on{display:block}
 .view.frame{height:100%}
@@ -282,6 +287,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 </nav>
 
 <main class="main">
+  <div class="skill-nt" id="skillNt" hidden><b>Claude 스킬이 새로 바뀌었습니다</b> <span id="skillNtDate" style="flex:none"></span><span class="nt" id="skillNtNotes"></span><button class="btn primary sm" data-skill-dl>스킬 내려받기</button><button class="btn sm" id="skillNtOk" title="claude.ai에 새 스킬을 올렸으면 눌러 주세요. 다음 버전까지 이 알림이 뜨지 않아요">다시 올렸어요</button></div>
   <!-- 이번 호 -->
   <section class="view" id="v-home"><div class="page">
     <div class="hero">
@@ -386,9 +392,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     <p class="lead">처음부터 저장까지 이 순서대로 하면 돼요. (2026-10-26 사용자: 가이드를 이용 가이드로)</p>
     <div class="card"><h3>0. 처음 한 번만 · Claude 스킬 등록</h3>
       <ol class="todo">
-        <li>팀에서 받은 <b>gc-ax-newsletter.zip</b>을 준비해요. (압축은 풀지 않아요)</li>
+        <li><button class="btn primary sm" data-skill-dl>스킬 내려받기</button> <span class="hint" id="skillVer"></span> 로 <b>gc-ax-newsletter.zip</b>을 받아요. (압축은 풀지 않아요)</li>
         <li><b>claude.ai</b> 왼쪽 아래 내 이름 → <b>설정</b> → <b>기능</b> → <b>스킬</b>에서 <b>[스킬 업로드]</b>로 zip을 올려요.</li>
-        <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 새 버전을 받으면 같은 방법으로 다시 올려요.</li>
+        <li>목록에 <b>gc-ax-newsletter</b>가 켜져 있으면 끝이에요. 스킬이 바뀌면 화면 위에 알림이 떠요. 그때 다시 내려받아 같은 방법으로 올려요.</li>
       </ol>
     </div>
     <div class="card"><h3>1. 이번 호 준비</h3>
@@ -483,6 +489,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const ymOf = n => { const m = 5 + (n - 10); const y = 2026 + Math.floor((m - 1) / 12); return `${y}${String(((m - 1) % 12 + 12) % 12 + 1).padStart(2, '0')}`; };
   const DUE = {15: '2026-10-14'};               // 알고 있는 게시 마감일
   let toastT;
+  // Claude 스킬: 내려받기 + 새 버전 알림 (skills/skill_version.json의 announce가 켜진 버전만, 이 브라우저에서 [다시 올렸어요] 전까지)
+  const SK = window.NL_SKILL || null, SK_SEEN = 'gc-nl-skill-seen';
+  function skillDl(){ if (!SK) return; const b = Uint8Array.from(atob(SK.zip), c => c.charCodeAt(0)), a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([b], {type: 'application/zip'})); a.download = 'gc-ax-newsletter.zip'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
+  function skillInit(){
+    document.querySelectorAll('[data-skill-dl]').forEach(b => { b.hidden = !SK; b.addEventListener('click', skillDl); });
+    if (!SK) return; const dt = SK.date ? SK.date.slice(5).replace('-', '/') : '';
+    $('skillVer').textContent = dt ? `(${dt} 버전)` : '';
+    let seen = ''; try { seen = localStorage.getItem(SK_SEEN) || ''; } catch(_){}
+    const on = SK.announce && seen !== SK.id, g = document.querySelector('.menu[data-view="guide"]');
+    $('skillNt').hidden = !on; $('skillNtDate').textContent = dt ? `(${dt})` : ''; $('skillNtNotes').textContent = (SK.notes || []).length ? '· ' + SK.notes.join(' · ') : ''; $('skillNtNotes').title = (SK.notes || []).join('\n');
+    if (g && on && !g.querySelector('.dot')) g.insertAdjacentHTML('beforeend', '<i class="dot"></i>');
+    $('skillNtOk').onclick = () => { try { localStorage.setItem(SK_SEEN, SK.id); } catch(_){} $('skillNt').hidden = true; const d = g && g.querySelector('.dot'); if (d) d.remove(); };
+  }
   function toast(m, ms){ const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), ms || 2600); }
   function svg(name){ const n = window.lucide && lucide.icons[name]; if (!n) return ''; const el = lucide.createElement(n); el.setAttribute('stroke-width', '2'); return el.outerHTML; }
   function download(blob, name){ const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); }
@@ -924,7 +944,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (fresh && base !== BASE && localStorage.getItem(KEY) != null){   // 예전 기록이 있는 브라우저: 호 정보 · 호별 보관 작업을 비우고 기본 호로
       H.issues = {}; for (let n = 1; n <= 60; n++) hdb(1, 'work:' + n, null); }
     try { localStorage.setItem('gc-nl-base', BASE); } catch(_){}
-    mountTools(); renderTop();
+    mountTools(); renderTop(); skillInit();
     // 처음 열면 기본 호(빌드 때 넣은 15호 완성본)를 채워서 시작 — 지난 호 예시 대신 (사용자 지정 10/15)
     // 저장하지 않은 브라우저가 기본 호를 보고 있으면 열 때마다 최신 기본 호로 (다른 호에서 작업 중이면 건드리지 않음)
     const showDefault = fresh || (!isMine() && window.NL_DEFAULT_ISSUE && H.issue === window.NL_DEFAULT_ISSUE.issue);
