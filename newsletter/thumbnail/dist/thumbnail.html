@@ -1721,7 +1721,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
   let hubExportAll = null, hubPreview = null;   // init()에서 채움
   // 셸 안에서는 하단 작업 파일 버튼이 숨으므로 안내 문구를 셸 버튼 이름으로
-  function hubName(s){ return document.body.classList.contains('embedded') ? s.replace(/\[작업 파일 저장\]/g, '[전체 파일 저장]').replace(/\[작업 파일 열기\]/g, '[불러오기]') : s; }
+  function hubName(s){ return document.body.classList.contains('embedded') ? s.replace(/\[작업 파일 저장\]/g, '[전체 파일 저장]').replace(/\[작업 파일 열기\]/g, '[파일 열기]') : s; }
   function bridge(){
     if (window.parent === window) return;
     document.body.classList.add('embedded');
