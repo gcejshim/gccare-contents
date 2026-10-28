@@ -2851,7 +2851,9 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
       $('pvPc').style.zoom = z < 0.999 ? z.toFixed(4) : '';
       { const w = Math.round($('pvPc').getBoundingClientRect().width), hd = $('pvPcBox').querySelector('.pvh'); hd.style.width = w > 300 ? w + 'px' : ''; }   // 제목줄을 이미지 폭에 맞춰 [애니메이션]이 이미지 오른쪽 끝에 오게 (2026-10-28)
       const ph = Math.round(p.offsetHeight), mh = Math.round(mo.offsetHeight);
-      $('pvPcLbl').innerHTML = `900 × ${ph} → 저장 <b>1800 × ${ph * 2}</b> · ${mail ? '메일 크기 <b>630</b> (70%)' : z < 0.999 ? `${Math.round(z * 100)}%` : '실제 크기'}`;
+      // 크기 정보는 빼고(저장은 늘 2 · 3배라 운영자가 볼 일 없음 · 2026-10-28) 줄여 볼 때만 표시, 정확한 크기는 툴팁으로
+      $('pvPcLbl').textContent = !mail && z < 0.999 ? `${Math.round(z * 100)}%로 줄여 보는 중` : '';
+      $('pvPcBox').querySelector('.vw-sw').title = `PC 900 × ${ph} → 저장 1800 × ${ph * 2} · 메일(Outlook)에서는 630px로 줄어 보여요`;
       if (mail){   // 메일에서 실제로 보이는 글자 크기: 본문 · 이 이미지에서 가장 작은 글자 (0.7배, 9px 밑은 주황)
         const R = 0.7, px = n => +(n * R).toFixed(1), fsz = e => parseFloat(getComputedStyle(e).fontSize);   // zoom 전 크기로 나옴
         const body = parseFloat(getComputedStyle(p).getPropertyValue('--fs-body')) || 18;
@@ -2859,7 +2861,7 @@ body.embedded #fileStat, body.embedded #btnLoad, body.embedded #btnSave, body.em
         const sm = isFinite(min) ? ` · 가장 작은 글자 ${min} → <span class="${px(min) < 9 ? 'bad' : ''}">${px(min)}px</span>` : '';
         $('mailHint').innerHTML = `메일에서는 0.7배로 줄어 보여요 · 본문 ${body} → <b>${px(body)}px</b>${sm}`;
       }
-      $('pvMoLbl').innerHTML = `350 × ${mh} → 저장 <b>1050 × ${mh * 3}</b>`;
+      $('pvMoLbl').textContent = ''; $('pvMoLbl').parentElement.title = `모바일 350 × ${mh} → 저장 1050 × ${mh * 3}`;
     };
     sz(); document.fonts && document.fonts.ready.then(sz);
     $('pvPc').querySelectorAll('img').forEach(im => { if (!im.complete) im.onload = sz; });
