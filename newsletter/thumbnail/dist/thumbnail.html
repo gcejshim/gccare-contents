@@ -88,6 +88,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .sec h3{font-size:14px;font-weight:700;margin:0 0 10px;display:flex;align-items:center;gap:6px}
 .sec h3 small{font-weight:400;color:var(--neutral-500);font-size:12px}
 .stepn{flex:none;width:18px;height:18px;border-radius:50%;background:#788da1;color:var(--neutral-0);font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.stepn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}   /* 제목 아이콘 (콘텐츠 이미지와 같은 모양, 2026-10-28) */
 .row{display:flex;gap:8px;align-items:center}
 .field{display:flex;flex-direction:column;gap:6px;flex:1}
 .field label{font-size:12px;color:var(--neutral-600)}
@@ -211,7 +212,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .first{display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
 .first #previewActual{box-shadow:0 0 0 1px var(--coolNeutral-100);flex:none}
 .first-side{flex:1;min-width:260px}
-.side-h{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--neutral-600)}
+.side-h{font-size:13px;font-weight:700;margin:0 0 8px;color:var(--neutral-600);display:flex;align-items:center;gap:8px}
 .actual .lbl{font-size:12px;color:var(--neutral-500);margin-top:6px}
 .lint{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
 .lint li{font-size:13px;padding:7px 10px;border-radius:8px;display:flex;gap:8px;align-items:baseline;line-height:1.45;cursor:default}
@@ -325,11 +326,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   <!-- ── 미리보기 ── -->
   <section class="stage">
     <div class="card">
-      <h2>실제 크기 (1배) <small>뉴스레터에 들어가는 크기 399×231 · 저장은 3배(1197×693)</small></h2>
+      <h2><span class="stepn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.06 12.35a1 1 0 0 1 0-.7 10.75 10.75 0 0 1 19.88 0 1 1 0 0 1 0 .7 10.75 10.75 0 0 1-19.88 0"/><circle cx="12" cy="12" r="3"/></svg></span>썸네일 미리보기</h2>   <!-- 2026-10-28 사용자: 실제 크기 (1배) → 썸네일 미리보기, 크기 정보는 뺌 -->
       <div class="first">
         <div id="previewActual"></div>
         <div class="first-side">
-          <h3 class="side-h">자동 점검</h3>
+          <h3 class="side-h"><span class="stepn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>자동 점검</h3>
           <ul class="lint" id="lint"></ul>
         </div>
       </div>
@@ -337,7 +338,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     </div>
     <!-- 2026-10-25 사용자: AI 이미지 생성은 이 카드에서 위 → 아래 순서로 (배경색 → 그림체 → 그릴 것 → 만들기 → 수정). 가진 이미지 넣기 · 크기 · 위치는 왼쪽 ④ -->
     <div class="card">
-      <h2>AI 이미지 생성하기</h2>
+      <h2><span class="stepn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.94 15.5A2 2 0 0 0 8.5 14.06l-6.13-1.58a.5.5 0 0 1 0-.96L8.5 9.94A2 2 0 0 0 9.94 8.5l1.58-6.13a.5.5 0 0 1 .96 0L14.06 8.5A2 2 0 0 0 15.5 9.94l6.13 1.58a.5.5 0 0 1 0 .96L15.5 14.06a2 2 0 0 0-1.44 1.44l-1.58 6.13a.5.5 0 0 1-.96 0z"/></svg></span>AI 이미지 생성하기</h2>
       <div class="gen">
         <div class="sec">
           <h3><span class="stepn">1</span>배경 색상</h3>
