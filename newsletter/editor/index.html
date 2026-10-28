@@ -1783,6 +1783,13 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         c.style.bottom = `calc(${top}% + 30px)`;
         });   // 배지는 묶음 가운데 (가장자리로 밀면 옆 묶음 배지처럼 보임, 2026-10-28 사용자)
     });
+    // 범례: 색 네모 + 이름 짝이 2~6개인 줄 → 그래프 카드 맨 아래 가운데로 (출처가 맨 끝이면 그 위, 2026-10-28 사용자: 템플릿처럼 하단 센터)
+    const sw = el => [...el.querySelectorAll('*')].some(x => !x.textContent.trim() && /background/.test(x.getAttribute('style') || ''));
+    const lg = [...r.querySelectorAll('*')].find(el => { const ks = [...el.children]; return ks.length >= 2 && ks.length <= 6 && !groups.some(g => el.contains(g) || g.contains(el))
+      && ks.every(k => sw(k) && k.textContent.trim() && k.textContent.trim().length <= 20); });
+    if (lg){ let card = lg.parentElement; while (card && !groups.some(g => card.contains(g))) card = card.parentElement;
+      if (card){ const last = card.lastElementChild, src = last && last !== lg && /자료|출처/.test(last.textContent) && !groups.some(g => last.contains(g)) ? last : null;
+        card.insertBefore(lg, src); lg.style.cssText += ';display:flex;flex-wrap:wrap;justify-content:center;gap:6px 18px;margin:16px 0 0;font-size:var(--fs-cap)'; } }
     // 축 숫자: 막대 밖, 인라인 bottom %인 숫자 글자
     r.querySelectorAll('[style*="bottom"]').forEach(el => { if (el.closest('.ch-grid') || groups.some(g => g.contains(el))) return;
       if (/^-?[\d,.]+%?$/.test(el.textContent.trim()) && /bottom\s*:\s*[\d.]+%/.test(el.getAttribute('style'))) el.style.fontSize = 'var(--fs-cap)'; });
