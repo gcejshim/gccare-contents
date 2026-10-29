@@ -1144,6 +1144,16 @@ window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='u
   box.addEventListener('dragleave',e=>{if(!box.contains(e.relatedTarget))box.classList.remove('drag');});
   box.addEventListener('drop',e=>{e.preventDefault();box.classList.remove('drag');addFiles([...e.dataTransfer.files]);});
   const b64=f=>new Promise((ok,no)=>{const r=new FileReader();r.onload=()=>ok(String(r.result).split(',')[1]);r.onerror=no;r.readAsDataURL(f);});
+  // Teams 카드용 작은 미리보기 (2026-10-29 사용자) — 워크플로가 받는 크기가 256KB까지라 폭 600 JPG로 줄이고 합쳐 170KB 안에서만. 원본은 그대로 Drive에
+  const TH_W=600,TH_MAX=170000;
+  const thumb=f=>new Promise(ok=>{const u=URL.createObjectURL(f),im=new Image();
+    im.onload=()=>{URL.revokeObjectURL(u);const s=Math.min(1,TH_W/im.naturalWidth),c=document.createElement('canvas');
+      c.width=Math.round(im.naturalWidth*s);c.height=Math.round(im.naturalHeight*s);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
+      let d=c.toDataURL('image/jpeg',.7);if(d.length>TH_MAX/2)d=c.toDataURL('image/jpeg',.45);ok(d);};
+    im.onerror=()=>{URL.revokeObjectURL(u);ok('');};im.src=u;});
+  const thumbs=async()=>{const out=[];let sum=0;
+    for(const f of files.filter(f=>f.type.startsWith('image/'))){const d=await thumb(f);if(!d||sum+d.length>TH_MAX)continue;out.push(d);sum+=d.length;}
+    return out;};
   $('rqSend').addEventListener('click',async()=>{
     const text=$('rqText').value.trim();if(!text){$('rqText').focus();return;}
     const me=_0r()||{},who=$('rqName').value.trim();
@@ -1151,8 +1161,9 @@ window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='u
     const b=$('rqSend');b.disabled=true;b.textContent='보내는 중…';
     try{
       const att=await Promise.all(files.map(async f=>({name:f.name,type:f.type||'application/octet-stream',data:await b64(f)})));
+      const th=await thumbs();
       const r=await fetch(SHEETS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'request',tool:TOOL,
-        c:me.c||'',t:me.t||'',n:me.n||who,screen:$('rqView').selectedOptions[0].text,text,ver:($('ver')||{}).textContent||'',files:att})});
+        c:me.c||'',t:me.t||'',n:me.n||who,screen:$('rqView').selectedOptions[0].text,text,ver:($('ver')||{}).textContent||'',files:att,thumbs:th})});
       const j=await r.json().catch(()=>({}));
       if(j.saved!=='request')throw new Error('시트 준비 전');
       const lost=att.length&&!(j.files>=att.length);   // 예전 시트 스크립트는 글만 저장하고 files를 안 돌려줌

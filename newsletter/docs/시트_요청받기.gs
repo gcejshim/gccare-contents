@@ -104,24 +104,26 @@ function richLinks_(links) {
   return b.build();
 }
 
-// Teams 채널에 요청 카드 올리기. 첨부는 링크 대신 개수만 (회사 보안에서 Google Drive 링크가 막힐 수 있어서) — 실패해도 시트 기록은 그대로
+// Teams 채널에 의견 카드 올리기. 첨부는 Drive 링크 대신 개수만 (회사 보안에서 Google Drive 링크가 막힐 수 있어서) — 실패해도 시트 기록은 그대로
+// 이미지 첨부는 통합본이 만든 작은 미리보기(d.thumbs, 폭 600 JPG data URI · 합쳐 170KB 안)를 카드에 바로 넣음 (2026-10-29). 원본은 Drive
 function sendTeams_(d, tool, name, links) {
   const url = PropertiesService.getScriptProperties().getProperty('TEAMS_WEBHOOK');
   if (!url) return;
   const clean = s => String(s || '').slice(0, 1500);
   const who = [clean(d.c), clean(d.t), clean(d.n)].filter(Boolean).join(' · ');
+  const thumbs = (Array.isArray(d.thumbs) ? d.thumbs : []).filter(s => /^data:image\/jpeg;base64,/.test(String(s))).slice(0, 3);
   const card = {
     type: 'AdaptiveCard', $schema: 'http://adaptivecards.io/schemas/adaptive-card.json', version: '1.4',
     body: [
-      { type: 'TextBlock', text: `${tool} 요청이 들어왔습니다`, weight: 'Bolder', size: 'Medium', wrap: true },
+      { type: 'TextBlock', text: `${tool} 의견이 들어왔습니다`, weight: 'Bolder', size: 'Medium', wrap: true },
       { type: 'FactSet', facts: [
         { title: '보낸 사람', value: who || '-' },
         { title: '화면', value: clean(d.screen) || '-' },
         { title: '버전', value: clean(d.ver) || '-' },
-        { title: '첨부', value: links.length ? `${links.length}개 · 시트 '${name}' 탭에서 확인` : '없음' }
+        { title: '첨부', value: links.length ? `${links.length}개 · ${thumbs.length ? '아래 미리보기, ' : ''}원본은 시트 '${name}' 탭` : '없음' }
       ] },
       { type: 'TextBlock', text: clean(d.text) || '(내용 없음)', wrap: true, spacing: 'Medium' }
-    ]
+    ].concat(thumbs.map(s => ({ type: 'Image', url: s, size: 'Stretch', spacing: 'Medium' })))
   };
   try {
     UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
