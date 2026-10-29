@@ -336,7 +336,7 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .blk-title .tc-blue{color:var(--careBlue-500)}   /* 제목 강조 블루는 밝게 ([대괄호] 강조와 같은 색) */
 .nl .blk-title small{font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);margin-left:6px}
 .nl .blk-title.has-tag{display:flex;align-items:baseline;gap:12px} .nl .blk-title .bt-l{flex:1;min-width:0}
-.nl .blk-title .bt-tag{flex:none;margin-left:auto;font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);white-space:nowrap}   /* 제목 오른쪽 작은 글씨 */
+.nl .blk-title .bt-tag{flex:none;margin-left:auto;font-size:var(--fs-cap);font-weight:500;color:var(--coolNeutral-500);white-space:nowrap}   /* 제목 오른쪽 작은 글씨 */
 .nl-mo .blk-title small{display:block;margin:4px 0 0}   /* 모바일: 제목 옆 작은 글씨는 아래 줄로 (중간에서 끊기지 않게) */
 .nl .ph{border:1.5px dashed var(--coolNeutral-300);border-radius:12px;padding:48px 16px;text-align:center;color:var(--coolNeutral-500);font-size:var(--fs-sub);background:var(--neutral-0)}
 
@@ -1430,7 +1430,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           t.content.querySelectorAll('[data-sub]').forEach(el => { const f = el.firstChild; if (f && f.nodeType === 3) f.textContent = f.textContent.replace(/^\s*[-·–—]\s*/, ''); }); out = t.innerHTML; }   // 아래 줄로 내려가니 앞 기호는 빼고
         if (String(d.tag || '').trim()){ const t = document.createElement('template'); t.innerHTML = out; const first = t.content.querySelector('[data-edit="text"]'), row = first && first.parentElement;
           if (row){ row.style.display = 'flex'; row.style.alignItems = 'baseline'; row.style.flexWrap = 'wrap'; row.querySelectorAll(':scope > [data-sub]').forEach(x => { if (m === 'mo'){ x.style.order = '3'; x.style.flexBasis = '100%'; } });
-            row.insertAdjacentHTML('beforeend', `<span class="bt-tag"${E('tag')} style="order:2;margin-left:auto;padding-left:12px;font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);white-space:nowrap">${rich(d.tag)}</span>`); out = t.innerHTML; } }
+            row.insertAdjacentHTML('beforeend', `<span class="bt-tag"${E('tag')} style="order:2;margin-left:auto;padding-left:12px;font-size:var(--fs-cap);font-weight:500;color:var(--coolNeutral-500);white-space:nowrap">${rich(d.tag)}</span>`); out = t.innerHTML; } }
         return `<div class="cx cx-${(it && it.id) || 'x'}-${m}"${vars.length ? ` style="${esc(vars.join(';'))}"` : ''}>${out}</div>`;
       },
       lint(d){
