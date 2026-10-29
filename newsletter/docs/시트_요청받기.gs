@@ -24,11 +24,18 @@
  *        var nu = handleUsersGet_(e); if (nu) return nu;
  *   - 탭 이름은 몰라도 됨: 첫 줄에 '뉴스레터'와 '이름'이 함께 있는 탭을 찾음. '뉴스레터' 칸이 없으면 예전처럼 전체 명단
  *   - 카드뉴스 편집기는 ?tool=뉴스레터 를 안 붙이므로 지금처럼 전체 명단
+ *
+ * Teams 알림 (2026-10-29 추가 — 회사 Outlook이 Google에서 보낸 메일을 막아서 메일 대신 Teams 채널로):
+ *   1. Teams 채널 이름 옆 [… › 워크플로] → '웹후크 요청이 수신되면 채널에 게시' → 팀 · 채널 고르고 [워크플로 추가] → 나온 주소(URL) 복사
+ *   2. Apps Script 왼쪽 [⚙ 프로젝트 설정] › 맨 아래 [스크립트 속성 추가] → 속성 TEAMS_WEBHOOK, 값에 1번 주소 → 저장
+ *      (주소는 코드에 적지 않음 — 공개 저장소라서. 주소를 아는 사람은 누구나 그 채널에 글을 올릴 수 있음)
+ *   3. 함수 고르기에서 testTeams 를 고르고 [실행] → 권한 허용(외부 서비스 연결) → Teams 채널에 시험 카드가 오면 성공
+ *   4. 위 5번처럼 기존 배포를 새 버전으로
  */
 
 const REQUEST_FOLDER = '뉴스레터 요청 첨부';   // 첨부를 저장할 내 Drive 폴더 이름 (없으면 만듦)
 const REQUEST_NOTIFY = '';   // 알림 메일 받을 주소. 비워 두면 스크립트 주인(시트 주인) 계정으로 감 — 공개 저장소라 주소는 여기 적지 않음. 여러 명이면 'a@…,b@…'
-const REQUEST_MAIL = true;   // false면 메일 없이 시트에만
+const REQUEST_MAIL = false;   // 메일 알림 (회사 Outlook에서 막혀 2026-10-29 끔 → Teams 알림 사용). true면 메일도 보냄
 
 function handleRequestPost_(e) {
   let d;
@@ -57,6 +64,7 @@ function saveRequest_(d) {
   sh.getRange(sh.getLastRow(), 6).setWrap(true);
   if (links.length) sh.getRange(sh.getLastRow(), 10).setRichTextValue(richLinks_(links));
 
+  sendTeams_(d, tool, name, links);   // Teams 채널 알림 (스크립트 속성 TEAMS_WEBHOOK이 있을 때만)
   const to = REQUEST_NOTIFY || Session.getEffectiveUser().getEmail();   // 웹 앱은 '나로 실행'이라 주인 주소
   if (REQUEST_MAIL && to) {
     try {
@@ -94,6 +102,36 @@ function richLinks_(links) {
   let at = 0;
   links.forEach(f => { b.setLinkUrl(at, at + f.name.length, f.url); at += f.name.length + 1; });
   return b.build();
+}
+
+// Teams 채널에 요청 카드 올리기. 첨부는 링크 대신 개수만 (회사 보안에서 Google Drive 링크가 막힐 수 있어서) — 실패해도 시트 기록은 그대로
+function sendTeams_(d, tool, name, links) {
+  const url = PropertiesService.getScriptProperties().getProperty('TEAMS_WEBHOOK');
+  if (!url) return;
+  const clean = s => String(s || '').slice(0, 1500);
+  const who = [clean(d.c), clean(d.t), clean(d.n)].filter(Boolean).join(' · ');
+  const card = {
+    type: 'AdaptiveCard', $schema: 'http://adaptivecards.io/schemas/adaptive-card.json', version: '1.4',
+    body: [
+      { type: 'TextBlock', text: `${tool} 요청이 들어왔습니다`, weight: 'Bolder', size: 'Medium', wrap: true },
+      { type: 'FactSet', facts: [
+        { title: '보낸 사람', value: who || '-' },
+        { title: '화면', value: clean(d.screen) || '-' },
+        { title: '버전', value: clean(d.ver) || '-' },
+        { title: '첨부', value: links.length ? `${links.length}개 · 시트 '${name}' 탭에서 확인` : '없음' }
+      ] },
+      { type: 'TextBlock', text: clean(d.text) || '(내용 없음)', wrap: true, spacing: 'Medium' }
+    ]
+  };
+  try {
+    UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
+      payload: JSON.stringify({ type: 'message', attachments: [{ contentType: 'application/vnd.microsoft.card.adaptive', contentUrl: null, content: card }] }) });
+  } catch (err) { console.warn('Teams 알림 실패(기록은 됨): ' + err); }
+}
+
+function testTeams() {
+  if (!PropertiesService.getScriptProperties().getProperty('TEAMS_WEBHOOK')) throw new Error('스크립트 속성 TEAMS_WEBHOOK이 없어요 (위 Teams 알림 2번)');
+  sendTeams_({ c: '시험', t: 'AX팀', n: '심은진', screen: '콘텐츠 이미지', ver: 'v1.0', text: 'Teams 알림 시험입니다. 이 카드가 보이면 성공이에요.' }, '뉴스레터', '뉴스레터 요청', []);
 }
 
 function testRequest() {
