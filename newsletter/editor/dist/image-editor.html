@@ -2359,7 +2359,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       render(d, m){
         const st = String(d.steps || '').split('\n').map(x => x.trim()).filter(Boolean), arrow = icon(m === 'mo' ? 'ChevronDown' : 'ChevronRight', css(d.tone === 'blue' ? '--careBlue-500' : '--careGreen-500'), m === 'mo' ? 18 : 22, 2.5);
         const head = d.head ? `<div class="fl-h">${d.avatar ? `<img class="fl-av" src="${d.avatar}" alt="">` : ''}<span${E('head')}>${rich(d.head)}</span></div>` : '';
-        return `<div class="box fl">${head}${d.title ? `<div class="fl-t"${E('title')}>${rich(d.title)}</div>` : ''}${d.desc ? `<div class="fl-d"${E('desc')}>${rich(d.desc)}</div>` : ''}<div class="fl-s" data-tonepick>${st.map((x, i) => (i ? `<span class="fl-a">${arrow}</span>` : '') + `<span class="fl-b"><span${EC('steps', i, 0)}>${rich(x)}</span></span>`).join('')}</div></div>`;   // 단계 글자도 미리보기에서 고침 · 단계 안 줄바꿈은 // (사업부 요청 2026-10-28)
+        return `<div class="box fl">${head}${d.title ? `<div class="fl-t"${E('title')}>${rich(d.title)}</div>` : ''}${d.desc ? `<div class="fl-d"${E('desc')}>${rich(d.desc)}</div>` : ''}<div class="fl-s" data-tonepick>${st.map((x, i) => (i ? `<span class="fl-a">${arrow}</span>` : '') + `<span class="fl-b"><span${EC('steps', i, 0)}>${rich(m === 'mo' ? x.replace(/\s*\/\/\s*/g, ' ') : x)}</span></span>`).join('')}</div></div>`;   // 단계 글자도 미리보기에서 고침 · 단계 안 줄바꿈은 // (사업부 요청 2026-10-28), 모바일은 박스가 넓어 한 줄로 (길면 저절로 줄바꿈)
       },
       lint(d){ const n = String(d.steps || '').split('\n').filter(x => x.trim()).length; return n > 5 ? [['info', '단계가 5개를 넘으면 PC 한 줄에 다 안 들어가요. 4개 이하가 좋아요.']] : []; }
     },
