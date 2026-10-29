@@ -940,7 +940,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* 붙여 넣으면 들어올 이미지 목록: 작은 PC 그림 + 파일 이름 · 템플릿 + 새로 추가 / 바뀜 */
 #skillPv:empty{display:none}
 #skillPv{margin-top:8px;display:flex;flex-direction:column;gap:6px}
-#skillPv .sp-h{font-size:12px;font-weight:700;color:var(--neutral-900);margin:2px 2px 0}
+#skillPv .sp-h{font-size:12px;font-weight:400;color:var(--coolNeutral-600);margin:2px 2px 0}
 #skillPv .sp-e{font-size:12px;color:var(--careRed-500);padding:2px}
 #skillPv .sp-r{display:flex;align-items:center;gap:10px;background:var(--neutral-0);border:1px solid var(--coolNeutral-100);border-radius:8px;padding:6px}
 #skillPv .sp-th{flex:none;width:96px;height:56px;overflow:hidden;border-radius:4px;background:var(--coolNeutral-50);position:relative}
@@ -1678,9 +1678,9 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       <!-- 만드는 방법을 먼저 고름: 템플릿(앞 · 기본) / Claude 스킬. 고른 쪽만 보임 (2026-10-07 사용자 결정) -->
       <div class="seg" id="howSeg" style="margin-bottom:10px"><button type="button" data-how="tpl">템플릿으로 만들기</button><button type="button" data-how="skill">Claude 스킬로 만들기</button></div>
       <div class="skillbox" id="howSkill">
-        <ol class="sk-steps">
-          <li><b>claude.ai</b>에 기획안을 첨부하고 <b>"15호 콘텐츠 이미지 만들어 줘"</b>라고 요청해요.</li>
-          <li>답 오른쪽 <b>「붙여 넣을 JSON」</b> 창의 <b>[복사]</b>를 누르고 화면 아무 데나 <b>Ctrl+V</b>(또는 아래 칸에 붙여 넣기).</li>
+        <ol class="sk-steps" id="skSteps">
+          <li>claude.ai에 기획안을 올리고 <b>"콘텐츠 이미지 만들어 줘"</b></li>
+          <li><b>「붙여 넣을 JSON」</b>의 <b>[복사]</b> → 여기에 붙여 넣기</li>
         </ol>
         <textarea id="skillTxt" rows="4" placeholder='여기에 붙여 넣어 주세요 (Ctrl+V)'></textarea>
         <div id="skillPv"></div>
@@ -3669,9 +3669,11 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       return s && (s.kind === 'nl-block' || s.kind === 'nl-blocks') ? (s.kind === 'nl-block' ? [s] : (s.items || [])) : []; };
     const skillPv = () => {
       const raw = $('skillTxt').value, list = skillList(raw), box = $('skillPv');
-      if (raw.trim() && view().src && raw.trim() === view().src.trim()){   // 지금 이미지를 만든 소스 → 다시 넣을 필요 없음
+      const same = !!(raw.trim() && view().src && raw.trim() === view().src.trim());
+      $('skSteps').hidden = same;   // 스킬 결과로 만든 이미지면 사용 방법은 숨김 (10/29 안내 줄이기)
+      if (same){   // 지금 이미지를 만든 소스 → 다시 넣을 필요 없음
         $('btnSkillClear').hidden = false; $('btnSkillOk').disabled = false; $('btnSkillOk').textContent = '다시 넣기';   // 같은 결과도 다시 넣을 수 있게 (10/20: 도구 규칙이 바뀐 뒤 예전 표를 새 모양으로 다시 그리기)
-        box.innerHTML = '<div class="sp-h">이 이미지를 만든 스킬 결과예요. [다시 넣기]를 누르면 도구에서 고친 내용은 지우고 이 결과로 다시 그려요. 새 결과를 붙여 넣으면 통째로 바뀌어요.</div>'; return; }
+        box.innerHTML = '<div class="sp-h">[다시 넣기]를 누르면 고친 내용이 지워지고 처음 결과로 돌아가요.</div>'; return; }
       $('btnSkillOk').textContent = '넣기';
       $('btnSkillClear').hidden = !raw.trim(); $('btnSkillOk').disabled = !(list && list.some(b => b && BLOCKS[b.type]));
       if (!list){ box.innerHTML = ''; return; }
