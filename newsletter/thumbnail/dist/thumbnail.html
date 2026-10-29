@@ -989,7 +989,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // 2026-10-29 사용자: 표현이 한정적 → 금융 · 헬스케어 3D 아이콘 세트(모니모 · Pinterest)에서 '무엇을 그렸는지'만 가져와 주제를 늘림 (모양 · 색은 따라가지 않음, 그림체는 지금 규칙 그대로)
   // [주제 낱말, 기본 물건, 물건 표면 아이콘(한글), 같은 아이콘(영어 핵심 규칙용)]. 한 글자 낱말(목 · 위 · 술 · 간)은 '목표 · 기술 · 시간'에 걸려서 쓰지 않음
   const OBJ_MAP = [
-    [/스트레스|마음|정신|번아웃|우울|치매|인지/, '뇌 모양 조형, 두 손으로 감싼 하트, 하트 말풍선, 따뜻한 차, 쿠션', '마음 게이지, 하트 말풍선, 잔잔한 물결 선', 'a calm mood gauge, a heart speech bubble, soft wave lines'],
+    [/스트레스|마음|정신|번아웃|우울|치매|인지/, '뇌 모양 조형, 두 손으로 감싼 하트, 말풍선, 따뜻한 차, 쿠션', '마음 게이지, 잔잔한 물결 선', 'a calm mood gauge, soft wave lines'],
     [/폭염|온열|더위|한랭|추위|혹한/, '온도계, 물병, 선풍기 또는 담요, 해 또는 눈송이', '온도계 눈금, 물방울, 해 · 눈송이', 'a thermometer scale, water drops, a sun or snowflake'],
     [/응급|구급|심폐|CPR|AED/i, '구급함, 붕대, 반창고, 심장 모양 AED', '심박 선, 십자', 'a heartbeat line, a plus sign'],
     [/비만|체중|BMI|체성분|뱃살|허리둘레/i, '체중계, 줄자, 게이지(계기판), 건강 식단 도시락', '체성분 게이지, 줄자 눈금, 체중 추이 선', 'a body composition gauge, tape-measure marks, a weight trend line'],
@@ -1004,10 +1004,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/위내시경|대장|내시경|소화|위장|장 건강/, '위 · 장 모양 조형, 하트 표시 클립보드, 달력', '위 모양, 달력 표시', 'a stomach shape, a calendar mark'],
     [/감염|감염병|독감|코로나|위생|방역|바이러스/, '둥근 바이러스 조형, 마스크, 손 소독제, 체온계', '물방울, 손 모양, 둥근 바이러스 무늬', 'water drops, a hand shape, a simple round virus shape'],
     [/공시|법령|법률|법적|개정|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 원통 막대그래프, 도장, 달력', '서류 칸, 막대그래프', 'document sections, a bar chart'],
-    [/예방|보장|보험|안전보건|안전|보호|산재/, '우산, 십자 배지가 있는 둥근 방패, 두 손으로 감싼 하트', '우산, 십자, 하트', 'an umbrella, a plus sign, a heart'],
-    [/검진|결과지|수검|재검/, '하트 표시 클립보드(검진표), 하트 표시 달력, 돋보기와 결과 문서, 결과 리포트가 뜬 휴대폰', '심박 선, 결과 막대그래프, 달력 표시', 'a heartbeat line, a result bar chart, a calendar mark'],
+    [/예방|보장|보험|안전보건|안전|보호|산재/, '우산, 십자 배지가 있는 둥근 방패, 두 손으로 감싼 하트', '우산, 십자', 'an umbrella, a plus sign'],
+    [/검진|결과지|수검|재검/, '하트 표시 클립보드(검진표), 일정 표시 달력, 돋보기와 결과 문서, 결과 리포트가 뜬 휴대폰', '심박 선, 결과 막대그래프, 달력 표시', 'a heartbeat line, a result bar chart, a calendar mark'],
     [/데이터|리포트|통계|분석|설문|결과\s?보고|비율|증가|감소|추이/, '원통 막대그래프와 위 · 아래 화살표, 원그래프 조각, 게이지(계기판), 돋보기', '막대 · 원그래프, 증감 화살표', 'a cylinder bar chart, a pie chart, one up or down arrow'],
-    [/상담|비대면|원격|코칭/, '화면에 하트가 뜬 노트북, 휴대폰, 말풍선', '하트 말풍선, 영상 통화 화면', 'a heart speech bubble, a video-call screen'],
+    [/상담|비대면|원격|코칭/, '화면에 하트가 뜬 노트북, 휴대폰, 말풍선', '말풍선, 영상 통화 화면', 'a speech bubble, a video-call screen'],
     [/정보|팁|Q&A|궁금|방법|알아보/i, '전구, 말풍선, 완료 화면이 뜬 휴대폰', '전구, 말풍선', 'a light bulb, a speech bubble'],
   ];
   // 건강검진 · 건강관리 (병원 · 진료 도구 말고 기업 건강관리)
@@ -1223,7 +1223,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       'Labels, packaging, signs, screens and documents must not be empty: fill them with simple graphics instead of text — short gray placeholder lines like lines of text, a tiny chart, or a small cross or heart icon. Never real words or English such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
       // 2026-10-25 사용자: 머그컵 · 책 · 화분 · 나무 · 건물 · 하트가 덧붙어 5개 이상 → 덧붙이는 소품 · 풍경을 이름으로 막음
       'COMPOSITION: one main object about 55-60% of the image height, slightly tilted or at a 3/4 angle, never flat and frontal; 2 much smaller supporting objects by default (only 1 if just one fits the topic) placed in FRONT of it, at its lower-left, slightly overlapping, but still right of the 55% mark. Leave generous empty background: at least 15% of the image height above and below the objects and 8% on the right (the image is cropped top and bottom). The supporting object is a different kind of thing: a real physical prop that fits the topic, or the information itself sculpted as a solid 3D object (e.g. free-standing 3D bar chart, 3D pie chart piece, 3D check mark) — never a flat paper card, a card with a chart printed on it, a clipboard or an app-screen piece. Nothing floating behind or above it. Every object fully visible, not cut by the image edge.',
-      'OBJECTS: at most 3 things in total, and a person counts as one of them (1 main + 2 smaller, or 1 smaller). Do not add anything that is not described: no mugs, books, plants, trees, buildings, city skyline, hearts or other extra props, no scenery, no floating icons.',
+      'OBJECTS: at most 3 things in total, and a person counts as one of them (1 main + 2 smaller, or 1 smaller). At most ONE heart shape in the whole image. Do not add anything that is not described: no mugs, books, plants, trees, buildings, city skyline, hearts or other extra props, no scenery, no floating icons.',
       `LAYOUT: the left 55-60% is empty background close to ${bg}, continuous over the full image height; every object or person starts to the right of the 55% mark and never crosses into the left side.`,
       'ONE CONTINUOUS SCENE: no split panel, no hard vertical edge or seam — the background color flows smoothly and gradually from the left into the scene on the right.',
       ref && !ref.mine && /인물/.test(ref.desc || '') ? 'PEOPLE: the person in the reference photo is a real person — never copy their face, hair or outfit; draw a completely different fictional Korean person.' : '',
