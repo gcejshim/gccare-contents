@@ -1045,7 +1045,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 2026-10-25 사용자: 참고 이미지 18장 확인 — 대부분 '크고 살짝 기울어진 중심 1 + 그 앞쪽 아래에 작게 겹친 보조 1(~2)'. 뒤쪽 배치 · 양쪽 밑변 삼각형은 거의 없음
     // 2026-10-27 사용자: 스타일을 적지 않으면 단조로움(책자 + 파이 하나) → 보조 기본 2개, 합쳐 3개 상한은 그대로
     // 2026-10-28 사업부 요청: 오브제가 복잡하게 많이 나옴 → 보조 기본 1개(10/27의 2개 기본을 되돌림), 표면 디테일은 크고 단순하게
-    L.push('- 중심 대상 1개 + 보조 대상 1개가 기본. 꼭 필요할 때만 보조 2개, 모두 합쳐 3개를 넘지 않는다. 작은 소품을 흩어 놓지 않는다.');
+    // 2026-10-29 사용자: 보조 2개 기본으로 되돌림(주제에 따라 1개도). 대신 사람도 개수에 넣고 영어 규칙까지 같은 기준으로 (영어 규칙이 2개로 남아 있어 넘쳤음)
+    L.push('- 중심 대상 1개 + 보조 대상 2개가 기본(주제에 맞는 게 하나뿐이면 보조 1개). 사람도 대상 하나로 세어, 모두 합쳐 3개를 넘지 않는다. 작은 소품을 흩어 놓지 않는다.');
     L.push('- 중심 물건 표면은 크고 단순한 요소 2~3개로만: 화면이면 큰 UI 덩어리와 그래프 하나, 문서면 큰 그래픽 칸 하나. 작은 요소를 빽빽하게 채우지 않는다.');
     if (type !== 'photo') L.push('- 재질은 매트한 단색이 바탕이고, 한두 곳에만 은은한 광택 · 반투명 재질로 대비를 준다(사진 같은 질감은 쓰지 않음).');   // 3D 전용 (실사에 들어가 일러스트로 나오던 문제)
     L.push('- 보조 대상을 중심 대상 표면에 아이콘 · 그림으로 그려 넣지 않는다. 각각 입체 물건으로 세운다.');
@@ -1114,8 +1115,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 2026-10-28 사업부 요청: 실사를 골랐는데 일러스트로 나옴 → 실제 카메라 사진임을 분명히, 3D · 일러스트 금지
     if (type === 'photo') L.push('- 실제 카메라로 촬영한 사진(DSLR · 50mm 렌즈 느낌). 3D 렌더링 · 일러스트 · 만화 · 아이콘 같은 그림체는 쓰지 않는다.', '- 스튜디오에서 촬영한 것 같은 깔끔한 고급 사진. 큰 소프트박스 조명, 자연스러운 반사와 재질, 가까이 보면 보이는 미세한 질감, 정돈된 구성.');
     else if (type === 'scene3d') L.push(...STYLE3D);
-    else if (type === 'objPhoto') L.push('- 스튜디오에서 촬영한 실제 제품 사진 같은 재질과 조명.', '- 중심 물건 1개 + 필요한 보조 물건 최대 2개.');
-    else L.push(...STYLE3D, '- 물건 구성은 간결하게: 중심 물건 1개 + 필요한 보조 물건 최대 2개.');
+    else if (type === 'objPhoto') L.push('- 스튜디오에서 촬영한 실제 제품 사진 같은 재질과 조명.', '- 중심 물건 1개 + 보조 물건 2개(주제에 따라 1개), 모두 합쳐 3개까지.');
+    else L.push(...STYLE3D, '- 물건 구성은 간결하게: 중심 물건 1개 + 보조 물건 2개(주제에 따라 1개), 사람을 넣으면 사람도 포함해 모두 합쳐 3개까지.');
     if (T.obj) L.push('- 실제 투명 배경. 배경판이나 바닥 장면은 만들지 않는다.');
 
     L.push('', '[구도]');
@@ -1189,7 +1190,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const NO_SITE = /안전모|헬멧|안전조끼|공사|소화기|경고/.test(desc) ? '' : ' 안전모 · 헬멧 · 공사 현장 같은 산업안전 물건은 그리지 않는다(직장인 건강관리 주제).';
     // 2026-10-18 사용자: 주변 물건이 너무 많음(떠 있는 하트 · 십자 · 체크 · 구슬) → 개수 규칙을 맨 앞 · 끝에
     const MINE = !(curRef() || {}).mine ? '' : desc ? ' 첨부한 참고 이미지의 그림체 · 구도 · 색감을 따르되, 그리는 내용은 그릴 내용에 적은 대로.' : ' 첨부한 참고 이미지를 거의 그대로(물건 · 배치 · 색감 · 그림체) 다시 그린다.';
-    const FEW = ' 물건은 모두 합쳐 3개 이하(중심 1 + 보조 최대 2). 주변에 떠 있는 작은 아이콘 · 배지 · 하트 · 십자 · 체크 · 구슬 · 반짝이 · 말풍선은 하나도 넣지 않는다.';
+    const FEW = ' 물건은 사람을 포함해 모두 합쳐 3개 이하(중심 1 + 보조 2, 주제에 따라 보조 1). 주변에 떠 있는 작은 아이콘 · 배지 · 하트 · 십자 · 체크 · 구슬 · 반짝이 · 말풍선은 하나도 넣지 않는다.';
     // 2026-10-18 사용자: 라벨 영어 · 물건 5개 — 긴 한글 규칙 속에 묻힘 → 가장 중요한 규칙을 짧은 영어로 맨 앞 · 맨 끝에 (그림 모델은 짧은 영어를 가장 잘 따름)
     const mineR = (curRef() || {}).mine;
     const CRIT = [
@@ -1201,12 +1202,12 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       // 2026-10-18 사용자: 아예 비면 어색함 → 글자 대신 그래픽으로 채우기
       'Labels, packaging, signs, screens and documents must not be empty: fill them with simple graphics instead of text — short gray placeholder lines like lines of text, a tiny chart, or a small cross or heart icon. Never real words or English such as KIT, SANITIZER, HEALTH, SAFETY, ANNOUNCEMENT.',
       // 2026-10-25 사용자: 머그컵 · 책 · 화분 · 나무 · 건물 · 하트가 덧붙어 5개 이상 → 덧붙이는 소품 · 풍경을 이름으로 막음
-      'COMPOSITION: one main object about 55-60% of the image height, slightly tilted or at a 3/4 angle, never flat and frontal; 2 (or 1 if only one fits the topic) much smaller supporting objects placed in FRONT of it, at its lower-left, slightly overlapping, but still right of the 55% mark. Leave generous empty background: at least 15% of the image height above and below the objects and 8% on the right (the image is cropped top and bottom). The supporting object is a different kind of thing: a real physical prop that fits the topic, or the information itself sculpted as a solid 3D object (e.g. free-standing 3D bar chart, 3D pie chart piece, 3D check mark) — never a flat paper card, a card with a chart printed on it, a clipboard or an app-screen piece. Nothing floating behind or above it. Every object fully visible, not cut by the image edge.',
-      'OBJECTS: at most 3 objects in total (1 main object + up to 2 smaller ones). Do not add anything that is not described: no mugs, books, plants, trees, buildings, city skyline, hearts or other extra props, no scenery, no floating icons.',
+      'COMPOSITION: one main object about 55-60% of the image height, slightly tilted or at a 3/4 angle, never flat and frontal; 2 much smaller supporting objects by default (only 1 if just one fits the topic) placed in FRONT of it, at its lower-left, slightly overlapping, but still right of the 55% mark. Leave generous empty background: at least 15% of the image height above and below the objects and 8% on the right (the image is cropped top and bottom). The supporting object is a different kind of thing: a real physical prop that fits the topic, or the information itself sculpted as a solid 3D object (e.g. free-standing 3D bar chart, 3D pie chart piece, 3D check mark) — never a flat paper card, a card with a chart printed on it, a clipboard or an app-screen piece. Nothing floating behind or above it. Every object fully visible, not cut by the image edge.',
+      'OBJECTS: at most 3 things in total, and a person counts as one of them (1 main + 2 smaller, or 1 smaller). Do not add anything that is not described: no mugs, books, plants, trees, buildings, city skyline, hearts or other extra props, no scenery, no floating icons.',
       `LAYOUT: the left 55-60% is empty background close to ${bg}, continuous over the full image height; every object or person starts to the right of the 55% mark and never crosses into the left side.`,
       'ONE CONTINUOUS SCENE: no split panel, no hard vertical edge or seam — the background color flows smoothly and gradually from the left into the scene on the right.',
       ref && !ref.mine && /인물/.test(ref.desc || '') ? 'PEOPLE: the person in the reference photo is a real person — never copy their face, hair or outfit; draw a completely different fictional Korean person.' : '',
-      health ? 'HEALTH: it must read as employee health care at a glance. Charts and graphics on the objects use health motifs — a heartbeat (ECG) line, a heart, a simple human body silhouette, step / sleep / weight icons, bars topped with a small heart — shapes only, no numbers. Generic business bar and pie charts alone are not enough.' : '',
+      health ? 'HEALTH: it must read as employee health care at a glance. Charts and graphics on the objects use health motifs — a heartbeat (ECG) line, a simple human body silhouette, step / sleep / weight icons — shapes only, no numbers. At most ONE heart in the whole image. Generic business bar and pie charts alone are not enough.' : '',
       noBuilding ? 'No buildings, offices or city skylines anywhere — not even as a picture printed on a document or screen.' : '',
       // 2026-10-27 사용자: 스타일을 적지 않으면 단조로움 → 막는 규칙만 있어서, 깔끔함은 지키되 빛 · 깊이를 더하는 한 줄
       'DETAIL: the main object has layered detail — a screen shows UI blocks and a small chart, a document or newspaper shows stacked pages, tabs and graphic sections; never a plain empty surface.',
