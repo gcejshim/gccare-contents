@@ -335,8 +335,11 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .blk-title{font-size:var(--fs-title);font-weight:700;color:var(--neutral-900);line-height:1.45;letter-spacing:-0.088px;margin:0 0 20px}
 .nl .blk-title .tc-blue{color:var(--careBlue-500)}   /* 제목 강조 블루는 밝게 ([대괄호] 강조와 같은 색) */
 .nl .blk-title small{font-size:var(--fs-cap);font-weight:400;color:var(--coolNeutral-500);margin-left:6px}
-.nl .blk-title.has-tag{display:flex;align-items:baseline;gap:12px} .nl .blk-title .bt-l{flex:1;min-width:0}
-.nl .blk-title .bt-tag{flex:none;margin-left:auto;font-size:var(--fs-cap);font-weight:500;color:var(--coolNeutral-600);white-space:nowrap}   /* 제목 오른쪽 작은 글씨 */
+.nl .blk-title.has-tag{display:flex;flex-wrap:wrap;align-items:baseline}   /* 제목 · 옆 보조문구 · 오른쪽 끝 보조문구를 한 줄에, 넘치면 오른쪽 끝이 다음 줄 오른쪽으로 */
+.nl-mo .blk-title.has-tag .bt-t{flex-basis:100%}   /* 모바일: 제목 한 줄, 아래 줄에 옆 보조문구(왼쪽) · 오른쪽 끝 보조문구(오른쪽) (2026-10-29 사용자) */
+.nl-mo .blk-title.has-tag{justify-content:space-between} .nl-mo .blk-title.has-tag .bt-tag{margin:4px 0 0;padding-left:0}   /* 한 줄에 들어가면 양쪽 끝, 길어서 넘치면 옆 보조문구 아래 왼쪽 (2026-10-29 사용자) */
+.nl-mo .blk-title.has-tag:not(:has(small)) .bt-tag{margin-left:auto}   /* 옆 보조문구가 없으면 오른쪽 */
+.nl .blk-title .bt-tag{flex:none;margin-left:auto;padding-left:12px;font-size:var(--fs-cap);font-weight:500;color:var(--coolNeutral-600);white-space:nowrap}   /* 제목 오른쪽 작은 글씨 */
 .nl-mo .blk-title small{display:block;margin:4px 0 0}   /* 모바일: 제목 옆 작은 글씨는 아래 줄로 (중간에서 끊기지 않게) */
 .nl .ph{border:1.5px dashed var(--coolNeutral-300);border-radius:12px;padding:48px 16px;text-align:center;color:var(--coolNeutral-500);font-size:var(--fs-sub);background:var(--neutral-0)}
 
@@ -1111,7 +1114,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           return ic ? `<span class="c0w"><span class="c0i${d.iconStyle === 'emoji' ? ' emo' : ''}" data-ic="@icons.${r}" data-none="1">${ic}</span><span${EC('rows', r, 0)}>${cell(s)}</span></span>` : `<span${EC('rows', r, 0)}>${cell(s)}</span>`; };
         const th = head.length ? `<tr>${head.map((h, i) => `<th class="${cls(i)}"${thBg(i)}><span${EC('head', 0, i)}>${cell(h)}</span></th>`).join('')}</tr>` : '';
         const tr = rows.map((r, ri) => `<tr>${Array.from({length: n}, (_, i) => `<td class="${cls(i)}">${i === 0 ? c0(r[i] || '', ri) : `<span${EC('rows', ri, i)}>${cell(r[i] || '')}</span>`}</td>`).join('')}</tr>`).join('');
-        const title = d.title ? (tagR(d) ? `<div class="blk-title has-tag"><span class="bt-l"${E('title')}>${rich(tTitle(d.title))}</span>${tagR(d)}</div>` : `<div class="blk-title"${E('title')}>${rich(tTitle(d.title))}</div>`) : '';
+        const title = d.title ? (tagR(d) ? `<div class="blk-title has-tag"><span class="bt-t"${E('title')}>${rich(tTitle(d.title))}</span>${tagR(d)}</div>` : `<div class="blk-title"${E('title')}>${rich(tTitle(d.title))}</div>`) : '';
         const rh = d.rowH === 'l' ? '' : ' rh-' + (d.rowH === 's' ? 's' : 'm');   // 행 간격 (비어 있으면 보통)
         return `${title}<div class="tb${rh}${d.hl === 'last' ? ' hl-last' : ''}${d.hc && d.hc !== 'navy' ? ' hc-' + d.hc : ''}"><table>${th ? `<thead>${th}</thead>` : ''}<tbody>${tr}</tbody></table></div>`;
       },
@@ -1429,8 +1432,9 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         if (m === 'mo' && /data-sub/.test(out)){ const t = document.createElement('template'); t.innerHTML = out;
           t.content.querySelectorAll('[data-sub]').forEach(el => { const f = el.firstChild; if (f && f.nodeType === 3) f.textContent = f.textContent.replace(/^\s*[-·–—]\s*/, ''); }); out = t.innerHTML; }   // 아래 줄로 내려가니 앞 기호는 빼고
         if (String(d.tag || '').trim()){ const t = document.createElement('template'); t.innerHTML = out; const first = t.content.querySelector('[data-edit="text"]'), row = first && first.parentElement;
-          if (row){ row.style.display = 'flex'; row.style.alignItems = 'baseline'; row.style.flexWrap = 'wrap'; row.querySelectorAll(':scope > [data-sub]').forEach(x => { if (m === 'mo'){ x.style.order = '3'; x.style.flexBasis = '100%'; } });
-            row.insertAdjacentHTML('beforeend', `<span class="bt-tag"${E('tag')} style="order:2;margin-left:auto;padding-left:12px;font-size:var(--fs-cap);font-weight:500;color:var(--coolNeutral-600);white-space:nowrap">${rich(d.tag)}</span>`); out = t.innerHTML; } }
+          if (row){ row.style.display = 'flex'; row.style.alignItems = 'baseline'; row.style.flexWrap = 'wrap'; const hasSub = [...row.children].some(x => x !== first);
+            if (m === 'mo'){ first.style.flexBasis = '100%'; row.style.justifyContent = 'space-between'; }   // 모바일: 제목 한 줄, 아래 줄에 옆 보조문구(왼쪽) · 오른쪽 끝(오른쪽), 길어서 넘치면 옆 보조문구 아래 왼쪽
+            row.insertAdjacentHTML('beforeend', `<span class="bt-tag"${E('tag')} style="${m === 'mo' ? `margin:4px 0 0 ${hasSub ? '0' : 'auto'};` : 'margin-left:auto;padding-left:12px;'}font-size:var(--fs-cap);font-weight:500;color:var(--coolNeutral-600);white-space:nowrap">${rich(d.tag)}</span>`); out = t.innerHTML; } }
         return `<div class="cx cx-${(it && it.id) || 'x'}-${m}"${vars.length ? ` style="${esc(vars.join(';'))}"` : ''}>${out}</div>`;
       },
       lint(d){
@@ -1671,7 +1675,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   const tTitle = s => String(s || '').replace(/\{(?:그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1');   // 표 · 차트 제목은 블루만 (예전 파일 · 직접 친 다른 색은 기본색으로)
   // 제목 오른쪽 작은 글씨 tag (2026-10-28 사업부 요청 1번: 타이틀 옆 보조문구, 비우면 없음)
   const tagR = d => String(d.tag || '').trim() ? `<span class="bt-tag"${E('tag')}>${rich(d.tag)}</span>` : '';
-  const chTitle = d => d.title ? (tagR(d) ? `<div class="blk-title has-tag"><span class="bt-l"><span${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</span>${tagR(d)}</div>`
+  const chTitle = d => d.title ? (tagR(d) ? `<div class="blk-title has-tag"><span class="bt-t"${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}${tagR(d)}</div>`
     : `<div class="blk-title"><span${E('title')}>${rich(tTitle(d.title))}</span>${d.sub ? `<small${E('sub')}>${rich(d.sub)}</small>` : ''}</div>`) : '';
   // 그래프 색 지정: 비워 두면 블록 규칙(자동), 고르면 d.cols[i] = DS 토큰 (사용자 지정 2026-10-02)
   const CHART_COLORS = [['블루', ['--careBlue-900', '--careBlue-700', '--careBlue-500', '--careBlue-400', '--careBlue-300', '--careBlue-200', '--careBlue-100', '--careBlue-50']],
