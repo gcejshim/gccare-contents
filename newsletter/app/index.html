@@ -1136,8 +1136,8 @@ window.addEventListener('message',e=>{const d=e.data;if(d&&d.nl===1&&d.type==='u
       c.width=Math.round(im.naturalWidth*s);c.height=Math.round(im.naturalHeight*s);const g=c.getContext('2d');g.fillStyle='#fff';g.fillRect(0,0,c.width,c.height);g.drawImage(im,0,0,c.width,c.height);
       let d=c.toDataURL('image/jpeg',.7);if(d.length>TH_MAX/2)d=c.toDataURL('image/jpeg',.45);ok(d);};
     im.onerror=()=>{URL.revokeObjectURL(u);ok('');};im.src=u;});
-  const thumbs=async()=>{const out=[];let sum=0;
-    for(const f of files.filter(f=>f.type.startsWith('image/'))){const d=await thumb(f);if(!d||sum+d.length>TH_MAX)continue;out.push(d);sum+=d.length;}
+  const thumbs=async()=>{const out=[];let sum=0;   // i = 첨부 순서 → 시트 스크립트가 카드 이미지에 그 원본(Drive) 링크를 닮
+    for(const [i,f] of files.entries()){if(!f.type.startsWith('image/'))continue;const d=await thumb(f);if(!d||sum+d.length>TH_MAX)continue;out.push({i,d});sum+=d.length;}
     return out;};
   $('rqSend').addEventListener('click',async()=>{
     const text=$('rqText').value.trim();if(!text){$('rqText').focus();return;}

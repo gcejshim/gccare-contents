@@ -84,13 +84,13 @@ function saveFiles_(d, tool) {
   const stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyyMMdd_HHmmss');
   const who = String(d.n || '').replace(/[\\/:*?"<>|]/g, '').slice(0, 20);
   const out = [];
-  list.forEach(f => {
+  list.forEach((f, i) => {
     try {
       const name = `${stamp}_${who}_${String(f.name || 'file').replace(/[\\/:*?"<>|]/g, '_').slice(0, 80)}`;
       const blob = Utilities.newBlob(Utilities.base64Decode(f.data), f.type || 'application/octet-stream', name);
       const file = folder.createFile(blob);
       file.setDescription(`${tool} 요청 · ${d.n || ''} · ${d.screen || ''}`);
-      out.push({ name: f.name || name, url: file.getUrl() });
+      out.push({ i, name: f.name || name, url: file.getUrl() });
     } catch (err) { console.warn('첨부 저장 실패: ' + err); }
   });
   return out;
@@ -105,13 +105,20 @@ function richLinks_(links) {
 }
 
 // Teams 채널에 의견 카드 올리기. 첨부는 Drive 링크 대신 개수만 (회사 보안에서 Google Drive 링크가 막힐 수 있어서) — 실패해도 시트 기록은 그대로
-// 이미지 첨부는 통합본이 만든 작은 미리보기(d.thumbs, 폭 600 JPG data URI · 합쳐 170KB 안)를 카드에 바로 넣음 (2026-10-29). 원본은 Drive
+// 이미지 첨부는 통합본이 만든 작은 미리보기(d.thumbs [{i, d}], 폭 600 JPG data URI · 합쳐 170KB 안)를 카드에 바로 넣음 (2026-10-29).
+// 미리보기를 누르면 원본(Drive)이 열림 — Drive 파일은 공유하지 않아 스크립트 주인만 열림
 function sendTeams_(d, tool, name, links) {
   const url = PropertiesService.getScriptProperties().getProperty('TEAMS_WEBHOOK');
   if (!url) return;
   const clean = s => String(s || '').slice(0, 1500);
   const who = [clean(d.c), clean(d.t), clean(d.n)].filter(Boolean).join(' · ');
-  const thumbs = (Array.isArray(d.thumbs) ? d.thumbs : []).filter(s => /^data:image\/jpeg;base64,/.test(String(s))).slice(0, 3);
+  const thumbs = (Array.isArray(d.thumbs) ? d.thumbs : []).map(t => typeof t === 'string' ? { d: t } : t || {})
+    .filter(t => /^data:image\/jpeg;base64,/.test(String(t.d))).slice(0, 3);
+  const image = t => {
+    const f = links.find(l => l.i === t.i);
+    return Object.assign({ type: 'Image', url: t.d, size: 'Stretch', spacing: 'Medium' },
+      f ? { selectAction: { type: 'Action.OpenUrl', url: f.url, title: '원본 보기' } } : {});
+  };
   const card = {
     type: 'AdaptiveCard', $schema: 'http://adaptivecards.io/schemas/adaptive-card.json', version: '1.4',
     body: [
@@ -120,10 +127,10 @@ function sendTeams_(d, tool, name, links) {
         { title: '보낸 사람', value: who || '-' },
         { title: '화면', value: clean(d.screen) || '-' },
         { title: '버전', value: clean(d.ver) || '-' },
-        { title: '첨부', value: links.length ? `${links.length}개 · ${thumbs.length ? '아래 미리보기, ' : ''}원본은 시트 '${name}' 탭` : '없음' }
+        { title: '첨부', value: links.length ? `${links.length}개 · ${thumbs.length ? '아래 미리보기를 누르면 원본, ' : ''}시트 '${name}' 탭에도 있음` : '없음' }
       ] },
       { type: 'TextBlock', text: clean(d.text) || '(내용 없음)', wrap: true, spacing: 'Medium' }
-    ].concat(thumbs.map(s => ({ type: 'Image', url: s, size: 'Stretch', spacing: 'Medium' })))
+    ].concat(thumbs.map(image))
   };
   try {
     UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', muteHttpExceptions: true,
