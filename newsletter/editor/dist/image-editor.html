@@ -1386,9 +1386,9 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .fl-av{width:54px;height:54px;object-fit:contain}
 .nl .fl-t{font-size:24px;font-weight:700;color:var(--careGreen-600);line-height:32px}
 .nl .fl-d{font-size:var(--fs-body);font-weight:500;line-height:30px}
-.nl .fl-s{display:flex;align-items:center;gap:12px}
-.nl .fl-b{flex:1;min-width:0;text-align:center;padding:10px 8px;border:1.5px solid var(--careGreen-500);background:var(--careGreen-10);border-radius:8px;font-size:var(--fs-sub);font-weight:600;color:var(--careGreen-600);line-height:28px}
-.nl .fl-a{flex:none;display:flex}
+.nl .fl-s{display:flex;align-items:stretch;gap:12px}   /* 줄 수가 달라도 박스 높이는 같게 */
+.nl .fl-b{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 8px;border:1.5px solid var(--careGreen-500);background:var(--careGreen-10);border-radius:8px;font-size:var(--fs-sub);font-weight:600;color:var(--careGreen-600);line-height:28px}
+.nl .fl-a{flex:none;display:flex;align-self:center}
 .nl-mo .fl{padding:20px;gap:12px}
 .nl-mo .fl-av{width:40px;height:40px}
 .nl-mo .fl-t{font-size:18px;line-height:26px}
@@ -1437,6 +1437,7 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .qt-w{flex:1;min-width:0}
 .nl .qt-b{position:relative;background:var(--neutral-0);border-radius:24px;padding:18px 26px;font-size:var(--fs-body);font-weight:500;line-height:30px;box-shadow:0 2px 10px rgba(3,21,82,.06)}
 .nl .qt-b::before{content:'';position:absolute;left:-10px;top:30px;border:10px solid transparent;border-right-color:var(--neutral-0);border-left:0}
+.nl .qt-w:first-child .qt-b::before{display:none}   /* 얼굴 이미지를 뺀 말풍선은 꼬리 없이 */
 .nl .qt-n{margin:8px 0 0 6px;font-size:var(--fs-cap);font-weight:600;color:var(--neutral-700)}
 .nl .qt-note{background:var(--neutral-0);border-radius:24px;padding:28px 36px;font-size:var(--fs-body);font-weight:500;line-height:32px;--hl:var(--careGreen-500)}
 .nl .qt-by{margin-top:14px;color:var(--neutral-600)}
@@ -1777,7 +1778,10 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   const tcFlat = s => { let o; do { o = s; s = s.replace(/\{(블루|그린|빨강|주황|회색):\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}\}/g, '{$1:$2}'); } while (s !== o); return s; };   // 겹친 색 표시는 바깥 색 하나로 (예전에 겹쳐 저장된 값도 바로 보이게)
   const noTc = t => { let o; t = String(t == null ? '' : t); do { o = t; t = t.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1'); } while (t !== o); return t; };   // 글자 색 표시 걷어내기 (겹친 것도 끝까지)
   // 예전 표기 {빨강:글자} → !!글자!! (예전 스킬 결과 · 작업 파일이 들어와도 입력칸에 새 기호로만 보이게). 그리기 직전에 데이터 자체를 바꿈
-  const redMark = o => { if (o && typeof o === 'object') Object.keys(o).forEach(k => { const v = o[k];
+  // 칸 구분 기호: 한글 자판 'ㅣ'(앞뒤 띄어쓰기) · 전각 '｜' · '│'도 | 로 (사업부 요청 2026-10-28: 계열을 ㅣ로 나눠 그래프가 안 나옴). 직접 만든 블록 코드는 그대로
+  const barFix = v => /[｜│ㅣ]/.test(v) ? v.replace(/[｜│]/g, '|').replace(/(^|[ \t])ㅣ(?=[ \t]|$)/gm, '$1|') : v;
+  const redMark = o => { if (o && typeof o === 'object') Object.keys(o).forEach(k => { let v = o[k];
+    if (typeof v === 'string' && !/^(html|htmlMo|note)$/.test(k) && (o[k] = barFix(v)) !== v) v = o[k];
     if (typeof v !== 'string') redMark(v); else if (v.includes('{빨강:')){ let t = v, p; do { p = t; t = t.replace(/\{빨강:([^{}]*)\}/g, '!!$1!!'); } while (t !== p); o[k] = t.replace(/!!!!(.+?)!!!!/g, '!!$1!!'); } }); return o; };
   const rich = s => esc(tcFlat(String(s == null ? '' : s))).replace(/\{(블루|그린|빨강|주황|회색):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/!!(.+?)!!/g, '<span class="tc-red">$1</span>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]/g, '<em class="hl">$1</em>').replace(/\n|\/\//g, '<br>');
   const clone = o => JSON.parse(JSON.stringify(o));
@@ -2347,7 +2351,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {k:'head', t:'text', label:'머리 제목'},
         {k:'title', t:'text', label:'헤드라인 (그린)'},
         {k:'desc', t:'area', label:'설명 (**굵게**)', rows:3},
-        {k:'steps', t:'area', label:'단계 (한 줄 = 한 단계)', rows:4}
+        {k:'steps', t:'area', label:'단계 (한 줄 = 한 단계 · 단계 안 줄바꿈은 //)', rows:4}
       ],
       sample: () => ({avatar:'', head:'GC케어 유소견자 의료진 상담', title:'검진결과 C, D등급 임직원에게 간호사가 직접 1:1 상담 진행',
         desc:'임직원이 앱에서 검진결과를 등록하면 대상자를 자동으로 분류하고,\n맞춤 콘텐츠 발송과 함께 의료진이 먼저 연락하는 방식입니다.\n담당자가 개인 건강 데이터를 직접 다루지 않아도 되는 구조이기도 해요.',
@@ -2355,7 +2359,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       render(d, m){
         const st = String(d.steps || '').split('\n').map(x => x.trim()).filter(Boolean), arrow = icon(m === 'mo' ? 'ChevronDown' : 'ChevronRight', css(d.tone === 'blue' ? '--careBlue-500' : '--careGreen-500'), m === 'mo' ? 18 : 22, 2.5);
         const head = d.head ? `<div class="fl-h">${d.avatar ? `<img class="fl-av" src="${d.avatar}" alt="">` : ''}<span${E('head')}>${rich(d.head)}</span></div>` : '';
-        return `<div class="box fl">${head}${d.title ? `<div class="fl-t"${E('title')}>${rich(d.title)}</div>` : ''}${d.desc ? `<div class="fl-d"${E('desc')}>${rich(d.desc)}</div>` : ''}<div class="fl-s" data-tonepick>${st.map((x, i) => (i ? `<span class="fl-a">${arrow}</span>` : '') + `<span class="fl-b">${esc(x)}</span>`).join('')}</div></div>`;
+        return `<div class="box fl">${head}${d.title ? `<div class="fl-t"${E('title')}>${rich(d.title)}</div>` : ''}${d.desc ? `<div class="fl-d"${E('desc')}>${rich(d.desc)}</div>` : ''}<div class="fl-s" data-tonepick>${st.map((x, i) => (i ? `<span class="fl-a">${arrow}</span>` : '') + `<span class="fl-b"><span${EC('steps', i, 0)}>${rich(x)}</span></span>`).join('')}</div></div>`;   // 단계 글자도 미리보기에서 고침 · 단계 안 줄바꿈은 // (사업부 요청 2026-10-28)
       },
       lint(d){ const n = String(d.steps || '').split('\n').filter(x => x.trim()).length; return n > 5 ? [['info', '단계가 5개를 넘으면 PC 한 줄에 다 안 들어가요. 4개 이하가 좋아요.']] : []; }
     },
@@ -2423,11 +2427,11 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {image: A.face11c || '', text:'혼자 하는 건 하다 말다 하는데, 동료들과 함께하니\n동기부여도 되고 다른 사람들 생각도 엿볼 수 있어 좋아요.', who:'현장직 임직원 C'}],
         note:'금융업 A사는 2026년부터 연간 10개 챌린지를 미리 계획하는 구조로 전환했어요.\n특정 챌린지가 끝나도 다음 챌린지가 예고돼 있으니, 임직원들이\n[”이번 달엔 어떤 챌린지야?”]라고 먼저 물어보기 시작했다고 해요.', noteBy:'- 금융업 A사 임직원 건강관리 담당자 인터뷰'}),
       render(d){
-        const rows = (d.items || []).map((it, i) => `<div class="qt-r"><div class="qt-av">${it.image ? `<img src="${it.image}" alt="">` : ''}</div><div class="qt-w"><div class="qt-b"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.who ? `<div class="qt-n"${E(`items.${i}.who`)}>${esc(it.who)}</div>` : ''}</div></div>`).join('');
+        const rows = (d.items || []).map((it, i) => `<div class="qt-r">${it.image ? `<div class="qt-av"><img src="${it.image}" alt=""></div>` : ''}<div class="qt-w"><div class="qt-b"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.who ? `<div class="qt-n"${E(`items.${i}.who`)}>${esc(it.who)}</div>` : ''}</div></div>`).join('');
         const note = d.note ? `<div class="qt-note"><div${E('note')}>${rich(d.note)}</div>${d.noteBy ? `<div class="qt-by"${E('noteBy')}>${rich(d.noteBy)}</div>` : ''}</div>` : '';
         return `<div class="qt">${d.badge ? `<span class="c2-b"${badgeStyle(d)}${E('badge')}>${badgeTxt(d.badge)}</span>` : ''}${d.title ? `<div class="qt-t"${E('title')}>${rich(d.title)}</div>` : ''}${rows}${note}</div>`;
       },
-      lint(d){ return (d.items || []).some(it => !it.image) ? [['info', '얼굴 이미지가 없는 말풍선이 있어요. 얼굴만 보이게 자른 정사각형 이미지를 넣어 주세요.']] : []; }
+      lint(d){ return []; }   // 얼굴 이미지는 선택 — 빼면 동그라미 없이 말풍선만 (사업부 요청 2026-10-28)
     },
 
     voice: {
@@ -3368,7 +3372,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         if (g && PAIR_OK.includes(g.type) && S.sub !== g.id){ S.sub = g.id; buildForm(); refresh(); }
         openPair(pp.dataset.pairpick, pp, e.clientX, e.clientY); return; }
       const db = e.target.closest('[data-dbadge]'); if (db){ if (editing) endEdit(true); openBadge(db); return; }
-      const tp = e.target.closest('[data-tonepick]'); if (tp){ if (editing) endEdit(true); openTone(tp); return; }
+      // 단계 흐름: 단계 글자를 누르면 글자 수정, 박스 빈 곳은 강조색
+      const tp = e.target.closest('[data-tonepick]'); if (tp && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openTone(tp); return; }
       const cp = e.target.closest('[data-cp]'); if (cp && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors(+cp.dataset.cp, cp); return; }
       // 직접 만든 블록: data-color 표시가 있는 막대 · 띠 · 배지를 누르면 색 고르기 (글자를 누르면 글자 수정)
       const hc = e.target.closest('[data-hcol]'); if (hc && !e.target.closest('[data-e]')){ if (editing) endEdit(true); openColors('@hc:' + hc.dataset.hcol, hc); return; }
