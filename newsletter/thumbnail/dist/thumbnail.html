@@ -1016,8 +1016,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function objectsFor(title){ return topicFor(title)[1]; }
 
   // 2026-10-30 프롬프트 다이어트 (시험): 지금 프롬프트가 1만 자 · 85줄(같은 금지 4~5번 반복, 한국어 · 영어 기준 어긋남) → 짧은 영어 하나, 반복 없음, 상황별 줄은 그때만.
-  // 주소에 ?prompt=diet(통합본은 통합본 주소에)일 때만 씀. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
-  const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) === 'diet'; } catch(_){ return false; } })();
+  // 주소에 ?prompt=short(통합본은 통합본 주소에)일 때만 씀. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
+  const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) === 'short'; } catch(_){ return false; } })();
   if (PROMPT_DIET) $('btnGen').insertAdjacentHTML('afterend', '<span id="dietMark" style="align-self:center;font-size:12px;color:var(--careBlue-700)">짧은 프롬프트(시험)</span>');   // 비교하는 동안 어느 쪽으로 만드는지 보이게
   function buildPromptDiet(){
     const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase();
