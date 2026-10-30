@@ -233,7 +233,7 @@ module.exports = async function handler(req, res) {
       }
       content = buildEditContent(body);
       quality = 'medium';   // 썸네일과 같은 품질
-      size = '1536x1024';
+      size = body.size === 'square' ? '1024x1024' : '1536x1024';   // square: AI로 그리기(정사각) 수정 (10/30)
     } else if (kind === 'header') {
       content = buildHeaderContent(body);
       size = '1024x1024';

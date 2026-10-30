@@ -257,6 +257,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .ai-smp-w summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--neutral-900);padding:4px 0 10px}
 .ai-smp-w summary small{font-weight:400;color:var(--neutral-500);margin-left:6px}
 .ai-out:not([hidden]) + .ai-smp-w{margin-top:18px;border-top:1px solid var(--coolNeutral-100);padding-top:12px}
+/* 콘텐츠 이미지 칸에서 부르면 팝업으로 (페이지 이동 없이, 10/30 사용자) */
+#v-ai.pop{display:block;position:fixed;inset:3vh 4vw;z-index:300;overflow:auto;background:var(--coolNeutral-50);border-radius:16px;box-shadow:0 24px 64px rgba(3,21,82,.28)}
+.ai-dim{position:fixed;inset:0;background:rgba(3,21,82,.35);z-index:299}
+.ai-edit{margin-bottom:8px}.ai-edit input{flex:1;min-width:0}
 .ai-target{display:flex;align-items:center;gap:8px;margin:-4px 0 14px;padding:10px 12px;border-radius:10px;background:var(--careBlue-50);color:var(--careBlue-700);font-size:13px}
 .ai-target b{font-weight:700}.ai-target .sp{flex:1}
 .ai-out img{background:repeating-conic-gradient(#eef1f6 0% 25%, #fff 0% 50%) 0 0/16px 16px}   /* 투명 배경이 보이게 */
@@ -373,7 +377,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 
   <!-- AI로 그리기 -->
   <section class="view" id="v-ai"><div class="page">
-    <h2>AI로 그리기</h2>
+    <h2 style="display:flex;align-items:center;gap:8px">AI로 그리기<span style="flex:1"></span><button class="btn sm" id="aiClose" hidden>닫기</button></h2>
     <p class="lead"><b>콘텐츠 이미지</b>에 넣을 그림 요소(물건 · 장면 하나)를 <b>가운데</b>에 그려요. 만든 그림은 콘텐츠 이미지 도구에 <b>Ctrl+V</b>로 넣어요. 앱 · 웹 화면은 캡처해서 <b>목업 히어로</b>에 넣어요.</p>
       <div class="grid2">
         <div class="card">
@@ -396,6 +400,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
           <p class="gen-st" id="aiGenSt" hidden></p>
           <div class="ai-out" id="aiOut" hidden>
             <img id="aiOutImg" alt="">
+            <div class="row ai-edit"><input type="text" id="aiEditTxt" placeholder="바꿀 점 (예: 커피잔 빼 줘 · 화면 그래프를 더 크게)"><button class="btn sm" id="aiEditGo">수정하기</button></div>
             <div class="row"><button class="btn sm primary" id="aiOutPut" hidden>이 칸에 넣기</button><button class="btn sm" id="aiOutCopy">이미지 복사</button><button class="btn sm" id="aiOutSave">PNG 저장</button><span class="hint">콘텐츠 이미지 도구에 Ctrl+V로 붙여 넣어요.</span></div>
           </div>
           <!-- 2026-10-26 사용자: 빈 칸 대신 지난 호 콘텐츠 이미지 샘플(그림이 들어간 것만) — 누르면 참고 이미지로. 그린 뒤엔 접힘 -->
@@ -897,12 +902,29 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // 콘텐츠 이미지 칸에서 온 [AI로 그리기] (2026-10-30): 그 칸을 기억했다가 [이 칸에 넣기]로 돌려보냄
   let aiTarget = null;
   function aiFromImage(m){ aiTarget = {itemId: m.itemId, path: m.path, label: m.label || '콘텐츠 이미지'};
+    if (m.mode === 'edit' && m.image){ aiRaw = m.image; aiOutURL = m.image; } else if (m.mode !== 'redraw'){ aiRaw = ''; aiOutURL = ''; }
     if (!(H.ai && (H.ai.topic || '').trim()) && m.hint){ H.ai = Object.assign(H.ai || {}, {topic: m.hint}); save(); }
     if (m.bg === 'white' || m.bg === 'light'){ H.ai = Object.assign(H.ai || {}, {bg: m.bg}); save(); }   // 칸에 맞는 배경 (흰 카드면 라이트 블루)
-    go('ai'); renderAITarget(); }
+    openAIPop(); if (m.mode === 'edit' && m.image){ $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; setTimeout(() => $('aiEditTxt').focus(), 50); } else if (m.mode !== 'redraw') $('aiOut').hidden = true; renderAITarget(); }
+  function openAIPop(){ if (!document.querySelector('.ai-dim')){ const d = document.createElement('div'); d.className = 'ai-dim'; d.onclick = closeAIPop; document.body.appendChild(d); }
+    $('v-ai').classList.add('pop'); $('aiClose').hidden = false; renderAI(); }
+  function closeAIPop(){ $('v-ai').classList.remove('pop'); $('aiClose').hidden = true; const d = document.querySelector('.ai-dim'); if (d) d.remove(); aiTarget = null; renderAITarget(); }
   function renderAITarget(){ const t = $('aiTarget');
     t.hidden = !aiTarget; if (aiTarget) t.innerHTML = `<span>콘텐츠 이미지 <b>${esc(aiTarget.label)}</b> 칸에 넣을 그림이에요.</span><span class="sp"></span><button class="btn sm" id="aiTargetX">취소</button>`;
     $('aiOutPut').hidden = !(aiTarget && aiOutURL); }
+  // [수정하기]: 지금 그림 + 바꿀 점 → 같은 구도로 그 부분만 (서버 edit, 정사각) — 물건 영어 병기 · CGM 규칙은 service.js editSend
+  async function aiEdit(){
+    const what = $('aiEditTxt').value.trim(); if (!aiOutURL){ toast('고칠 그림이 없어요.'); return; } if (!what){ toast('바꿀 점을 적어 주세요.'); $('aiEditTxt').focus(); return; } if (aiBusy) return;
+    aiBusy = true; $('aiEditGo').disabled = $('aiGen').disabled = true; $('aiEditGo').textContent = '수정하는 중…';
+    const st = $('aiGenSt'); st.hidden = false; st.className = 'gen-st'; st.textContent = '수정하는 중이에요. 30초~1분 걸려요.';
+    try { const img = await shrinkRef(aiOutURL).catch(() => aiOutURL);
+      const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({kind: 'edit', prompt: window.GC_SVC.editSend(what), image: img, size: 'square'})});
+      const data = await resp.json().catch(() => ({})); if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
+      if (window._0u) window._0u('AI로 그리기 수정');
+      aiRaw = data.dataURL; aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiEditTxt').value = ''; st.textContent = ''; renderAITarget();
+    } catch(e){ st.className = 'gen-st err'; st.textContent = '수정하지 못했어요: ' + (e.message || e); }
+    finally { aiBusy = false; $('aiEditGo').disabled = $('aiGen').disabled = false; $('aiEditGo').textContent = '수정하기'; }
+  }
   async function aiGenerate(){
     if (aiBusy) return;
     if (!(H.ai.topic || '').trim()){ toast('그릴 것을 먼저 적어 주세요.'); $('aiTopic').focus(); return; }
@@ -1086,7 +1108,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       e.preventDefault(); setRefFile(it.getAsFile()); });
     $('aiGen').addEventListener('click', aiGenerate);
     $('aiTarget').addEventListener('click', e => { if (e.target.id === 'aiTargetX'){ aiTarget = null; renderAITarget(); } });
-    $('aiOutPut').addEventListener('click', () => { if (!aiTarget || !aiOutURL) return; send('image', {type: 'putImage', itemId: aiTarget.itemId, path: aiTarget.path, dataURL: aiOutURL}); aiTarget = null; renderAITarget(); go('image'); });
+    $('aiOutPut').addEventListener('click', () => { if (!aiTarget || !aiOutURL) return; send('image', {type: 'putImage', itemId: aiTarget.itemId, path: aiTarget.path, dataURL: aiOutURL}); closeAIPop(); });
+    $('aiClose').addEventListener('click', closeAIPop);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape' && $('v-ai').classList.contains('pop')) closeAIPop(); });
+    $('aiEditGo').addEventListener('click', aiEdit);
+    $('aiEditTxt').addEventListener('keydown', e => { if (e.key === 'Enter') aiEdit(); });
     $('aiOutCopy').addEventListener('click', async () => {
       try { const blob = await (await fetch(aiOutURL)).blob(); await navigator.clipboard.write([new ClipboardItem({[blob.type]: blob})]); toast('이미지를 복사했어요. 각 도구에 Ctrl+V로 붙여 넣어 주세요.'); }
       catch(e){ toast('복사가 막혀 있어요. [PNG 저장]으로 받아 주세요.'); } });

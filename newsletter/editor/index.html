@@ -488,6 +488,10 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl .sp-im{width:100%;height:var(--sh,330px);overflow:hidden;display:flex;justify-content:center}
 .nl .sp-im img{display:block;width:100%;height:auto;align-self:flex-start}
 .nl .ph[data-pick]{cursor:pointer;transition:border-color .15s,background .15s}
+.nl .c2-i{position:relative}
+.nl .ai-tools{position:absolute;right:10px;top:10px;display:flex;gap:6px;opacity:0;transition:opacity .15s}
+.nl .c2-i:hover .ai-tools{opacity:1}
+.nl .ai-tools button{padding:5px 10px;border:0;border-radius:999px;background:rgba(17,17,17,.72);color:#fff;font-size:12px;font-weight:600;cursor:pointer}
 .nl .ph .ai-b{display:block;margin:10px auto 0;padding:5px 12px;border:0;border-radius:999px;background:linear-gradient(90deg,var(--careBlue-500),var(--careGreen-500));color:#fff;font-size:12px;font-weight:600;cursor:pointer}
 .nl .ph[data-pick]:hover,.nl .ph[data-pick].over{border-color:var(--careBlue-500);background:var(--careBlue-50);color:var(--careBlue-600)}
 .nl .sp-im .ph{width:100%;height:100%;padding:24px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;line-height:1.5}   /* 안내 · 작은 글씨를 위아래로 */
@@ -1531,7 +1535,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {badge:'걷기 캠페인', title:'삼성헬스·아이폰 건강 앱 자동 연동', text:"일상의 걸음 수가 자동으로 참여 실적이 돼요. 별도로 '무언가를 해야 한다'는 부담 없이 임직원이 쉽게 참여할 수 있어요.", image:''},
         {badge:'건강습관 인증 챌린지', title:'운동·식습관·마음 다짐까지 주제 다양화', text:'걷기 외에도 물 마시기, 계단 오르기, 수면 기록 등 일상 속에서 쉽게 참여할 수 있는 주제로 운영할 수 있어요.', image:''}]}),
       render(d){
-        return `<div class="c2">${(d.items || []).map((it, i) => `<div class="c2-c">${it.badge ? `<span class="c2-b"${badgeStyle(d)}${E(`items.${i}.badge`)}>${badgeTxt(it.badge)}</span>` : ''}<div class="c2-t"${E(`items.${i}.title`)}>${rich(it.title)}</div><div class="c2-d"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.image ? `<div class="c2-i"><img src="${it.image}" alt=""></div>` : `<div class="ph" data-pick="items.${i}.image">이미지를 넣어 주세요 (선택)${aiBtn(`items.${i}.image`, it.title, 'light')}</div>`}</div>`).join('')}</div>`;
+        return `<div class="c2">${(d.items || []).map((it, i) => `<div class="c2-c">${it.badge ? `<span class="c2-b"${badgeStyle(d)}${E(`items.${i}.badge`)}>${badgeTxt(it.badge)}</span>` : ''}<div class="c2-t"${E(`items.${i}.title`)}>${rich(it.title)}</div><div class="c2-d"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.image ? `<div class="c2-i"><img src="${it.image}" alt="">${aiTools(`items.${i}.image`, it.title, 'light')}</div>` : `<div class="ph" data-pick="items.${i}.image">이미지를 넣어 주세요 (선택)${aiBtn(`items.${i}.image`, it.title, 'light')}</div>`}</div>`).join('')}</div>`;
       },
       lint(d){ return []; }
     },
@@ -2254,9 +2258,12 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   // ── 이미지 넣기 ──
   // bg: 그림 배경 기본값 — 칸이 흰 카드 위면 'light'(라이트 블루)로 구분 (10/30 사용자)
   // 2026-10-30 사용자: 그림 요소 칸 옆 [AI로 그리기] → 통합본 AI로 그리기에서 그린 그림이 바로 이 칸에 (통합본에서만, 화면 캡처 · 얼굴 칸은 제외)
+  // 그림이 든 칸: 마우스를 올리면 [다시 그리기] [수정하기] (opacity라 저장 이미지엔 안 나옴, 10/30 사용자)
+  const aiTools = (path, hint, bg) => document.body.classList.contains('embedded') ? `<span class="ai-tools"><button type="button" data-ai="${path}" data-mode="redraw" data-hint="${esc(String(hint || '').replace(/\[|\]|\/\//g, ''))}" data-bg="${bg || 'white'}">다시 그리기</button><button type="button" data-ai="${path}" data-mode="edit" data-bg="${bg || 'white'}">수정하기</button></span>` : '';
   const aiBtn = (path, hint, bg) => document.body.classList.contains('embedded') ? `<button type="button" class="ai-b" data-ai="${path}" data-hint="${esc(String(hint || '').replace(/\[|\]|\/\//g, ''))}" data-bg="${bg || 'white'}">✦ AI로 그리기</button>` : '';
   document.addEventListener('click', e => { const b = e.target.closest('[data-ai]'); if (!b) return; e.preventDefault(); e.stopPropagation();
-    notify({type: 'aiDraw', itemId: cur().id, path: b.dataset.ai, hint: b.dataset.hint || '', label: BLOCKS[cur().type].name, bg: b.dataset.bg || 'white'}); }, true);
+    const mode = b.dataset.mode || 'new', img = mode === 'edit' ? (() => { try { return b.dataset.ai.split('.').reduce((a, k) => a[k], cur().data); } catch(_){ return ''; } })() : '';
+    notify({type: 'aiDraw', itemId: cur().id, path: b.dataset.ai, hint: b.dataset.hint || '', label: BLOCKS[cur().type].name, bg: b.dataset.bg || 'white', mode, image: img}); }, true);
   let imgTarget = null;
   function pickImage(path){ imgTarget = path; $('fileImg').value = ''; $('fileImg').click(); }
   // 2026-10-27 사용자: 미리보기의 빈 화면 칸도 눌러서 파일 올리기 · 끌어다 놓기 (캡처 붙여넣기만 되던 것)
