@@ -1043,6 +1043,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push('- 1 main object + 2 smaller supporting objects (only 1 if just one fits). A person counts as an object. Nothing else.');
     if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
     else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
+    else L.push('- The main object is exactly what "What to draw" describes — keep that object type (e.g. a newspaper stays a folded newspaper).');   // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것이 OBJECTS에 없었음
     L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects are different kinds of things, standing as 3D objects — not flat cards.');
     if (health && !photo) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
     if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
