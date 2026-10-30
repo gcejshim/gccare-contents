@@ -32,6 +32,7 @@ replacements = [
     (r'<script src="[^"]*lucide[^"]*"></script>', inline_script(read('vendor/lucide.min.js'))),
     (r'<script src="assets.js"></script>', inline_script(read('assets.js'))),
     (r'<script src="refs.js"></script>', inline_script(read('refs.js'))),   # 참고 이미지 (make_refs.py)
+    (r'<script src="service.js"></script>', inline_script(read('service.js'))),   # 서비스 규칙 (썸네일 · AI로 그리기 공용)
 ]
 for pattern, repl in replacements:
     html, n = re.subn(pattern, lambda m: repl, html)

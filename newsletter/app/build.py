@@ -34,7 +34,7 @@ def tool(path, extra=(), h2c=True):
 
 
 tools = {
-    'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs')]),
+    'thumb': tool(os.path.join(TH, 'index.html'), [(r'<script src="refs\.js"></script>', 'refs'), (r'<script src="service\.js"></script>', 'svc')]),
     'image': tool(os.path.join(ED, 'index.html'), [(r'<script src="assets-editor\.js"></script>', 'assetsEd'), (r'<script src="[^"]*gifenc[^"]*"></script>', 'gifenc')]),   # gifenc: 콘텐츠 이미지 [GIF로 저장]
     'pdf': tool(os.path.join(ROOT, 'pdf', 'index.html'), [(r'<script src="styles\.js"></script>', 'pdfStyles'), (r'<script src="examples\.js"></script>', 'pdfEx'), (r'<script src="moods\.js"></script>', 'pdfMoods')]),   # html2canvas는 이번 호 화면의 작은 표지 미리보기용
 }
@@ -44,7 +44,8 @@ libs = {
     'gifenc': read(os.path.join(TH, 'vendor', 'gifenc.js')),
     'assets': read(os.path.join(TH, 'assets.js')),
     'assetsEd': read(os.path.join(ED, 'assets-editor.js')),
-    'refs': read(os.path.join(TH, 'refs.js')),   # 썸네일 참고 이미지 (썸네일 도구 · 에셋 › 배경 이미지)
+    'refs': read(os.path.join(TH, 'refs.js')),
+    'svc': read(os.path.join(TH, 'service.js')),   # 서비스 규칙 (썸네일 · AI로 그리기 공용)   # 썸네일 참고 이미지 (썸네일 도구 · 에셋 › 배경 이미지)
     'samples': read(os.path.join(HERE, 'samples.js')),
     'pdfStyles': read(os.path.join(ROOT, 'pdf', 'styles.js')),   # 리드마그넷 그림체 샘플 (PDF 도구 · 에셋 › 배경 이미지)
     'pdfEx': read(os.path.join(ROOT, 'pdf', 'examples.js')),
@@ -68,7 +69,7 @@ BOOT = r"""
     toolHTML(k){ return D.tools[k].replace('__NL_FONTFACE__', faces).replace(/__NL_LIB_(\w+)__/g, (_, n) => urls[n]); },
     async boot(){
       const st = document.createElement('style'); st.textContent = faces; document.head.appendChild(st);
-      for (const k of ['lucide', 'assets', 'assetsEd', 'samples', 'refs', 'pdfStyles', 'pdfEx', 'pdfMoods']) await load(urls[k]);
+      for (const k of ['lucide', 'assets', 'assetsEd', 'samples', 'refs', 'svc', 'pdfStyles', 'pdfEx', 'pdfMoods']) await load(urls[k]);
       try { await document.fonts.load('700 16px Pretendard'); } catch(e){}
     }
   };
@@ -77,7 +78,7 @@ BOOT = r"""
 
 shell = read(os.path.join(HERE, 'index.html'))
 shell = sub1(r'<link rel="stylesheet" href="[^"]*pretendard[^"]*">\n', '', shell, 'shell font')
-for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="\.\./thumbnail/refs\.js"></script>\n',r'<script src="samples\.js"></script>\n', r'<script src="\.\./pdf/styles\.js"></script>\n', r'<script src="\.\./pdf/examples\.js"></script>\n', r'<script src="\.\./pdf/moods\.js"></script>\n']:
+for pat in [r'<script src="[^"]*lucide[^"]*"></script>\n', r'<script src="\.\./thumbnail/assets\.js"></script>\n', r'<script src="\.\./editor/assets-editor\.js"></script>\n', r'<script src="\.\./thumbnail/refs\.js"></script>\n',r'<script src="\.\./thumbnail/service\.js"></script>\n',r'<script src="samples\.js"></script>\n', r'<script src="\.\./pdf/styles\.js"></script>\n', r'<script src="\.\./pdf/examples\.js"></script>\n', r'<script src="\.\./pdf/moods\.js"></script>\n']:
     shell = sub1(pat, '', shell, 'shell lib')
 data = json.dumps({'version': VERSION, 'tools': tools, 'libs': libs, 'fonts': fonts}, ensure_ascii=False).replace('<', '\\u003c')
 # 기본 호: 처음 여는 브라우저에 채워 줄 최신 완성 호 (issues/NN/work/*_전체.json)
