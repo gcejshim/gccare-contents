@@ -331,7 +331,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           <h3 class="gstep">3. 무엇을 그릴까요?</h3>
           <textarea id="genDesc" hidden></textarea>   <!-- 칸을 이어 붙인 문장(S.gen.desc). 프롬프트는 이걸 씀 -->
           <div class="desc-grid" id="descGrid">
-            <label for="dScene">장면</label><input type="text" id="dScene" data-k="scene" placeholder="예: 오후, 사무실 책상, 졸림 (언제 · 어디 · 어떤 상태)">
+            <label for="dScene">장면</label><input type="text" id="dScene" data-k="scene" placeholder="예: 오후, 졸림 (언제 · 어떤 상태)">
             <span></span><div class="scene-chips" id="sceneChips"></div>
             <label for="dMain">주인공</label><input type="text" id="dMain" data-k="main" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰 (가장 크게)">
             <label for="dSub1">보조</label><input type="text" id="dSub1" data-k="sub1" placeholder="예: 커피잔 (작게 · 선택)">
@@ -342,7 +342,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           <!-- 2026-10-27 사용자: 썸네일은 스킬에서 빼고 도구에서만 → 스킬의 '그릴 것 키워드' 요령을 여기로 -->
           <details class="hint desc-tips"><summary>적는 요령</summary>
             <ul>
-              <li>위에서부터 채웁니다. <b>장면</b>은 언제 · 어디 · 어떤 상태인지(아래 버튼으로 골라도 됩니다), <b>주인공</b>은 가장 크게 그릴 물건, <b>보조</b>는 작게 곁들일 물건입니다. 보조 · 글자는 비워도 됩니다.</li>
+              <li>위에서부터 채웁니다. <b>장면</b>은 언제 · 어떤 상태인지(아래 버튼으로 골라도 됩니다), <b>주인공</b>은 가장 크게 그릴 물건, <b>보조</b>는 작게 곁들일 물건입니다. 보조 · 글자는 비워도 됩니다.</li>
               <li>주인공 물건에 <b>상황</b>을 붙이면 뜻이 잘 살아납니다. 예: 그냥 '휴대폰'보다 '혈당이 치솟는 그래프가 뜬 휴대폰'</li>
               <li>참고 예시 (2026-10 시험에서 잘 나온 문장)
                 <ul>
@@ -885,8 +885,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // 칸 → 문장: 물건(주인공 · 보조)을 먼저 적어 프롬프트의 '처음 적은 것이 주인공'과 맞추고, 글자는 따옴표, 장면은 괄호로 뒤에
   // 예전에 한 줄로 적어 둔 문장(parts 없음)은 주인공 칸으로 옮겨 그대로 살림
   // 장면 고르기 (2026-10-30 사용자): 떠올리기 어려운 '장면'을 버튼으로 — 시간 하나 · 상태 하나, 누르면 칸에 채움, 다시 누르면 뺌, 직접 덧붙여 써도 됨
-  // 10/30 사용자: 장면엔 시간도 공간도 → 장소 줄 추가 (배경은 단색 그대로, 장소는 물건이 놓인 바닥 · 빛 같은 힌트로만)
-  const SCENE = [['아침','점심','오후','저녁','야근'], ['사무실','회의실','탕비실','집','야외'], ['졸림','활기','걱정','안심','점검 중','새 소식']];
+  // 10/30 사용자: 장소 줄도 넣어 봤지만 썸네일은 작고 배경색이 있어 복잡해짐 → 시간 · 상태만 (장소를 직접 써도 프롬프트가 배경은 단색으로 지킴)
+  const SCENE = [['아침','점심','오후','저녁','야근'], ['졸림','활기','걱정','안심','점검 중','새 소식']];
   function sceneChips(){
     const words = $('dScene').value.split(/\s*,\s*/).filter(Boolean);
     $('sceneChips').innerHTML = SCENE.map(g => g.map(w => `<button type="button" data-w="${w}" class="${words.includes(w) ? 'on' : ''}">${w}</button>`).join('')).join('<i></i>');
