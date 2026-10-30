@@ -809,8 +809,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     L.push('COLOR AND STYLE:');
     if (ref && realPersonRef(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person if a person appears.`);
     else if (flat) L.push(`- ${FLAT_STYLE} Follow the attached reference image's flat style.`);
+    else if (ref && ref.type === 'base') L.push(`- ${BASE_STYLE} Follow the attached reference image's style.`);
     else if (ref || aiRef) L.push('- Match the attached reference image\'s look closely — its palette (white plus 2-3 of its colors), materials, gloss, roundness and lighting — not its objects, layout or text.');
-    else L.push(flat ? `- ${FLAT_STYLE}` : '- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
+    else L.push(flat ? `- ${FLAT_STYLE}` : !photo ? `- ${BASE_STYLE}` : '- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
     L.push(photo ? '- Premium corporate campaign photo look: soft refined light, natural materials. Not 3D, not illustration.' : flat ? '- Polished, consistent line and color, no 3D rendering, not childish, not clip-art.' : '- Clean premium finish: soft rim light, gentle gloss, smooth matte surfaces. Not photorealistic, not toy-like, not clip-art.', '');
     L.push('TEXT: no text, letters, numbers or logos anywhere.');
     L.push('PEOPLE: if a person appears, a fictional Korean person — never a real or famous person.');
@@ -831,11 +832,16 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // 10/30 사용자: 그림체 3가지(3D · 일러스트 · 실사) — 고른 그림체의 참고 이미지만 (일러스트는 아직 참고 이미지 없음)
   // 일러스트 = 리드마그넷 '1 · 플랫 아이콘 (살짝 그림자)' 그림체 (pdf/styles.js 샘플 · 같은 문장) — 리드마그넷과 톤 맞춤 (10/30 사용자)
   const FLAT_STYLE = 'Flat vector with very subtle shading. Simple rectangles and circles, one bright royal blue (#3D6BFF) accent plus dark charcoal gray and white; thin dark outlines only on tools; a soft thin shadow below; no texture, almost no gradients. Minimal and calm.';
+  // 3D = 우리 기본: 리드마그넷 '기본 (둥근 무광 3D)' 문장 · 샘플을 맨 앞에, 아무것도 안 고르면 자동 (10/30 사용자)
+  const BASE_STYLE = 'Friendly modern app illustration. Simple, chunky, rounded shapes with few details; smooth matte surfaces with a few soft frosted-glass parts; one or two accent colors only, the rest white and light gray; soft even lighting and a gentle soft shadow under the objects. Calm, light and tidy, with lots of empty space. Not photorealistic, not busy, not glossy plastic, not childish cartoon.';
+  const pdfRefs = (st, label) => { const T = window.PDF_STYLE_THUMBS || {}; return ['navy', 'green'].filter(c => T[c] && T[c][st]).map(c => ({id: `pdf_${st}_${c}`, name: `${label} (리드마그넷 ${c === 'navy' ? '남색' : '초록'})`, src: T[c][st], type: st === 'r1' ? 'flat' : 'base', desc: ''})); };
   const flatRefs = () => { const T = window.PDF_STYLE_THUMBS || {}; return ['navy', 'green'].filter(c => T[c] && T[c].r1).map(c => ({id: 'pdf_r1_' + c, name: `플랫 아이콘 (리드마그넷 ${c === 'navy' ? '남색' : '초록'})`, src: T[c].r1, type: 'flat', desc: ''})); };
   const aiSmpList = () => { const k = (H.ai && H.ai.kind) || '3d'; if (k === 'flat') return flatRefs();
-    return (window.REFS || []).filter(r => r.type !== 'mockup' && (k === 'photo' ? r.type === 'photo' : r.type !== 'photo')); };
+    const R = (window.REFS || []).filter(r => r.type !== 'mockup' && (k === 'photo' ? r.type === 'photo' : r.type !== 'photo'));
+    return k === 'photo' ? R : [...pdfRefs('base', '기본 3D'), ...R]; };
   function renderAISmp(){
     const L = aiSmpList();
+    if (!aiRefId && !aiRef && L[0] && (H.ai.kind || '3d') !== 'photo'){ aiRefId = L[0].id; shrinkRef(L[0].src).then(u => { if (aiRefId === L[0].id){ aiRef = u; renderRef(); updatePrompt(); } }).catch(() => {}); }   // 3D · 일러스트는 기본 그림체 자동
     $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.id === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${esc(s.name)}</span></button>`).join('')
       : '<div class="empty">참고 그림이 없어요.</div>';
   }
