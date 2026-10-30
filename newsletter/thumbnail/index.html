@@ -1134,7 +1134,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push('');
 
     // 10/30 사용자: 참고 이미지(녹색 · 흰색 · 광택)와 전혀 다른 무드(파랑 · 매트)로 나옴 → 참고 이미지가 있으면 그림체 · 재질 · 무드는 참고 이미지를 따름
-    L.push(photo ? 'STYLE: a real camera photo (DSLR, 50mm), clean studio lighting with a large softbox, natural materials. Not 3D, not illustration.'
+    // 10/30 사용자: 실사는 스튜디오 촬영 같은 고급스러운 품질 → 고급 기업 캠페인 사진의 특징(색 보정 · 얕은 심도 · 부드러운 빛 · 정돈된 구도)
+    L.push(photo ? 'STYLE: a premium corporate campaign photo — real camera (full-frame DSLR, 50-85mm), soft refined lighting, shallow depth of field, subtle elegant color grading, clean uncluttered composition, natural skin and materials. High-end and polished, never a cheap stock photo. Not 3D, not illustration.'
       : refColor ? 'STYLE: match the reference image\'s look closely — its materials, gloss, gradients, roundness of shapes and lighting — with a clean premium 3D finish: soft rim light, gentle gloss, soft contact shadows. Not photorealistic, not toy-like, not clip-art.'
       : 'STYLE: simplified, rounded 3D like modern app icons. Smooth matte surfaces with soft gradient shading, one or two soft highlights, soft rim light. Not photorealistic, not toy-like, not clip-art.', '');
 
