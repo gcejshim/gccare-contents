@@ -1006,10 +1006,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/감염|감염병|독감|코로나|위생|방역|바이러스/, '둥근 바이러스 조형, 마스크, 손 소독제, 체온계', '물방울, 손 모양, 둥근 바이러스 무늬', 'water drops, a hand shape, a simple round virus shape'],
     [/공시|법령|법률|법적|개정|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 원통 막대그래프, 도장, 달력', '심박 선이 있는 서류 칸, 건강 지표 막대그래프', 'document sections with a heartbeat line, a health-indicator bar chart'],
     [/예방|보장|보험|안전보건|안전|보호|산재/, '십자 배지가 있는 둥근 방패, 두 손으로 감싼 하트, 하트 표시 클립보드', '십자', 'a plus sign'],
-    [/검진|결과지|수검|재검/, '하트 표시 클립보드(검진표), 일정 표시 달력, 돋보기와 결과 문서, 결과 리포트가 뜬 휴대폰', '심박 선, 결과 막대그래프, 달력 표시', 'a heartbeat line, a result bar chart, a calendar mark'],
+    [/검진|결과지|수검|재검/, '하트 표시 클립보드(검진표), 입체 탁상 달력, 돋보기, 결과 문서, 혈압계, 결과 리포트가 뜬 휴대폰', '심박 선, 결과 막대그래프, 달력 표시', 'a heartbeat line, a result bar chart, a calendar mark'],
     [/데이터|리포트|통계|분석|설문|결과\s?보고|비율|증가|감소|추이/, '원통 막대그래프와 위 · 아래 화살표, 원그래프 조각, 게이지(계기판), 돋보기', '막대 · 원그래프, 증감 화살표', 'a cylinder bar chart, a pie chart, one up or down arrow'],
-    [/상담|비대면|원격|코칭/, '화면에 하트가 뜬 노트북, 휴대폰, 말풍선', '말풍선, 영상 통화 화면', 'a speech bubble, a video-call screen'],
-    [/정보|팁|Q&A|궁금|방법|알아보/i, '전구, 말풍선, 완료 화면이 뜬 휴대폰', '전구, 말풍선', 'a light bulb, a speech bubble'],
+    [/상담|비대면|원격|코칭/, '화면에 하트가 뜬 노트북, 헤드셋, 입체 말풍선 조형, 휴대폰', '말풍선, 영상 통화 화면', 'a speech bubble, a video-call screen'],
+    [/정보|팁|Q&A|궁금|방법|알아보/i, '입체 전구, 펼친 안내 책자, 입체 말풍선 조형, 완료 화면이 뜬 휴대폰', '전구, 말풍선', 'a light bulb, a speech bubble'],
   ];
   // 건강검진 · 건강관리 (병원 · 진료 도구 말고 기업 건강관리)
   const OBJ_DEFAULT = [null, '건강관리 앱 화면 휴대폰, 하트 표시 클립보드, 원통 막대그래프, 게이지(계기판), 달력', '심박 선, 단순한 사람 실루엣, 걸음 · 수면 · 체중 같은 생활 지표 아이콘', 'a heartbeat (ECG) line, a simple human body silhouette, step / sleep / weight icons'];
@@ -1046,8 +1046,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push('- 1 main object + 2 smaller supporting objects (only 1 if just one fits). A person counts as an object. Nothing else.');
     if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
     else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
-    else L.push('- The main object is exactly what "What to draw" describes — keep that object type (e.g. a newspaper stays a folded newspaper).');   // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것이 OBJECTS에 없었음
-    L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects are solid 3D things themselves — a real prop, or information sculpted as a standing 3D object (3D bar chart, 3D pie piece, shield). Never phones, tablets, screens, cards or anything that only shows a picture.');
+    // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것을 OBJECTS에. 사용자: 보조도 내용과 연관 → 적은 물건 순서대로, 모자라면 주제 목록에서
+    else L.push(`- Use what "What to draw" describes: the first object named is the main object (keep its type, e.g. a newspaper stays a folded newspaper); other named objects are the supporting ones. If fewer are named, add supporting objects related to it from: ${topic[1]}. Anything described that is not an object (e.g. what a document is about) goes on the object surfaces.`);
+    L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects come from this topic (the objects above), drawn as standing solid 3D things. Never phones, tablets, screens, cards or anything that only shows a picture.');
     if (health && !photo) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
     if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
     if (trend) L.push('- Show the increase or decrease as one bold up or down arrow next to a bar chart.');
