@@ -807,7 +807,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const realPersonRef = r => !!r && /인물/.test(r.desc || '');
   function buildPrompt(){
     const ai = H.ai, G = window.GC_SVC, main = (ai.topic || '').trim() || '(그릴 것을 적어 주세요)', items = (ai.items || '').trim();
-    const ref = (window.REFS || []).find(r => r.id === aiRefId), kind = ai.kind || '3d', photo = kind === 'photo', flat = kind === 'flat';
+    const ref = aiSmpList().find(r => r.id === aiRefId), kind = ai.kind || '3d', photo = kind === 'photo', flat = kind === 'flat';
     const both = main + ' ' + items, topic = G.topicFor(both);
     const health = /건강|헬스|검진|보건|운동|걷기|걷는|걸음|수면|스트레스|마음|체중|비만|식단|영양|금연|절주|혈압|혈당|당뇨|CGM|심혈관|근골격|구강|치아|감염|예방/i.test(both);
     const glucose = /혈당|당뇨|CGM|연속혈당|스파이크/i.test(both);
@@ -822,8 +822,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     L.push('', 'LAYOUT: everything centered as one compact group; the main object is the largest, about 70% of the image height; generous even margin on all sides; nothing cut by the edges. Only a soft contact shadow under the objects.', '');
     L.push('COLOR AND STYLE:');
     if (ref && realPersonRef(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person if a person appears.`);
+    else if (flat) L.push(`- ${FLAT_STYLE} Follow the attached reference image's flat style.`);
     else if (ref || aiRef) L.push('- Match the attached reference image\'s look closely — its palette (white plus 2-3 of its colors), materials, gloss, roundness and lighting — not its objects, layout or text.');
-    else L.push(flat ? '- Flat 2D illustration like modern Korean campaign posters: clean shapes, soft flat colors with a few gentle shadows, friendly characters if any; blue and green tones with small warm accents.' : '- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
+    else L.push(flat ? `- ${FLAT_STYLE}` : '- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
     L.push(photo ? '- Premium corporate campaign photo look: soft refined light, natural materials. Not 3D, not illustration.' : flat ? '- Polished, consistent line and color, no 3D rendering, not childish, not clip-art.' : '- Clean premium finish: soft rim light, gentle gloss, smooth matte surfaces. Not photorealistic, not toy-like, not clip-art.', '');
     L.push('TEXT: no text, letters, numbers or logos anywhere.');
     L.push('PEOPLE: if a person appears, a fictional Korean person — never a real or famous person.');
@@ -842,11 +843,15 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // 10/30 사용자: 지난 호 샘플은 글자 · 표까지 든 완성 이미지라 참고로 안 맞음 → 썸네일 참고 이미지(글자 없음, 평면 목업은 뺌)
   let aiRefId = '';
   // 10/30 사용자: 그림체 3가지(3D · 일러스트 · 실사) — 고른 그림체의 참고 이미지만 (일러스트는 아직 참고 이미지 없음)
-  const aiSmpList = () => (window.REFS || []).filter(r => r.type !== 'mockup' && ((H.ai && H.ai.kind) === 'photo' ? r.type === 'photo' : (H.ai && H.ai.kind) === 'flat' ? false : r.type !== 'photo'));
+  // 일러스트 = 리드마그넷 '1 · 플랫 아이콘 (살짝 그림자)' 그림체 (pdf/styles.js 샘플 · 같은 문장) — 리드마그넷과 톤 맞춤 (10/30 사용자)
+  const FLAT_STYLE = 'Flat vector with very subtle shading. Simple rectangles and circles, one bright royal blue (#3D6BFF) accent plus dark charcoal gray and white; thin dark outlines only on tools; a soft thin shadow below; no texture, almost no gradients. Minimal and calm.';
+  const flatRefs = () => { const T = window.PDF_STYLE_THUMBS || {}; return ['navy', 'green'].filter(c => T[c] && T[c].r1).map(c => ({id: 'pdf_r1_' + c, name: `플랫 아이콘 (리드마그넷 ${c === 'navy' ? '남색' : '초록'})`, src: T[c].r1, type: 'flat', desc: ''})); };
+  const aiSmpList = () => { const k = (H.ai && H.ai.kind) || '3d'; if (k === 'flat') return flatRefs();
+    return (window.REFS || []).filter(r => r.type !== 'mockup' && (k === 'photo' ? r.type === 'photo' : r.type !== 'photo')); };
   function renderAISmp(){
     const L = aiSmpList();
     $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.id === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${esc(s.name)}</span></button>`).join('')
-      : `<div class="empty">${(H.ai && H.ai.kind) === 'flat' ? '일러스트 참고 그림은 아직 없어요. 가진 그림을 왼쪽에 첨부하면 그 그림체로 그려요.' : '참고 그림이 없어요.'}</div>`;
+      : '<div class="empty">참고 그림이 없어요.</div>';
   }
   function updatePrompt(){
     $('aiPrompt').textContent = buildPrompt();
@@ -914,7 +919,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
-        body: JSON.stringify({kind: 'thumb', prompt: buildPrompt(), layout: 'square', styleRef: realPersonRef((window.REFS || []).find(r => r.id === aiRefId)) ? '' : aiRef, diet: true})});   // square = 정사각 · 배경 있음 (gpt-image-2는 투명 배경 안 됨), diet = 서버 옛 문단 안 붙임
+        body: JSON.stringify({kind: 'thumb', prompt: buildPrompt(), layout: 'square', styleRef: realPersonRef(aiSmpList().find(r => r.id === aiRefId)) ? '' : aiRef, diet: true})});   // square = 정사각 · 배경 있음 (gpt-image-2는 투명 배경 안 됨), diet = 서버 옛 문단 안 붙임
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
       if (window._0u) window._0u('AI로 그리기');
