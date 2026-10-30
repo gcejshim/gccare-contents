@@ -395,6 +395,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
           <h3>무엇을 그릴까요?</h3>
           <div class="field" style="margin-bottom:12px"><label>그릴 것 (가장 크게 · 상황을 붙이면 뜻이 살아나요)</label><textarea id="aiTopic" rows="2" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰"></textarea></div>
           <div class="field" style="margin-bottom:12px"><label>곁들일 것 (선택 · 쉼표로 1~2개, 작게)</label><input type="text" id="aiItems" placeholder="예: 커피잔, 달콤한 케이크"></div>
+          <div class="field" style="margin-bottom:12px"><label>그림체</label><div class="seg" id="aiKind" style="max-width:320px"><button type="button" data-k="3d">3D</button><button type="button" data-k="flat">일러스트</button><button type="button" data-k="photo">실사</button></div></div>
           <div class="field" style="margin-bottom:12px"><label>배경</label><div class="seg" id="aiBg" style="max-width:240px"><button type="button" data-bg="white">흰색</button><button type="button" data-bg="light">라이트 블루</button></div></div>
           <div class="field" style="margin-bottom:12px"><label>그림체 (오른쪽에서 고르거나 이미지 첨부) — 그림체 · 색만 따라 그려요</label>
             <div class="ai-ref" id="aiRef"></div><input type="file" id="aiRefFile" accept="image/*" hidden></div>
@@ -806,31 +807,33 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const realPersonRef = r => !!r && /인물/.test(r.desc || '');
   function buildPrompt(){
     const ai = H.ai, G = window.GC_SVC, main = (ai.topic || '').trim() || '(그릴 것을 적어 주세요)', items = (ai.items || '').trim();
-    const ref = (window.REFS || []).find(r => r.id === aiRefId), photo = !!ref && ref.type === 'photo';
+    const ref = (window.REFS || []).find(r => r.id === aiRefId), kind = ai.kind || '3d', photo = kind === 'photo', flat = kind === 'flat';
     const both = main + ' ' + items, topic = G.topicFor(both);
     const health = /건강|헬스|검진|보건|운동|걷기|걷는|걸음|수면|스트레스|마음|체중|비만|식단|영양|금연|절주|혈압|혈당|당뇨|CGM|심혈관|근골격|구강|치아|감염|예방/i.test(both);
     const glucose = /혈당|당뇨|CGM|연속혈당|스파이크/i.test(both);
     const L = [];
-    L.push(`Create one ${photo ? 'realistic photo-style' : '3D illustration'} element to place inside a newsletter content image. Square 1024x1024 on a plain solid ${ai.bg === 'light' ? 'very light blue #F0F8FF' : 'pure white #FFFFFF'} background — flat and even, no floor scene, no gradient, no vignette.`, '');
+    L.push(`Create one ${photo ? 'realistic photo-style' : flat ? 'flat 2D illustration' : '3D illustration'} element to place inside a newsletter content image. Square 1024x1024 on a plain solid ${ai.bg === 'light' ? 'very light blue #F0F8FF' : 'pure white #FFFFFF'} background — flat and even, no floor scene, no gradient, no vignette.`, '');
     L.push(`WHAT: ${G.withEn(main)}` + (items ? `\nWITH: ${G.withEn(items)}` : ''), '');
     L.push('OBJECTS:');
     L.push(items ? '- WHAT is the main object; draw the WITH items as smaller supporting objects. Nothing else.' : '- Draw WHAT as the only main object, optionally with one small related prop. Nothing else.');
     L.push('- No floating icons, sparkles, badges or decorations. Hearts only as a small mark on a surface.');
-    if (health && !photo) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
+    if (health && !photo && !flat) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
     if (glucose) L.push('- The high part of any glucose curve is bright red.');
     L.push('', 'LAYOUT: everything centered as one compact group; the main object is the largest, about 70% of the image height; generous even margin on all sides; nothing cut by the edges. Only a soft contact shadow under the objects.', '');
     L.push('COLOR AND STYLE:');
     if (ref && realPersonRef(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person if a person appears.`);
     else if (ref || aiRef) L.push('- Match the attached reference image\'s look closely — its palette (white plus 2-3 of its colors), materials, gloss, roundness and lighting — not its objects, layout or text.');
-    else L.push('- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
-    L.push(photo ? '- Premium corporate campaign photo look: soft refined light, natural materials. Not 3D, not illustration.' : '- Clean premium finish: soft rim light, gentle gloss, smooth matte surfaces. Not photorealistic, not toy-like, not clip-art.', '');
+    else L.push(flat ? '- Flat 2D illustration like modern Korean campaign posters: clean shapes, soft flat colors with a few gentle shadows, friendly characters if any; blue and green tones with small warm accents.' : '- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
+    L.push(photo ? '- Premium corporate campaign photo look: soft refined light, natural materials. Not 3D, not illustration.' : flat ? '- Polished, consistent line and color, no 3D rendering, not childish, not clip-art.' : '- Clean premium finish: soft rim light, gentle gloss, smooth matte surfaces. Not photorealistic, not toy-like, not clip-art.', '');
     L.push('TEXT: no text, letters, numbers or logos anywhere.');
     L.push('PEOPLE: if a person appears, a fictional Korean person — never a real or famous person.');
     L.push(`AVOID: ${/청진기|주사|병원|의사|간호|진료/.test(both) ? '' : 'hospital tools (stethoscope, syringe, pills), '}buildings, shields, check-mark badges, arrows.`);
     return L.join('\n');
   }
   function renderAI(){
-    const ai = H.ai = Object.assign({topic: '', items: '', bg: 'white', gpt: ''}, H.ai || {});
+    const ai = H.ai = Object.assign({topic: '', items: '', bg: 'white', kind: '3d', gpt: ''}, H.ai || {});
+    if (!['3d', 'flat', 'photo'].includes(ai.kind)) ai.kind = '3d';
+    document.querySelectorAll('#aiKind button').forEach(b => b.classList.toggle('on', b.dataset.k === ai.kind));
     if (!['white', 'light'].includes(ai.bg)) ai.bg = 'white';   // 10/30 사용자: 배경은 흰색 · 라이트 블루만
     document.querySelectorAll('#aiBg button').forEach(b => b.classList.toggle('on', b.dataset.bg === ai.bg));
     $('aiTopic').value = ai.topic; $('aiItems').value = ai.items;
@@ -838,11 +841,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   }
   // 10/30 사용자: 지난 호 샘플은 글자 · 표까지 든 완성 이미지라 참고로 안 맞음 → 썸네일 참고 이미지(글자 없음, 평면 목업은 뺌)
   let aiRefId = '';
-  const aiSmpList = () => (window.REFS || []).filter(r => r.type !== 'mockup');
+  // 10/30 사용자: 그림체 3가지(3D · 일러스트 · 실사) — 고른 그림체의 참고 이미지만 (일러스트는 아직 참고 이미지 없음)
+  const aiSmpList = () => (window.REFS || []).filter(r => r.type !== 'mockup' && ((H.ai && H.ai.kind) === 'photo' ? r.type === 'photo' : (H.ai && H.ai.kind) === 'flat' ? false : r.type !== 'photo'));
   function renderAISmp(){
     const L = aiSmpList();
     $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.id === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${esc(s.name)}</span></button>`).join('')
-      : '<div class="empty">샘플이 없어요.</div>';
+      : `<div class="empty">${(H.ai && H.ai.kind) === 'flat' ? '일러스트 참고 그림은 아직 없어요. 가진 그림을 왼쪽에 첨부하면 그 그림체로 그려요.' : '참고 그림이 없어요.'}</div>`;
   }
   function updatePrompt(){
     $('aiPrompt').textContent = buildPrompt();
@@ -1066,6 +1070,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     ['aiTopic', 'aiItems'].forEach(id => $(id).addEventListener('input', e => {
       const k = {aiTopic: 'topic', aiItems: 'items'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
     }));
+    $('aiKind').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; H.ai.kind = b.dataset.k; save();
+      document.querySelectorAll('#aiKind button').forEach(x => x.classList.toggle('on', x === b));
+      if (aiRefId && !aiSmpList().some(r => r.id === aiRefId)){ aiRef = ''; aiRefId = ''; renderRef(); }   // 그림체가 바뀌면 안 맞는 참고 그림은 뺌
+      renderAISmp(); updatePrompt(); });
     $('aiBg').addEventListener('click', async e => { const b = e.target.closest('[data-bg]'); if (!b) return; H.ai.bg = b.dataset.bg; save();
       document.querySelectorAll('#aiBg button').forEach(x => x.classList.toggle('on', x === b)); updatePrompt();
       if (aiRaw){ aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); $('aiOutImg').src = aiOutURL; } });   // 10/30 사용자: 만든 뒤에도 배경만 바꾸기 (다시 안 그림)
