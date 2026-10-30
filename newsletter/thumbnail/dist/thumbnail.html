@@ -1064,8 +1064,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push('LAYOUT:');
     L.push(`- The left 55% is empty background for the title${photo ? ' (a softly blurred continuation of the same room, getting closer to ' + bg + ')' : ''}. All objects sit in the right 45%, vertically center to lower. No split panel or vertical seam.`);
-    // 10/30 사용자: 강조된 물건이 없음(보조도 같은 진한 색) → 지금판 '위계'(중심이 가장 크고 또렷 · 보조는 채도 · 대비 한 단계 낮게)를 이 문장에 합침
-    if (!photo) L.push('- The main object is the clear hero: about 55% of the image height, tilted at a 3/4 angle, the brightest and sharpest with the strongest color. Supporting objects are 25-40% of its size and one step lower in saturation and contrast, on the same floor with soft contact shadows: one in front at its lower right, slightly overlapping; a second one (if any) behind it at its upper right, partly hidden by it. Nothing goes left of the main object (the title is on the left).');
+    // 10/30 사용자: 각도는 왼쪽(타이틀 쪽)을 바라보게. 강조된 물건이 없음(보조도 같은 진한 색) → 지금판 '위계'(중심이 가장 크고 또렷 · 보조는 채도 · 대비 한 단계 낮게)를 이 문장에 합침
+    if (!photo) L.push('- The main object is the clear hero: about 55% of the image height, at a 3/4 angle turned to face left (toward the title), the brightest and sharpest with the strongest color. Supporting objects are 25-40% of its size and one step lower in saturation and contrast, on the same floor with soft contact shadows: one in front at its lower right, slightly overlapping; a second one (if any) behind it at its upper right, partly hidden by it. Nothing goes left of the main object (the title is on the left).');
     L.push('- Keep at least 15% empty space above and below the objects; nothing touches the image edges.', '');
 
     const key = S.preset === 'custom' ? (dark ? 'navy' : 'lightBlue') : S.preset;
