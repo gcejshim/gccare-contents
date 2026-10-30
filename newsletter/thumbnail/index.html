@@ -175,6 +175,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-edit-row .edit-ref.has{padding:2px 8px 2px 2px;gap:6px}
 .gen-edit-row .edit-ref img{width:40px;height:28px;object-fit:cover;border-radius:4px;display:block}
 .gen-edit-row .edit-ref span{font-size:11px;color:var(--neutral-500)}
+.gen-refs .ref-tone{flex:none;align-self:stretch;display:flex;align-items:center;justify-content:center;writing-mode:vertical-rl;padding:0 2px;margin-left:4px;border-left:1px solid var(--coolNeutral-200);font-size:11px;color:var(--neutral-500);letter-spacing:.5px}
 .gen-refs .ref-add{font-size:12px;line-height:1.35;color:var(--careBlue-600);border-style:dashed}
 .gen-refs .ref-add.ready,.gen-edit-row .edit-ref.ready{border:2px dashed var(--careBlue-500);background:var(--careBlue-50);color:var(--careBlue-600);font-weight:600;box-shadow:0 0 0 3px rgba(47,116,235,.15)}
 @keyframes justIn{0%{box-shadow:0 0 0 0 rgba(10,194,98,.7)}100%{box-shadow:0 0 0 10px rgba(10,194,98,0)}}
@@ -971,6 +972,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // 지금 배경색(프리셋)에 맞는 것을 '추천'으로 앞에. S.gen.ref: 없음(또는 예전 'none') = 참고 이미지 안 씀, id = 직접 고름
   // 2026-10-25 사용자: 그림체 버튼을 없애고 참고 이미지가 그림체를 정함 → 추천은 배경색으로만 (실사는 배경색이 없어 추천 안 함)
   const isDarkBg = () => { const bg = tok(presetOf().bg) || '#f0f8ff'; return contrast(bg, '#ffffff') >= contrast(bg, tok('--nl-title') || '#002540'); };
+  const TONE_NAME = {light: '라이트 블루', dark: '네이비', green: '그린', photo: '실사'};
   function refList(){
     const R = window.REFS || [];
     const key = S.preset === 'custom' ? (isDarkBg() ? 'navy' : 'lightBlue') : S.preset, dark = isDarkBg();
@@ -981,9 +983,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     });
     // 비슷한 생김새(look)끼리 붙여서, 묶음 순서는 고정(2026-10-25 사용자: 3D 장면 맨 앞 · 화면 목업 맨 뒤), 묶음 안은 점수 순(같으면 make_refs.py 순서)
     const ORDER = {scene:0, object:1, photo:2, screen:3}, rank = r => ORDER[r.look] ?? 9;
-    // 10/30 사용자: 같은 톤끼리 → 묶음 안에서 추천 먼저, 그다음 밝은 배경 → 어두운 배경(네이비 · 블루 · 그린)
-    const darkRef = r => ['navy','blue','green'].includes(r.bg[0]) ? 1 : 0;
-    return list.sort((a, b) => rank(a) - rank(b) || (b.rec - a.rec) || darkRef(a) - darkRef(b) || b.score - a.score);
+    // 10/30 사용자: 배경 색끼리 묶어 나란히 (라이트 블루 옆에 네이비) — 라이트 블루 · 화이트 → 네이비 · 블루 → 그린 → 실사, 지금 고른 배경색 계열을 맨 앞에. 같은 색 안에서는 장면 → 물건 → 목업
+    const TONES = ['light', 'dark', 'green'], tone = r => r.type === 'photo' ? 'photo' : ['navy','blue'].includes(r.bg[0]) ? 'dark' : ['green','lightGreen'].includes(r.bg[0]) ? 'green' : 'light';
+    const now = key === 'navy' || key === 'blue' ? 'dark' : key === 'green' || key === 'lightGreen' ? 'green' : 'light';
+    const tRank = r => { const t = tone(r); return t === 'photo' ? 9 : t === now ? 0 : 1 + TONES.indexOf(t); };
+    return list.sort((a, b) => tRank(a) - tRank(b) || rank(a) - rank(b) || b.score - a.score).map(r => Object.assign(r, {tone: tone(r)}));
   }
   // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
   const myRefs = [];
@@ -1408,8 +1412,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!promptEdited) $('genPrompt').value = text;
     // 참고 이미지 목록: [없음] + 추천 순. 고른 것(또는 자동으로 고른 추천 1순위)에 테두리
     $('genRefs').innerHTML = `<button data-ref-add="1" class="ref-add${pasteTo === 'ref' ? ' ready' : ''}" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나, 마우스를 올리고 Ctrl+V 해도 돼요)">${pasteTo === 'ref' ? 'Ctrl+V<br>또는 여기에 놓기' : '＋<br>이미지 첨부'}</button>`
-      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}${r.id === justAdded ? ' just' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map(r =>   // 비슷한 것끼리 붙어 나옴 (묶음 이름은 2026-10-25 사용자 요청으로 뺌)
-      `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
+      + myRefs.map(r => `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}${r.id === justAdded ? ' just' : ''}" title="첨부한 이미지"><img src="${r.src}" alt=""><span class="rk mine">첨부</span><i class="ref-del" data-del="${r.id}" title="첨부 지우기">×</i></button>`).join('') + refList().map((r, i, a) =>   // 비슷한 것끼리 붙어 나옴. 10/30 사용자: 색 계열 이름표를 묶음 앞에 (10/25엔 생김새 묶음 이름을 뺐음)
+      (i === 0 || a[i - 1].tone !== r.tone ? `<span class="ref-tone">${TONE_NAME[r.tone]}</span>` : '') + `<button data-ref="${r.id}" class="${ref && ref.id === r.id ? 'on' : ''}" title="${esc(r.name)}"><img src="${r.src}" alt="">${r.rec ? '<span class="rk">추천</span>' : ''}</button>`).join('');
     refArrows();
     $('genRefNow').innerHTML = ref ? `<b>${esc(ref.name)}</b> <span>· ${realPerson(ref) ? '실제 인물 사진이라 사진은 보내지 않고 분위기 설명만 참고해요' : ref.mine ? (S.gen.desc.trim() ? '이 이미지를 참고해 적은 내용대로 그려요' : '이 이미지를 거의 그대로 그려요 (무엇을 그릴까요?에 적으면 참고만 해요)') : '이 그림체에 맞춰 그려요'}</span>` : '';
     $('genChars').hidden = !chars.length;
