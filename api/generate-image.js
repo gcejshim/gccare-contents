@@ -223,7 +223,7 @@ module.exports = async function handler(req, res) {
       if (body.layout === 'object') background = 'transparent';
     } else if (kind === 'pdf') {
       // 뉴스레터 PDF 표지 그림 (2026-10-20) — 프롬프트는 PDF 도구가 짬. 배경 전체 = 세로 2:3, 오른쪽 아래 · 가운데 = 정사각
-      content = buildThumbContent({ prompt });
+      content = buildThumbContent({ prompt, diet: body.diet });   // 10/30: 리드마그넷도 diet면 옛 문단 안 붙임
       quality = 'medium';
       size = body.layout === 'square' ? '1024x1024' : '1024x1536';
     } else if (kind === 'edit') {

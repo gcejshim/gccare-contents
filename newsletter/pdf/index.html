@@ -1031,7 +1031,7 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
-        body: JSON.stringify({kind: 'pdf', prompt: gptPrompt(), layout: S.img.mode === 'center' ? 'square' : 'tall'})});
+        body: JSON.stringify({kind: 'pdf', prompt: gptPrompt(), layout: S.img.mode === 'center' ? 'square' : 'tall', diet: true})});   // diet: 서버 옛 문단(물건 · 글자 규칙) 안 붙임 — 이 프롬프트에 이미 있음 (10/30)
       const data = await resp.json().catch(() => ({}));
       if (resp.ok && (data.dataURL || data.plan)) usage('리드마그넷 표지 그림');
       if (!resp.ok || !data.dataURL){ const msg = data.error || `서버 응답 오류 (${resp.status})`;
