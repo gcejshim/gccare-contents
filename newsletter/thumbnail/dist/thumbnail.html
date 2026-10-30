@@ -1052,7 +1052,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 10/30 사용자: 체크는 허용(점검 주제에 어울림) · 달력 화면이 빈 격자라 밋밋함 → 지금판 DETAIL(층 있는 디테일)을 이 문장에 합침
     // 10/30: '날짜'라고 쓰니 날짜 숫자 · 78% · 한글 라벨이 생기고, '작은 차트'가 따로 떨어진 차트 카드로 나옴 → 날짜 뺌, 표면 위로 한정, 숫자 · 글자 없이
     // 10/30 사용자: 빈 격자는 밋밋, 풍성하게 하니 너무 많음 → 중간: 크고 단순한 요소 3~4개 (10/28 사업부 '크고 단순하게' 기준)
-    if (!photo) L.push(`- On the main object's surface itself: 3-4 large, simple elements — a few colored blocks or highlighted cells and one icon or tiny chart${health ? ` (health motifs for this topic: ${topic[3]})` : ''}. Not empty, not busy. Shapes only, no numbers or letters.`);
+    if (!photo) L.push(`- On the main object's surface itself: 3-4 large, simple elements — a few blocks or highlighted cells in the palette's tones and one icon or tiny chart${health ? ` (health motifs for this topic: ${topic[3]})` : ''}. Not empty, not busy. Shapes only, no numbers or letters.`);
     if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
     if (trend) L.push('- Show the increase or decrease as one bold up or down arrow next to a bar chart.');
     L.push('- Hearts only as a small mark on an object surface, never as a separate object.');   // 10/30: "하트 한 개까지"가 하트 배지 하나를 더 그리게 함
@@ -1082,13 +1082,13 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push(`- Solid ${BG_EN[key] || ''} ${bg} at the top, slightly deeper toward the bottom like a soft floor. Smooth, no pattern.`);
     // 10/30 사용자: 참고 이미지(데이터 리포트 · 초록)를 골랐는데 흰색 · 파랑으로 나옴 → 참고 이미지가 있으면 물건 색은 참고 이미지를 따름(배경색만 고정), 없으면 배경별 색 규칙
     const refColor = ref && !realPerson(ref) && !photo;
-    if (refColor) L.push('- Object colors follow the attached reference image\'s palette, adjusted to look good on this background.');
+    if (refColor) L.push('- Object colors follow the attached reference image\'s palette: white plus only 2-3 of its colors, adjusted to look good on this background. No rainbow mix.');   // 10/30: 블록마다 다른 색(파랑 · 보라 · 노랑 · 초록)으로 산만
     else if (!photo && COLOR[key]) L.push(`- ${COLOR[key]} Calm, low saturation.`);
     L.push('');
 
     // 10/30 사용자: 참고 이미지(녹색 · 흰색 · 광택)와 전혀 다른 무드(파랑 · 매트)로 나옴 → 참고 이미지가 있으면 그림체 · 재질 · 무드는 참고 이미지를 따름
     L.push(photo ? 'STYLE: a real camera photo (DSLR, 50mm), clean studio lighting with a large softbox, natural materials. Not 3D, not illustration.'
-      : refColor ? 'STYLE: follow the reference image\'s rendering style and mood — its materials, gloss, gradients and lighting. Clean 3D, not photorealistic, not toy-like, not clip-art.'
+      : refColor ? 'STYLE: match the reference image\'s look closely — its materials, gloss, gradients, roundness of shapes and lighting — with a clean premium 3D finish: soft rim light, gentle gloss, soft contact shadows. Not photorealistic, not toy-like, not clip-art.'
       : 'STYLE: simplified, rounded 3D like modern app icons. Smooth matte surfaces with soft gradient shading, one or two soft highlights, soft rim light. Not photorealistic, not toy-like, not clip-art.', '');
 
     L.push(quoted.length
