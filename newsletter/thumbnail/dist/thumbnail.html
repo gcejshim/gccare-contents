@@ -1481,8 +1481,11 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         throw new Error(/알 수 없는 kind/.test(msg) ? '서버에 썸네일 기능이 아직 배포되지 않았어요.' : msg);
       }
       const url = await matchBg(await shrink(data.dataURL), tok(presetOf().bg) || '#f0f8ff');   // 위쪽 배경을 고른 색에 정확히 맞춤
-      gens.unshift({url, layout}); if (gens.length > 6) gens.pop();
+      const fit = layout === 'scene' && S.gen.style !== 'photo' ? await autoFit(url) : null;
+      gens.unshift({url, layout, fit: fit && fit.scale ? fit : null}); if (gens.length > 6) gens.pop();
       useGen(gens[0]);
+      if (fit && fit.scale) toast('타이틀과 겹치지 않게 크기 · 위치를 맞췄어요. 왼쪽 ④에서 바꿀 수 있어요.', 3500);
+      else if (fit && fit.tooBig) toast('물건이 타이틀 자리까지 크게 들어왔어요. [다시 만들기]를 권해요.', 4500);
       st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15) — 만든 이미지가 바로 들어가는 것으로 충분
       // 2026-10-25 사용자: 만든 이미지가 왼쪽 ④에 들어가 거기서 맞춘다는 걸 알기 쉽게 → 왼쪽 ④를 잠깐 반짝
       const sec = $('imgSec'); sec.classList.remove('flash'); void sec.offsetWidth; sec.classList.add('flash');
@@ -1496,7 +1499,42 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function useGen(g){
     S.image = g.url; S.layout = g.layout; S.sceneBlend = g.layout === 'scene';
     S.img = g.layout === 'object' ? {scale:85, x:100, y:100} : {scale:100, x: g.layout === 'scene' ? 0 : 60, y:0};
+    if (g.fit && g.fit.scale) Object.assign(S.img, g.fit);   // 자동 맞춤 결과 (만들 때 한 번 계산)
     syncForm(); refresh();
+  }
+  // 자동 맞춤 (2026-10-30 사용자): AI가 물건을 타이틀 자리(왼쪽)까지 그려도, 만든 직후 물건 범위를 찾아 오른쪽 영역에 들어가게 크기 · 좌우를 맞춤.
+  // 이미지는 한 장이라 물건을 따로 옮기진 못하고 그림 전체를 밀거나 줄임(④ 막대를 대신 맞추는 것). 너무 줄여야 하면 맞추지 않고 다시 만들기를 권함.
+  // 물건 = 줄마다 맨 왼쪽(타이틀 자리 끝 1~5%) 배경색과 많이 다른 점이 세로로 2% 넘게 있는 세로줄. 실사는 배경이 방이라 안 씀
+  const FIT_L = 0.56, FIT_R = 0.98, FIT_MIN = 0.62;   // 물건이 들어갈 자리(썸네일 가로 비율) · 이보다 작아지면 맞추지 않음
+  function autoFit(src){
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => {
+        const w0 = 384, h0 = Math.max(1, Math.round(im.height * w0 / im.width));
+        const c = document.createElement('canvas'); c.width = w0; c.height = h0;
+        const x = c.getContext('2d'); x.drawImage(im, 0, 0, w0, h0);
+        const a = x.getImageData(0, 0, w0, h0).data, px0 = Math.round(w0 * 0.01), px1 = Math.round(w0 * 0.05);
+        const rows = [];
+        for (let y = 0; y < h0; y++){ let r = 0, g = 0, b = 0, n = 0;
+          for (let xx = px0; xx < px1; xx++){ const i = (y * w0 + xx) * 4; r += a[i]; g += a[i + 1]; b += a[i + 2]; n++; }
+          rows.push([r / n, g / n, b / n]); }
+        const hit = new Array(w0).fill(0);
+        for (let y = 0; y < h0; y++){ const [br, bg2, bb] = rows[y];
+          for (let xx = 0; xx < w0; xx++){ const i = (y * w0 + xx) * 4;
+            if (Math.abs(a[i] - br) + Math.abs(a[i + 1] - bg2) + Math.abs(a[i + 2] - bb) > 60) hit[xx]++; } }
+        const cols = hit.map(v => v > h0 * 0.02), fL = cols.indexOf(true) / w0, fR = (cols.lastIndexOf(true) + 1) / w0;
+        if (fL < 0 || fR <= fL) return res(null);
+        // 장면형: 그림 폭 = 썸네일 폭 × 배율, 좌우 막대 -100~100은 남는 폭 안에서, 그 밖은 썸네일 폭 단위로 더 밂 (placeImage · slide와 같은 계산)
+        if (fL >= FIT_L) return res(null);   // 이미 오른쪽에 있음
+        const s = Math.min(1, (FIT_R - FIT_L) / (fR - fL));
+        if (s < FIT_MIN) return res({tooBig: true});
+        const wImg = s, left = FIT_L - fL * s, slack = 1 - wImg;   // 썸네일 폭 = 1
+        let v = slack > 0.001 && left <= slack ? (left / slack - 0.5) * 200 : 100 + (left - Math.max(0, slack)) * 100;
+        v = Math.max(-200, Math.min(200, Math.round(v)));
+        res({scale: Math.round(s * 100), x: v, y: 0});
+      };
+      im.onerror = () => res(null); im.src = src;
+    });
   }
   function buildChipEditors(){
     const opts = ICONS.map(([k,n]) => `<option value="${k}">${n}</option>`).join('');
