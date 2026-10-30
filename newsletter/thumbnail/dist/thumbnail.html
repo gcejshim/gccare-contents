@@ -1001,7 +1001,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/운동|걷기|걸음|만보|챌린지|다이어트|신체활동/, '운동화, 덤벨, 걸음 수가 뜬 스마트워치, 과녁과 다트', '걸음 수 링 그래프, 발자국, 과녁', 'a step-count ring, footprints, a target'],
     [/근골격|자세|허리|거북목|어깨|척추|스트레칭/, '척추 모양 조형, 사무용 의자, 스트레칭 밴드, 폼롤러', '척추 선, 바른 자세 실루엣', 'a spine line, a good-posture silhouette'],
     // 10/30 사용자: GC케어 혈당 서비스는 CGM(연속혈당측정) 모니터링 — 실제 앱 화면(docs/서비스자료/CGM앱_혈당그래프.png): 파란 그라데이션 · 흰 곡선 · 솟은 부분 빨강 · 식사 아이콘. 특정 회사 제품(리브레 · 덱스콤 등)처럼 보이지 않게 일반 모양 · 로고 없음 → 손가락 채혈 혈당 측정기가 아니라 팔에 붙이는 원형 센서 + 앱의 연속 그래프
-    [/혈당|당뇨|CGM|연속혈당|당 떨어|스파이크/i, '팔에 붙이는 원형 CGM 센서, 혈당 앱 화면이 뜬 휴대폰(CGM 앱), 커피잔, 간식', '파란 그라데이션 화면 위 흰 연속 혈당 곡선(목표선 위로 솟은 부분만 빨강), 식사 아이콘', 'a white continuous glucose curve on a blue gradient screen with only the spike above the dotted target line in red, a small meal icon'],
+    [/혈당|당뇨|CGM|연속혈당|당 떨어|스파이크/i, '팔에 붙이는 원형 CGM 센서, 혈당 앱 화면이 뜬 휴대폰(CGM 앱), 커피잔, 간식', '파란 그라데이션 화면 위 흰 연속 혈당 곡선(목표선 위로 솟은 부분만 빨강), 식사 아이콘', 'a white continuous glucose curve on a blue gradient screen whose high part above the dotted target line is clearly bright red, a small meal icon'],
     [/혈압|뇌심|심혈관|만성|고혈압|콜레스테롤|심장/, '심장 모양 조형과 심박 선, 혈압계, 심박이 뜬 스마트워치', '심박 선, 혈압 게이지, 혈당 방울', 'a heartbeat line, a blood-pressure gauge, a blood-sugar drop'],
     [/구강|치아|치과|잇몸/, '치아 모양 조형, 칫솔, 치실', '치아 모양, 칫솔', 'a tooth shape, a toothbrush'],
     [/위내시경|대장|내시경|소화|위장|장 건강/, '위 · 장 모양 조형, 하트 표시 클립보드, 달력', '위 모양, 달력 표시', 'a stomach shape, a calendar mark'],
@@ -1084,8 +1084,10 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push(`- Solid ${BG_EN[key] || ''} ${bg} at the top, slightly deeper toward the bottom like a soft floor. Smooth, no pattern.`);
     // 10/30 사용자: 참고 이미지(데이터 리포트 · 초록)를 골랐는데 흰색 · 파랑으로 나옴 → 참고 이미지가 있으면 물건 색은 참고 이미지를 따름(배경색만 고정), 없으면 배경별 색 규칙
     const refColor = ref && !realPerson(ref) && !photo;
-    if (refColor) L.push('- Object colors follow the attached reference image\'s palette: white plus only 2-3 of its colors, adjusted to look good on this background. No rainbow mix.');   // 10/30: 블록마다 다른 색(파랑 · 보라 · 노랑 · 초록)으로 산만
-    else if (!photo && COLOR[key]) L.push(`- ${COLOR[key]} Calm, low saturation.`);
+    // 10/30 사용자: CGM에서 혈당이 높으면 빨강으로 강조 — 팔레트 제한(흰색 + 2~3색)이 빨강을 지워서, 혈당 주제만 예외
+    const glucose = /혈당|당뇨|CGM|연속혈당|당 떨어|스파이크/i.test(both), RED = glucose ? ' Exception: the high part of the glucose curve is always bright red, whatever the palette.' : '';
+    if (refColor) L.push(`- Object colors follow the attached reference image's palette: white plus only 2-3 of its colors, adjusted to look good on this background. No rainbow mix.${RED}`);   // 10/30: 블록마다 다른 색(파랑 · 보라 · 노랑 · 초록)으로 산만
+    else if (!photo && COLOR[key]) L.push(`- ${COLOR[key]} Calm, low saturation.${RED}`);
     L.push('');
 
     // 10/30 사용자: 참고 이미지(녹색 · 흰색 · 광택)와 전혀 다른 무드(파랑 · 매트)로 나옴 → 참고 이미지가 있으면 그림체 · 재질 · 무드는 참고 이미지를 따름
