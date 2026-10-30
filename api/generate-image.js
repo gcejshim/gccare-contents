@@ -98,12 +98,19 @@ function buildHeaderContent({ prompt, activeHeaderStyle, headerRefImages }) {
 const isSmallImage = (u) => /^data:image\/(webp|png|jpeg);base64,/.test(u || '') && u.length < 500000;
 // styleRef: 프롬프트에 '첨부한 참고 이미지'로 적힌 지난 호 썸네일 배경 (글자 뺀 것, 1장) — 그림체 · 배치만 참고
 // styleRefMine: 사용자가 직접 넣은 참고 이미지 → 그릴 대상이 그 안에 있으면 모양까지 참고 허용 (2026-10-18)
-function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine }) {
+// diet: 프롬프트 다이어트 시험(2026-10-30) — 도구 프롬프트에 규칙이 다 들어 있으니 서버는 첨부 순서만 한 줄로 알림.
+// 아래 OBJECT · TEXT RULE은 도구 프롬프트와 어긋남(보조 '뒤쪽 · 삼각형' ↔ 도구 '앞쪽 왼쪽 아래', 라벨을 '아이콘'으로 채우기, 참고 이미지 'studio-shot') → 다이어트판에서는 붙이지 않음
+function buildThumbContent({ prompt, charRefs, styleRef, styleRefMine, diet }) {
   const chars = (Array.isArray(charRefs) ? charRefs : []).filter(isSmallImage).slice(0, 2);
   const ref = isSmallImage(styleRef) ? styleRef : '';
   const content = [];
   if (ref) content.push({ type: 'input_image', image_url: ref });
   chars.forEach((u) => content.push({ type: 'input_image', image_url: u }));
+  if (diet) {
+    const order = [ref && 'the first attached image is the reference image', chars.length && `the ${ref ? 'next' : 'attached'} image(s) are the character images`].filter(Boolean);
+    content.push({ type: 'input_text', text: prompt + (order.length ? `\n\n(Attachments: ${order.join('; ')}.)` : '') });
+    return content;
+  }
   let note = '';
   // styleRefMine: 'copy' = 그릴 내용 없이 첨부 → 첨부 이미지를 거의 그대로, 'style'(또는 true) = 그릴 내용 있음 → 첨부는 참고, 내용은 프롬프트대로
   const mineNote = styleRefMine === 'copy'

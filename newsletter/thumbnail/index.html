@@ -981,7 +981,88 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   const topicFor = text => OBJ_MAP.find(([re]) => re.test(String(text || ''))) || OBJ_DEFAULT;
   function objectsFor(title){ return topicFor(title)[1]; }
 
+  // 2026-10-30 프롬프트 다이어트 (시험): 지금 프롬프트가 1만 자 · 85줄(같은 금지 4~5번 반복, 한국어 · 영어 기준 어긋남) → 짧은 영어 하나, 반복 없음, 상황별 줄은 그때만.
+  // 주소에 ?prompt=diet(통합본은 통합본 주소에)일 때만 씀. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
+  const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) === 'diet'; } catch(_){ return false; } })();
+  if (PROMPT_DIET) $('btnGen').insertAdjacentHTML('afterend', '<span id="dietMark" style="align-self:center;font-size:12px;color:var(--careBlue-700)">짧은 프롬프트(시험)</span>');   // 비교하는 동안 어느 쪽으로 만드는지 보이게
+  function buildPromptDiet(){
+    const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase();
+    const ref = curRef(), type = S.gen.style = refStyle(ref), T = GEN_TYPES[type], photo = type === 'photo';
+    const dark = contrast(bg, '#ffffff') >= contrast(bg, tok('--nl-title') || '#002540');
+    const title = S.title.replace(/[\[\]]/g, '').replace(/\s*\n\s*/g, ' ').trim(), desc = S.gen.desc.trim(), both = title + ' ' + desc;
+    const chars = T.is3d ? charRefs(desc || title) : [];
+    const topic = topicFor(both), mine = !!(ref && ref.mine);
+    const protect = /예방|보장|보험|안전보건|안전|보호|산재/.test(both), trend = /증가|감소|늘었|늘어|줄었|줄어|상승|하락|개선|추이|변화/.test(both);
+    const health = /건강|헬스|검진|보건|웰니스|운동|걷기|걸음|수면|스트레스|마음|체중|비만|식단|영양|금연|절주|혈압|혈당|심혈관|근골격|구강|치아|감염|예방|안전보건/.test(both);
+    const clinic = /청진기|주사|병원|의사|간호|진료|진찰/.test(both), site = /안전모|헬멧|안전조끼|공사|소화기|경고/.test(desc);
+    const shieldOK = /방패|체크|check/i.test(desc), building = /건물|빌딩|사옥|사무실/.test(desc);
+    // '안전보건 · 보안'은 그대로 보내면 안전모 · 자물쇠로 그림 → 뜻을 바꿔 보냄 (따옴표 글자는 그대로)
+    const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안/g, (m, q) => q ? q : m === '보안' ? (shieldOK ? m : '개인 건강정보 보호') : (site ? m : '직장인 건강관리'));
+    const quoted = [...desc.matchAll(/["“”]([^"“”\n]{1,30})["“”]/g)].map(m => m[1].trim()).filter(Boolean);
+    const L = [];
+    L.push(`Create a ${photo ? 'realistic photo' : '3D illustration'} for a newsletter thumbnail background. 1536x1024 (3:2); the top and bottom get cropped.`, '');
+    L.push(`TOPIC: Korean workplace health care newsletter. Title for context only, never write it: "${title}"` + (desc ? `\nWhat to draw: ${descSend}` : ''), '');
+
+    L.push('OBJECTS (most important):');
+    L.push('- 1 main object + 2 smaller supporting objects (only 1 if just one fits). A person counts as an object. Nothing else.');
+    if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
+    else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
+    L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects are different kinds of things, standing as 3D objects — not flat cards.');
+    if (health && !photo) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
+    if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
+    if (trend) L.push('- Show the increase or decrease as one bold up or down arrow next to a bar chart.');
+    L.push('- At most one heart in the whole image.');
+    chars.forEach(c => L.push(c.role === 'doctor'
+      ? `- The person: same face and hair as the attached ${c.gender} character, as a doctor in his 50s with gray temples and a white coat.`
+      : `- The person: same face and hair as the attached ${c.gender} character, a Korean office worker doing something that fits the topic. Outfit in ${c.gender === 'male' ? 'blue tones' : 'colors close to ' + bg + ' (no beige or brown)'}.`));
+    if (photo) L.push('- If a person fits the topic, a fictional Korean person (office worker, health manager or medical staff) with a natural expression.');
+    L.push('');
+
+    L.push('LAYOUT:');
+    L.push(`- The left 55% is empty background for the title${photo ? ' (a softly blurred continuation of the same room, getting closer to ' + bg + ')' : ''}. All objects sit in the right 45%, vertically center to lower. No split panel or vertical seam.`);
+    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, in front of it at its lower left, slightly overlapping, on the same floor with soft contact shadows.');
+    L.push('- Keep at least 15% empty space above and below the objects; nothing touches the image edges.', '');
+
+    const key = S.preset === 'custom' ? (dark ? 'navy' : 'lightBlue') : S.preset;
+    const COLOR = {
+      navy: 'Objects in bright tones — white, light sky blue and bright blue — with small green and yellow accents, clearly visible on the dark background.',
+      blue: 'Objects in white, light sky blue and very light blue, with small green and yellow accents.',
+      lightBlue: 'Objects in white and 3-4 shades of blue up to deep navy, with small green or yellow accents.',
+      white: 'Objects in white and 3-4 shades of blue up to deep navy, with small green or yellow accents.',
+      lightGreen: 'Objects in white and 3-4 shades of green, with small blue or yellow accents.',
+      green: 'Objects mainly white, with light sky blue and very deep navy, and small yellow accents. Avoid mid blue.'
+    };
+    L.push('BACKGROUND AND COLOR:');
+    const BG_EN = {navy: 'navy', blue: 'blue', lightBlue: 'light blue', white: 'off-white', lightGreen: 'light green', green: 'green'};
+    L.push(`- Solid ${BG_EN[key] || ''} ${bg} at the top, slightly deeper toward the bottom like a soft floor. Smooth, no pattern.`);
+    if (!photo && COLOR[key]) L.push(`- ${COLOR[key]} Calm, low saturation.`);
+    L.push('');
+
+    L.push(photo ? 'STYLE: a real camera photo (DSLR, 50mm), clean studio lighting with a large softbox, natural materials. Not 3D, not illustration.'
+      : 'STYLE: simplified, rounded 3D like modern app icons. Smooth matte surfaces with soft gradient shading, one or two soft highlights, soft rim light. Not photorealistic, not toy-like, not clip-art.', '');
+
+    L.push(quoted.length
+      ? `TEXT: the only text is exactly "${quoted.join('", "')}" (Korean stays Korean), as the title on the object described (newspaper headline, booklet cover or inside a screen), sized to fit. No other text, no logos.`
+      : 'TEXT: no text, letters, numbers or logos anywhere. Screens and documents use simple shapes (color blocks, a small chart) instead of text.', '');
+
+    if (ref || chars.length){
+      L.push('REFERENCE:');
+      if (mine) L.push(desc ? '- Follow the attached reference image for style, composition and colors; draw the subject above.' : '- Recreate the attached reference image almost exactly (objects, layout, colors, style), without its text or logos.');
+      else if (ref && realPerson(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person.`);
+      else if (ref) L.push('- Follow the attached reference image\'s style, materials, lighting and level of detail — not its objects or text.');
+      if (ref) L.push(`- Use the background color ${bg}, not the reference's.`);
+      if (chars.length) L.push('- From the character images use only the face, hair and rendering style.');
+      L.push('');
+    }
+
+    const avoid = [!clinic && 'hospital tools (stethoscope, syringe, pills)', !building && 'buildings', !site && 'hard hats', !shieldOK && !protect && 'shields', !shieldOK && 'check marks', !site && 'locks',
+      'floating icons', 'sparkles', 'megaphones', !trend && 'arrows'].filter(Boolean);
+    L.push(`AVOID: ${avoid.join(', ')}.`);
+    return {text: L.join('\n'), chars, ref, layout: 'scene'};
+  }
+
   function buildPrompt(){
+    if (PROMPT_DIET) return buildPromptDiet();
     const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase();
     const ref = curRef();
     const type = S.gen.style = refStyle(ref), T = GEN_TYPES[type];
@@ -1352,7 +1433,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         // 2026-10-18 사용자: 첨부 + 그릴 내용 비움이면 새로 그리지 말고 첨부 이미지를 고쳐서(글자 · 로고만 지움) 톤 · 물건 · 구도를 그대로
         body: JSON.stringify(ref && ref.mine && !S.gen.desc.trim()
           ? {kind:'edit', image: ref.src, prompt: copyEdit((tok(presetOf().bg) || '#f0f8ff').toUpperCase())}
-          : {kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref && !realPerson(ref) ? ref.src : '', styleRefMine: ref && ref.mine ? 'style' : ''})});
+          : {kind:'thumb', prompt, layout, charRefs: chars.map(c => c.url), styleRef: ref && !realPerson(ref) ? ref.src : '', styleRefMine: ref && ref.mine ? 'style' : '', diet: PROMPT_DIET})});
       const data = await resp.json().catch(() => ({}));
       if (resp.ok && data.dataURL) usage('썸네일 이미지 만들기');
       if (!resp.ok || !data.dataURL){
