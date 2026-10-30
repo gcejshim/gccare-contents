@@ -981,7 +981,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     });
     // 비슷한 생김새(look)끼리 붙여서, 묶음 순서는 고정(2026-10-25 사용자: 3D 장면 맨 앞 · 화면 목업 맨 뒤), 묶음 안은 점수 순(같으면 make_refs.py 순서)
     const ORDER = {scene:0, object:1, photo:2, screen:3}, rank = r => ORDER[r.look] ?? 9;
-    return list.sort((a, b) => rank(a) - rank(b) || b.score - a.score);
+    // 10/30 사용자: 같은 톤끼리 → 묶음 안에서 추천 먼저, 그다음 밝은 배경 → 어두운 배경(네이비 · 블루 · 그린)
+    const darkRef = r => ['navy','blue','green'].includes(r.bg[0]) ? 1 : 0;
+    return list.sort((a, b) => rank(a) - rank(b) || (b.rec - a.rec) || darkRef(a) - darkRef(b) || b.score - a.score);
   }
   // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
   const myRefs = [];
