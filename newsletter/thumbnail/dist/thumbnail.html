@@ -365,7 +365,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           <h3 class="gstep">3. 무엇을 그릴까요?</h3>
           <textarea id="genDesc" hidden></textarea>   <!-- 칸을 이어 붙인 문장(S.gen.desc). 프롬프트는 이걸 씀 -->
           <div class="desc-grid" id="descGrid">
-            <label for="dScene">장면</label><input type="text" id="dScene" data-k="scene" placeholder="예: 오후 3시, 졸린 시간 (언제 · 어떤 상태)">
+            <label for="dScene">장면</label><input type="text" id="dScene" data-k="scene" placeholder="예: 오후, 사무실 책상, 졸림 (언제 · 어디 · 어떤 상태)">
             <span></span><div class="scene-chips" id="sceneChips"></div>
             <label for="dMain">주인공</label><input type="text" id="dMain" data-k="main" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰 (가장 크게)">
             <label for="dSub1">보조</label><input type="text" id="dSub1" data-k="sub1" placeholder="예: 커피잔 (작게 · 선택)">
@@ -376,7 +376,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
           <!-- 2026-10-27 사용자: 썸네일은 스킬에서 빼고 도구에서만 → 스킬의 '그릴 것 키워드' 요령을 여기로 -->
           <details class="hint desc-tips"><summary>적는 요령</summary>
             <ul>
-              <li>위에서부터 채웁니다. <b>장면</b>은 언제 · 어떤 상태인지, <b>주인공</b>은 가장 크게 그릴 물건, <b>보조</b>는 작게 곁들일 물건입니다. 보조 · 글자는 비워도 됩니다.</li>
+              <li>위에서부터 채웁니다. <b>장면</b>은 언제 · 어디 · 어떤 상태인지(아래 버튼으로 골라도 됩니다), <b>주인공</b>은 가장 크게 그릴 물건, <b>보조</b>는 작게 곁들일 물건입니다. 보조 · 글자는 비워도 됩니다.</li>
               <li>주인공 물건에 <b>상황</b>을 붙이면 뜻이 잘 살아납니다. 예: 그냥 '휴대폰'보다 '혈당이 치솟는 그래프가 뜬 휴대폰'</li>
               <li>참고 예시 (2026-10 시험에서 잘 나온 문장)
                 <ul>
@@ -919,7 +919,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // 칸 → 문장: 물건(주인공 · 보조)을 먼저 적어 프롬프트의 '처음 적은 것이 주인공'과 맞추고, 글자는 따옴표, 장면은 괄호로 뒤에
   // 예전에 한 줄로 적어 둔 문장(parts 없음)은 주인공 칸으로 옮겨 그대로 살림
   // 장면 고르기 (2026-10-30 사용자): 떠올리기 어려운 '장면'을 버튼으로 — 시간 하나 · 상태 하나, 누르면 칸에 채움, 다시 누르면 뺌, 직접 덧붙여 써도 됨
-  const SCENE = [['아침','점심','오후','저녁','야근'], ['졸림','활기','걱정','안심','점검 중','새 소식']];
+  // 10/30 사용자: 장면엔 시간도 공간도 → 장소 줄 추가 (배경은 단색 그대로, 장소는 물건이 놓인 바닥 · 빛 같은 힌트로만)
+  const SCENE = [['아침','점심','오후','저녁','야근'], ['사무실','회의실','탕비실','집','야외'], ['졸림','활기','걱정','안심','점검 중','새 소식']];
   function sceneChips(){
     const words = $('dScene').value.split(/\s*,\s*/).filter(Boolean);
     $('sceneChips').innerHTML = SCENE.map(g => g.map(w => `<button type="button" data-w="${w}" class="${words.includes(w) ? 'on' : ''}">${w}</button>`).join('')).join('<i></i>');
@@ -927,7 +928,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function pickScene(w){
     const g = SCENE.find(x => x.includes(w)), words = $('dScene').value.split(/\s*,\s*/).filter(Boolean);
     const next = words.includes(w) ? words.filter(x => x !== w) : [...words.filter(x => !g.includes(x)), w];
-    next.sort((a, b) => (SCENE[0].includes(b) ? 1 : 0) - (SCENE[0].includes(a) ? 1 : 0));   // 시간이 앞에
+    const rank = x => { const i = SCENE.findIndex(g => g.includes(x)); return i < 0 ? 9 : i; };
+    next.sort((a, b) => rank(a) - rank(b));   // 시간 → 장소 → 상태 순서 (직접 쓴 말은 뒤에)
     $('dScene').value = next.join(', '); $('dScene').dispatchEvent(new Event('input', {bubbles: true}));
   }
   function descParts(){ if (!S.gen.parts) S.gen.parts = S.gen.desc.trim() ? {main: S.gen.desc.trim()} : {}; return S.gen.parts; }
@@ -1095,7 +1097,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
     else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
     // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것을 OBJECTS에. 사용자: 보조도 내용과 연관 → 적은 물건 순서대로, 모자라면 주제 목록에서
-    else L.push(`- Use what "What to draw" describes: the first object named is the main object (keep its type, e.g. a newspaper stays a folded newspaper); other named objects are the supporting ones. If fewer are named, add supporting objects related to it from: ${topic[1]}. The scene in brackets (장면: time, situation, mood) sets the lighting, mood and small details — it is not an extra object. Anything else described that is not an object (e.g. what a document is about) goes on the object surfaces.`);
+    else L.push(`- Use what "What to draw" describes: the first object named is the main object (keep its type, e.g. a newspaper stays a folded newspaper); other named objects are the supporting ones. If fewer are named, add supporting objects related to it from: ${topic[1]}. The scene in brackets (장면: time, place, situation, mood) only sets the lighting, mood and small hints such as the surface the objects stand on — it adds no extra objects and the background stays the plain color. Anything else described that is not an object (e.g. what a document is about) goes on the object surfaces.`);
     L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects come from this topic (the objects above), drawn as standing solid 3D things. Never phones, tablets, screens, cards or anything that only shows a picture.');
     // 10/30 사용자: 체크는 허용(점검 주제에 어울림) · 달력 화면이 빈 격자라 밋밋함 → 지금판 DETAIL(층 있는 디테일)을 이 문장에 합침
     // 10/30: '날짜'라고 쓰니 날짜 숫자 · 78% · 한글 라벨이 생기고, '작은 차트'가 따로 떨어진 차트 카드로 나옴 → 날짜 뺌, 표면 위로 한정, 숫자 · 글자 없이
