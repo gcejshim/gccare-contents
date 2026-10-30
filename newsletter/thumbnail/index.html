@@ -983,7 +983,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function objectsFor(title){ return topicFor(title)[1]; }
 
   // 2026-10-30 프롬프트 다이어트 (시험): 지금 프롬프트가 1만 자 · 85줄(같은 금지 4~5번 반복, 한국어 · 영어 기준 어긋남) → 짧은 영어 하나, 반복 없음, 상황별 줄은 그때만.
-  // 2026-10-30 사용자: 타이틀이 왼쪽이라 보조 물건은 중심의 오른쪽 아래에 (10/25 '왼쪽 아래'를 바꿈, 방패가 타이틀을 침범)
+  // 2026-10-30 사용자: 타이틀이 왼쪽이라 보조 물건은 중심의 오른쪽에 (10/25 '왼쪽 아래'를 바꿈, 방패가 타이틀을 침범). 한곳에 몰려서 2개면 오른쪽 아래 앞 + 오른쪽 위 뒤
+  // 2026-10-30 사용자: 보조는 화면 속 그림이 아니라 입체 물건 자체로 (태블릿 · 휴대폰 · 카드 X)
   // 주소에 ?prompt=short(통합본은 통합본 주소에)일 때만 씀. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
   const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) === 'short'; } catch(_){ return false; } })();
   if (PROMPT_DIET) $('btnGen').insertAdjacentHTML('afterend', '<span id="dietMark" style="align-self:center;font-size:12px;color:var(--careBlue-700)">짧은 프롬프트(시험)</span>');   // 비교하는 동안 어느 쪽으로 만드는지 보이게
@@ -999,7 +1000,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const clinic = /청진기|주사|병원|의사|간호|진료|진찰/.test(both), site = /안전모|헬멧|안전조끼|공사|소화기|경고/.test(desc);
     const shieldOK = /방패|체크|check/i.test(desc), building = /건물|빌딩|사옥|사무실/.test(desc);
     // '안전보건 · 보안'은 그대로 보내면 안전모 · 자물쇠로 그림 → 뜻을 바꿔 보냄 (따옴표 글자는 그대로)
-    const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안/g, (m, q) => q ? q : m === '보안' ? (shieldOK ? m : '개인 건강정보 보호') : (site ? m : '직장인 건강관리'));
+    // 10/30: '뉴스페이퍼'를 책자로 그림 → 자주 쓰는 물건 이름에 영어를 괄호로 (영어 프롬프트라 물건이 단단히 잡히게)
+    const EN = {'뉴스페이퍼':'a folded newspaper','신문':'a folded newspaper','책자':'a booklet','휴대폰':'a smartphone','스마트폰':'a smartphone','노트북':'a laptop','모니터':'a monitor','달력':'a desk calendar','리포트':'a report document','결과지':'a result sheet','클립보드':'a clipboard','체중계':'a bathroom scale','혈압계':'a blood pressure monitor','운동화':'sneakers','방패':'a shield','돋보기':'a magnifying glass'};
+    const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안|뉴스페이퍼|신문|책자|스마트폰|휴대폰|노트북|모니터|달력|리포트|결과지|클립보드|체중계|혈압계|운동화|방패|돋보기/g, (m, q) => q ? q : m === '보안' ? (shieldOK ? m : '개인 건강정보 보호') : m === '안전보건' ? (site ? m : '직장인 건강관리') : `${m}(${EN[m]})`);
     const quoted = [...desc.matchAll(/["“”]([^"“”\n]{1,30})["“”]/g)].map(m => m[1].trim()).filter(Boolean);
     const L = [];
     L.push(`Create a ${photo ? 'realistic photo' : '3D illustration'} for a newsletter thumbnail background. 1536x1024 (3:2); the top and bottom get cropped.`, '');
@@ -1010,7 +1013,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
     else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
     else L.push('- The main object is exactly what "What to draw" describes — keep that object type (e.g. a newspaper stays a folded newspaper).');   // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것이 OBJECTS에 없었음
-    L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects are different kinds of things, standing as 3D objects — not flat cards.');
+    L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects are solid 3D things themselves — a real prop, or information sculpted as a standing 3D object (3D bar chart, 3D pie piece, shield). Never phones, tablets, screens, cards or anything that only shows a picture.');
     if (health && !photo) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
     if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
     if (trend) L.push('- Show the increase or decrease as one bold up or down arrow next to a bar chart.');
@@ -1023,7 +1026,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push('LAYOUT:');
     L.push(`- The left 55% is empty background for the title${photo ? ' (a softly blurred continuation of the same room, getting closer to ' + bg + ')' : ''}. All objects sit in the right 45%, vertically center to lower. No split panel or vertical seam.`);
-    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, in front of it at its lower right, slightly overlapping, on the same floor with soft contact shadows. Nothing goes left of the main object (the title is on the left).');
+    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, on the same floor with soft contact shadows: one in front at its lower right, slightly overlapping; a second one (if any) behind it at its upper right, partly hidden by it. Nothing goes left of the main object (the title is on the left).');
     L.push('- Keep at least 15% empty space above and below the objects; nothing touches the image edges.', '');
 
     const key = S.preset === 'custom' ? (dark ? 'navy' : 'lightBlue') : S.preset;
@@ -1045,7 +1048,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       : 'STYLE: simplified, rounded 3D like modern app icons. Smooth matte surfaces with soft gradient shading, one or two soft highlights, soft rim light. Not photorealistic, not toy-like, not clip-art.', '');
 
     L.push(quoted.length
-      ? `TEXT: the only text is exactly "${quoted.join('", "')}" (Korean stays Korean), as the title on the object described (newspaper headline, booklet cover or inside a screen), sized to fit. No other text, no logos.`
+      ? `TEXT: the only text is exactly "${quoted.join('", "')}" (Korean stays Korean), as the title on the object described, in the place that fits that object, sized to fit. No other text, no logos.`
       : 'TEXT: no text, letters, numbers or logos anywhere. Screens and documents use simple shapes (color blocks, a small chart) instead of text.', '');
 
     if (ref || chars.length){
