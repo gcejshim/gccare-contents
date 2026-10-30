@@ -1074,7 +1074,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase();
     const ref = curRef(), type = S.gen.style = refStyle(ref), T = GEN_TYPES[type], photo = type === 'photo';
     const dark = contrast(bg, '#ffffff') >= contrast(bg, tok('--nl-title') || '#002540');
-    const title = S.title.replace(/[\[\]]/g, '').replace(/\s*\n\s*/g, ' ').trim(), desc = S.gen.desc.trim(), both = title + ' ' + desc;
+    // 10/30: 장면 '점심'이 '식단' 주제로 잡힘 → 주제 판정(both)에는 장면 괄호를 뺌
+    const title = S.title.replace(/[\[\]]/g, '').replace(/\s*\n\s*/g, ' ').trim(), desc = S.gen.desc.trim(), both = title + ' ' + desc.replace(/\(장면:[^)]*\)/g, '');
     const chars = T.is3d ? charRefs(desc || title) : [];
     const topic = topicFor(both), mine = !!(ref && ref.mine);
     const protect = /예방|보장|보험|안전보건|안전|보호|산재/.test(both), trend = /증가|감소|늘었|늘어|줄었|줄어|상승|하락|개선|추이|변화/.test(both);
