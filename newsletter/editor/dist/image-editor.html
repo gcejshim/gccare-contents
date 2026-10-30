@@ -2392,7 +2392,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         {badge:'걷기 캠페인', title:'삼성헬스·아이폰 건강 앱 자동 연동', text:"일상의 걸음 수가 자동으로 참여 실적이 돼요. 별도로 '무언가를 해야 한다'는 부담 없이 임직원이 쉽게 참여할 수 있어요.", image:''},
         {badge:'건강습관 인증 챌린지', title:'운동·식습관·마음 다짐까지 주제 다양화', text:'걷기 외에도 물 마시기, 계단 오르기, 수면 기록 등 일상 속에서 쉽게 참여할 수 있는 주제로 운영할 수 있어요.', image:''}]}),
       render(d){
-        return `<div class="c2">${(d.items || []).map((it, i) => `<div class="c2-c">${it.badge ? `<span class="c2-b"${badgeStyle(d)}${E(`items.${i}.badge`)}>${badgeTxt(it.badge)}</span>` : ''}<div class="c2-t"${E(`items.${i}.title`)}>${rich(it.title)}</div><div class="c2-d"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.image ? `<div class="c2-i"><img src="${it.image}" alt=""></div>` : `<div class="ph" data-pick="items.${i}.image">이미지를 넣어 주세요 (선택)${aiBtn(`items.${i}.image`, it.title)}</div>`}</div>`).join('')}</div>`;
+        return `<div class="c2">${(d.items || []).map((it, i) => `<div class="c2-c">${it.badge ? `<span class="c2-b"${badgeStyle(d)}${E(`items.${i}.badge`)}>${badgeTxt(it.badge)}</span>` : ''}<div class="c2-t"${E(`items.${i}.title`)}>${rich(it.title)}</div><div class="c2-d"${E(`items.${i}.text`)}>${rich(it.text)}</div>${it.image ? `<div class="c2-i"><img src="${it.image}" alt=""></div>` : `<div class="ph" data-pick="items.${i}.image">이미지를 넣어 주세요 (선택)${aiBtn(`items.${i}.image`, it.title, 'light')}</div>`}</div>`).join('')}</div>`;
       },
       lint(d){ return []; }
     },
@@ -3113,10 +3113,11 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   }
 
   // ── 이미지 넣기 ──
+  // bg: 그림 배경 기본값 — 칸이 흰 카드 위면 'light'(라이트 블루)로 구분 (10/30 사용자)
   // 2026-10-30 사용자: 그림 요소 칸 옆 [AI로 그리기] → 통합본 AI로 그리기에서 그린 그림이 바로 이 칸에 (통합본에서만, 화면 캡처 · 얼굴 칸은 제외)
-  const aiBtn = (path, hint) => document.body.classList.contains('embedded') ? `<button type="button" class="ai-b" data-ai="${path}" data-hint="${esc(String(hint || '').replace(/\[|\]|\/\//g, ''))}">✦ AI로 그리기</button>` : '';
+  const aiBtn = (path, hint, bg) => document.body.classList.contains('embedded') ? `<button type="button" class="ai-b" data-ai="${path}" data-hint="${esc(String(hint || '').replace(/\[|\]|\/\//g, ''))}" data-bg="${bg || 'white'}">✦ AI로 그리기</button>` : '';
   document.addEventListener('click', e => { const b = e.target.closest('[data-ai]'); if (!b) return; e.preventDefault(); e.stopPropagation();
-    notify({type: 'aiDraw', itemId: cur().id, path: b.dataset.ai, hint: b.dataset.hint || '', label: BLOCKS[cur().type].name}); }, true);
+    notify({type: 'aiDraw', itemId: cur().id, path: b.dataset.ai, hint: b.dataset.hint || '', label: BLOCKS[cur().type].name, bg: b.dataset.bg || 'white'}); }, true);
   let imgTarget = null;
   function pickImage(path){ imgTarget = path; $('fileImg').value = ''; $('fileImg').click(); }
   // 2026-10-27 사용자: 미리보기의 빈 화면 칸도 눌러서 파일 올리기 · 끌어다 놓기 (캡처 붙여넣기만 되던 것)

@@ -883,6 +883,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   let aiTarget = null;
   function aiFromImage(m){ aiTarget = {itemId: m.itemId, path: m.path, label: m.label || '콘텐츠 이미지'};
     if (!(H.ai && (H.ai.topic || '').trim()) && m.hint){ H.ai = Object.assign(H.ai || {}, {topic: m.hint}); save(); }
+    if (m.bg === 'white' || m.bg === 'light'){ H.ai = Object.assign(H.ai || {}, {bg: m.bg}); save(); }   // 칸에 맞는 배경 (흰 카드면 라이트 블루)
     go('ai'); renderAITarget(); }
   function renderAITarget(){ const t = $('aiTarget');
     t.hidden = !aiTarget; if (aiTarget) t.innerHTML = `<span>콘텐츠 이미지 <b>${esc(aiTarget.label)}</b> 칸에 넣을 그림이에요.</span><span class="sp"></span><button class="btn sm" id="aiTargetX">취소</button>`;
