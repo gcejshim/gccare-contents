@@ -1050,7 +1050,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     else L.push(`- Use what "What to draw" describes: the first object named is the main object (keep its type, e.g. a newspaper stays a folded newspaper); other named objects are the supporting ones. If fewer are named, add supporting objects related to it from: ${topic[1]}. Anything described that is not an object (e.g. what a document is about) goes on the object surfaces.`);
     L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects come from this topic (the objects above), drawn as standing solid 3D things. Never phones, tablets, screens, cards or anything that only shows a picture.');
     // 10/30 사용자: 체크는 허용(점검 주제에 어울림) · 달력 화면이 빈 격자라 밋밋함 → 지금판 DETAIL(층 있는 디테일)을 이 문장에 합침
-    if (!photo) L.push(`- The main object's surface has rich, layered detail — colored blocks, highlighted cells or dates, small icons and a small chart${health ? ` (health motifs for this topic: ${topic[3]})` : ''}; never a plain empty grid or blank page. Shapes only.`);
+    // 10/30: '날짜'라고 쓰니 날짜 숫자 · 78% · 한글 라벨이 생기고, '작은 차트'가 따로 떨어진 차트 카드로 나옴 → 날짜 뺌, 표면 위로 한정, 숫자 · 글자 없이
+    if (!photo) L.push(`- On the main object's surface itself: rich, layered detail — colored blocks, highlighted cells, small icons and a tiny chart${health ? ` (health motifs for this topic: ${topic[3]})` : ''}; never a plain empty grid or blank page. Shapes only, no numbers or letters.`);
     if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
     if (trend) L.push('- Show the increase or decrease as one bold up or down arrow next to a bar chart.');
     L.push('- Hearts only as a small mark on an object surface, never as a separate object.');   // 10/30: "하트 한 개까지"가 하트 배지 하나를 더 그리게 함
