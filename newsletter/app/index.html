@@ -257,6 +257,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .ai-smp-w summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--neutral-900);padding:4px 0 10px}
 .ai-smp-w summary small{font-weight:400;color:var(--neutral-500);margin-left:6px}
 .ai-out:not([hidden]) + .ai-smp-w{margin-top:18px;border-top:1px solid var(--coolNeutral-100);padding-top:12px}
+.ai-out img{background:repeating-conic-gradient(#eef1f6 0% 25%, #fff 0% 50%) 0 0/16px 16px}   /* 투명 배경이 보이게 */
 .ai-smp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
 .ai-smp button{padding:0;border:2px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;background:var(--coolNeutral-50);cursor:pointer;display:flex;flex-direction:column;text-align:left;transition:border-color .15s,transform .15s}
 .ai-smp button:hover{border-color:var(--careBlue-400);transform:translateY(-2px)}
@@ -371,21 +372,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   <!-- AI로 그리기 -->
   <section class="view" id="v-ai"><div class="page">
     <h2>AI로 그리기</h2>
-    <p class="lead"><b>콘텐츠 이미지</b>에 쓸 배경과 일러스트를 그려요. <b>[바로 만들기]</b>로 여기서 그리거나 <b>[ChatGPT에서 만들기]</b>로 만든 뒤, 콘텐츠 이미지 도구에 <b>Ctrl+V</b>로 넣어요.</p>
+    <p class="lead"><b>콘텐츠 이미지</b>에 넣을 그림 요소(물건 · 장면 하나)를 <b>가운데</b>에 그려요. 만든 그림은 콘텐츠 이미지 도구에 <b>Ctrl+V</b>로 넣어요. 앱 · 웹 화면은 캡처해서 <b>목업 히어로</b>에 넣어요.</p>
       <div class="grid2">
         <div class="card">
           <h3>무엇을 그릴까요?</h3>
-          <div class="field" style="margin-bottom:12px"><label>주제 (기획안 내용을 한두 문장으로 · 가운데를 비우고 싶으면 같이 적어요)</label><textarea id="aiTopic" rows="3" placeholder="예: 하반기 건강검진 시즌, 담당자가 수검 현황을 점검하는 모습"></textarea></div>
-          <div class="field" style="margin-bottom:12px"><label>꼭 들어갈 것 (선택)</label><input type="text" id="aiItems" placeholder="예: 달력, 체크리스트 클립보드, 청진기"></div>
-          <div class="field" style="margin-bottom:12px"><label>그림체</label><select id="aiStyle"></select></div>
-          <div class="field" style="margin-bottom:12px"><label>참고 이미지 (선택 · 1장) — 그림체 · 분위기만 따라 그려요</label>
+          <div class="field" style="margin-bottom:12px"><label>그릴 것 (가장 크게 · 상황을 붙이면 뜻이 살아나요)</label><textarea id="aiTopic" rows="2" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰"></textarea></div>
+          <div class="field" style="margin-bottom:12px"><label>곁들일 것 (선택 · 쉼표로 1~2개, 작게)</label><input type="text" id="aiItems" placeholder="예: 커피잔, 달콤한 케이크"></div>
+          <div class="field" style="margin-bottom:12px"><label>배경</label><div class="seg" id="aiBg" style="max-width:240px"><button type="button" data-bg="white">흰색</button><button type="button" data-bg="light">라이트 블루</button></div></div>
+          <div class="field" style="margin-bottom:12px"><label>그림체 (오른쪽에서 고르거나 이미지 첨부) — 그림체 · 색만 따라 그려요</label>
             <div class="ai-ref" id="aiRef"></div><input type="file" id="aiRefFile" accept="image/*" hidden></div>
           <!-- 2026-10-26 사용자: 다 적은 바로 아래에서 만들기 · [프롬프트 복사]+[ChatGPT 열기]는 한 버튼으로, 프롬프트 글은 안 보이게 -->
           <div class="prompt" id="aiPrompt" hidden></div>
           <div class="ai-go"><button class="btn primary" id="aiGen">바로 만들기</button>
             <a class="btn" id="aiOpen" target="_blank" rel="noopener" title="프롬프트를 복사하고 ChatGPT를 열어요 · 붙여 넣고 참고 이미지가 있으면 같이 첨부해요">ChatGPT에서 만들기</a></div>
-          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 공용 서버로 30초~1분 안에 그려요(시안). 완성본은 <b>[ChatGPT에서 만들기]</b> → Ctrl+V로 붙여 넣어 만들어요.</p>
-          <p class="hint" style="margin-top:4px">⚠️ 이미지 안에는 <b>글자를 넣지 않아요.</b> 글자는 콘텐츠 이미지 도구에서 넣어요. 인물 <b>실사 사진</b>은 회사 보유 사진만 써요(AI 실사 인물 X).</p>
+          <p class="hint" style="margin-top:10px"><b>[바로 만들기]</b>는 회사 서버로 30초~1분 걸려요. 그림에는 <b>글자를 넣지 않고</b> 콘텐츠 이미지 도구에서 넣어요. 사람은 가상의 한국인으로 그리고, 실제 인터뷰 · 고객사 인물은 사진을 써요.</p>
         </div>
         <div class="card">
           <h3 id="aiRightT">결과</h3>
@@ -395,7 +395,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
             <div class="row"><button class="btn sm" id="aiOutCopy">이미지 복사</button><button class="btn sm" id="aiOutSave">PNG 저장</button><span class="hint">콘텐츠 이미지 도구에 Ctrl+V로 붙여 넣어요.</span></div>
           </div>
           <!-- 2026-10-26 사용자: 빈 칸 대신 지난 호 콘텐츠 이미지 샘플(그림이 들어간 것만) — 누르면 참고 이미지로. 그린 뒤엔 접힘 -->
-          <details class="ai-smp-w" id="aiSmpW" open><summary>이런 느낌으로 그릴까요? <small>지난 호 그림을 하나 고르면 비슷한 느낌으로 그려요 (안 골라도 돼요)</small></summary>
+          <details class="ai-smp-w" id="aiSmpW" open><summary>그림체 고르기 <small>글자 없는 참고 그림 · 고르면 그 그림체 · 색으로 그려요 (다시 누르면 빼기)</small></summary>
             <div class="ai-smp" id="aiSmp"></div></details>
         </div>
       </div>
@@ -783,46 +783,47 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // ── 에셋: AI로 그리기 (ChatGPT 프롬프트) ──
   // 썸네일은 썸네일 도구에서만 그림 (10/14) — 여기는 콘텐츠 이미지용, 용도 구분 없이 한 가지 구도
   // (배경처럼 가운데를 비우고 싶으면 주제에 적음)
-  const SIZE = '가로형 1536×1024 (3:2)';
-  const STYLES = {
-    soft3d: {name: '3D 일러스트 (12·14호 느낌)', en: 'Soft 3D illustration style, rounded clay-like shapes, gentle studio lighting, clean and friendly, not childish.'},
-    flat: {name: '플랫 일러스트', en: 'Clean flat vector illustration, simple geometric shapes, minimal shading, generous whitespace.'},
-    object: {name: '실사 오브젝트 (사람 없음)', en: 'Photorealistic product-style shot of objects only (no people), soft natural light, shallow depth of field, clean background.'}
-  };
+  // 2026-10-30 사용자: AI로 그리기 = 콘텐츠 이미지에 넣을 요소, 가운데 정렬(썸네일과 다른 구조). 썸네일 짧은 프롬프트 · 서비스 규칙(service.js)을 같이 씀
+  // 예전: 가로 장면 · 블루 고정 · 서버 옛 문단이 붙음(diet 없음) · 지난 호 완성 이미지(글자 포함)를 참고로
+  const realPersonRef = r => !!r && /인물/.test(r.desc || '');
   function buildPrompt(){
-    const ai = H.ai, st = STYLES[ai.style] || STYLES.soft3d;
-    const topic = (ai.topic || '').trim() || '(주제를 입력해 주세요)';
-    const items = (ai.items || '').trim();
-    return [
-      '[GC케어 뉴스레터 콘텐츠 이미지]', '',
-      `주제: ${topic}`, items ? `꼭 들어갈 것: ${items}` : null, `크기: ${SIZE}`,
-      aiRef ? '참고 이미지: 첨부한 참고 이미지의 그림체 · 분위기만 따라 그려 주세요.' : null, '',
-      'Create an image with these rules:',
-      '- Purpose: An image for a newsletter article. One clear scene that explains the topic at a glance; simple composition, few elements. If the subject asks for an empty area (e.g. empty center), follow it.',
-      `- Subject: ${topic}${items ? ` — include: ${items}` : ''}`,
-      `- Style: ${st.en}`,
-      aiRef ? '- Style reference: match the rendering style, materials, lighting and mood of the attached reference image (첨부한 참고 이미지). Do not copy its objects, people or text.' : null,
-      '- Color palette: calm blue tones as the base (#031552 navy, #2F74EB blue, #D6EAFF / #F0F8FF light blue, #F7F7FB off-white). Use green (#0AC262) only as a small accent.',
-      '- Audience: HR and occupational-health managers at Korean companies (B2B). Professional, trustworthy, warm — not an app UI, not a stock-photo cliché.',
-      '- ABSOLUTELY NO TEXT: no letters, numbers, Korean/English words, logos, labels, signage, or UI text anywhere in the image.',
-      '- People: fictional East Asian (Korean) people only, never real or famous people. Real interview or customer photos are added by the team, not generated.',
-      '- No watermarks, no borders, no frames.',
-      `- Output size: ${SIZE}.`
-    ].filter(x => x !== null).join('\n');
+    const ai = H.ai, G = window.GC_SVC, main = (ai.topic || '').trim() || '(그릴 것을 적어 주세요)', items = (ai.items || '').trim();
+    const ref = (window.REFS || []).find(r => r.id === aiRefId), photo = !!ref && ref.type === 'photo';
+    const both = main + ' ' + items, topic = G.topicFor(both);
+    const health = /건강|헬스|검진|보건|운동|걷기|걷는|걸음|수면|스트레스|마음|체중|비만|식단|영양|금연|절주|혈압|혈당|당뇨|CGM|심혈관|근골격|구강|치아|감염|예방/i.test(both);
+    const glucose = /혈당|당뇨|CGM|연속혈당|스파이크/i.test(both);
+    const L = [];
+    L.push(`Create one ${photo ? 'realistic photo-style' : '3D illustration'} element to place inside a newsletter content image. Square 1024x1024, transparent background (real alpha), no backdrop, no floor scene — it will be placed on a white or very light blue card.`, '');
+    L.push(`WHAT: ${G.withEn(main)}` + (items ? `\nWITH: ${G.withEn(items)}` : ''), '');
+    L.push('OBJECTS:');
+    L.push(items ? '- WHAT is the main object; draw the WITH items as smaller supporting objects. Nothing else.' : '- Draw WHAT as the only main object, optionally with one small related prop. Nothing else.');
+    L.push('- No floating icons, sparkles, badges or decorations. Hearts only as a small mark on a surface.');
+    if (health && !photo) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
+    if (glucose) L.push('- The high part of any glucose curve is bright red.');
+    L.push('', 'LAYOUT: everything centered as one compact group; the main object is the largest, about 70% of the image height; generous even margin on all sides; nothing cut by the edges. Only a soft contact shadow under the objects.', '');
+    L.push('COLOR AND STYLE:');
+    if (ref && realPersonRef(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person if a person appears.`);
+    else if (ref || aiRef) L.push('- Match the attached reference image\'s look closely — its palette (white plus 2-3 of its colors), materials, gloss, roundness and lighting — not its objects, layout or text.');
+    else L.push('- Simplified, rounded 3D like modern app icons; white and 3-4 shades of blue with small green or yellow accents. Calm, low saturation.');
+    L.push(photo ? '- Premium corporate campaign photo look: soft refined light, natural materials. Not 3D, not illustration.' : '- Clean premium finish: soft rim light, gentle gloss, smooth matte surfaces. Not photorealistic, not toy-like, not clip-art.', '');
+    L.push('TEXT: no text, letters, numbers or logos anywhere.');
+    L.push('PEOPLE: if a person appears, a fictional Korean person — never a real or famous person.');
+    L.push(`AVOID: ${/청진기|주사|병원|의사|간호|진료/.test(both) ? '' : 'hospital tools (stethoscope, syringe, pills), '}buildings, shields, check-mark badges, arrows.`);
+    return L.join('\n');
   }
   function renderAI(){
-    const ai = H.ai = Object.assign({style: 'soft3d', topic: '', items: '', gpt: ''}, H.ai || {});
-    $('aiStyle').innerHTML = Object.entries(STYLES).map(([k, v]) => `<option value="${k}"${k === ai.style ? ' selected' : ''}>${v.name}</option>`).join('');
+    const ai = H.ai = Object.assign({topic: '', items: '', bg: 'white', gpt: ''}, H.ai || {});
+    if (!['white', 'light'].includes(ai.bg)) ai.bg = 'white';   // 10/30 사용자: 배경은 흰색 · 라이트 블루만
+    document.querySelectorAll('#aiBg button').forEach(b => b.classList.toggle('on', b.dataset.bg === ai.bg));
     $('aiTopic').value = ai.topic; $('aiItems').value = ai.items;
     renderRef(); updatePrompt(); renderAISmp();
   }
-  // 지난 호 콘텐츠 이미지 중 그림이 들어간 것만 (썸네일 · 표 · 그래프는 그림체 참고가 안 돼서 뺌)
-  const AI_SMP_TYPES = ['illust', 'hero', 'steps', 'photo'];
+  // 10/30 사용자: 지난 호 샘플은 글자 · 표까지 든 완성 이미지라 참고로 안 맞음 → 썸네일 참고 이미지(글자 없음, 평면 목업은 뺌)
   let aiRefId = '';
-  const aiSmpList = () => (window.NL_SAMPLES || []).filter(s => AI_SMP_TYPES.includes(s.type)).sort((a, b) => AI_SMP_TYPES.indexOf(a.type) - AI_SMP_TYPES.indexOf(b.type) || b.issue - a.issue);
+  const aiSmpList = () => (window.REFS || []).filter(r => r.type !== 'mockup');
   function renderAISmp(){
     const L = aiSmpList();
-    $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.name === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${s.issue}호 · ${esc((TYPES[s.type] || [s.type])[0])}</span></button>`).join('')
+    $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.id === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${esc(s.name)}</span></button>`).join('')
       : '<div class="empty">샘플이 없어요.</div>';
   }
   function updatePrompt(){
@@ -832,11 +833,11 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 
   // 참고 이미지 (1장, 이 화면에만 · 자동저장 안 함) → 서버에는 썸네일 [바로 만들기]와 같은 styleRef로 보냄
   const GEN_URL = 'https://gccardnews.vercel.app/api/generate-image';
-  let aiRef = '', aiBusy = false, aiOutURL = '';
+  let aiRef = '', aiBusy = false, aiOutURL = '', aiRaw = '';   // aiRaw = 서버가 준 투명 원본 (배경을 바꿀 때 다시 얹음)
   function renderRef(){
     $('aiRef').innerHTML = aiRef
       ? `<img src="${aiRef}" alt=""><span>이 그림체 · 분위기를 따라 그려요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">바꾸기</button><button class="btn sm" data-ref="clear">빼기</button>`
-      : `<span>오른쪽 <b>지난 호 콘텐츠 이미지</b>를 누르거나,<br>이미지를 끌어다 놓거나 <b>Ctrl+V</b>로 붙여 넣어요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">파일 선택</button>`;
+      : `<span>오른쪽 <b>그림체</b>에서 고르거나,<br>이미지를 끌어다 놓거나 <b>Ctrl+V</b>로 붙여 넣어요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">파일 선택</button>`;
   }
   // 서버 제한(500KB) 안으로: 긴 쪽 1024px WebP, 크면 한 번 더 줄임
   function shrinkRef(src){
@@ -864,19 +865,21 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     r.onload = async () => { try { aiRef = await shrinkRef(r.result); aiRefId = ''; renderRef(); updatePrompt(); renderAISmp(); } catch(e){ toast('이미지를 읽지 못했어요.'); } };
     r.readAsDataURL(f);
   }
+  // 배경: 서버는 투명으로 그리고, 고른 색(흰색 · 라이트 블루) 판 위에 얹어 PNG로
+  function onWhite(src, color){ return new Promise(res => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = im.width; c.height = im.height; const x = c.getContext('2d'); x.fillStyle = color; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0); res(c.toDataURL('image/png')); }; im.onerror = () => res(src); im.src = src; }); }
   async function aiGenerate(){
     if (aiBusy) return;
-    if (!(H.ai.topic || '').trim()){ toast('주제를 먼저 적어 주세요.'); $('aiTopic').focus(); return; }
+    if (!(H.ai.topic || '').trim()){ toast('그릴 것을 먼저 적어 주세요.'); $('aiTopic').focus(); return; }
     aiBusy = true; $('aiGen').disabled = true; $('aiGen').textContent = '만드는 중…';
     const st = $('aiGenSt'); st.hidden = false; st.className = 'gen-st'; st.textContent = '그리는 중이에요. 30초~1분 걸려요.';
     const ctrl = new AbortController(), timer = setTimeout(() => ctrl.abort(), 120000);
     try {
       const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, signal: ctrl.signal,
-        body: JSON.stringify({kind: 'thumb', prompt: buildPrompt(), layout: 'scene', styleRef: aiRef})});
+        body: JSON.stringify({kind: 'thumb', prompt: buildPrompt(), layout: 'object', styleRef: realPersonRef((window.REFS || []).find(r => r.id === aiRefId)) ? '' : aiRef, diet: true})});   // object = 정사각 · 투명 (서버), diet = 서버 옛 문단 안 붙임
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
       if (window._0u) window._0u('AI로 그리기');
-      aiOutURL = data.dataURL; $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiSmpW').open = false;   // 그린 뒤엔 샘플 접기
+      aiRaw = data.dataURL; aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiSmpW').open = false;   // 그린 뒤엔 샘플 접기
       st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15)
     } catch(e){
       st.className = 'gen-st err';
@@ -1025,9 +1028,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       if (lbItem.type === 'thumb'){ go('thumb'); return; }
       const b = TYPES[lbItem.type][1]; if (b){ send('image', {type: 'addBlock', blockType: b}); go('image'); }
     });
-    ['aiStyle', 'aiTopic', 'aiItems'].forEach(id => $(id).addEventListener('input', e => {
-      const k = {aiStyle: 'style', aiTopic: 'topic', aiItems: 'items'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
+    ['aiTopic', 'aiItems'].forEach(id => $(id).addEventListener('input', e => {
+      const k = {aiTopic: 'topic', aiItems: 'items'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
     }));
+    $('aiBg').addEventListener('click', async e => { const b = e.target.closest('[data-bg]'); if (!b) return; H.ai.bg = b.dataset.bg; save();
+      document.querySelectorAll('#aiBg button').forEach(x => x.classList.toggle('on', x === b)); updatePrompt();
+      if (aiRaw){ aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); $('aiOutImg').src = aiOutURL; } });   // 10/30 사용자: 만든 뒤에도 배경만 바꾸기 (다시 안 그림)
     $('aiRef').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return;
       if (b.dataset.ref === 'pick'){ $('aiRefFile').value = ''; $('aiRefFile').click(); }
       else { aiRef = ''; aiRefId = ''; renderRef(); updatePrompt(); renderAISmp(); } });
@@ -1048,8 +1054,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     $('aiOpen').addEventListener('click', async () => { try { await navigator.clipboard.writeText(buildPrompt()); toast(aiRef ? '프롬프트를 복사했어요. ChatGPT에 Ctrl+V 하고 참고 이미지도 첨부해 주세요.' : '프롬프트를 복사했어요. ChatGPT에 Ctrl+V로 붙여 넣어 주세요.', 4000); } catch(e){ toast('복사가 막혀 있어요. 다시 눌러 주세요.'); } });
     $('aiSmp').addEventListener('click', async e => { const b = e.target.closest('[data-smp]'); if (!b) return;
       const s = aiSmpList()[+b.dataset.smp]; if (!s) return;
-      if (aiRefId === s.name){ aiRef = ''; aiRefId = ''; }   // 한 번 더 누르면 빼기
-      else { try { aiRef = await shrinkRef(s.src); aiRefId = s.name; } catch(err){ toast('이미지를 읽지 못했어요.'); return; } }
+      if (aiRefId === s.id){ aiRef = ''; aiRefId = ''; }   // 한 번 더 누르면 빼기
+      else { try { aiRef = await shrinkRef(s.src); aiRefId = s.id; } catch(err){ toast('이미지를 읽지 못했어요.'); return; } }
       renderRef(); updatePrompt(); renderAISmp(); });
     $('logos').addEventListener('click', async e => { const b = e.target.closest('[data-dl]'); if (!b) return; const blob = await (await fetch(A[b.dataset.dl])).blob(); download(blob, `GC케어_${b.dataset.dl}.png`); });
     $('sws').addEventListener('click', async e => { const b = e.target.closest('[data-hex]'); if (!b) return; try { await navigator.clipboard.writeText(b.dataset.hex); toast(`${b.dataset.hex} 복사했어요.`); } catch(err){ toast(b.dataset.hex); } });
