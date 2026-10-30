@@ -1020,7 +1020,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 10/30 사용자: 체크는 허용(점검 주제에 어울림) · 달력 화면이 빈 격자라 밋밋함 → 지금판 DETAIL(층 있는 디테일)을 이 문장에 합침
     // 10/30: '날짜'라고 쓰니 날짜 숫자 · 78% · 한글 라벨이 생기고, '작은 차트'가 따로 떨어진 차트 카드로 나옴 → 날짜 뺌, 표면 위로 한정, 숫자 · 글자 없이
     // 10/30 사용자: 빈 격자는 밋밋, 풍성하게 하니 너무 많음 → 중간: 크고 단순한 요소 3~4개 (10/28 사업부 '크고 단순하게' 기준)
-    if (!photo) L.push(`- On the main object's surface itself: 3-4 large, simple elements — a few blocks or highlighted cells in the palette's tones and one icon or tiny chart${health ? ` (health motifs for this topic: ${topic[3]})` : ''}. Not empty, not busy. Shapes only, no numbers or letters.`);
+    if (!photo) L.push(`- On the main object's surface itself: 3-4 large, simple elements — a few blocks or highlighted cells in the palette's tones and one icon or tiny chart${health ? ` (health motifs for this topic: ${topic[3]})` : ''}. Not empty, not busy. Shapes only, no numbers or letters (a phone or monitor screen may show a few small UI numbers).`);
     if (protect && !shieldOK) L.push('- Show prevention / protection as one rounded shield with a simple plus sign, nothing else drawn on it.');
     if (trend) L.push('- Show the increase or decrease as one bold up or down arrow next to a bar chart.');
     L.push('- Hearts only as a small mark on an object surface, never as a separate object.');   // 10/30: "하트 한 개까지"가 하트 배지 하나를 더 그리게 함
@@ -1061,7 +1061,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push(quoted.length
       ? `TEXT: the only text is exactly "${quoted.join('", "')}" (Korean stays Korean), as the title on the object described, in the place that fits that object, sized to fit. No other text, no logos.`
-      : 'TEXT: no text, letters, numbers or logos anywhere. Screens and documents use simple shapes instead of text.', '');
+      : 'TEXT: no text, letters, numbers or logos anywhere, except a few small UI numbers inside a phone or monitor screen. Documents and other objects use simple shapes instead of text.', '');   // 10/30 사용자: 휴대폰 화면의 작은 숫자(112 mg/dL)는 앱다워 보여 허용 (medium 화질이라 깨지지 않음)
 
     if (ref || chars.length){
       L.push('REFERENCE:');
