@@ -986,7 +986,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     // 10/30 사용자: 배경 색끼리 묶어 나란히 (라이트 블루 옆에 네이비) — 라이트 블루 · 화이트 → 네이비 · 블루 → 그린 → 실사, 지금 고른 배경색 계열을 맨 앞에. 같은 색 안에서는 장면 → 물건 → 목업
     const TONES = ['light', 'dark', 'green'], tone = r => r.type === 'photo' ? 'photo' : ['navy','blue'].includes(r.bg[0]) ? 'dark' : ['green','lightGreen'].includes(r.bg[0]) ? 'green' : 'light';
     const now = key === 'navy' || key === 'blue' ? 'dark' : key === 'green' || key === 'lightGreen' ? 'green' : 'light';
-    const tRank = r => { const t = tone(r); return t === 'photo' ? 9 : t === now ? 0 : 1 + TONES.indexOf(t); };
+    // 10/30 사용자: 평면 화면 목업 2장(보건이지 · 건강관리 잘하는 기업)은 맨 뒤로
+    const tRank = r => { const t = tone(r); return r.type === 'mockup' ? 10 : t === 'photo' ? 9 : t === now ? 0 : 1 + TONES.indexOf(t); };
     return list.sort((a, b) => tRank(a) - tRank(b) || rank(a) - rank(b) || b.score - a.score).map(r => Object.assign(r, {tone: tone(r)}));
   }
   // 내가 넣은 참고 이미지 (이번 화면에서만 · 새로고침하면 사라짐). 참고 이미지 줄 맨 앞에
