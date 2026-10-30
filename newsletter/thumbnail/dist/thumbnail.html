@@ -1076,10 +1076,15 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push('BACKGROUND AND COLOR:');
     const BG_EN = {navy: 'navy', blue: 'blue', lightBlue: 'light blue', white: 'off-white', lightGreen: 'light green', green: 'green'};
     L.push(`- Solid ${BG_EN[key] || ''} ${bg} at the top, slightly deeper toward the bottom like a soft floor. Smooth, no pattern.`);
-    if (!photo && COLOR[key]) L.push(`- ${COLOR[key]} Calm, low saturation.`);
+    // 10/30 사용자: 참고 이미지(데이터 리포트 · 초록)를 골랐는데 흰색 · 파랑으로 나옴 → 참고 이미지가 있으면 물건 색은 참고 이미지를 따름(배경색만 고정), 없으면 배경별 색 규칙
+    const refColor = ref && !realPerson(ref) && !photo;
+    if (refColor) L.push('- Object colors follow the attached reference image\'s palette, adjusted to look good on this background.');
+    else if (!photo && COLOR[key]) L.push(`- ${COLOR[key]} Calm, low saturation.`);
     L.push('');
 
+    // 10/30 사용자: 참고 이미지(녹색 · 흰색 · 광택)와 전혀 다른 무드(파랑 · 매트)로 나옴 → 참고 이미지가 있으면 그림체 · 재질 · 무드는 참고 이미지를 따름
     L.push(photo ? 'STYLE: a real camera photo (DSLR, 50mm), clean studio lighting with a large softbox, natural materials. Not 3D, not illustration.'
+      : refColor ? 'STYLE: follow the reference image\'s rendering style and mood — its materials, gloss, gradients and lighting. Clean 3D, not photorealistic, not toy-like, not clip-art.'
       : 'STYLE: simplified, rounded 3D like modern app icons. Smooth matte surfaces with soft gradient shading, one or two soft highlights, soft rim light. Not photorealistic, not toy-like, not clip-art.', '');
 
     L.push(quoted.length
@@ -1090,7 +1095,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       L.push('REFERENCE:');
       if (mine) L.push(desc ? '- Follow the attached reference image for style, composition and colors; draw the subject above.' : '- Recreate the attached reference image almost exactly (objects, layout, colors, style), without its text or logos.');
       else if (ref && realPerson(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person.`);
-      else if (ref) L.push('- Follow the attached reference image\'s style, materials, lighting and level of detail — not its objects or text.');
+      else if (ref) L.push('- Follow the attached reference image\'s style, materials, colors, lighting and level of detail — not its objects or text.');
       if (ref) L.push(`- Use the background color ${bg}, not the reference's.`);
       if (chars.length) L.push('- From the character images use only the face, hair and rendering style.');
       L.push('');
