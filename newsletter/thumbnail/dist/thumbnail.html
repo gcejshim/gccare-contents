@@ -1016,6 +1016,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   function objectsFor(title){ return topicFor(title)[1]; }
 
   // 2026-10-30 프롬프트 다이어트 (시험): 지금 프롬프트가 1만 자 · 85줄(같은 금지 4~5번 반복, 한국어 · 영어 기준 어긋남) → 짧은 영어 하나, 반복 없음, 상황별 줄은 그때만.
+  // 2026-10-30 사용자: 타이틀이 왼쪽이라 보조 물건은 중심의 오른쪽 아래에 (10/25 '왼쪽 아래'를 바꿈, 방패가 타이틀을 침범)
   // 주소에 ?prompt=short(통합본은 통합본 주소에)일 때만 씀. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
   const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) === 'short'; } catch(_){ return false; } })();
   if (PROMPT_DIET) $('btnGen').insertAdjacentHTML('afterend', '<span id="dietMark" style="align-self:center;font-size:12px;color:var(--careBlue-700)">짧은 프롬프트(시험)</span>');   // 비교하는 동안 어느 쪽으로 만드는지 보이게
@@ -1054,7 +1055,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push('LAYOUT:');
     L.push(`- The left 55% is empty background for the title${photo ? ' (a softly blurred continuation of the same room, getting closer to ' + bg + ')' : ''}. All objects sit in the right 45%, vertically center to lower. No split panel or vertical seam.`);
-    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, in front of it at its lower left, slightly overlapping, on the same floor with soft contact shadows — but still entirely right of the 55% line.');
+    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, in front of it at its lower right, slightly overlapping, on the same floor with soft contact shadows. Nothing goes left of the main object (the title is on the left).');
     L.push('- Keep at least 15% empty space above and below the objects; nothing touches the image edges.', '');
 
     const key = S.preset === 'custom' ? (dark ? 'navy' : 'lightBlue') : S.preset;
