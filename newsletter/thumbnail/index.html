@@ -966,7 +966,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/절주|음주|과음|술자리|알코올/, '물잔, 금지 표시, 게이지(계기판)', '물잔, 게이지, 금지 표시', 'a water glass, a gauge, a no-alcohol sign'],
     [/운동|걷기|걸음|만보|챌린지|다이어트|신체활동/, '운동화, 덤벨, 걸음 수가 뜬 스마트워치, 과녁과 다트', '걸음 수 링 그래프, 발자국, 과녁', 'a step-count ring, footprints, a target'],
     [/근골격|자세|허리|거북목|어깨|척추|스트레칭/, '척추 모양 조형, 사무용 의자, 스트레칭 밴드, 폼롤러', '척추 선, 바른 자세 실루엣', 'a spine line, a good-posture silhouette'],
-    [/혈압|혈당|뇌심|심혈관|만성|당뇨|고혈압|콜레스테롤|심장/, '심장 모양 조형과 심박 선, 혈압계, 혈당 측정기, 심박이 뜬 스마트워치', '심박 선, 혈압 게이지, 혈당 방울', 'a heartbeat line, a blood-pressure gauge, a blood-sugar drop'],
+    // 10/30 사용자: GC케어 혈당 서비스는 CGM(연속혈당측정) 모니터링 → 손가락 채혈 혈당 측정기가 아니라 팔에 붙이는 원형 센서 + 앱의 연속 그래프
+    [/혈당|당뇨|CGM|연속혈당|당 떨어|스파이크/i, '팔에 붙이는 원형 CGM 센서, 연속 혈당 그래프가 뜬 휴대폰(CGM 앱), 커피잔, 간식', '하루 동안 이어지는 혈당 곡선, 원형 센서, 혈당 방울', 'a continuous glucose curve over a day, a round sensor, a blood-sugar drop'],
+    [/혈압|뇌심|심혈관|만성|고혈압|콜레스테롤|심장/, '심장 모양 조형과 심박 선, 혈압계, 심박이 뜬 스마트워치', '심박 선, 혈압 게이지, 혈당 방울', 'a heartbeat line, a blood-pressure gauge, a blood-sugar drop'],
     [/구강|치아|치과|잇몸/, '치아 모양 조형, 칫솔, 치실', '치아 모양, 칫솔', 'a tooth shape, a toothbrush'],
     [/위내시경|대장|내시경|소화|위장|장 건강/, '위 · 장 모양 조형, 하트 표시 클립보드, 달력', '위 모양, 달력 표시', 'a stomach shape, a calendar mark'],
     [/감염|감염병|독감|코로나|위생|방역|바이러스/, '둥근 바이러스 조형, 마스크, 손 소독제, 체온계', '물방울, 손 모양, 둥근 바이러스 무늬', 'water drops, a hand shape, a simple round virus shape'],
@@ -1001,8 +1003,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const shieldOK = /방패|체크|check/i.test(desc), building = /건물|빌딩|사옥|사무실/.test(desc);
     // '안전보건 · 보안'은 그대로 보내면 안전모 · 자물쇠로 그림 → 뜻을 바꿔 보냄 (따옴표 글자는 그대로)
     // 10/30: '뉴스페이퍼'를 책자로 그림 → 자주 쓰는 물건 이름에 영어를 괄호로 (영어 프롬프트라 물건이 단단히 잡히게)
-    const EN = {'뉴스페이퍼':'a folded newspaper','신문':'a folded newspaper','책자':'a booklet','휴대폰':'a smartphone','스마트폰':'a smartphone','노트북':'a laptop','모니터':'a monitor','달력':'a desk calendar','리포트':'a report document','결과지':'a result sheet','클립보드':'a clipboard','체중계':'a bathroom scale','혈압계':'a blood pressure monitor','운동화':'sneakers','방패':'a shield','돋보기':'a magnifying glass'};
-    const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안|뉴스페이퍼|신문|책자|스마트폰|휴대폰|노트북|모니터|달력|리포트|결과지|클립보드|체중계|혈압계|운동화|방패|돋보기/g, (m, q) => q ? q : m === '보안' ? (shieldOK ? m : '개인 건강정보 보호') : m === '안전보건' ? (site ? m : '직장인 건강관리') : `${m}(${EN[m]})`);
+    const EN = {'뉴스페이퍼':'a folded newspaper','신문':'a folded newspaper','책자':'a booklet','휴대폰':'a smartphone','스마트폰':'a smartphone','노트북':'a laptop','모니터':'a monitor','달력':'a desk calendar','리포트':'a report document','결과지':'a result sheet','클립보드':'a clipboard','체중계':'a bathroom scale','혈압계':'a blood pressure monitor','운동화':'sneakers','방패':'a shield','돋보기':'a magnifying glass','CGM 센서':'a round continuous glucose monitor (CGM) sensor patch','CGM':'a round continuous glucose monitor (CGM) sensor patch','연속혈당측정기':'a round continuous glucose monitor (CGM) sensor patch','혈당 센서':'a round continuous glucose monitor (CGM) sensor patch','커피잔':'a coffee cup','초콜릿':'a chocolate bar'};
+    const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안|CGM 센서|CGM|연속혈당측정기|혈당 센서|커피잔|초콜릿|뉴스페이퍼|신문|책자|스마트폰|휴대폰|노트북|모니터|달력|리포트|결과지|클립보드|체중계|혈압계|운동화|방패|돋보기/g, (m, q) => q ? q : m === '보안' ? (shieldOK ? m : '개인 건강정보 보호') : m === '안전보건' ? (site ? m : '직장인 건강관리') : `${m}(${EN[m]})`);
     const quoted = [...desc.matchAll(/["“”]([^"“”\n]{1,30})["“”]/g)].map(m => m[1].trim()).filter(Boolean);
     const L = [];
     L.push(`Create a ${photo ? 'realistic photo' : '3D illustration'} for a newsletter thumbnail background. 1536x1024 (3:2); the top and bottom get cropped.`, '');
