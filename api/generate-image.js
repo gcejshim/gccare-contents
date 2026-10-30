@@ -218,7 +218,8 @@ module.exports = async function handler(req, res) {
     if (kind === 'thumb') {
       content = buildThumbContent(body);
       quality = 'medium';   // 2026-10-18 사용자: 세련되게 — low는 재질이 뭉개짐 (가로형 장당 약 $0.041)
-      size = body.layout === 'object' ? '1024x1024' : '1536x1024';
+      // square: 정사각 · 배경 있음 (AI로 그리기 요소, 2026-10-30). gpt-image-2는 투명 배경을 지원하지 않음 → object(투명)는 오류
+      size = body.layout === 'object' || body.layout === 'square' ? '1024x1024' : '1536x1024';
       if (body.layout === 'object') background = 'transparent';
     } else if (kind === 'pdf') {
       // 뉴스레터 PDF 표지 그림 (2026-10-20) — 프롬프트는 PDF 도구가 짬. 배경 전체 = 세로 2:3, 오른쪽 아래 · 가운데 = 정사각
