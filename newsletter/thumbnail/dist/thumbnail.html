@@ -1043,7 +1043,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push(`TOPIC: Korean workplace health care newsletter. Title for context only, never write it: "${title}"` + (desc ? `\nWhat to draw: ${descSend}` : ''), '');
 
     L.push('OBJECTS (most important):');
-    L.push(`- 1 main object + 2 smaller supporting objects (only 1 if just one fits). A person counts as an object. ${desc ? 'If objects are named below, draw only those. ' : ''}Nothing else — no floating balls, icons or decorations around them.`);   // 10/30: 참고 이미지의 원그래프가 4번째 물건으로 따라옴
+    L.push(`- 1 main object + 2 smaller supporting objects${desc ? '' : ' (only 1 if just one fits)'}. A person counts as an object. ${desc ? 'If objects are named below, draw every one of them and only those. ' : ''}Nothing else — no floating balls, icons or decorations around them.`);   // 10/30: 적은 3개 중 하나가 빠짐(초콜릿 · 클립보드) → 적었으면 '모두', '보조 1개' 단서는 안 적었을 때만   // 10/30: 참고 이미지의 원그래프가 4번째 물건으로 따라옴
     if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
     else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
     // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것을 OBJECTS에. 사용자: 보조도 내용과 연관 → 적은 물건 순서대로, 모자라면 주제 목록에서
