@@ -969,7 +969,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/구강|치아|치과|잇몸/, '치아 모양 조형, 칫솔, 치실', '치아 모양, 칫솔', 'a tooth shape, a toothbrush'],
     [/위내시경|대장|내시경|소화|위장|장 건강/, '위 · 장 모양 조형, 하트 표시 클립보드, 달력', '위 모양, 달력 표시', 'a stomach shape, a calendar mark'],
     [/감염|감염병|독감|코로나|위생|방역|바이러스/, '둥근 바이러스 조형, 마스크, 손 소독제, 체온계', '물방울, 손 모양, 둥근 바이러스 무늬', 'water drops, a hand shape, a simple round virus shape'],
-    [/공시|법령|법률|법적|개정|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 원통 막대그래프, 도장, 달력', '서류 칸, 막대그래프', 'document sections, a bar chart'],
+    [/공시|법령|법률|법적|개정|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 원통 막대그래프, 도장, 달력', '심박 선이 있는 서류 칸, 건강 지표 막대그래프', 'document sections with a heartbeat line, a health-indicator bar chart'],
     [/예방|보장|보험|안전보건|안전|보호|산재/, '십자 배지가 있는 둥근 방패, 두 손으로 감싼 하트, 하트 표시 클립보드', '십자', 'a plus sign'],
     [/검진|결과지|수검|재검/, '하트 표시 클립보드(검진표), 일정 표시 달력, 돋보기와 결과 문서, 결과 리포트가 뜬 휴대폰', '심박 선, 결과 막대그래프, 달력 표시', 'a heartbeat line, a result bar chart, a calendar mark'],
     [/데이터|리포트|통계|분석|설문|결과\s?보고|비율|증가|감소|추이/, '원통 막대그래프와 위 · 아래 화살표, 원그래프 조각, 게이지(계기판), 돋보기', '막대 · 원그래프, 증감 화살표', 'a cylinder bar chart, a pie chart, one up or down arrow'],
@@ -1020,7 +1020,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
 
     L.push('LAYOUT:');
     L.push(`- The left 55% is empty background for the title${photo ? ' (a softly blurred continuation of the same room, getting closer to ' + bg + ')' : ''}. All objects sit in the right 45%, vertically center to lower. No split panel or vertical seam.`);
-    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, in front of it at its lower left, slightly overlapping, on the same floor with soft contact shadows.');
+    if (!photo) L.push('- Main object about 55% of the image height, tilted at a 3/4 angle. Supporting objects 25-40% of its size, in front of it at its lower left, slightly overlapping, on the same floor with soft contact shadows — but still entirely right of the 55% line.');
     L.push('- Keep at least 15% empty space above and below the objects; nothing touches the image edges.', '');
 
     const key = S.preset === 'custom' ? (dark ? 'navy' : 'lightBlue') : S.preset;
@@ -1055,7 +1055,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
       L.push('');
     }
 
-    const avoid = [!clinic && 'hospital tools (stethoscope, syringe, pills)', !building && 'buildings', !site && 'hard hats', !shieldOK && !protect && 'shields', !shieldOK && 'check marks', !site && 'locks',
+    const avoid = [!clinic && 'hospital tools (stethoscope, syringe, pills)', !building && 'buildings (even as pictures on documents or screens)', !site && 'hard hats', !shieldOK && !protect && 'shields', !shieldOK && 'check marks', !site && 'locks',
       'floating icons', 'sparkles', 'megaphones', !trend && 'arrows'].filter(Boolean);
     L.push(`AVOID: ${avoid.join(', ')}.`);
     return {text: L.join('\n'), chars, ref, layout: 'scene'};
