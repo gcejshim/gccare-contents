@@ -978,8 +978,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   const realPerson = r => !!r && !r.mine && /인물/.test(r.desc || '');
   function curRef(){
     // 2026-10-25 사용자: [없음] 버튼 뺌 — 고르지 않으면 참고 이미지 없음 (예전 '자동 추천 1순위'는 없앰). 고른 것을 다시 누르면 풀림
-    if (!S.gen.ref || S.gen.ref === 'none') return null;
-    return myRefs.find(r => r.id === S.gen.ref) || refList().find(r => r.id === S.gen.ref) || null;
+    // 2026-10-30 사용자: 참고 이미지는 무조건 선택 → 고른 게 없으면(예전 'none' 포함) 배경색 추천 1순위, 다시 눌러도 풀리지 않음
+    const list = refList();
+    return myRefs.find(r => r.id === S.gen.ref) || list.find(r => r.id === S.gen.ref) || list.find(r => r.rec) || list[0] || null;
   }
   // 그림체 = 고른 참고 이미지의 유형 (실사 → photo, 그 밖 · 없음 · 첨부 → 3D. 첨부는 프롬프트에서 첨부 그림체를 따르게 함)
   const refStyle = ref => ref && !ref.mine && ref.type === 'photo' ? 'photo' : 'scene3d';
@@ -1677,7 +1678,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('myRefFile').addEventListener('change', e => addMyRef(e.target.files[0]));
     ['dragover', 'dragenter'].forEach(ev => $('genRefs').addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
     $('genRefs').addEventListener('drop', e => { const f = [...(e.dataTransfer?.files || [])].find(x => x.type.startsWith('image/')); if (!f) return; e.preventDefault(); e.stopPropagation(); addMyRef(f); });
-    $('genRefs').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return; S.gen.ref = S.gen.ref === b.dataset.ref ? '' : b.dataset.ref; promptEdited = false; syncGen(); autosave(); });   // 고른 것을 다시 누르면 풀림
+    $('genRefs').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return; S.gen.ref = b.dataset.ref; promptEdited = false; syncGen(); autosave(); });   // 항상 하나는 선택 (10/30, 다시 눌러도 풀리지 않음)
     // 마우스를 올리면 오른쪽(자리가 없으면 왼쪽)에 크게 미리보기
     $('genRefs').addEventListener('mouseover', e => {
       const b = e.target.closest('[data-ref]'), pk = $('refPeek'), r = b && [...myRefs, ...(window.REFS || [])].find(x => x.id === b.dataset.ref);
