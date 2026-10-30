@@ -987,9 +987,9 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
   // 2026-10-30 프롬프트 다이어트 (시험): 지금 프롬프트가 1만 자 · 85줄(같은 금지 4~5번 반복, 한국어 · 영어 기준 어긋남) → 짧은 영어 하나, 반복 없음, 상황별 줄은 그때만.
   // 2026-10-30 사용자: 타이틀이 왼쪽이라 보조 물건은 중심의 오른쪽에 (10/25 '왼쪽 아래'를 바꿈, 방패가 타이틀을 침범). 한곳에 몰려서 2개면 오른쪽 아래 앞 + 오른쪽 위 뒤
   // 2026-10-30 사용자: 보조는 화면 속 그림이 아니라 입체 물건 자체로 (태블릿 · 휴대폰 · 카드 X)
-  // 주소에 ?prompt=short(통합본은 통합본 주소에)일 때만 씀. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
-  const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) === 'short'; } catch(_){ return false; } })();
-  if (PROMPT_DIET) $('btnGen').insertAdjacentHTML('afterend', '<span id="dietMark" style="align-self:center;font-size:12px;color:var(--careBlue-700)">짧은 프롬프트(시험)</span>');   // 비교하는 동안 어느 쪽으로 만드는지 보이게
+  // 2026-10-30 기본으로 바꿈(13호 · 12호로 확인). 예전 프롬프트는 ?prompt=full(통합본은 통합본 주소에)일 때만. 비교 후 이기면 기본으로, 지면 지움. 규칙: 문제가 생기면 줄을 더하지 말고 해당 줄을 고침 · 상한 약 2,500자
+  const PROMPT_DIET = (() => { try { const q = s => new URLSearchParams(s).get('prompt'); return (q(location.search) || (parent !== window ? q(parent.location.search) : '')) !== 'full'; } catch(_){ return false; } })();
+  if (!PROMPT_DIET) $('btnGen').insertAdjacentHTML('afterend', '<span id="dietMark" style="align-self:center;font-size:12px;color:var(--careBlue-700)">예전 프롬프트</span>');   // 10/30 짧은 프롬프트가 기본. 예전 것은 ?prompt=full로 한두 주 남겨 둠(실사 · 사람 경우 확인 후 지움)
   function buildPromptDiet(){
     const P = presetOf(), bg = (tok(P.bg) || '#f0f8ff').toUpperCase();
     const ref = curRef(), type = S.gen.style = refStyle(ref), T = GEN_TYPES[type], photo = type === 'photo';
