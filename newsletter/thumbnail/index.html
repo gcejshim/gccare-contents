@@ -970,7 +970,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     [/위내시경|대장|내시경|소화|위장|장 건강/, '위 · 장 모양 조형, 하트 표시 클립보드, 달력', '위 모양, 달력 표시', 'a stomach shape, a calendar mark'],
     [/감염|감염병|독감|코로나|위생|방역|바이러스/, '둥근 바이러스 조형, 마스크, 손 소독제, 체온계', '물방울, 손 모양, 둥근 바이러스 무늬', 'water drops, a hand shape, a simple round virus shape'],
     [/공시|법령|법률|법적|개정|제도|의무|규정|과태료/, '공시 책자 또는 서류 파일, 원통 막대그래프, 도장, 달력', '서류 칸, 막대그래프', 'document sections, a bar chart'],
-    [/예방|보장|보험|안전보건|안전|보호|산재/, '우산, 십자 배지가 있는 둥근 방패, 두 손으로 감싼 하트', '우산, 십자', 'an umbrella, a plus sign'],
+    [/예방|보장|보험|안전보건|안전|보호|산재/, '십자 배지가 있는 둥근 방패, 두 손으로 감싼 하트, 하트 표시 클립보드', '십자', 'a plus sign'],
     [/검진|결과지|수검|재검/, '하트 표시 클립보드(검진표), 일정 표시 달력, 돋보기와 결과 문서, 결과 리포트가 뜬 휴대폰', '심박 선, 결과 막대그래프, 달력 표시', 'a heartbeat line, a result bar chart, a calendar mark'],
     [/데이터|리포트|통계|분석|설문|결과\s?보고|비율|증가|감소|추이/, '원통 막대그래프와 위 · 아래 화살표, 원그래프 조각, 게이지(계기판), 돋보기', '막대 · 원그래프, 증감 화살표', 'a cylinder bar chart, a pie chart, one up or down arrow'],
     [/상담|비대면|원격|코칭/, '화면에 하트가 뜬 노트북, 휴대폰, 말풍선', '말풍선, 영상 통화 화면', 'a speech bubble, a video-call screen'],
@@ -997,7 +997,8 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     L.push(`썸네일 타이틀: "${title}"`);
     // 2026-10-27 사용자: '안전보건 · 보안'이라고 적으면 안전모 · 방패가 계속 나옴 — 이미지 AI는 금지보다 적힌 단어에 끌림 → 보내는 글에서 뜻을 바꿔 적고(따옴표 글자는 그대로), 대신 그릴 것을 지정
     const SITE_OK = /안전모|헬멧|안전조끼|공사|소화기|경고/.test(desc), SHIELD_OK = /방패|체크|check/i.test(desc);
-    // 2026-10-29: 예방 · 보장 주제는 우산 · 십자 방패로 보여 줌(방패 금지를 풂, 체크는 그대로), 증감 주제는 위 · 아래 화살표 하나 허용
+    // 2026-10-29: 예방 · 보장 주제는 십자 방패로 보여 줌(방패 금지를 풂, 체크는 그대로), 증감 주제는 위 · 아래 화살표 하나 허용
+    // 2026-10-30 사용자: 우산은 안 맞음(방패에 우산 · 십자를 합쳐 그림) → 우산 뺌, 기호를 한 물건에 합치지 않기
     const topic = topicFor(title + ' ' + desc), protect = /예방|보장|보험|안전보건|안전|보호|산재/.test(title + ' ' + desc);
     const trend = /증가|감소|늘었|늘어|줄었|줄어|상승|하락|개선|추이|변화/.test(title + ' ' + desc);
     const descSend = desc.replace(/(["“”][^"“”\n]*["“”])|안전보건|보안/g, (m, q) => q ? q : m === '보안' ? (SHIELD_OK ? m : '개인 건강정보 보호') : (SITE_OK ? m : '직장인 건강관리'));
@@ -1052,7 +1053,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (!/자물쇠|열쇠|안전모|헬멧|경찰|cctv|안전조끼|공사|소화기|경고/i.test(desc)) L.push('- 안전모 · 헬멧 · 안전조끼 · 공사 현장 · 경고 표지 · 소화기 같은 산업안전 물건과 자물쇠 · 열쇠 같은 보안 상징은 넣지 않는다.');
     // 2026-10-25 사용자: 방패 · 체크가 너무 자주 나옴, 방패는 보안 · 안전 느낌(10/18 '방패 허용'을 바꿈) → 그릴 내용에 직접 적었을 때만
     const noShield = !/방패|체크|check/i.test(desc);
-    if (noShield) L.push(protect ? '- 예방 · 보장은 우산이나 십자 배지가 있는 둥근 방패로 보여 준다. 체크 표시 · 체크 배지 · 체크리스트는 넣지 않는다.'
+    if (noShield) L.push(protect ? '- 예방 · 보장은 십자 배지가 있는 둥근 방패 하나로 보여 준다. 방패 위에 다른 기호(우산 · 하트 · 체크 등)를 겹쳐 그리지 않는다. 체크 표시 · 체크 배지 · 체크리스트는 넣지 않는다.'
       : '- 방패 · 체크 표시 · 체크 배지 · 체크리스트는 그릴 내용에 직접 적지 않았으면 넣지 않는다(물건 표면의 작은 무늬로도 넣지 않는다).');
 
     if (chars.length || !T.is3d){
@@ -1181,7 +1182,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     const mineR = (curRef() || {}).mine;
     const CRIT = [
       // 2026-10-27 사용자: 안전모 또 나옴 — 금지 대신 '대신 그릴 것'을 맨 앞에
-      !SITE_OK || !SHIELD_OK ? 'SYMBOLS FIRST: whenever the idea of safety, protection or security comes up, draw it ONLY as ' + (protect && !SHIELD_OK ? 'an umbrella or a rounded shield with a plus sign' : 'a small heart badge with a heartbeat line') + '. Never draw ' + [!SITE_OK && 'hard hats, helmets, safety vests', !SHIELD_OK && (protect ? 'check-mark badges, locks' : 'shields, check-mark badges, locks')].filter(Boolean).join(', ') + ' — use ' + (protect && !SHIELD_OK ? 'the umbrella or plus shield' : 'the heart badge') + ' instead.' : '',
+      !SITE_OK || !SHIELD_OK ? 'SYMBOLS FIRST: whenever the idea of safety, protection or security comes up, draw it ONLY as ' + (protect && !SHIELD_OK ? 'a rounded shield with a simple plus sign (nothing else drawn on the shield, no umbrella)' : 'a small heart badge with a heartbeat line') + '. Never draw ' + [!SITE_OK && 'hard hats, helmets, safety vests', !SHIELD_OK && (protect ? 'check-mark badges, locks' : 'shields, check-mark badges, locks')].filter(Boolean).join(', ') + ' — use ' + (protect && !SHIELD_OK ? 'the plus shield' : 'the heart badge') + ' instead.' : '',
       // 2026-10-25 사용자: '타이틀로 넣어줘'를 화면 왼쪽 큰 제목으로 그려 진짜 타이틀과 겹침 → 물건 표면의 작은 글자로만
       quoted.length ? `TEXT: The only text allowed in the whole image is exactly: "${quoted.join('", "')}" (Korean stays Korean Hangul), used as the title INSIDE the object the user described — the front-page headline of a newspaper, the cover of a booklet / document, or inside a phone / monitor screen — sized to fit it. Keep the object type exactly as described (a newspaper stays a folded newspaper, never turned into a booklet). Never as a headline floating on the background, never on the left side. No other text.`
         : 'TEXT: Absolutely no text, letters or numbers anywhere in the image.',
