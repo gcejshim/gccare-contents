@@ -258,8 +258,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .ai-smp-w summary small{font-weight:400;color:var(--neutral-500);margin-left:6px}
 .ai-out:not([hidden]) + .ai-smp-w{margin-top:18px;border-top:1px solid var(--coolNeutral-100);padding-top:12px}
 /* 콘텐츠 이미지 칸에서 부르면 팝업으로 (페이지 이동 없이, 10/30 사용자) */
-#v-ai.pop{display:block;position:fixed;inset:3vh 4vw;z-index:300;overflow:auto;background:var(--coolNeutral-50);border-radius:16px;box-shadow:0 24px 64px rgba(3,21,82,.28)}
-.ai-dim{position:fixed;inset:0;background:rgba(3,21,82,.35);z-index:299}
+#v-ai.pop{display:block;position:fixed;inset:4vh 5vw;z-index:1001;overflow:auto;background:var(--coolNeutral-50);border-radius:16px;box-shadow:0 24px 64px rgba(3,21,82,.28)}
+.ai-dim{position:fixed;inset:0;background:rgba(3,21,82,.35);z-index:1000}
+.seg{display:flex;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;background:var(--neutral-0)}
+.seg button{flex:1;height:34px;border:0;background:var(--neutral-0);cursor:pointer;font-size:13px;color:var(--neutral-700);border-right:1px solid var(--coolNeutral-200)}
+.seg button:last-child{border-right:0}
+.seg button.on{background:var(--careBlue-500);color:var(--neutral-0);font-weight:600}
 .ai-edit{margin-bottom:8px}.ai-edit input{flex:1;min-width:0}
 .ai-target{display:flex;align-items:center;gap:8px;margin:-4px 0 14px;padding:10px 12px;border-radius:10px;background:var(--careBlue-50);color:var(--careBlue-700);font-size:13px}
 .ai-target b{font-weight:700}.ai-target .sp{flex:1}
@@ -906,9 +910,12 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     if (!(H.ai && (H.ai.topic || '').trim()) && m.hint){ H.ai = Object.assign(H.ai || {}, {topic: m.hint}); save(); }
     if (m.bg === 'white' || m.bg === 'light'){ H.ai = Object.assign(H.ai || {}, {bg: m.bg}); save(); }   // 칸에 맞는 배경 (흰 카드면 라이트 블루)
     openAIPop(); if (m.mode === 'edit' && m.image){ $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; setTimeout(() => $('aiEditTxt').focus(), 50); } else if (m.mode !== 'redraw') $('aiOut').hidden = true; renderAITarget(); }
-  function openAIPop(){ if (!document.querySelector('.ai-dim')){ const d = document.createElement('div'); d.className = 'ai-dim'; d.onclick = closeAIPop; document.body.appendChild(d); }
-    $('v-ai').classList.add('pop'); $('aiClose').hidden = false; renderAI(); }
-  function closeAIPop(){ $('v-ai').classList.remove('pop'); $('aiClose').hidden = true; const d = document.querySelector('.ai-dim'); if (d) d.remove(); aiTarget = null; renderAITarget(); }
+  // 팝업은 화면 맨 위층(body)으로 옮겨 띄움 — 본문 안에 두면 헤더 아래로 잘리고 가림막이 위를 덮음. 닫으면 제자리로
+  let aiHome = null;
+  function openAIPop(){ const v = $('v-ai'); if (!aiHome) aiHome = {parent: v.parentNode, next: v.nextSibling};
+    if (!document.querySelector('.ai-dim')){ const d = document.createElement('div'); d.className = 'ai-dim'; d.onclick = closeAIPop; document.body.appendChild(d); }
+    document.body.appendChild(v); v.classList.add('pop'); $('aiClose').hidden = false; renderAI(); }
+  function closeAIPop(){ const v = $('v-ai'); v.classList.remove('pop'); if (aiHome){ aiHome.parent.insertBefore(v, aiHome.next); aiHome = null; } $('aiClose').hidden = true; const d = document.querySelector('.ai-dim'); if (d) d.remove(); aiTarget = null; renderAITarget(); }
   function renderAITarget(){ const t = $('aiTarget');
     t.hidden = !aiTarget; if (aiTarget) t.innerHTML = `<span>콘텐츠 이미지 <b>${esc(aiTarget.label)}</b> 칸에 넣을 그림이에요.</span><span class="sp"></span><button class="btn sm" id="aiTargetX">취소</button>`;
     $('aiOutPut').hidden = !(aiTarget && aiOutURL); }
