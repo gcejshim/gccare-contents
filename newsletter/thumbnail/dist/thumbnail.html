@@ -188,6 +188,9 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .gen-list:empty{display:none}
 .gen-edit{margin-top:12px;display:flex;flex-direction:column;gap:6px}
 .desc-tips{margin-top:8px}
+/* 2026-10-30 사용자: 사람이 잘 쓸 수 있는 구조 → '무엇을 그릴까요?'를 칸으로 (장면 · 주인공 · 보조 · 보조 · 글자) */
+.desc-grid{display:grid;grid-template-columns:52px 1fr;gap:6px 10px;align-items:center}
+.desc-grid label{font-size:13px;font-weight:600;color:var(--neutral-700)}
 .desc-tips summary{cursor:pointer;color:var(--careBlue-600);font-weight:600;width:max-content}
 .desc-tips ul{margin:6px 0 0;padding-left:18px;line-height:1.6}
 .gen-edit[hidden]{display:none}
@@ -356,24 +359,31 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
         </div>
         <div class="sec">
           <h3 class="gstep">3. 무엇을 그릴까요?</h3>
-          <textarea id="genDesc" rows="2" style="min-height:60px" placeholder="예: 하루 혈당이 크게 오르내리는 연속 그래프가 뜬 휴대폰, 커피잔, 달콤한 케이크 (처음 적은 물건이 가장 크게 · 따옴표 글자만 그림에 들어가요)"></textarea>
+          <textarea id="genDesc" hidden></textarea>   <!-- 칸을 이어 붙인 문장(S.gen.desc). 프롬프트는 이걸 씀 -->
+          <div class="desc-grid" id="descGrid">
+            <label for="dScene">장면</label><input type="text" id="dScene" data-k="scene" placeholder="예: 오후 3시, 졸린 시간 (언제 · 어떤 상태)">
+            <label for="dMain">주인공</label><input type="text" id="dMain" data-k="main" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰 (가장 크게)">
+            <label for="dSub1">보조</label><input type="text" id="dSub1" data-k="sub1" placeholder="예: 커피잔 (작게 · 선택)">
+            <label for="dSub2">보조</label><input type="text" id="dSub2" data-k="sub2" placeholder="예: 달콤한 케이크 (작게 · 선택)">
+            <label for="dText">글자</label><input type="text" id="dText" data-k="text" placeholder="예: 안전보건공시제 (그림 속에 넣을 글자만 · 선택)">
+          </div>
           <div class="gen-chars" id="genChars" hidden style="margin-top:8px"></div>
           <!-- 2026-10-27 사용자: 썸네일은 스킬에서 빼고 도구에서만 → 스킬의 '그릴 것 키워드' 요령을 여기로 -->
           <details class="hint desc-tips"><summary>적는 요령</summary>
             <ul>
-              <li>주제를 보여 줄 <b>물건 이름</b>을 3개까지 적습니다. <b>처음 적은 것이 가장 크게</b>, 나머지는 작게 들어갑니다.</li>
-              <li>물건에 <b>상황</b>을 붙이면 뜻이 잘 살아납니다. 시간(오후 3시를 가리키는 시계), 상태(혈당이 치솟는 그래프), 느낌(반쯤 마신 커피잔)처럼요.</li>
+              <li>위에서부터 채웁니다. <b>장면</b>은 언제 · 어떤 상태인지, <b>주인공</b>은 가장 크게 그릴 물건, <b>보조</b>는 작게 곁들일 물건입니다. 보조 · 글자는 비워도 됩니다.</li>
+              <li>주인공 물건에 <b>상황</b>을 붙이면 뜻이 잘 살아납니다. 예: 그냥 '휴대폰'보다 '혈당이 치솟는 그래프가 뜬 휴대폰'</li>
               <li>참고 예시 (2026-10 시험에서 잘 나온 문장)
                 <ul>
-                  <li>하반기 건강검진, 운영 현황부터 점검하세요 → <b>검진 일정이 표시된 입체 탁상 달력, 수검률을 보여 주는 입체 게이지, 임직원 명단 클립보드</b></li>
-                  <li>오후마다 당 떨어지는 기분, 진짜 이유는? → <b>하루 혈당이 크게 오르내리는 연속 그래프가 뜬 휴대폰, 커피잔, 달콤한 케이크</b></li>
-                  <li>안전보건공시제가 시작됐습니다! → <b>안전보건 공시 뉴스페이퍼, 공시 내용은 헬스케어 건강 통계, "안전보건공시제"</b></li>
+                  <li>하반기 건강검진, 운영 현황부터 점검하세요 → 장면 <b>하반기 검진 시즌, 현황 점검 중</b> · 주인공 <b>검진 일정이 표시된 입체 탁상 달력</b> · 보조 <b>수검률 게이지</b>, <b>임직원 명단 클립보드</b></li>
+                  <li>오후마다 당 떨어지는 기분, 진짜 이유는? → 장면 <b>오후 3시, 졸린 시간</b> · 주인공 <b>혈당이 치솟는 그래프가 뜬 휴대폰</b> · 보조 <b>커피잔</b>, <b>달콤한 케이크</b></li>
+                  <li>안전보건공시제가 시작됐습니다! → 주인공 <b>건강 통계가 실린 신문</b> · 글자 <b>안전보건공시제</b></li>
                 </ul>
               </li>
               <li>색 · 그림체는 적지 않아도 됩니다. ① 배경 색상과 ② 그림체에서 맞춥니다.</li>
               <li>그림 속 글자는 <b>따옴표</b>로 적은 것만 들어갑니다. 예: 책자 제목 "안전보건 공시"</li>
               <li>사람은 누가 무엇을 하는지 적습니다. 예: 아이와 엄마가 함께 걷는 모습. 실제 인물은 그리지 않고 사진을 붙여 넣습니다.</li>
-              <li>비워 두면 타이틀의 주제 낱말만 보고 정해서 뜻이 약하게 나올 수 있습니다. 한 줄이라도 적는 것을 권합니다.</li>
+              <li>다 비워 두면 타이틀의 주제 낱말만 보고 정해서 뜻이 약하게 나올 수 있습니다. 장면과 주인공만이라도 적는 것을 권합니다.</li>
             </ul>
           </details>
         </div>
@@ -899,6 +909,17 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     $('chipsOn').checked = S.chipsOn;
     buildChipEditors();
     $('genDesc').value = S.gen.desc;
+    const P0 = descParts(); document.querySelectorAll('#descGrid input').forEach(i => { i.value = P0[i.dataset.k] || ''; });
+  }
+  // 칸 → 문장: 물건(주인공 · 보조)을 먼저 적어 프롬프트의 '처음 적은 것이 주인공'과 맞추고, 글자는 따옴표, 장면은 괄호로 뒤에
+  // 예전에 한 줄로 적어 둔 문장(parts 없음)은 주인공 칸으로 옮겨 그대로 살림
+  function descParts(){ if (!S.gen.parts) S.gen.parts = S.gen.desc.trim() ? {main: S.gen.desc.trim()} : {}; return S.gen.parts; }
+  function composeDesc(p){
+    const objs = [p.main, p.sub1, p.sub2].map(v => (v || '').trim()).filter(Boolean), text = (p.text || '').trim().replace(/["“”]/g, ''), scene = (p.scene || '').trim();
+    let d = objs.join(', ');
+    if (text) d += (d ? ', ' : '') + `"${text}"`;
+    if (scene) d += (d ? ' ' : '') + `(장면: ${scene})`;
+    return d;
   }
 
   // ── 이미지 만들기: 프롬프트 자동 작성 → [바로 만들기](회사 공용 서버 · 빠른 시안) 또는 [복사] → ChatGPT ──
@@ -1057,7 +1078,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     if (mine && !desc) L.push('- Recreate the objects of the attached reference image.');
     else if (!desc) L.push(`- Choose from: ${topic[1]}.`);
     // 10/30: 적은 '뉴스페이퍼'를 문서 한 장으로 그림 → 적은 것을 OBJECTS에. 사용자: 보조도 내용과 연관 → 적은 물건 순서대로, 모자라면 주제 목록에서
-    else L.push(`- Use what "What to draw" describes: the first object named is the main object (keep its type, e.g. a newspaper stays a folded newspaper); other named objects are the supporting ones. If fewer are named, add supporting objects related to it from: ${topic[1]}. Anything described that is not an object (e.g. what a document is about) goes on the object surfaces.`);
+    else L.push(`- Use what "What to draw" describes: the first object named is the main object (keep its type, e.g. a newspaper stays a folded newspaper); other named objects are the supporting ones. If fewer are named, add supporting objects related to it from: ${topic[1]}. The scene in brackets (장면: time, situation, mood) sets the lighting, mood and small details — it is not an extra object. Anything else described that is not an object (e.g. what a document is about) goes on the object surfaces.`);
     L.push(photo ? '- Supporting objects are real props of a different kind.' : '- Supporting objects come from this topic (the objects above), drawn as standing solid 3D things. Never phones, tablets, screens, cards or anything that only shows a picture.');
     // 10/30 사용자: 체크는 허용(점검 주제에 어울림) · 달력 화면이 빈 격자라 밋밋함 → 지금판 DETAIL(층 있는 디테일)을 이 문장에 합침
     // 10/30: '날짜'라고 쓰니 날짜 숫자 · 78% · 한글 라벨이 생기고, '작은 차트'가 따로 떨어진 차트 카드로 나옴 → 날짜 뺌, 표면 위로 한정, 숫자 · 글자 없이
@@ -1730,7 +1751,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     });
     $('btnImgRemove').addEventListener('click', () => { S.image = null; S.sceneBlend = false; syncForm(); refresh(); });
 
-    $('genDesc').addEventListener('input', e => { S.gen.desc = e.target.value; promptEdited = false; syncGen(); autosave(); });
+    $('descGrid').addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; descParts()[k] = e.target.value; S.gen.desc = composeDesc(S.gen.parts); $('genDesc').value = S.gen.desc; promptEdited = false; syncGen(); autosave(); });
     $('genPrompt').addEventListener('input', () => { promptEdited = true; });
     // 참고 이미지 고르기 · 내려받기 (ChatGPT에 같이 올릴 파일)
     const refDownload = r => { const a = document.createElement('a'); a.href = r.src; a.download = `참고이미지_${r.id}.webp`; a.click(); };
