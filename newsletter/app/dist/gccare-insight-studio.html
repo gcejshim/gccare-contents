@@ -258,12 +258,36 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
 .ai-target{display:flex;align-items:center;gap:8px;margin:-4px 0 14px;padding:10px 12px;border-radius:10px;background:var(--careBlue-50);color:var(--careBlue-700);font-size:13px}
 .ai-target b{font-weight:700}.ai-target .sp{flex:1}
 .ai-out img{background:repeating-conic-gradient(#eef1f6 0% 25%, #fff 0% 50%) 0 0/16px 16px}   /* 투명 배경이 보이게 */
-.ai-smp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
-.ai-smp button{padding:0;border:2px solid var(--coolNeutral-100);border-radius:10px;overflow:hidden;background:var(--coolNeutral-50);cursor:pointer;display:flex;flex-direction:column;text-align:left;transition:border-color .15s,transform .15s}
-.ai-smp button:hover{border-color:var(--careBlue-400);transform:translateY(-2px)}
-.ai-smp button.on{border-color:var(--careBlue-500);box-shadow:0 0 0 2px var(--careBlue-100)}
-.ai-smp img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;object-position:top;background:var(--neutral-0)}
-.ai-smp span{font-size:11px;color:var(--neutral-600);padding:6px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ai-smp{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 8px;scrollbar-width:thin;scrollbar-color:var(--neutral-500) var(--coolNeutral-100)}
+/* 2026-11-09 사용자: 배경은 글자 말고 색을 보고 고르기 — 썸네일 배경 색상(.sw)과 같은 모양 */
+.ai-bgsw{display:grid;grid-template-columns:repeat(3,80px);gap:8px}
+.ai-bgsw button{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;border:0;background:none;padding:0}
+.ai-bgsw i{width:100%;aspect-ratio:1.4;border-radius:8px;border:1px solid var(--coolNeutral-200)}
+.ai-bgsw span{font-size:11px;color:var(--neutral-600)}
+.ai-bgsw button.on i{outline:2px solid var(--careBlue-500);outline-offset:2px}
+.ai-empty{border:1.5px dashed var(--coolNeutral-200);border-radius:12px;min-height:360px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:13px;line-height:1.7;color:var(--neutral-500);margin-top:12px}
+.ai-out:not([hidden]) ~ .ai-empty{display:none}
+.ai-empty p{margin:0}
+.ai-target[hidden]{display:none}
+/* 11/09 사용자: 그림체 줄 = 썸네일 '2. 그림체'(.gen-refs)와 같은 모양 */
+.ai-rwrap{position:relative}
+.ai-rarr{position:absolute;top:0;height:68px;width:44px;border:0;padding:0;cursor:pointer;display:flex;align-items:center;z-index:2;background:none}
+.ai-rarr.l{left:0;justify-content:flex-start;background:linear-gradient(to right,var(--neutral-0) 45%,transparent)}
+.ai-rarr.r{right:0;justify-content:flex-end;background:linear-gradient(to left,var(--neutral-0) 45%,transparent)}
+.ai-rarr i{width:28px;height:28px;border-radius:50%;background:var(--neutral-0);border:1px solid var(--coolNeutral-200);color:var(--neutral-900);font-style:normal;font-size:18px;line-height:25px;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.ai-rarr:hover i{border-color:var(--careBlue-500);color:var(--careBlue-500)}
+.ai-rarr[hidden]{display:none}
+.ai-smp::-webkit-scrollbar{height:8px}
+.ai-smp::-webkit-scrollbar-track{background:var(--coolNeutral-100);border-radius:999px}
+.ai-smp::-webkit-scrollbar-thumb{background:var(--neutral-500);border-radius:999px}
+.ai-smp button{position:relative;flex:none;width:104px;height:60px;padding:0;border:1px solid var(--coolNeutral-200);border-radius:8px;overflow:hidden;cursor:pointer;background:var(--coolNeutral-50);font-size:12px;color:var(--neutral-600)}
+.ai-smp button img{width:100%;height:100%;object-fit:cover;display:block}
+.ai-smp button.on{outline:2px solid var(--careBlue-500);outline-offset:2px}
+.ai-smp .rk{position:absolute;left:4px;top:4px;padding:1px 6px;border-radius:999px;background:var(--careGreen-600);color:var(--neutral-0);font-size:10px;font-weight:700;line-height:16px}
+.ai-smp .ref-add{line-height:1.35;color:var(--careBlue-600);border-style:dashed}
+.ai-rwrap.over .ref-add{border:2px dashed var(--careBlue-500);background:var(--careBlue-50)}
+.ai-refnow{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--neutral-600);margin-top:4px}
+.ai-refnow:empty{display:none}
 .ai-out{margin-top:12px;display:flex;flex-direction:column;gap:10px}
 .ai-out[hidden]{display:none}
 .ai-out img{display:block;width:100%;border-radius:10px;border:1px solid var(--coolNeutral-100);background:repeating-conic-gradient(var(--coolNeutral-100) 0 25%, var(--neutral-0) 0 50%) 0 0/16px 16px}
@@ -401,12 +425,14 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
         <div class="card">
           <div class="ai-target" id="aiTarget" hidden></div>
           <h3>무엇을 그릴까요?</h3>
-          <div class="field" style="margin-bottom:12px"><label>그릴 것 (가장 크게 · 상황을 붙이면 뜻이 살아나요)</label><textarea id="aiTopic" rows="2" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰"></textarea></div>
+          <div class="field" style="margin-bottom:12px"><label>그릴 것 (여러 개 적어도 돼요 · 상황을 붙이면 뜻이 살아나요)</label><textarea id="aiTopic" rows="2" placeholder="예: 혈당이 치솟는 그래프가 뜬 휴대폰"></textarea></div>
           <div class="field" style="margin-bottom:12px"><label>곁들일 것 (선택 · 쉼표로 1~2개, 작게)</label><input type="text" id="aiItems" placeholder="예: 커피잔, 달콤한 케이크"></div>
-          <div class="field" style="margin-bottom:12px"><label>그림체</label><div class="seg" id="aiKind" style="max-width:320px"><button type="button" data-k="3d">3D</button><button type="button" data-k="flat">일러스트</button><button type="button" data-k="photo">실사</button></div></div>
-          <div class="field" style="margin-bottom:12px"><label>배경</label><div class="seg" id="aiBg" style="max-width:240px"><button type="button" data-bg="white">흰색</button><button type="button" data-bg="light">라이트 블루</button></div></div>
-          <div class="field" style="margin-bottom:12px"><label>그림체 (오른쪽에서 고르거나 이미지 첨부) — 그림체 · 색만 따라 그려요</label>
-            <div class="ai-ref" id="aiRef"></div><input type="file" id="aiRefFile" accept="image/*" hidden></div>
+          <div class="field" style="margin-bottom:12px"><label>배경</label><div class="ai-bgsw" id="aiBg"><button type="button" data-bg="white"><i style="background:#FFFFFF"></i><span>흰색</span></button><button type="button" data-bg="light"><i style="background:#F0F8FF"></i><span>라이트 블루</span></button><button type="button" data-bg="blue"><i style="background:#D6EAFF"></i><span>밝은 블루</span></button></div></div>
+          <!-- 2026-11-09 사용자: 그림체 고르기는 왼쪽에 펼쳐 두고(팝업 X), 오른쪽은 결과만 -->
+          <!-- 11/09 사용자: 3D · 일러스트 · 실사 버튼은 빼고 그림체 줄에서 고름 (썸네일 '2. 그림체'와 같은 모양) -->
+          <div class="field" style="margin-bottom:12px"><label>그림체 <small>고른 참고 이미지의 그림체로 그려요 · 다시 누르면 빼기</small></label>
+            <div class="ai-rwrap" id="aiRwrap"><button type="button" class="ai-rarr l" id="aiRefL" title="앞으로" hidden><i>‹</i></button><div class="ai-smp" id="aiSmp"></div><button type="button" class="ai-rarr r" id="aiRefR" title="더 보기" hidden><i>›</i></button></div>
+            <div class="ai-refnow" id="aiRef"></div><input type="file" id="aiRefFile" accept="image/*" hidden></div>
           <!-- 2026-10-26 사용자: 다 적은 바로 아래에서 만들기 · [프롬프트 복사]+[ChatGPT 열기]는 한 버튼으로, 프롬프트 글은 안 보이게 -->
           <div class="prompt" id="aiPrompt" hidden></div>
           <div class="ai-go"><button class="btn primary" id="aiGen">바로 만들기</button>
@@ -421,9 +447,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
             <div class="row ai-edit"><input type="text" id="aiEditTxt" placeholder="바꿀 점 (예: 커피잔 빼 줘 · 화면 그래프를 더 크게)"><button class="btn sm" id="aiEditGo">수정하기</button></div>
             <div class="row"><button class="btn sm primary" id="aiOutPut" hidden>이 칸에 넣기</button><button class="btn sm" id="aiOutCopy">이미지 복사</button><button class="btn sm" id="aiOutSave">PNG 저장</button><span class="hint">콘텐츠 이미지 도구에 Ctrl+V로 붙여 넣어요.</span></div>
           </div>
-          <!-- 2026-10-26 사용자: 빈 칸 대신 지난 호 콘텐츠 이미지 샘플(그림이 들어간 것만) — 누르면 참고 이미지로. 그린 뒤엔 접힘 -->
-          <details class="ai-smp-w" id="aiSmpW" open><summary>그림체 고르기 <small>글자 없는 참고 그림 · 고르면 그 그림체 · 색으로 그려요 (다시 누르면 빼기)</small></summary>
-            <div class="ai-smp" id="aiSmp"></div></details>
+          <div class="ai-empty"><p>왼쪽에서 그릴 것을 적고 <b>[바로 만들기]</b>를 누르면<br>여기에 그림이 나와요.</p></div>
         </div>
       </div>
   </div></section>
@@ -814,21 +838,31 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   // 2026-10-30 사용자: AI로 그리기 = 콘텐츠 이미지에 넣을 요소, 가운데 정렬(썸네일과 다른 구조). 썸네일 짧은 프롬프트 · 서비스 규칙(service.js)을 같이 씀
   // 예전: 가로 장면 · 블루 고정 · 서버 옛 문단이 붙음(diet 없음) · 지난 호 완성 이미지(글자 포함)를 참고로
   const realPersonRef = r => !!r && /인물/.test(r.desc || '');
+  const AI_BG = {white: '#FFFFFF', light: '#F0F8FF', blue: '#D6EAFF'};   // 배경 칸 색 (11/09 밝은 블루 추가)
   function buildPrompt(){
     const ai = H.ai, G = window.GC_SVC, main = (ai.topic || '').trim() || '(그릴 것을 적어 주세요)', items = (ai.items || '').trim();
-    const ref = aiSmpList().find(r => r.id === aiRefId), kind = ai.kind || '3d', photo = kind === 'photo', flat = kind === 'flat';
+    const ref = aiSmpList().find(r => r.id === aiRefId), kind = aiKindOf(ref), photo = kind === 'photo', flat = kind === 'flat';
     const both = main + ' ' + items, topic = G.topicFor(both);
     const health = /건강|헬스|검진|보건|운동|걷기|걷는|걸음|수면|스트레스|마음|체중|비만|식단|영양|금연|절주|혈압|혈당|당뇨|CGM|심혈관|근골격|구강|치아|감염|예방/i.test(both);
     const glucose = /혈당|당뇨|CGM|연속혈당|스파이크/i.test(both);
     const L = [];
-    L.push(`Create one ${photo ? 'realistic photo-style' : flat ? 'flat 2D illustration' : '3D illustration'} element to place inside a newsletter content image. Square 1024x1024 on a plain solid ${ai.bg === 'light' ? 'very light blue #F0F8FF' : 'pure white #FFFFFF'} background — flat and even, no floor scene, no gradient, no vignette.`, '');
+    L.push(`Create one ${photo ? 'realistic photo-style' : flat ? 'flat 2D illustration' : '3D illustration'} element to place inside a newsletter content image. Square 1024x1024 on a plain solid ${ai.bg === 'light' ? 'very light blue #F0F8FF' : ai.bg === 'blue' ? 'light blue #D6EAFF' : 'pure white #FFFFFF'} background — flat and even, no floor scene, no gradient, no vignette.`, '');
     L.push(`WHAT: ${G.withEn(main)}` + (items ? `\nWITH: ${G.withEn(items)}` : ''), '');
     L.push('OBJECTS:');
-    L.push(items ? '- WHAT is the main object; draw the WITH items as smaller supporting objects. Nothing else.' : '- Draw WHAT as the only main object, optionally with one small related prop. Nothing else.');
+    // 11/10 사용자: 썸네일이 아니라 하나만 강조하지 않아도 됨 — 내용을 읽고 뜻을 보여 주는 물건을, 너무 많지 않게 (최대 4개, 11/10 사용자)
+    L.push('- Read WHAT (it may be a sentence listing several ideas) and show its meaning with a few simple objects — at most 4 in total, keep it uncluttered. If WHAT names several ideas, pick one clear object per idea, with similar size and importance — no single hero object.');
+    L.push(items ? '- The WITH items count toward the 4 and are drawn smaller. Nothing else.' : '- Nothing else.');
     L.push('- No floating icons, sparkles, badges or decorations. Hearts only as a small mark on a surface.');
     if (health && !photo && !flat) L.push(`- Object surfaces show simple health graphics for this topic: ${topic[3]}. Shapes only.`);
     if (glucose) L.push('- The high part of any glucose curve is bright red.');
-    L.push('', 'LAYOUT: everything centered as one compact group; the main object is the largest, about 70% of the image height; generous even margin on all sides; nothing cut by the edges. Only a soft contact shadow under the objects.', '');
+    // 11/10 사용자: 배치는 내용을 잘 표현하게 — AI가 글을 읽고 5가지 중 하나를 고름 (버튼 없음)
+    L.push('', 'ARRANGEMENT — read WHAT and pick the ONE arrangement that best expresses its meaning:',
+      '- List (several tips or habits): same-size objects side by side as one group; three objects in a soft triangle (one behind, two in front).',
+      '- Comparison (A vs B, before/after, instead of): two objects facing each other left and right; the better or "after" one slightly brighter.',
+      '- Steps or flow (A → B → C): objects in order from left to right, each a little higher like gentle steps.',
+      '- Center and parts (one idea with its items): one central object with 2-3 smaller objects around it.',
+      '- One situation or scene: a single object or small scene with 1-2 props.');
+    L.push('', 'LAYOUT: everything centered as one compact, balanced group about 70% of the image height, objects close together or gently overlapping, all on the same ground with one shared soft shadow; generous even margin on all sides; nothing cut by the edges. Only a soft contact shadow under the objects.', '');
     L.push('COLOR AND STYLE:');
     if (ref && realPersonRef(ref)) L.push(`- Mood reference (no image attached): ${ref.desc} Draw a different fictional Korean person if a person appears.`);
     else if (flat) L.push(`- ${FLAT_STYLE} Follow the attached reference image's flat style.`);
@@ -842,10 +876,8 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     return L.join('\n');
   }
   function renderAI(){
-    const ai = H.ai = Object.assign({topic: '', items: '', bg: 'white', kind: '3d', gpt: ''}, H.ai || {});
-    if (!['3d', 'flat', 'photo'].includes(ai.kind)) ai.kind = '3d';
-    document.querySelectorAll('#aiKind button').forEach(b => b.classList.toggle('on', b.dataset.k === ai.kind));
-    if (!['white', 'light'].includes(ai.bg)) ai.bg = 'white';   // 10/30 사용자: 배경은 흰색 · 라이트 블루만
+    const ai = H.ai = Object.assign({topic: '', items: '', bg: 'white', gpt: ''}, H.ai || {});
+    if (!(ai.bg in AI_BG)) ai.bg = 'white';   // 10/30 사용자: 배경은 흰색 · 라이트 블루만 → 11/09 밝은 블루 추가
     document.querySelectorAll('#aiBg button').forEach(b => b.classList.toggle('on', b.dataset.bg === ai.bg));
     $('aiTopic').value = ai.topic; $('aiItems').value = ai.items;
     renderRef(); updatePrompt(); renderAISmp();
@@ -859,14 +891,20 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const BASE_STYLE = 'Friendly modern app illustration. Simple, chunky, rounded shapes with few details; smooth matte surfaces with a few soft frosted-glass parts; one or two accent colors only, the rest white and light gray; soft even lighting and a gentle soft shadow under the objects. Calm, light and tidy, with lots of empty space. Not photorealistic, not busy, not glossy plastic, not childish cartoon.';
   const pdfRefs = (st, label) => { const T = window.PDF_STYLE_THUMBS || {}; return ['navy', 'green'].filter(c => T[c] && T[c][st]).map(c => ({id: `pdf_${st}_${c}`, name: `${label} (리드마그넷 ${c === 'navy' ? '남색' : '초록'})`, src: T[c][st], type: st === 'r1' ? 'flat' : 'base', desc: ''})); };
   const flatRefs = () => { const T = window.PDF_STYLE_THUMBS || {}; return ['navy', 'green'].filter(c => T[c] && T[c].r1).map(c => ({id: 'pdf_r1_' + c, name: `플랫 아이콘 (리드마그넷 ${c === 'navy' ? '남색' : '초록'})`, src: T[c].r1, type: 'flat', desc: ''})); };
-  const aiSmpList = () => { const k = (H.ai && H.ai.kind) || '3d'; if (k === 'flat') return flatRefs();
-    const R = (window.REFS || []).filter(r => r.type !== 'mockup' && (k === 'photo' ? r.type === 'photo' : r.type !== 'photo'));
-    return k === 'photo' ? R : [...pdfRefs('base', '기본 3D'), ...R]; };
+  // 11/09 사용자: 3D · 일러스트 · 실사 버튼 없이 한 줄에서 고름 — 순서: 기본 3D → 3D → 실사 → 일러스트. 그리는 방식은 고른 그림을 따름
+  const aiSmpList = () => { const R = (window.REFS || []).filter(r => r.type !== 'mockup');
+    return [...pdfRefs('base', '기본 3D'), ...R.filter(r => r.type !== 'photo'), ...R.filter(r => r.type === 'photo'), ...flatRefs()]; };
+  const aiKindOf = ref => !ref ? '3d' : ref.type === 'photo' ? 'photo' : ref.type === 'flat' ? 'flat' : '3d';
+  let aiAuto = true;   // 처음 한 번만 기본 그림체 자동 (뺀 뒤엔 다시 안 고름)
+  function aiRefArrows(){ const r = $('aiSmp'), max = r.scrollWidth - r.clientWidth;
+    $('aiRefL').hidden = r.scrollLeft <= 2; $('aiRefR').hidden = r.scrollLeft >= max - 2; }
   function renderAISmp(){
     const L = aiSmpList();
-    if (!aiRefId && !aiRef && L[0] && (H.ai.kind || '3d') !== 'photo'){ aiRefId = L[0].id; shrinkRef(L[0].src).then(u => { if (aiRefId === L[0].id){ aiRef = u; renderRef(); updatePrompt(); } }).catch(() => {}); }   // 3D · 일러스트는 기본 그림체 자동
-    $('aiSmp').innerHTML = L.length ? L.map((s, i) => `<button data-smp="${i}" class="${s.id === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"><span>${esc(s.name)}</span></button>`).join('')
-      : '<div class="empty">참고 그림이 없어요.</div>';
+    if (aiAuto && !aiRefId && !aiRef && L[0]){ aiAuto = false; aiRefId = L[0].id; shrinkRef(L[0].src).then(u => { if (aiRefId === L[0].id){ aiRef = u; renderRef(); updatePrompt(); } }).catch(() => {}); }
+    $('aiSmp').innerHTML = '<button type="button" class="ref-add" data-ref="pick" title="내가 가진 이미지를 참고 이미지로 (끌어다 놓거나 Ctrl+V 해도 돼요)">＋<br>이미지 첨부</button>'
+      + (aiRef && !aiRefId ? `<button type="button" class="on" data-ref="clear" title="첨부한 이미지 (누르면 빼기)"><img src="${aiRef}" alt=""><span class="rk">첨부</span></button>` : '')
+      + L.map((s, i) => `<button type="button" data-smp="${i}" class="${s.id === aiRefId ? 'on' : ''}" title="${esc(s.name)}"><img src="${s.src}" alt="" loading="lazy"></button>`).join('');
+    requestAnimationFrame(aiRefArrows);
   }
   function updatePrompt(){
     $('aiPrompt').textContent = buildPrompt();
@@ -877,9 +915,10 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   const GEN_URL = 'https://gccardnews.vercel.app/api/generate-image';
   let aiRef = '', aiBusy = false, aiOutURL = '', aiRaw = '';   // aiRaw = 서버가 준 원본 (배경을 바꿀 때 여기서 다시 칠함)
   function renderRef(){
-    $('aiRef').innerHTML = aiRef
-      ? `<img src="${aiRef}" alt=""><span>이 그림체 · 분위기를 따라 그려요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">바꾸기</button><button class="btn sm" data-ref="clear">빼기</button>`
-      : `<span>오른쪽 <b>그림체</b>에서 고르거나,<br>이미지를 끌어다 놓거나 <b>Ctrl+V</b>로 붙여 넣어요.</span><span class="sp"></span><button class="btn sm" data-ref="pick">파일 선택</button>`;
+    const ref = aiSmpList().find(r => r.id === aiRefId);
+    $('aiRef').innerHTML = ref ? `<b>${esc(ref.name)}</b> <span>· ${realPersonRef(ref) ? '실제 인물 사진이라 사진은 보내지 않고 분위기만 참고해요' : '이 그림체에 맞춰 그려요'}</span>`
+      : aiRef ? '<b>첨부한 이미지</b> <span>· 이 그림체에 맞춰 그려요</span>' : '';
+    renderAISmp();
   }
   // 서버 제한(500KB) 안으로: 긴 쪽 1024px WebP, 크면 한 번 더 줄임
   function shrinkRef(src){
@@ -922,7 +961,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
   function aiFromImage(m){ aiTarget = {itemId: m.itemId, path: m.path, label: m.label || '콘텐츠 이미지'};
     if (m.mode === 'edit' && m.image){ aiRaw = m.image; aiOutURL = m.image; } else if (m.mode !== 'redraw'){ aiRaw = ''; aiOutURL = ''; }
     if (!(H.ai && (H.ai.topic || '').trim()) && m.hint){ H.ai = Object.assign(H.ai || {}, {topic: m.hint}); save(); }
-    if (m.bg === 'white' || m.bg === 'light'){ H.ai = Object.assign(H.ai || {}, {bg: m.bg}); save(); }   // 칸에 맞는 배경 (흰 카드면 라이트 블루)
+    if (m.bg in AI_BG){ H.ai = Object.assign(H.ai || {}, {bg: m.bg}); save(); }   // 칸에 맞는 배경 (흰 카드면 라이트 블루)
     openAIPop(); if (m.mode === 'edit' && m.image){ $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; setTimeout(() => $('aiEditTxt').focus(), 50); } else if (m.mode !== 'redraw') $('aiOut').hidden = true; renderAITarget(); }
   // 팝업은 화면 맨 위층(body)으로 옮겨 띄움 — 본문 안에 두면 헤더 아래로 잘리고 가림막이 위를 덮음. 닫으면 제자리로
   let aiHome = null;
@@ -942,7 +981,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       const resp = await fetch(GEN_URL, {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({kind: 'edit', prompt: window.GC_SVC.editSend(what), image: img, size: 'square'})});
       const data = await resp.json().catch(() => ({})); if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
       if (window._0u) window._0u('AI로 그리기 수정');
-      aiRaw = data.dataURL; aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiEditTxt').value = ''; st.textContent = ''; renderAITarget();
+      aiRaw = data.dataURL; aiOutURL = await onWhite(aiRaw, AI_BG[H.ai.bg] || '#FFFFFF'); $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiEditTxt').value = ''; st.textContent = ''; renderAITarget();
     } catch(e){ st.className = 'gen-st err'; st.textContent = '수정하지 못했어요: ' + (e.message || e); }
     finally { aiBusy = false; $('aiEditGo').disabled = $('aiGen').disabled = false; $('aiEditGo').textContent = '수정하기'; }
   }
@@ -958,7 +997,7 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
       const data = await resp.json().catch(() => ({}));
       if (!resp.ok || !data.dataURL) throw new Error(data.error || `서버 응답 오류 (${resp.status})`);
       if (window._0u) window._0u('AI로 그리기');
-      aiRaw = data.dataURL; aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); renderAITarget(); $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false; $('aiSmpW').open = false;   // 그린 뒤엔 샘플 접기
+      aiRaw = data.dataURL; aiOutURL = await onWhite(aiRaw, AI_BG[H.ai.bg] || '#FFFFFF'); renderAITarget(); $('aiOutImg').src = aiOutURL; $('aiOut').hidden = false;
       st.textContent = '';   // 완성 문구 없음 (사용자 요청 10/15)
     } catch(e){
       st.className = 'gen-st err';
@@ -1110,20 +1149,19 @@ input:focus,textarea:focus,select:focus{outline:2px solid var(--careBlue-100);bo
     ['aiTopic', 'aiItems'].forEach(id => $(id).addEventListener('input', e => {
       const k = {aiTopic: 'topic', aiItems: 'items'}[id]; H.ai[k] = e.target.value; save(); updatePrompt();
     }));
-    $('aiKind').addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (!b) return; H.ai.kind = b.dataset.k; save();
-      document.querySelectorAll('#aiKind button').forEach(x => x.classList.toggle('on', x === b));
-      if (aiRefId && !aiSmpList().some(r => r.id === aiRefId)){ aiRef = ''; aiRefId = ''; renderRef(); }   // 그림체가 바뀌면 안 맞는 참고 그림은 뺌
-      renderAISmp(); updatePrompt(); });
     $('aiBg').addEventListener('click', async e => { const b = e.target.closest('[data-bg]'); if (!b) return; H.ai.bg = b.dataset.bg; save();
       document.querySelectorAll('#aiBg button').forEach(x => x.classList.toggle('on', x === b)); updatePrompt();
-      if (aiRaw){ aiOutURL = await onWhite(aiRaw, H.ai.bg === 'light' ? '#F0F8FF' : '#FFFFFF'); $('aiOutImg').src = aiOutURL; } });   // 10/30 사용자: 만든 뒤에도 배경만 바꾸기 (다시 안 그림)
-    $('aiRef').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return;
+      if (aiRaw){ aiOutURL = await onWhite(aiRaw, AI_BG[H.ai.bg] || '#FFFFFF'); $('aiOutImg').src = aiOutURL; } });   // 10/30 사용자: 만든 뒤에도 배경만 바꾸기 (다시 안 그림)
+    $('aiSmp').addEventListener('click', e => { const b = e.target.closest('[data-ref]'); if (!b) return;
       if (b.dataset.ref === 'pick'){ $('aiRefFile').value = ''; $('aiRefFile').click(); }
-      else { aiRef = ''; aiRefId = ''; renderRef(); updatePrompt(); renderAISmp(); } });
+      else { aiRef = ''; aiRefId = ''; renderRef(); updatePrompt(); } });
     $('aiRefFile').addEventListener('change', e => setRefFile(e.target.files[0]));
-    $('aiRef').addEventListener('dragover', e => { e.preventDefault(); $('aiRef').classList.add('over'); });
-    $('aiRef').addEventListener('dragleave', () => $('aiRef').classList.remove('over'));
-    $('aiRef').addEventListener('drop', e => { e.preventDefault(); $('aiRef').classList.remove('over'); setRefFile(e.dataTransfer.files[0]); });
+    $('aiRwrap').addEventListener('dragover', e => { e.preventDefault(); $('aiRwrap').classList.add('over'); });
+    $('aiRwrap').addEventListener('dragleave', () => $('aiRwrap').classList.remove('over'));
+    $('aiRwrap').addEventListener('drop', e => { e.preventDefault(); $('aiRwrap').classList.remove('over'); setRefFile(e.dataTransfer.files[0]); });
+    $('aiSmp').addEventListener('scroll', aiRefArrows);
+    $('aiRefL').addEventListener('click', () => $('aiSmp').scrollBy({left: -$('aiSmp').clientWidth * 0.8, behavior: 'smooth'}));
+    $('aiRefR').addEventListener('click', () => $('aiSmp').scrollBy({left: $('aiSmp').clientWidth * 0.8, behavior: 'smooth'}));
     document.addEventListener('paste', e => { if (H.view !== 'ai') return;
       const it = [...(e.clipboardData?.items || [])].find(x => x.type.startsWith('image/')); if (!it) return;
       e.preventDefault(); setRefFile(it.getAsFile()); });
