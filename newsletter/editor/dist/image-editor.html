@@ -1047,6 +1047,20 @@ h3:has(#formTitle){scroll-margin-top:16px}
 .icbtn .sw{width:16px;height:16px;border-radius:4px;border:1px solid var(--coolNeutral-200)}
 .icbtn .sw.auto{background:repeating-linear-gradient(45deg,var(--coolNeutral-100) 0 3px,var(--neutral-0) 3px 6px)}
 .cppop{width:300px}
+.no-lb{display:flex;align-items:center;justify-content:space-between}
+.mvbtn{display:inline-flex;align-items:center;gap:4px;margin:-4px 0;padding:3px 9px;border:1px solid var(--coolNeutral-200);border-radius:6px;background:var(--neutral-0);font-size:12px;font-weight:500;color:var(--coolNeutral-600);cursor:pointer}
+.mvbtn:hover,.mvbtn.on{border-color:var(--coolNeutral-400);color:var(--coolNeutral-900)}
+.mv-ic img{width:14px;height:14px;display:block}
+.mvbtn.on{background:var(--coolNeutral-100)}
+.mvbox{margin-top:-4px;padding:12px;border:1px solid var(--coolNeutral-200);border-radius:10px;background:var(--coolNeutral-50)}
+.mv-h{font-size:12px;font-weight:600;color:var(--coolNeutral-600);margin-bottom:8px}
+.mv-r{display:flex;align-items:center;gap:6px}
+.mv-r select{flex:1 1 0;min-width:0}.mv-r input{width:72px;flex:none}.mv-x{color:var(--coolNeutral-400)}
+.mv-r select,.mv-r input{height:34px;padding:0 8px;font-size:14px}
+.mv-r .btn{flex:none;height:34px}
+.mv-s{margin-top:8px;font-size:12px;color:var(--coolNeutral-600)}.mv-s b{color:var(--careBlue-600)}.mv-s.swap b{color:var(--careOrange-600)}
+.cp-eye{width:30px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.cp-eye img{width:16px;height:16px;display:block}
 .cpg{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
 .cpg button{height:30px;border-radius:6px;border:1px solid var(--coolNeutral-200);cursor:pointer}
 .cpg button:hover,.cpg button.on{outline:2px solid var(--careBlue-500);outline-offset:1px}
@@ -1177,7 +1191,7 @@ svg.tri path{fill:currentColor;stroke:currentColor;stroke-width:1.6;stroke-linej
 .nl.bg-none{padding:0;background:var(--neutral-0)}
 .nl *{box-sizing:border-box}
 .nl .hl{font-style:normal;font-weight:700;color:var(--hl,var(--careBlue-500))}
-.nl .tc-blue{color:var(--careBlue-700)} .nl .tc-green{color:var(--careGreen-700)} .nl .tc-red{color:var(--careRed-500)} .nl .tc-orange{color:var(--careOrange-600)} .nl .tc-gray{color:var(--coolNeutral-600)}
+.nl .tc-blue{color:var(--careBlue-700)} .nl .tc-green{color:var(--careGreen-700)} .nl .tc-red{color:var(--careRed-500)} .nl .tc-orange{color:var(--careOrange-600)} .nl .tc-gray{color:var(--coolNeutral-600)} .nl .tc-black{color:#111111}
 .nl .hd .tc-blue,.nl .tb th .tc-blue,.nl.hero.navy .tc-blue{color:var(--careBlue-200)} .nl .hd .tc-green,.nl .tb th .tc-green,.nl.hero.navy .tc-green{color:var(--careGreen-300)}
 .nl .hd .tc-red,.nl .tb th .tc-red,.nl.hero.navy .tc-red{color:var(--careRed-300)} .nl .hd .tc-orange,.nl .tb th .tc-orange,.nl.hero.navy .tc-orange{color:var(--careOrange-300)}
 .nl .hd .tc-gray,.nl .tb th .tc-gray,.nl.hero.navy .tc-gray{color:var(--coolNeutral-200)}
@@ -1669,12 +1683,16 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         </div>
         <div class="row">
           <div class="field"><label>콘텐츠</label>
-            <select id="itContents"><option value="01">01 (메인)</option><option value="02">02 (서브)</option><option value="03">03 (서브)</option><option value="04">04 (서브)</option><option value="05">05 (서브)</option><option value="06">06 (서브)</option><option value="07">07 (서브)</option><option value="08">08 (서브)</option><option value="09">09 (서브)</option></select>
+            <select id="itContents"><option value="01">01 (메인)</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option></select>
           </div>
-          <div class="field"><label>이미지 번호</label><input type="number" id="itNo" min="1" max="20"></div>
+          <div class="field"><label class="no-lb">이미지 번호<button type="button" class="mvbtn" id="btnMoveNo" title="이 이미지 번호 바꾸기 — 고친 내용 그대로 다른 번호로 옮겨요" aria-label="이 이미지 번호 바꾸기"><span class="mv-ic"></span><span id="mvLb">번호 바꾸기</span></button></label><input type="number" id="itNo" min="1" max="20"></div>
+        </div>
+        <div class="mvbox" id="mvBox" hidden>
+          <div class="mv-h">이 이미지를 옮길 자리</div>
+          <div class="mv-r"><select id="mvC"></select><span class="mv-x">·</span><input type="number" id="mvN" min="1" max="20"><button type="button" class="btn xs primary" id="mvOk">옮기기</button><button type="button" class="btn xs" id="mvNo">취소</button></div>
+          <div class="mv-s" id="mvS"></div>
         </div>
         <div class="fname" id="fname"></div>
-        <div class="hint" style="margin:0">콘텐츠 · 번호를 바꾸면 그 이미지로 이동해요. 없는 번호면 새 이미지가 만들어져요.</div>
       </div>
     </div>
 
@@ -1780,16 +1798,16 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   // 글자 서식 (모든 도구 공통 · 2026-10-28): [강조] · **굵게** · !!빨강!! · 줄바꿈 엔터(한 줄 칸은 //)
   // 빨강 말고 다른 색은 미리보기 색 도구로만 넣음 → {블루:글자}. 예전 {빨강:글자}도 그대로 보임. 어두운 바탕 위에서는 CSS가 밝은 단계로 바꿔 그림
-  const TC = {'블루': 'blue', '그린': 'green', '빨강': 'red', '주황': 'orange', '회색': 'gray'};
-  const tcFlat = s => { let o; do { o = s; s = s.replace(/\{(블루|그린|빨강|주황|회색):\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}\}/g, '{$1:$2}'); } while (s !== o); return s; };   // 겹친 색 표시는 바깥 색 하나로 (예전에 겹쳐 저장된 값도 바로 보이게)
-  const noTc = t => { let o; t = String(t == null ? '' : t); do { o = t; t = t.replace(/\{(?:블루|그린|빨강|주황|회색):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1'); } while (t !== o); return t; };   // 글자 색 표시 걷어내기 (겹친 것도 끝까지)
+  const TC = {'블루': 'blue', '그린': 'green', '빨강': 'red', '주황': 'orange', '회색': 'gray', '검정': 'black'};   // 검정: [기본]을 눌러도 CSS 색(강조 줄 등)이 남는 글자를 기본 검정으로 (2026-11-12 사업부)
+  const tcFlat = s => { let o; do { o = s; s = s.replace(/\{(블루|그린|빨강|주황|회색|검정):\{(?:블루|그린|빨강|주황|회색|검정):([^{}]*)\}\}/g, '{$1:$2}'); } while (s !== o); return s; };   // 겹친 색 표시는 바깥 색 하나로 (예전에 겹쳐 저장된 값도 바로 보이게)
+  const noTc = t => { let o; t = String(t == null ? '' : t); do { o = t; t = t.replace(/\{(?:블루|그린|빨강|주황|회색|검정):([^{}]*)\}/g, '$1').replace(/!!(.+?)!!/g, '$1'); } while (t !== o); return t; };   // 글자 색 표시 걷어내기 (겹친 것도 끝까지)
   // 예전 표기 {빨강:글자} → !!글자!! (예전 스킬 결과 · 작업 파일이 들어와도 입력칸에 새 기호로만 보이게). 그리기 직전에 데이터 자체를 바꿈
   // 칸 구분 기호: 한글 자판 'ㅣ'(앞뒤 띄어쓰기) · 전각 '｜' · '│'도 | 로 (사업부 요청 2026-10-28: 계열을 ㅣ로 나눠 그래프가 안 나옴). 직접 만든 블록 코드는 그대로
   const barFix = v => /[｜│ㅣ]/.test(v) ? v.replace(/[｜│]/g, '|').replace(/(^|[ \t])ㅣ(?=[ \t]|$)/gm, '$1|') : v;
   const redMark = o => { if (o && typeof o === 'object') Object.keys(o).forEach(k => { let v = o[k];
     if (typeof v === 'string' && !/^(html|htmlMo|note)$/.test(k) && (o[k] = barFix(v)) !== v) v = o[k];
     if (typeof v !== 'string') redMark(v); else if (v.includes('{빨강:')){ let t = v, p; do { p = t; t = t.replace(/\{빨강:([^{}]*)\}/g, '!!$1!!'); } while (t !== p); o[k] = t.replace(/!!!!(.+?)!!!!/g, '!!$1!!'); } }); return o; };
-  const rich = s => esc(tcFlat(String(s == null ? '' : s))).replace(/\{(블루|그린|빨강|주황|회색):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/!!(.+?)!!/g, '<span class="tc-red">$1</span>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]/g, '<em class="hl">$1</em>').replace(/\n|\/\//g, '<br>');
+  const rich = s => esc(tcFlat(String(s == null ? '' : s))).replace(/\{(블루|그린|빨강|주황|회색|검정):([^{}]+)\}/g, (_, c, t) => `<span class="tc-${TC[c]}">${t}</span>`).replace(/!!(.+?)!!/g, '<span class="tc-red">$1</span>').replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>').replace(/\[([^\]]+)\]/g, '<em class="hl">$1</em>').replace(/\n|\/\//g, '<br>');
   const clone = o => JSON.parse(JSON.stringify(o));
   const pad2 = n => String(Math.max(1, parseInt(n, 10) || 1)).padStart(2, '0');
   const uid = () => Math.random().toString(36).slice(2, 9);
@@ -2651,9 +2669,22 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   // 묶음 = 인라인 height %인 막대가 있는 칸(템플릿 vb-g는 제외). 막대 폭은 칸의 60% 안에서 막대 수로 나눔(템플릿 세로 막대와 같은 비율),
   // 막대 위 숫자 · 축 숫자 · 가로축 글자는 템플릿 글자 크기, 막대 위 증가 · 감소 상자는 템플릿 변화 배지(vb-d)로
   const BAR_H = /height\s*:\s*[\d.]+%/;
+  // 스킬 막대 길이 읽기: `height:55.5%` · `width:55.5%` 또는 `width:calc((100% - 46px) * 0.555)` → {dir, h(0~100), set(비율 0~1) → CSS 값}
+  function barSize(style){
+    const s = String(style || ''), get = p => { const m = s.match(new RegExp(`(?:^|;)\\s*${p}\\s*:\\s*([^;]+)`)); if (!m) return null; const v = m[1].trim();
+      let q = v.match(/^([\d.]+)%$/); if (q) return {h: +q[1], set: f => +(f * 100).toFixed(3) + '%'};
+      q = v.match(/^calc\((.*)\*\s*([\d.]+)\s*\)$/); if (q && /100%/.test(q[1])) return {h: +q[2] * 100, set: f => `calc(${q[1]}* ${+f.toFixed(5)})`};
+      q = v.match(/^calc\(\s*([\d.]+)%\s*([+-])\s*([\d.]+)px\s*\)$/);   // 브라우저가 풀어 쓴 모양: (100% - 46px) × 0.975 → calc(97.5% - 44.85px)
+      if (q && +q[1] > 0){ const A = +q[1], k = (q[2] === '-' ? -1 : 1) * +q[3] / A; return {h: A, set: f => `calc(${+(f * 100).toFixed(3)}% ${k < 0 ? '-' : '+'} ${+(Math.abs(k) * f * 100).toFixed(3)}px)`}; }
+      return null; };
+    const H = get('height'), W = get('width');
+    if (H && (!W || W.h >= 100) && H.h <= 100.01) return Object.assign({dir: 'y', prop: 'height'}, H);
+    if (W && (!H || H.h >= 100) && W.h <= 100.01) return Object.assign({dir: 'x', prop: 'width'}, W);
+    return null;
+  }
   function hkChart(r){
     const isBar = el => BAR_H.test(el.getAttribute('style') || '') && !el.textContent.trim().replace(/[\d.,\s%-]/g, '') && !/[▲▼]/.test(el.textContent);
-    const groups = [...new Set([...r.querySelectorAll('[data-bar]')].map(b => b.parentElement).filter(g => g && !g.closest('.vb-gs')))];
+    const groups = [...new Set([...r.querySelectorAll('[data-bar]:not([data-dir])')].map(b => b.parentElement).filter(g => g && !g.closest('.vb-gs')))];
     if (!groups.length) return;
     groups.forEach(g => { const bars = [...g.children].filter(isBar), n = bars.length; if (!n) return;
       const cap = [56, 44, 32, 26, 22][Math.min(n, 5) - 1];
@@ -2685,11 +2716,27 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     html = hkRound(html);
     if (!/data-(key|ckey|bar|max-key|color|stack)/.test(html)) return html;   // 표시가 없는 예전 HTML은 그대로
     const t = document.createElement('template'); t.innerHTML = html; const r = t.content;
-    const axes = {}; r.querySelectorAll('[data-max-key]').forEach(el => { const v = hkNum(el.textContent); if (v > 0) axes[el.dataset.maxKey] = v;
-      el.setAttribute('data-e', '@ax:' + el.dataset.maxKey); el.setAttribute('data-num', '1'); });
+    const axes = {}, axMu = {}; r.querySelectorAll('[data-max-key]').forEach(el => { const mu = +el.dataset.mult || 1, v = hkNum(el.textContent) * mu; if (v > 0){ axes[el.dataset.maxKey] = v; axMu[el.dataset.maxKey] = mu; }
+      el.setAttribute('data-e', '@ax:' + el.dataset.maxKey); });   // 단위까지 고칠 수 있게 숫자 전용 칸 아님 (100,000건 → 10만건, 2026-11-12 사업부)
     const hs = {};
     r.querySelectorAll('[data-bar]').forEach(el => { const v = hkNum(el.dataset.bar) || 0, mx = (el.dataset.axis && axes[el.dataset.axis]) || hkNum(el.dataset.max) || 0;
-      const h = mx > 0 ? Math.max(0, Math.min(100, v / mx * 100)) : 0; el.style.height = h + '%'; if (el.dataset.key) hs[el.dataset.key] = h; });
+      const h = mx > 0 ? Math.max(0, Math.min(100, v / mx * 100)) : 0;
+      if (el.dataset.dir){ const bs = barSize(el.getAttribute('style')); el.style[el.dataset.dir === 'x' ? 'width' : 'height'] = bs ? bs.set(h / 100) : h + '%'; }   // 스킬 막대는 원래 식 모양 그대로 비율만
+      else el.style.height = h + '%';
+      if (el.dataset.key) hs[el.dataset.key] = h; });
+    // 막대 끝을 따라가는 숫자(data-pin): 원래 위치 식의 첫 % 값만 막대 길이로 바꿈 (예: calc(55.5% + 4px))
+    r.querySelectorAll('[data-pin]').forEach(el => { const h = hs[el.dataset.pin], pp = el.dataset.pinDir === 'x' ? 'left' : 'bottom'; if (h == null) return;
+      el.style[pp] = (el.style[pp] || h + '%').replace(/-?[\d.]+%/, +h.toFixed(3) + '%'); });
+    // 꺾은선(data-lk): 점 숫자로 선 높이 · 점 · 숫자 위치를 다시 계산
+    r.querySelectorAll('polyline[data-lk]').forEach(pl => { const sv = pl.closest('svg'), vb = (sv && sv.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number); if (vb.length !== 4) return;
+      const axm = pl.dataset.axis && axes[pl.dataset.axis], sl = axm ? 100 / axm : +pl.dataset.lsl, ic = axm ? 0 : +pl.dataset.lic, ks = pl.dataset.lk.split(' '), nums = (pl.getAttribute('points') || '').trim().split(/[\s,]+/).map(Number), out = [];
+      ks.forEach((k, i) => { let y = nums[i * 2 + 1];
+        const lab = k !== '-' && r.querySelector(`${hkSel(k)}[data-lpin][data-edit]`), v = lab && hkNum(lab.textContent);
+        if (v != null){ const b = Math.max(0, Math.min(100, ic + sl * v)); y = vb[1] + (100 - b) / 100 * vb[3];
+          r.querySelectorAll(`[data-lpin="${CSS.escape(k)}"]`).forEach(el => { if (/%/.test(el.style.top) && !/%/.test(el.style.bottom)) el.style.top = el.style.top.replace(/-?[\d.]+%/, +(100 - b).toFixed(3) + '%');
+            else el.style.bottom = (el.style.bottom || b + '%').replace(/-?[\d.]+%/, +b.toFixed(3) + '%'); }); }
+        out.push(`${nums[i * 2]},${+(+y).toFixed(3)}`); });
+      if (out.length) pl.setAttribute('points', out.join(' ')); });
     r.querySelectorAll('[data-stack]').forEach(par => { const sg = [...par.children].filter(c => c.hasAttribute('data-seg')), vs = sg.map(c => Math.max(0, hkNum(c.textContent) || 0)), sum = vs.reduce((a, b) => a + b, 0) || 1;
       sg.forEach((c, i) => { c.style.flex = `0 0 ${vs[i] / sum * 100}%`; c.style.width = `${vs[i] / sum * 100}%`; }); });   // 누적 막대 칸 폭 = 값 ÷ 합계
     hkChart(r);
@@ -2704,14 +2751,41 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     r.querySelectorAll('.vb-d').forEach(el => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), ns = []; let n; while ((n = w.nextNode())) if (/[▲▼]/.test(n.textContent) && !n.parentElement.classList.contains('vb-ar')) ns.push(n);
       ns.forEach(t => { const f = document.createDocumentFragment(); t.textContent.split(/([▲▼])/).forEach(x => { if (!x) return; if (/[▲▼]/.test(x)){ const i = document.createElement('span'); i.className = 'vb-ar'; i.textContent = x; f.appendChild(i); } else f.appendChild(document.createTextNode(x)); }); t.replaceWith(f); }); });   // 배지 화살표만 작게
     r.querySelectorAll('[data-follow]').forEach(el => { const h = hs[el.dataset.follow]; if (h == null) return; const g = parseFloat(el.dataset.gap) || 0; el.style.bottom = g ? `calc(${h}% + ${g}px)` : h + '%'; });
-    r.querySelectorAll('[data-tick]').forEach(el => { const mx = axes[el.dataset.axis] || Object.values(axes)[0]; const f = parseFloat(el.dataset.tick); if (mx > 0 && !isNaN(f)) el.textContent = String(+(mx * f).toFixed(2)); });
-    r.querySelectorAll('[data-color]').forEach(el => { const c = el.dataset.color; if (!/^--[\w-]+$/.test(c)) return; el.style.background = `var(${c})`; const ck = el.dataset.ckey || el.dataset.key; if (ck) el.setAttribute('data-hcol', ck); });
+    // 눈금 간격(data-step, 2026-11-12 운영자: 스킬 그래프도 템플릿처럼 간격 · 최대값 수정): 축 맨 위 줄을 본떠 간격마다 눈금 줄을 다시 그림
+    r.querySelectorAll('[data-max-key][data-step]').forEach(mk => { const key = mk.dataset.maxKey, mx = axes[key], st = hkNum(mk.dataset.step) * (axMu[key] || 1);   // 간격도 축에 보이는 단위(만 등)로 입력
+      if (!(mx > 0 && st > 0) || mx / st > 12) return;
+      let row = mk, prop = ''; for (let up = 0; row && up < 4; up++, row = row.parentElement){ if (/%/.test(row.style.bottom)){ prop = 'bottom'; break; } if (/%/.test(row.style.left)){ prop = 'left'; break; } }
+      const grid = row && prop && row.parentElement;   // 숫자 없는 그래프(숨은 최대값)는 줄이 없어 아래 선만 다시 그림
+      if (grid){
+      const self = (c, s) => [...(c.matches(s) ? [c] : []), ...c.querySelectorAll(s)];   // 줄 자체가 숫자 칸인 경우도 (가로축 숫자 줄)
+      const olds = [...grid.children].filter(c => c !== row && self(c, '[data-tick]').length);
+      const tpl = (olds[0] || row).cloneNode(true); olds.forEach(c => c.remove());
+      self(tpl, '[data-max-key]').forEach(el => { ['data-max-key', 'data-key', 'data-label', 'data-step', 'data-e', 'data-num'].forEach(a => el.removeAttribute(a)); el.setAttribute('data-tick', '0'); });
+      for (let v = st; v < mx - 1e-9; v += st){ const c = tpl.cloneNode(true); c.style[prop] = +(v / mx * 100).toFixed(4) + '%';
+        self(c, '[data-tick]').forEach(el => { el.setAttribute('data-tick', String(v / mx)); el.setAttribute('data-axis', key); });
+        grid.insertBefore(c, row); }
+      }
+      // 숫자 없는 눈금 선 줄도 같은 간격으로 (0 위치 선은 그대로)
+      r.querySelectorAll(`[data-tlines^="${CSS.escape(key)} "]`).forEach(lg => { const pp = lg.dataset.tlines.split(' ')[1], ls = [...lg.children].filter(c => !c.textContent.trim() && /%/.test(c.style[pp]));
+        if (!ls.length) return; const lt = ls.find(c => parseFloat(c.style[pp]) > 0.5) || ls[0], t0 = lt.cloneNode(true);
+        ls.forEach(c => { if (parseFloat(c.style[pp]) > 0.5) c.remove(); });
+        for (let v = st; v < mx + 1e-9; v += st){ const c = t0.cloneNode(true); c.style[pp] = +(v / mx * 100).toFixed(4) + '%'; lg.appendChild(c); } }); });
+    // 숫자만 바꾸고 단위 · 모양(예: 20<span>%</span>, 20%)은 그대로
+    const setNum = (el, n) => { const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let t; while ((t = w.nextNode())) if (/\d/.test(t.textContent)){ t.textContent = t.textContent.replace(/[+-]?[\d,]*\.?\d+/, n); return; } el.textContent = n; };
+    r.querySelectorAll('[data-tick]').forEach(el => { const mx = axes[el.dataset.axis] || Object.values(axes)[0]; const f = parseFloat(el.dataset.tick); if (!(mx > 0) || isNaN(f)) return;
+      const mu = axMu[el.dataset.axis] || +el.dataset.mult || 1, n = +(mx * f / mu).toFixed(2), mk = r.querySelector(`[data-max-key="${CSS.escape(el.dataset.axis || '')}"]`);
+      const mt = mk ? mk.textContent.trim() : '', tail = mt.replace(/^[^\d]*[+-]?[\d,]*\.?\d+/, ''), comma = /\d,\d/.test(mt) || /\d,\d/.test(el.textContent);
+      const ns = comma ? n.toLocaleString('en-US') : String(n);
+      if (mk && tail !== el.textContent.trim().replace(/^[^\d]*[+-]?[\d,]*\.?\d+/, '')) el.textContent = ns + tail; else setNum(el, ns); });   // 눈금 단위 · 쉼표는 맨 위 숫자를 따름
+    r.querySelectorAll('[data-color]').forEach(el => { const c = el.dataset.color; if (!/^--[\w-]+$/.test(c)) return;
+      if (el.closest('svg')){ el.style.stroke = `var(${c})`; const ck = el.dataset.ckey || el.dataset.key; if (ck) el.setAttribute('data-hcol', ck); return; }   // 꺾은선은 선 색
+      el.style.background = `var(${c})`; if (!el.textContent.trim() && el.hasAttribute('data-clabel') && / 선 · 점$/.test(el.dataset.clabel)) el.style.borderColor = `var(${c})`; const ck = el.dataset.ckey || el.dataset.key; if (ck) el.setAttribute('data-hcol', ck); });
     r.querySelectorAll('[data-key][data-edit]').forEach(el => { const k = el.dataset.edit === 'value' ? 'value' : 'text'; el.setAttribute('data-e', `@hk:${k}:${el.dataset.key}`); if (k === 'value') el.setAttribute('data-num', '1'); });
     const div = document.createElement('div'); div.appendChild(r.cloneNode(true)); return div.innerHTML;
   }
   // 글자 요소 → 편집용 글자 (굵게 **…**, 글자 색 {블루:…}, 줄바꿈 //)
   function hkRaw(el){
-    const c = el.cloneNode(true); const TCN = {blue:'블루', green:'그린', red:'빨강', orange:'주황', gray:'회색'};
+    const c = el.cloneNode(true); const TCN = {blue:'블루', green:'그린', red:'빨강', orange:'주황', gray:'회색', black:'검정'};
     c.querySelectorAll('br').forEach(b => b.replaceWith('//'));
     c.querySelectorAll('span[class^="tc-"]').forEach(s => { const n = TCN[s.className.replace('tc-', '')]; s.replaceWith(n === '빨강' ? `!!${s.textContent}!!` : n ? `{${n}:${s.textContent}}` : s.textContent); });
     c.querySelectorAll('b,strong').forEach(b => b.replaceWith(`**${b.textContent}**`));
@@ -2719,13 +2793,24 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   }
   // 고친 값을 PC(html) · 모바일(htmlMo) 코드에 같이 반영. p = '@hk:text:키' · '@hk:value:키' · '@ax:키' · '@hc:키'
   function hkApply(d, p, v){
-    const [, kind, a, b] = p.match(/^@(hk|ax|hc):([^:]*):?(.*)$/) || [];
+    const [, kind, a, b] = p.match(/^@(hk|ax|as|hc):([^:]*):?(.*)$/) || [];
     ['html', 'htmlMo'].forEach(f => {
       if (!String(d[f] || '').trim()) return;
       const t = document.createElement('template'); t.innerHTML = d[f]; const r = t.content;
       if (kind === 'hk' && a === 'text') r.querySelectorAll(`${hkSel(b)}[data-edit="text"]`).forEach(el => { el.innerHTML = rich(v); });
-      if (kind === 'hk' && a === 'value'){ r.querySelectorAll(`${hkSel(b)}[data-edit="value"]`).forEach(el => { el.textContent = v; }); r.querySelectorAll(`${hkSel(b)}[data-bar]`).forEach(el => el.setAttribute('data-bar', String(hkNum(v)))); }
-      if (kind === 'ax') r.querySelectorAll(`[data-max-key="${CSS.escape(a)}"]`).forEach(el => { el.textContent = v; });
+      if (kind === 'hk' && a === 'value'){ r.querySelectorAll(`${hkSel(b)}[data-edit="value"]`).forEach(el => {
+          // 숫자만 입력하면 원래 단위 · 모양(예: 11.1<span>%</span>)은 두고 숫자만 바꿈 (2026-11-11)
+          const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n, hit = null; while ((n = w.nextNode())) if (/\d/.test(n.textContent)){ hit = n; break; }
+          if (hit && /^\s*[+-]?[\d,]*\.?\d+\s*$/.test(v)) hit.textContent = hit.textContent.replace(/[+-]?[\d,]*\.?\d+/, v.trim()); else el.textContent = v; }); r.querySelectorAll(`${hkSel(b)}[data-bar]`).forEach(el => el.setAttribute('data-bar', String(hkNum(v)))); }
+      if (kind === 'ax') r.querySelectorAll(`[data-max-key="${CSS.escape(a)}"]`).forEach(el => {   // 숫자만 바꾸고 단위(%)는 그대로
+        const w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT); let n, hit = null; while ((n = w.nextNode())) if (/\d/.test(n.textContent)){ hit = n; break; }
+        if (hit && /^\s*[+-]?[\d,]*\.?\d+\s*$/.test(v)) hit.textContent = hit.textContent.replace(/[+-]?[\d,]*\.?\d+/, v.trim()); else el.textContent = v.trim();
+        const mu0 = +el.dataset.mult || 1, mu = axMult(el.textContent); if (mu !== 1) el.setAttribute('data-mult', String(mu)); else el.removeAttribute('data-mult');   // 단위를 바꾸면(만 · 천) 계산 배수도
+        if (mu !== mu0 && el.dataset.step) el.setAttribute('data-step', String(+(hkNum(el.dataset.step) * mu0 / mu).toPrecision(6)));   // 간격도 새 단위로 (100,000 → 10만)
+        // 간격을 정하지 않았으면 템플릿처럼 딱 떨어지는 간격으로 (예: 최대 40 → 5 · 10 …, 57,144처럼 끊기지 않게)
+        const disp = hkNum(el.textContent), nT = r.querySelectorAll(`[data-tick][data-axis="${CSS.escape(a)}"]`).length;
+        if (!el.hasAttribute('data-step') && disp > 0 && nT) el.setAttribute('data-step', String(niceStep(disp / (nT + 1)))); });
+      if (kind === 'as') r.querySelectorAll(`[data-max-key="${CSS.escape(a)}"]`).forEach(el => { if (hkNum(v) > 0) el.setAttribute('data-step', String(hkNum(v))); else el.removeAttribute('data-step'); });   // 눈금 간격 (비우면 처음 그린 눈금 그대로)
       if (kind === 'hc') r.querySelectorAll(`[data-ckey="${CSS.escape(a)}"][data-color], ${hkSel(a)}[data-color]:not([data-ckey])`).forEach(el => el.setAttribute('data-color', v));
       d[f] = t.innerHTML;
     });
@@ -2733,7 +2818,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   // 편집 표시(data-)가 없는 HTML 블록에 표시를 자동으로 붙임: 글자 · 숫자 · 막대(인라인 height %) · 색(토큰 배경)
   // 스킬이 표시를 단 블록은 건드리지 않고, 자동 표시(a1, a2 …) 블록은 아직 표시 없는 글자만 더 붙임 (여러 번 불러도 같은 결과)
   function hkUpgrade(d){
-    if (!String(d.html || '').trim() || (/data-key=/.test(d.html) && !/data-key="a\d+"/.test(d.html))) return false;
+    if (!String(d.html || '').trim()) return false;
+    if (/data-key=/.test(d.html) && !/data-key="a\d+"/.test(d.html)) return hkLink(d);   // 스킬이 표시를 단 블록은 빠진 것만 채움
     const before = d.html + '\u0000' + (d.htmlMo || '');
     const parse = s => { const t = document.createElement('template'); t.innerHTML = String(s || ''); return t; };
     const P = parse(d.html), M = String(d.htmlMo || '').trim() ? parse(d.htmlMo) : null;
@@ -2785,6 +2871,130 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         e.setAttribute('data-ckey', 'c' + e.dataset.color.replace(/^--/, '')); e.setAttribute('data-clabel', tokName(e.dataset.color) + ' 쓰는 곳'); });
     };
     colorize(P); if (M) colorize(M);
+    d.html = P.innerHTML; if (M) d.htmlMo = M.innerHTML; return before !== d.html + '\u0000' + (d.htmlMo || '');
+  }
+  // 스킬이 표시를 단 블록의 빠진 곳 채우기 (2026-11-11 운영자 요청: 스킬로 만든 것도 요소마다 도구에서 고칠 수 있게)
+  // ① 표시 없는 글자 · 숫자 → 입력칸 (PC · 모바일은 같은 글자끼리 같은 key)
+  // ② 막대 옆 숫자(막대 끝과 같은 bottom / left %) → 숫자 칸(value)으로, 고치면 막대 길이 · 숫자 위치가 같이 바뀜 (세로 · 가로)
+  // ③ SVG 꺾은선(polyline) 점 옆 숫자 → 고치면 선 · 점 · 숫자 위치가 같이 바뀜
+  // 이미 연결된 곳은 건드리지 않음(여러 번 불러도 같은 결과)
+  const HK_NUM = /^[+-]?[\d,]*\.?\d+\s*(%p|%|배|건|명|회|점|원|세|kg|cm|mmHg)?$/;
+  // 축 숫자: 단위가 더 다양함(5만건 · 10천명 · 1억원). 만 · 천 · 억은 곱해서 막대 값과 맞춤
+  const HK_AXNUM = /^[+-]?[\d,]*\.?\d+\s*(만|천|억)?\s*[^\d\s]{0,3}$/;
+  const axMult = s => /억/.test(s) ? 1e8 : /만/.test(s) ? 1e4 : /천/.test(s) ? 1e3 : 1;
+  const axVal = s => { const n = hkNum(s); return n == null ? null : n * axMult(s); };
+  function hkLink(d){
+    const before = d.html + '\u0000' + (d.htmlMo || '');
+    const parse = s => { const t = document.createElement('template'); t.innerHTML = String(s || ''); return t; };
+    const P = parse(d.html), M = String(d.htmlMo || '').trim() ? parse(d.htmlMo) : null, roots = M ? [P, M] : [P];
+    const norm = s => s.replace(/\s+/g, ' ').trim(), sq = s => norm(s).replace(/\s/g, '');
+    const firstPct = s => { const m = String(s || '').match(/(-?[\d.]+)%/); return m ? +m[1] : null; };
+    const near = (a, b) => a != null && b != null && Math.abs(a - b) < 0.06;
+    let nX = Math.max(0, ...roots.flatMap(r => [...r.content.querySelectorAll('[data-key]')].map(e => +(e.dataset.key.match(/^x(\d+)$/) || [0, 0])[1])));
+    // ① 표시 없는 글자
+    const INL = /^(B|STRONG|BR|EM|I|SMALL|SUP|SUB)$/;   // 글자 꾸밈만 한 칸으로 (span은 글자 색 tc-만 — 축 숫자처럼 칸마다 따로인 span 줄을 한 칸으로 합치지 않게)
+    const isLeaf = el => !/^(STYLE|SCRIPT|IMG|SVG|svg|text|tspan)$/.test(el.tagName) && !el.closest('svg') && el.textContent.trim()
+      && !el.closest('[data-edit]') && !el.querySelector('[data-edit], [data-icon], [data-max-key], [data-tick]') && !el.closest('[data-max-key], [data-tick]')
+      && [...el.childNodes].every(n => n.nodeType === 3 || (n.nodeType === 1 && (INL.test(n.tagName) || /^tc-/.test(n.className || '')) && !n.hasAttribute('data-icon') && !n.querySelector('*:not(br)')));
+    const top = r => [...r.content.querySelectorAll('*')].filter(isLeaf).filter(el => !(el.parentElement && isLeaf(el.parentElement)));   // 가장 바깥 글자 칸만
+    const pcL = top(P), moL = M ? top(M) : [], used = new Set();
+    pcL.forEach(el => { const tx = norm(el.textContent), num = HK_NUM.test(tx), key = 'x' + (++nX), lab = `${num ? '숫자' : '글자'} · ${tx.slice(0, 14)}`;
+      const mark = e => { e.setAttribute('data-key', key); e.setAttribute('data-edit', num ? 'value' : 'text'); if (!e.hasAttribute('data-label')) e.setAttribute('data-label', lab); };
+      mark(el); const mm = moL.find(x => !used.has(x) && sq(x.textContent) === sq(tx)); if (mm){ used.add(mm); mark(mm); } });
+    moL.filter(x => !used.has(x)).forEach(x => { const tx = norm(x.textContent), num = HK_NUM.test(tx);
+      x.setAttribute('data-key', 'x' + (++nX)); x.setAttribute('data-edit', num ? 'value' : 'text'); x.setAttribute('data-label', `모바일 ${num ? '숫자' : '글자'} · ${tx.slice(0, 12)}`); });
+    // 글자 칸이지만 내용이 숫자면 숫자 칸으로 (아래 ② ③에서 막대 · 점과 이어 줌)
+    const asValue = el => { if (el.dataset.edit !== 'value') el.setAttribute('data-edit', 'value'); };
+    roots.forEach(r => {
+      // ② 막대: 글자 없는 빈 요소 + 인라인 height / width % + 색
+      r.content.querySelectorAll('span, div, i, b, em').forEach(bar => {
+        if (bar.children.length || bar.textContent.trim() || bar.hasAttribute('data-bar') || bar.closest('.vb-gs, .hb-ch, .rk-rows, .st-tr, [data-stack]')) return;
+        const s = bar.getAttribute('style') || ''; if (!bar.hasAttribute('data-color') && !/background/.test(s)) return;
+        const bs = barSize(s); if (!bs) return; const dir = bs.dir, h = bs.h, pp = dir === 'y' ? 'bottom' : 'left'; if (!(h >= 0)) return;
+        const isLab = c => c && c !== bar && HK_NUM.test(norm(c.textContent)) && c.hasAttribute('data-key');
+        let lab = [...bar.parentElement.children].find(c => isLab(c) && near(firstPct(c.style[pp]), h)), pin = !!lab;
+        if (!lab){ const nx = bar.nextElementSibling, pv = bar.previousElementSibling; lab = isLab(nx) && !/%/.test(nx.style[pp]) ? nx : null; }   // 위치값 없이 막대 바로 뒤에 붙은 숫자(flex 줄)
+        if (!lab) return; const v = hkNum(norm(lab.textContent)); if (v == null || v < 0 || (h > 0) !== (v > 0)) return;
+        let mx = h > 0 ? v / h * 100 : null;
+        if (mx == null){ let a = bar.parentElement; for (let up = 0; a && up < 6 && mx == null; up++, a = a.parentElement){   // 값 0 막대: 같은 그래프의 다른 막대 최대값을 씀
+          const o = [...a.querySelectorAll(`[data-dir="${dir}"][data-max]`)][0]; if (o) mx = +o.dataset.max; } }
+        if (!(mx > 0)) return;
+        asValue(lab); const key = lab.dataset.key;
+        if (bar.dataset.key && bar.dataset.key !== key && !bar.hasAttribute('data-ckey')) bar.setAttribute('data-ckey', bar.dataset.key);   // 색은 원래 key로 그대로 고침
+        bar.setAttribute('data-key', key); bar.setAttribute('data-bar', String(v)); bar.setAttribute('data-max', String(+mx.toFixed(4))); bar.setAttribute('data-dir', dir);
+        if (pin){ lab.setAttribute('data-pin', key); lab.setAttribute('data-pin-dir', dir); } });
+      // ③ 꺾은선: 점마다 같은 판에서 left가 같고 bottom이 점 높이인 숫자를 찾아 연결 → 숫자 ↔ 높이 관계(1차식)를 저장
+      r.content.querySelectorAll('svg').forEach(sv => { const vb = (sv.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number); if (vb.length !== 4 || !(vb[2] > 0) || !(vb[3] > 0)) return;
+        const sib = [...sv.parentElement.children].filter(c => c !== sv);
+        sv.querySelectorAll('polyline:not([data-lk])').forEach(pl => { const nums = (pl.getAttribute('points') || '').trim().split(/[\s,]+/).map(Number), pts = [];
+          for (let i = 0; i + 1 < nums.length; i += 2) pts.push({x: (nums[i] - vb[0]) / vb[2] * 100, b: 100 - (nums[i + 1] - vb[1]) / vb[3] * 100});
+          const atY = (c, b) => near(firstPct(c.style.bottom), b) || near(firstPct(c.style.top), 100 - b);   // 점 위 숫자는 bottom, 점 아래 숫자는 top으로 오기도 함
+          const ks = pts.map(p => { const lab = sib.find(c => near(firstPct(c.style.left), p.x) && atY(c, p.b) && HK_NUM.test(norm(c.textContent)) && c.hasAttribute('data-key'));
+            return lab ? {lab, v: hkNum(norm(lab.textContent)), p} : null; });
+          const ok = ks.filter(k => k && k.v != null); if (ok.length < 2) return;
+          const a = ok[0], z = ok.find(k => k.v !== a.v); if (!z) return;
+          const sl = (z.p.b - a.p.b) / (z.v - a.v), ic = a.p.b - sl * a.v;   // bottom% = ic + sl × 값
+          pl.setAttribute('data-lk', ks.map(k => k ? k.lab.dataset.key : '-').join(' ')); pl.setAttribute('data-lsl', String(+sl.toFixed(6))); pl.setAttribute('data-lic', String(+ic.toFixed(6)));
+          ks.forEach(k => { if (!k) return; asValue(k.lab); k.lab.setAttribute('data-lpin', k.lab.dataset.key);
+            sib.filter(c => !c.textContent.trim() && near(firstPct(c.style.left), k.p.x) && atY(c, k.p.b)).forEach(dot => dot.setAttribute('data-lpin', k.lab.dataset.key)); }); }); });
+    });
+    // ④ 축 (2026-11-12 운영자: 스킬 그래프도 템플릿처럼 최대값 · 간격 수정): 한 부모 안에 위치 %(bottom 또는 left 하나만) 줄이 3개 이상이고
+    //    줄마다 숫자 하나, 숫자가 위치에 비례(0에서 시작)하면 축. 맨 위(100%) 숫자 = 축 최대값(data-max-key), 그 사이 = 눈금(data-tick).
+    //    같은 그래프의 막대(최대값이 같은 것) · 꺾은선(0 기준 비례)이 이 축을 따라가고, 숫자 없는 눈금 선 줄(data-tlines)도 간격대로 다시 그림
+    roots.forEach(r => { let nA = 0;
+      const pctOf = (el, pp) => { const o = pp === 'bottom' ? 'left' : 'bottom'; if (/%/.test(el.style[o])) return null; const v = firstPct(el.style[pp]); return v == null ? null : v; };
+      const numEl = row => { const ls = [row, ...row.querySelectorAll('*')].filter(e => e.textContent.trim() && ![...e.children].some(c => c.textContent.trim())); return ls.length === 1 && HK_AXNUM.test(norm(ls[0].textContent)) ? ls[0] : null; };
+      r.content.querySelectorAll('*').forEach(g => { if (g.closest('[data-axgrid]') || g.closest('svg')) return;
+        for (const pp of ['bottom', 'left']){
+          const rows = [...g.children].filter(c => pctOf(c, pp) != null && !c.hasAttribute('data-bar') && !c.hasAttribute('data-lpin') && !c.hasAttribute('data-pin') && numEl(c));
+          if (rows.length < 3 || rows.length !== [...g.children].filter(c => pctOf(c, pp) != null && c.textContent.trim()).length) continue;
+          const pts = rows.map(c => ({row: c, el: numEl(c), p: pctOf(c, pp), v: axVal(norm(numEl(c).textContent))})).filter(o => o.v != null);
+          const topR = pts.find(o => Math.abs(o.p - 100) < 0.6); if (!topR || !(topR.v > 0)) continue;
+          const mx = topR.v; if (!pts.every(o => Math.abs(o.v - mx * o.p / 100) <= mx * 0.02)) continue;   // 0에서 시작해 위치에 비례해야 축
+          const key = 'ax' + (++nA), dir = pp === 'bottom' ? 'y' : 'x'; g.setAttribute('data-axgrid', key);
+          pts.forEach(o => { ['data-key', 'data-edit', 'data-label', 'data-lpin', 'data-pin', 'data-pin-dir'].forEach(a => o.el.removeAttribute(a));
+            const mu = axMult(o.el.textContent); if (mu !== 1) o.el.setAttribute('data-mult', String(mu));   // 35만건 → 숫자 칸은 35, 계산은 350000
+            if (o === topR){ o.el.setAttribute('data-max-key', key); o.el.setAttribute('data-label', dir === 'y' ? '세로축 최대값' : '가로축 최대값'); }
+            else if (o.p > 0.5){ o.el.setAttribute('data-tick', String(+(o.p / 100).toFixed(6))); o.el.setAttribute('data-axis', key); } });
+          // 이 축을 쓰는 그래프 범위: 막대 · 꺾은선이 들어 있는 가장 가까운 윗 요소
+          let ch = g; for (let up = 0; ch && up < 5; up++, ch = ch.parentElement) if (ch.querySelector(`[data-bar][data-dir="${dir}"], polyline[data-lsl]`)) break;
+          if (!ch) continue;
+          ch.querySelectorAll(`[data-bar][data-dir="${dir}"]`).forEach(b => { const m = hkNum(b.dataset.max); if (m > 0 && Math.abs(m - mx) <= mx * 0.03 && !b.dataset.axis) b.setAttribute('data-axis', key); });
+          if (dir === 'y') ch.querySelectorAll('polyline[data-lsl]').forEach(pl => { const sl = +pl.dataset.lsl, ic = +pl.dataset.lic; if (Math.abs(ic) < 1.5 && Math.abs(sl - 100 / mx) <= 100 / mx * 0.03) pl.setAttribute('data-axis', key); });
+          // 숫자 없는 눈금 선 줄 (예: 가로 막대의 세로 점선만 따로 있는 칸)
+          const want = pts.filter(o => o.p > 0.5).map(o => o.p);
+          ch.querySelectorAll('*').forEach(lg => { if (lg === g || lg.hasAttribute('data-tlines')) return; const ls = [...lg.children].filter(c => !c.textContent.trim() && pctOf(c, pp) != null);
+            if (ls.length >= 3 && want.every(p => ls.some(c => Math.abs(pctOf(c, pp) - p) < 0.6))) lg.setAttribute('data-tlines', key + ' ' + pp); });
+          break; } });
+    });
+    // ④-2 축 숫자가 없는 막대 그래프(예: 16호 연령대별 TOP10): 같은 최대값을 쓰는 막대 묶음에 숨은 최대값 칸을 달아
+    //      ③에서 「막대 최대값」 · 「눈금 간격」을 고칠 수 있게 (숫자 없는 눈금 선 줄도 간격대로)
+    roots.forEach(r => { const groups = new Map(); let nV = 0;
+      r.content.querySelectorAll('[data-bar][data-dir]:not([data-axis])').forEach(b => { const m = hkNum(b.dataset.max); if (!(m > 0)) return;
+        const k = b.dataset.dir + ':' + (+m.toPrecision(3)); if (!groups.has(k)) groups.set(k, []); groups.get(k).push(b); });
+      groups.forEach((bs, k) => { if (bs.length < 2) return; const [dir, mStr] = k.split(':'), mx = +mStr, pp = dir === 'y' ? 'bottom' : 'left', key = 'axv' + (++nV); let host = null;
+        r.content.querySelectorAll('*').forEach(lg => { if (lg.closest('svg')) return;
+          const ls = [...lg.children].filter(c => !c.textContent.trim() && /%/.test(c.style[pp]) && !c.hasAttribute('data-bar') && !/(width|height)\s*:\s*[\d.]+%/.test(c.getAttribute('style') || ''));
+          if (ls.length < 3) return; const ps = ls.map(c => parseFloat(c.style[pp])); if (Math.abs(Math.max(...ps) - 100) > 0.6) return;
+          let ch = lg; for (let up = 0; ch && up < 5; up++, ch = ch.parentElement) if (bs.some(b => ch.contains(b))) break; if (!ch) return;
+          if (!lg.hasAttribute('data-tlines')) lg.setAttribute('data-tlines', key + ' ' + pp); host = host || lg; });
+        const mk = document.createElement('i'); mk.setAttribute('data-max-key', key); mk.setAttribute('data-label', '막대 최대값 (막대 길이 기준)'); mk.style.display = 'none'; mk.textContent = String(+mx.toFixed(4));
+        (host || bs[0].parentElement).appendChild(mk); bs.forEach(b => b.setAttribute('data-axis', key)); }); });
+    // ⑤ 꺾은선 색: 선(stroke 토큰) · 점 · 범례 색 칸을 같은 토큰끼리 한 묶음으로 → 색을 바꾸면 선 · 점 · 범례가 같이 바뀜
+    roots.forEach(r => {
+      const st = [...r.content.querySelectorAll('style')].map(s => s.textContent).join('\n'), rules = st.match(/[^{}]+\{[^}]*\}/g) || [];
+      const lineToks = new Set();
+      r.content.querySelectorAll('svg polyline, svg line, svg path').forEach(pl => { if (pl.hasAttribute('data-color')) return;
+        const m = ((pl.getAttribute('style') || '') + ';stroke:' + (pl.getAttribute('stroke') || '')).match(/stroke\s*:\s*var\((--[\w-]+)\)/); if (!m) return;
+        pl.setAttribute('data-color', m[1]); pl.setAttribute('data-ckey', 'c' + m[1].slice(2)); pl.setAttribute('data-clabel', tokName(m[1]) + ' 선 · 점'); lineToks.add(m[1]); });
+      if (!lineToks.size) return;
+      rules.forEach(rule => { const sel = rule.slice(0, rule.indexOf('{')).trim(), m = rule.match(/background(?:-color)?\s*:\s*var\((--[\w-]+)\)/); if (!m || !lineToks.has(m[1]) || /[:@]/.test(sel)) return;
+        try { r.content.querySelectorAll(sel).forEach(e => { if (e.textContent.trim() || e.children.length || e.hasAttribute('data-color')) return;
+          e.setAttribute('data-color', m[1]); e.setAttribute('data-ckey', 'c' + m[1].slice(2)); e.setAttribute('data-clabel', tokName(m[1]) + ' 선 · 점'); }); } catch(_){} });
+    });
+    // PC · 모바일 중 한쪽에서 숫자 칸이 된 key는 다른 쪽도 숫자 칸으로 (한쪽만 고쳐져 둘이 달라지지 않게)
+    const vk = new Set(roots.flatMap(r => [...r.content.querySelectorAll('[data-key][data-edit="value"]')].map(e => e.dataset.key)));
+    roots.forEach(r => r.content.querySelectorAll('[data-key][data-edit="text"]').forEach(e => { if (vk.has(e.dataset.key) && HK_NUM.test(norm(e.textContent))) e.setAttribute('data-edit', 'value'); }));
     d.html = P.innerHTML; if (M) d.htmlMo = M.innerHTML; return before !== d.html + '\u0000' + (d.htmlMo || '');
   }
   const imgSize = {};
@@ -2875,7 +3085,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
 
   // ── 렌더 ──
   function renderItem(it, m){
-    const B = BLOCKS[it.type]; redMark(it.data);
+    const B = BLOCKS[it.type]; redMark(it.data); pickVars(it.data);
     const bgCls = B.bg === 'hero' ? 'hero' + (['grad', 'white', 'gray', 'navy'].includes(it.data.bgStyle) ? ' ' + it.data.bgStyle : '') : B.bg === 'steps' ? 'steps' : B.bg === 'raw' ? 'raw' : B.bg === 'cta' ? 'cta' : 'bg-' + (it.bg || 'gray');
     let body = B.render(it.data, m, it);
     const lg = !B.bg && (it.logo === 'top' || it.logo === 'bottom') && A.logoBlue ? it.logo : '';
@@ -2989,7 +3199,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   function setPath(o, p, v){ const ks = p.split('.'); const last = ks.pop(); const t = ks.reduce((a, k) => a[k], o); t[last] = v; }
   const iconOpts = (v, none) => (none ? `<option value=""${!v ? ' selected' : ''}>(없음)</option>` : '') + ICONS.map(([k, l]) => `<option value="${k}"${k === v ? ' selected' : ''}>${l}</option>`).join('');
 
-  const tokName = t => t.replace(/^--/, '').replace(/-(\d+)$/, ' $1');
+  const tokName = t => /^--px-[0-9a-f]{6}$/.test(t) ? '#' + t.slice(5) : t.replace(/^--/, '').replace(/-(\d+)$/, ' $1');
   function cpBtn(i, t){ return `<button type="button" class="icbtn" data-colpick="${i}"><span class="sw${t ? '' : ' auto'}"${t ? ` style="background:var(${t})"` : ''}></span><span>${t ? tokName(t) : '자동'}</span><i><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></i></button>`; }
   function icBtn(path, v, none){
     const st = cur() && cur().data.iconStyle, r = ICON_BY[v];
@@ -3016,7 +3226,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
           `<div class="icrow"><span>타이틀 보조문구 · 오른쪽 끝</span><input type="text" data-path="tag" value="${esc(d.tag || '')}" placeholder="비우면 없음 · 예: 단위: %" style="flex:1;min-width:0"></div>`].filter(Boolean) : [];
         const tx = txEl.filter(el => el !== tEl && el !== sEl).map(el => row(lb(el), el));
         const ax = [...r.querySelectorAll('[data-max-key]')].filter(el => once('a' + el.dataset.maxKey)).map(el =>
-          `<div class="icrow"><span>${esc(el.dataset.label || '세로축 최대값')}</span><input type="number" step="any" data-path="@ax:${esc(el.dataset.maxKey)}" value="${esc(el.textContent.trim())}" style="width:96px"></div>`);
+          `<div class="icrow"><span>${esc(el.dataset.label || '세로축 최대값')}</span><input type="text" data-path="@ax:${esc(el.dataset.maxKey)}" value="${esc(el.textContent.trim())}" title="숫자만 또는 단위까지 (예: 40 · 40만건)" style="width:96px"></div>`
+          + `<div class="icrow"><span>눈금 간격 (비우면 처음 그대로)</span><input type="number" step="any" min="0" data-path="@as:${esc(el.dataset.maxKey)}" value="${esc(el.dataset.step || '')}" placeholder="예: 10" style="width:96px"></div>`);
         const vl = [...r.querySelectorAll('[data-key][data-edit="value"]')].filter(el => once('v' + el.dataset.key)).map(el =>
           `<div class="icrow"><span>${lb(el)}</span><input type="number" step="any" data-path="@hk:value:${esc(el.dataset.key)}" value="${esc(el.textContent.trim())}" style="width:96px"></div>`);
         const cl = [...r.querySelectorAll('[data-color][data-ckey], [data-key][data-color]')].filter(el => once('c' + (el.dataset.ckey || el.dataset.key))).map(el =>
@@ -3085,7 +3296,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     if (e.target.dataset.badgeRow != null){ const d = cur().data, r = +e.target.dataset.badgeRow, ls = String(d.badges || '').split('\n'); while (ls.length <= r) ls.push('파랑'); ls[r] = e.target.value; d.badges = ls.join('\n'); refresh(); return; }
     const el = e.target, path = el.dataset.path; if (!path) return;
     if (path[0] === '@'){   // 직접 만든 블록 입력칸 → PC · 모바일 코드에 같이 반영
-      if (el.type === 'number' && (el.value === '' || isNaN(+el.value))) return;
+      if (el.type === 'number' && (el.value === '' || isNaN(+el.value)) && !(path.startsWith('@as:') && el.value === '')) return;   // 눈금 간격은 비우면 처음 눈금으로
       hkApply(cur().data, path, el.value); refresh(); return;
     }
     let v = el.type === 'checkbox' ? el.checked : el.value;
@@ -3167,7 +3378,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     // 처음부터 단어를 드래그해서 눌렀으면 그 단어를 기억해 두었다가 편집 모드에서도 그 부분만 선택 (없으면 전체 선택)
     const sel0 = getSelection(), picked = sel0.rangeCount && el.contains(sel0.anchorNode) ? sel0.toString().trim() : '';
     const white = /^rgb\(255, 255, 255/.test(getComputedStyle(el).color);   // 편집 중 스타일(검은 글자)로 바뀌기 전에 흰 글자인지 확인
-    editing = {el, raw: rawOf(el), multi: !!f && f.t === 'area'};
+    editing = {el, raw: rawOf(el), multi: !!f && f.t === 'area', base: getComputedStyle(el).color};   // base: 편집 스타일 전 글자 색 ([기본] 판단용)
     el.classList.add('editing'); el.textContent = editing.raw;
     el.contentEditable = 'plaintext-only'; if (el.contentEditable !== 'plaintext-only') el.contentEditable = 'true';
     el.focus();
@@ -3201,6 +3412,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     const ed = editing; if (!ed) return; const el = ed.el, txt = el.innerText.replace(/\u00a0/g, ' ');
     const sel = getSelection(); let a = 0, b = 0;
     if (sel.rangeCount && el.contains(sel.anchorNode)){ const r = sel.getRangeAt(0), pre = r.cloneRange(); pre.selectNodeContents(el); pre.setEnd(r.startContainer, r.startOffset); a = pre.toString().length; b = a + r.toString().length; }
+    // [\uae30\ubcf8]: \uae00\uc790 \uc790\uccb4 \uc0c9\uc774 \uac80\uc815\uc774 \uc544\ub2c8\uba74(\uac15\uc870 \uc904 \u00b7 \ube14\ub8e8 \ub77c\ubca8 \ub4f1 CSS \uc0c9) \uc0c9 \ud45c\uc2dc\ub9cc \uac77\uc5b4\uc11c\ub294 \uc548 \ubc14\ub01c \u2192 \uac80\uc815\uc73c\ub85c (\ud770 \uae00\uc790 \u00b7 \uc5b4\ub450\uc6b4 \ubc14\ud0d5\uc740 \uadf8\ub300\ub85c)
+    if (!c && ed.base && !/^rgb\((17|0), \1, \1\)/.test(ed.base) && !/^rgb\(255, 255, 255/.test(ed.base)) c = '\uac80\uc815';
     const strip = noTc, wrap = t => c === '빨강' ? `!!${t}!!` : `{${c}:${t}}`;   // 빨강은 !!…!!, 그 밖은 {색:…}
     let out;
     if (b > a && !(a === 0 && b >= txt.length)){ const mid = strip(txt.slice(a, b)); out = txt.slice(0, a) + (c ? wrap(mid) : mid) + txt.slice(b); }
@@ -3280,13 +3493,32 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     cpTarget = i; cpItem = srcOf(anchor); const pop = $('cpPop'), now = typeof i === 'string' ? (i.startsWith('@hc:') ? anchor.getAttribute('data-color') : getPath(cpItem.data, i)) : (cpItem.data.cols || [])[i];   // 숫자 = 그래프 색 순서, 글자 = 직접 만든 블록의 색 이름 경로
     $('cpList').innerHTML = CHART_COLORS.map(([g, ts]) => `<div class="icg"><div class="icg-h">${g}</div><div class="cpg">${ts.map(t =>
       `<button type="button" data-tok="${t}" title="${tokName(t)}" class="${t === now ? 'on' : ''}" style="background:var(${t})"></button>`).join('')}</div></div>`).join('')
-      + `<button type="button" class="btn xs" data-tok="" style="margin-top:8px">자동으로 되돌리기</button>`;
+      + `<div style="display:flex;gap:6px;margin-top:8px"><button type="button" class="btn xs cp-eye" data-eyedrop="1" title="색 찍기 — 화면 어디든 누르면 그 색으로 바꿔요 (Esc 취소)" aria-label="색 찍기"><img src="${iconURL('Pipette', css('--coolNeutral-600') || '#4b5563', 16)}" alt=""></button><button type="button" class="btn xs" data-tok="">자동으로 되돌리기</button></div>`;
     pop.hidden = false;
     const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
     pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left)) + 'px';
     pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
   }
   function closeColors(){ $('cpPop').hidden = true; cpTarget = null; }
+  // 색 찍기 (2026-11-13 사용자): 화면 어디든 찍은 색을 그대로 (토큰이 아니어도 됨)
+  const rgbOf = h => { h = String(h).trim(); if (/^rgb/.test(h)) return h.match(/\d+/g).slice(0, 3).map(Number); h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, c => c + c); return h.length >= 6 ? [0, 2, 4].map(k => parseInt(h.slice(k, k + 2), 16)) : null; };
+  async function eyedropTok(){
+    let hex = null;
+    if (window.EyeDropper){ try { hex = (await new EyeDropper().open()).sRGBHex; } catch(_){ return null; } }   // Esc = 취소
+    else hex = await new Promise(res => { const inp = document.createElement('input'); inp.type = 'color'; inp.addEventListener('change', () => res(inp.value)); inp.click(); });
+    const a = hex && rgbOf(hex); if (!a || a.some(isNaN)) return null;
+    const h = a.map(v => v.toString(16).padStart(2, '0')).join(''), t = '--px-' + h; pickVars(t);
+    toast(`찍은 색 #${h}(으)로 바꿨어요.`, 3000); return t;
+  }
+  // 찍은 색은 토큰이 아니어도 그대로 씀 (2026-11-13 사용자) → '--px-RRGGBB' 이름의 색 변수로 저장하고 :root에 정의 (var()를 쓰는 기존 코드 · 저장 캡처가 그대로 동작)
+  const pxDone = new Set();
+  function pickVars(d){
+    const hs = (typeof d === 'string' ? d : JSON.stringify(d || {})).match(/--px-[0-9a-f]{6}/g); if (!hs) return;
+    const add = [...new Set(hs)].filter(t => !pxDone.has(t)); if (!add.length) return;
+    add.forEach(t => pxDone.add(t));
+    let st = document.getElementById('pxVars'); if (!st){ st = document.createElement('style'); st.id = 'pxVars'; document.head.appendChild(st); }
+    st.textContent = ':root{' + [...pxDone].map(t => `${t}:#${t.slice(5)}`).join(';') + '}';
+  }
   // 그래프 2개 나란히: 그래프 종류 이름은 짧게 '세로 막대 그래프'
   const pairName = k => BLOCKS[k].name.replace(/( 그래프)?$/, ' 그래프');
   let prTarget = null;
@@ -3337,10 +3569,13 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       if (!e.target.closest('#fcPop')) $('fcPop').hidden = true;
       const cb = e.target.closest('[data-colpick]'); if (cb){ e.preventDefault(); openColors(+cb.dataset.colpick, cb); return; }
       const cs = e.target.closest('[data-colpath]'); if (cs){ e.preventDefault(); openColors(cs.dataset.colpath, cs); return; }
+      const putTok = (i, d, tok) => {
+        if (typeof i === 'string'){ if (tok){ if (i.startsWith('@hc:')) hkApply(d, i, tok); else setPath(d, i, tok); } buildForm(); refresh(); return; }
+        d.cols = (d.cols || []).slice(); d.cols[i] = tok || null; buildForm(); refresh(); };
+      const ed = e.target.closest('#cpPop [data-eyedrop]');
+      if (ed){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return; eyedropTok().then(t => { if (t) putTok(i, d, t); }); return; }
       const tk = e.target.closest('#cpPop [data-tok]');
-      if (tk){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return;
-        if (typeof i === 'string'){ if (tk.dataset.tok){ if (i.startsWith('@hc:')) hkApply(d, i, tk.dataset.tok); else setPath(d, i, tk.dataset.tok); } buildForm(); refresh(); return; }
-        d.cols = (d.cols || []).slice(); d.cols[i] = tk.dataset.tok || null; buildForm(); refresh(); return; }
+      if (tk){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return; putTok(i, d, tk.dataset.tok); return; }
       if (!e.target.closest('#cpPop') && !e.target.closest('[data-cp]') && !e.target.closest('[data-hcol]')) closeColors();
       const bd = e.target.closest('#bdPop [data-bd]');
       if (bd){ const t = bdTarget; $('bdPop').hidden = true; bdTarget = null;
@@ -3485,7 +3720,9 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   // → 완성에서 7초 쉬고 끝없이 반복(2026-10-28: GIF는 스크롤을 몰라 메일을 연 순간 재생됨 → 늦게 내려가도 다음 재생을 보게). 첫 장면은 완성(Outlook은 첫 장면만 보여 줌)
   const ANIM = {hbar: 1, rank: 1, vbar: 1, stack: 1, line: 1, donut: 1, pair: 1};
   // 직접 만든 블록(스킬 HTML)은 그래프가 들어 있을 때만 (템플릿 클래스 · data-bar · data-stack, 2026-10-28)
-  const canAnim = it => !!(it && !it.fresh && (ANIM[it.type] || (it.type === 'html' && /vb-gs|hb-ch|rk-rows|st-tr|ln-pt|dn-ring|data-bar|data-stack/.test((it.data || {}).html || ''))));
+  const canAnim = it => !!(it && !it.fresh && (ANIM[it.type] || (it.type === 'html' && (/vb-gs|hb-ch|rk-rows|st-tr|ln-pt|dn-ring|data-bar|data-stack|<polyline/.test((it.data || {}).html || '') || AUTO_BAR.test((it.data || {}).html || '')))));
+  // 스킬 HTML 자동 인식용: 인라인 height / width %가 있는 빈 요소(막대) (2026-11-11)
+  const AUTO_BAR = /<(span|div|i|b|em)\b[^>]*style="[^"]*\b(height|width)\s*:\s*[\d.]+%[^"]*"[^>]*>\s*<\/\1>/;
   const ease = d => 1 - Math.pow(1 - d, 3), clamp = x => Math.min(1, Math.max(0, x));
   const stg = (t, k, K) => clamp(t * 1.25 - k * Math.min(0.06, 0.25 / Math.max(1, K - 1)));   // 항목이 많아도 t=1에 모두 끝나게
   const fadeEnd = t => clamp((t - 0.8) / 0.2);
@@ -3507,7 +3744,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         fs.push(t => { const d = stg(t, k, gr.length), e = ease(d);
           bars.forEach(o => { o.i.style.height = o.h * e + '%'; if (o.n) cntSet(o.n, e, d >= 1); }); bd.forEach(el => { el.style.opacity = fadeEnd(t); }); }); }); });
     // 스킬 HTML: 템플릿 클래스 밖의 막대(data-bar) · 숫자(data-edit=value) · 따라가는 배지(data-follow) · 누적 칸(data-stack)
-    const hbEl = new Set(); all(root, '[data-bar]').filter(el => !el.closest('.vb-gs')).forEach(el => { hbEl.add(el); [...el.parentElement.children].forEach(c => { if (BAR_H.test(c.getAttribute('style') || '')) hbEl.add(c); }); });   // 숫자 없는 비교 막대(회색)도 같이
+    const hbEl = new Set(); all(root, '[data-bar]:not([data-dir])').filter(el => !el.closest('.vb-gs')).forEach(el => { hbEl.add(el); [...el.parentElement.children].forEach(c => { if (BAR_H.test(c.getAttribute('style') || '')) hbEl.add(c); }); });   // 숫자 없는 비교 막대(회색)도 같이
     const hb = [...hbEl].map(el => ({el, h: parseFloat(el.style.height) || 0}));
     // 숫자는 막대에 붙은 것만 올라감 (축 숫자는 그대로)
     const hv = all(root, '[data-edit="value"]').filter(el => !el.closest('.vb-gs') && [...hbEl].some(b => b.contains(el) || b.parentElement === el.parentElement)).map(cnt), hf = all(root, '[data-follow], .vb-d').filter(el => !el.closest('.vb-gs'));
@@ -3528,6 +3765,34 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     all(root, '.dn').forEach(dn => {   // 도넛 · 파이: 12시부터 시계 방향으로 채우고, 가운데 글자 · 조각 이름은 끝에
       const sl = all(dn, '.dn-ring > i').map(i => ({i, a: parseFloat((i.style.transform.match(/-?[\d.]+/) || [0])[0])})), tx = all(dn, '.dn-t, .pi-l');
       fs.push(t => { const A = 360 * ease(clamp(t * 1.1)); sl.forEach(o => { o.i.style.visibility = o.a <= A ? '' : 'hidden'; }); tx.forEach(el => { el.style.opacity = fadeEnd(t); }); }); });
+    // 스킬 HTML 자동 인식 (2026-11-11 사용자: 스킬로 만든 그래프도 GIF로) — data-bar 없이 그려 온 막대 · SVG 꺾은선도 움직이게
+    // 막대 = 글자 없는 빈 요소 + 인라인 height % 또는 width % + 색(data-color · 배경). 옆의 값 · 배지(bottom / left %가 막대 끝과 같음)는 막대 끝을 따라가고 숫자는 올라감
+    const TPL = '.vb-gs, .hb-ch, .rk-rows, .st-tr, .dn, .ch-plot, [data-stack]';
+    const hasBg = el => el.hasAttribute('data-color') || !/^(transparent|rgba\(0, 0, 0, 0\))$/.test(getComputedStyle(el).backgroundColor);
+    const ab = all(root, 'span, div, i, b, em').filter(el => !el.children.length && !el.textContent.trim() && !hbEl.has(el) && !el.closest(TPL) && hasBg(el)).map(el => {
+      const bs = barSize(el.getAttribute('style')); if (!bs) return null;
+      const vert = bs.dir === 'y', v = bs.h, pp = vert ? 'bottom' : 'left';
+      const fol = [...el.parentElement.children].filter(c => c !== el).map(c => { const o = c.style[pp] || ''; const m = o.match(/([\d.]+)%/);
+        return m && Math.abs(+m[1] - v) < 0.01 ? {c, o, n: /\d/.test(c.textContent) && isFinite(parseFloat(c.textContent.replace(/[^\d.-]/g, ''))) ? cnt(c) : null} : null; }).filter(Boolean);
+      const nx = el.nextElementSibling; if (nx && !fol.some(f => f.c === nx) && /\d/.test(nx.textContent) && isFinite(parseFloat(nx.textContent.replace(/[^\d.-]/g, ''))) && nx.textContent.trim().length <= 10) fol.push({c: nx, o: '', n: cnt(nx)});   // 막대 바로 뒤 숫자(flex 줄)도 같이 셈
+      return {el, vert, v, pp, fol, set: bs.set}; }).filter(Boolean);
+    ab.forEach((o, k) => fs.push(t => { const d = stg(t, k, ab.length), e = ease(d);
+      o.el.style[o.vert ? 'height' : 'width'] = o.set(o.v * e / 100);
+      o.fol.forEach(f => { f.c.style[o.pp] = f.o.replace(/([\d.]+)%/, () => o.v * e + '%'); if (f.n) cntSet(f.n, e, d >= 1); }); }));
+    // SVG 꺾은선(polyline): 왼쪽 첫 점부터 점 좌표를 잘라 이어 그림(GIF 캡처가 clip-path를 못 읽음), 같은 판의 점 · 숫자(left %)는 선이 닿을 때
+    all(root, 'svg').filter(sv => !sv.closest(TPL) && !sv.hasAttribute('data-icon') && sv.getBoundingClientRect().width >= 120 && sv.querySelector('polyline')).forEach(sv => {
+      const vb = sv.viewBox && sv.viewBox.baseVal, vx = vb && vb.width ? vb.x : 0, vw = vb && vb.width ? vb.width : 100;
+      const pls = all(sv, 'polyline').map(pl => { const raw = pl.getAttribute('points') || '', nums = raw.trim().split(/[\s,]+/).map(Number);
+        const pts = []; for (let i = 0; i + 1 < nums.length; i += 2) pts.push([nums[i], nums[i + 1]]); return {pl, raw, pts}; }).filter(o => o.pts.length > 1);
+      if (!pls.length) return;
+      const xs = pls.flatMap(o => o.pts.map(p => (p[0] - vx) / vw * 100)), x0 = Math.min(...xs), xN = Math.max(...xs);
+      const dots = [...sv.parentElement.children].filter(c => c !== sv && /left\s*:\s*[\d.]+%/.test(c.getAttribute('style') || '')).map(c => ({c, x: parseFloat(c.style.left)}));
+      fs.push(t => { const q = x0 + (xN - x0) * ease(clamp(t * 1.1)), done = t >= 1, qx = vx + q / 100 * vw;
+        pls.forEach(o => { if (done){ o.pl.setAttribute('points', o.raw); return; }
+          const out = []; for (let i = 0; i < o.pts.length; i++){ const p = o.pts[i]; if (p[0] <= qx){ out.push(p); continue; }
+            const a = o.pts[i - 1]; if (a){ const r = (qx - a[0]) / ((p[0] - a[0]) || 1); out.push([qx, a[1] + (p[1] - a[1]) * r]); } break; }
+          o.pl.setAttribute('points', (out.length > 1 ? out : [o.pts[0], o.pts[0]]).map(p => p.join(',')).join(' ')); });
+        dots.forEach(o => { o.c.style.opacity = done || q >= o.x - 0.5 ? '' : 0; }); }); });
     return fs;
   }
   function animSet(fs, t){ fs.forEach(f => f(t)); }
@@ -3692,7 +3957,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       if (!list){ box.innerHTML = ''; return; }
       const ok = list.filter(b => b && BLOCKS[b.type]);
       if (!ok.length){ box.innerHTML = `<div class="sp-e">${cutOff(raw) ? CUT_MSG : '스킬 결과를 읽을 수 없어요. claude.ai 「붙여 넣을 JSON」 창의 [복사] 버튼으로 전체를 복사해 주세요.'}</div>`; return; }
-      const cOf = b => b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => parseInt(b.no, 10) || 1;
+      const at = ok.length === 1 ? view() : null;   // 블록 하나면 지금 보고 있는 자리로 (2026-11-13 사용자: 02 · 1에 넣었는데 01로 감)
+      const cOf = b => at ? at.contents : b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => at ? (parseInt(at.no, 10) || 1) : parseInt(b.no, 10) || 1;
       box.innerHTML = `<div class="sp-h">들어올 이미지 ${ok.length}장</div>` + ok.map((b, i) => {
         const t = {id: 'sp' + i, type: b.type, contents: cOf(b), no: nOf(b), bg: b.bg || 'gray', data: skillData(b.type, b.data)};
         let th = ''; if (b.type !== 'pair'){ try { if (b.type === 'html') hkUpgrade(t.data); th = renderItem(t, 'pc'); } catch(_){} }
@@ -3708,7 +3974,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     $('btnSkillClear').addEventListener('click', () => { $('skillTxt').value = ''; skillPv(); });
     $('btnSkillOk').addEventListener('click', () => {
       const again = view().src && $('skillTxt').value.trim() === view().src.trim(); if (again) replaceOK = view();   // 다시 넣기: 지금 이미지 자리라 덮어쓰기 확인은 묻지 않음
-      const done = takeJSON($('skillTxt').value); replaceOK = null;
+      pasteHere = view(); const done = takeJSON($('skillTxt').value); replaceOK = null; pasteHere = null;
       if (done) skillPv();
       else toast(cutOff($('skillTxt').value) ? CUT_MSG : '스킬 결과를 읽을 수 없어요. claude.ai 「붙여 넣을 JSON」 창의 [복사] 버튼으로 전체를 복사해 주세요.', 5000);
     });
@@ -3734,6 +4000,36 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         S.sel = Math.min(Math.max(0, i - 1), arr.length - 1); while (S.sel > 0 && arr[S.sel].owner) S.sel--; if (arr[S.sel].owner) S.sel = arr.findIndex(o => !o.owner); }
       buildForm(); refresh();
     }));
+    // 이 이미지 번호 바꾸기 (2026-11-13 사용자: 직관적으로) — 번호 칸 아래에 '옮길 자리' 줄을 펼쳐 콘텐츠 · 번호를 고르고, 그 자리 상태를 바로 보여 줌. 이미지가 있으면 서로 바꿈
+    const mvAt = (c, no, V) => S.items.filter(o => o !== V && !o.owner && !o.fresh && o.contents === c && (parseInt(o.no, 10) || 0) === no);
+    const mvRead = () => ({c: $('mvC').value, no: Math.max(1, Math.min(20, parseInt($('mvN').value, 10) || 1))});
+    const mvShow = () => { const V = view(), {c, no} = mvRead(), same = c === V.contents && no === (parseInt(V.no, 10) || 1), hit = mvAt(c, no, V).length;
+      const st = $('mvS'); st.classList.toggle('swap', !!hit && !same);
+      st.innerHTML = same ? '지금 이미지 자리예요. 다른 번호를 골라 주세요.' : hit ? `<b>이미 이미지가 있어요.</b> 두 이미지 자리를 서로 바꿔요.`
+        : `<b>빈 자리예요.</b> 저장 파일명 → ${esc(fileBase(Object.assign({}, V, {contents: c, no}), 'pc'))}.png`;
+      $('mvOk').disabled = same; $('mvOk').textContent = hit && !same ? '서로 바꾸기' : '옮기기'; };
+    const mvClose = () => { $('mvBox').hidden = true; $('mvLb').textContent = '번호 바꾸기'; $('btnMoveNo').classList.remove('on'); };
+    document.querySelector('#btnMoveNo .mv-ic').innerHTML = `<img src="${iconURL('ArrowLeftRight', css('--coolNeutral-600') || '#4b5563', 16)}" alt="">`;
+    $('btnMoveNo').addEventListener('click', () => {
+      if (!$('mvBox').hidden){ mvClose(); return; }
+      const V = view(); if (V.fresh){ toast('아직 만든 이미지가 없어요. 먼저 이미지를 만들어 주세요.'); return; }
+      $('mvC').innerHTML = $('itContents').innerHTML; $('mvC').value = V.contents;
+      const used = S.items.filter(o => !o.owner && !o.fresh && o.contents === V.contents).map(o => parseInt(o.no, 10) || 0);
+      let n = 1; while (used.includes(n) && n < 20) n++;   // 처음엔 같은 콘텐츠의 빈 번호 중 가장 앞
+      $('mvN').value = n; $('mvBox').hidden = false; $('mvLb').textContent = '닫기'; $('btnMoveNo').classList.add('on'); mvShow(); $('mvN').focus(); $('mvN').select();
+    });
+    $('mvC').addEventListener('change', mvShow); $('mvN').addEventListener('input', mvShow);
+    $('mvN').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('mvOk').click(); } if (e.key === 'Escape') mvClose(); });
+    $('mvNo').addEventListener('click', mvClose);
+    $('mvOk').addEventListener('click', () => {
+      const V = view(), {c, no} = mvRead(), oc = V.contents, on = parseInt(V.no, 10) || 1; if (c === oc && no === on) return;
+      const setPos = (o, cc, nn) => { o.contents = cc; o.no = nn; S.items.forEach(k => { if (k.owner === o.id) k.contents = cc; }); };
+      const real = mvAt(c, no, V);
+      S.items.filter(o => o !== V && !o.owner && o.fresh && o.contents === c && (parseInt(o.no, 10) || 0) === no).forEach(o => S.items.splice(S.items.indexOf(o), 1));   // 그 자리의 빈 새 이미지는 지움
+      real.forEach(o => setPos(o, oc, on)); setPos(V, c, no); S.sel = S.items.indexOf(V); S.sub = null;
+      mvClose(); buildForm(); refresh();
+      toast(real.length ? `${oc} · ${pad2(on)} ↔ ${c} · ${pad2(no)} 자리를 서로 바꿨어요.` : `${c} · ${pad2(no)}로 옮겼어요.`, 3500);
+    });
     $('itContents').addEventListener('change', e => goItem(e.target.value, 1));
     $('itNo').addEventListener('change', e => goItem(view().contents, Math.max(1, parseInt(e.target.value, 10) || 1)));
     $('itFmt').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view().fmt = b.dataset.v; buildForm(); refresh(); });
@@ -3834,12 +4130,14 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   }
 
   // Claude "뉴스레터 블록" 스킬 결과 붙여넣기: {kind:'nl-block', type, contents, no, data} (여러 개면 {kind:'nl-blocks', items:[…]})
-  let replaceOK = null;
+  let replaceOK = null, pasteHere = null;   // pasteHere: ② 스킬 칸 [넣기] 때 지금 보고 있는 이미지
   function pasteBlocks(list, src){
     const ok = list.filter(b => b && BLOCKS[b.type]);
     if (!ok.length){ toast('붙여넣은 블록 종류를 알 수 없어요.'); return; }
+    // 스킬 칸에 블록 하나를 넣으면 JSON의 콘텐츠 · 번호 대신 지금 보고 있는 자리로 (2026-11-13 사용자: 02 서브 1에 넣었는데 메인으로 바뀜)
+    const at = pasteHere && ok.length === 1 ? pasteHere : null;
     // 같은 콘텐츠 · 이미지 번호가 이미 있으면 "덮어쓸까요?" → 예: 그 이미지를 교체, 아니요: 아무것도 넣지 않음 (빈 새 이미지는 묻지 않고 교체)
-    const cOf = b => b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => parseInt(b.no, 10) || 1;
+    const cOf = b => at ? at.contents : b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => at ? (parseInt(at.no, 10) || 1) : parseInt(b.no, 10) || 1;
     const dupOf = b => S.items.find(o => !o.owner && o.contents === cOf(b) && pad2(o.no) === pad2(nOf(b)));
     const hits = ok.map(dupOf).filter(o => o && !o.fresh && o !== replaceOK);
     if (hits.length && !confirm(`같은 번호의 이미지가 있어요: ${hits.map(o => `콘텐츠 ${o.contents} · 이미지 ${pad2(o.no)}`).join(', ')}\n새 내용으로 덮어쓸까요?\n(취소하면 아무것도 넣지 않아요)`)){ toast('넣지 않았어요. 같은 번호 이미지를 먼저 확인해 주세요.', 3500); return; }

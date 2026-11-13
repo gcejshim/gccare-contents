@@ -186,6 +186,20 @@ h3:has(#formTitle){scroll-margin-top:16px}
 .icbtn .sw{width:16px;height:16px;border-radius:4px;border:1px solid var(--coolNeutral-200)}
 .icbtn .sw.auto{background:repeating-linear-gradient(45deg,var(--coolNeutral-100) 0 3px,var(--neutral-0) 3px 6px)}
 .cppop{width:300px}
+.no-lb{display:flex;align-items:center;justify-content:space-between}
+.mvbtn{display:inline-flex;align-items:center;gap:4px;margin:-4px 0;padding:3px 9px;border:1px solid var(--coolNeutral-200);border-radius:6px;background:var(--neutral-0);font-size:12px;font-weight:500;color:var(--coolNeutral-600);cursor:pointer}
+.mvbtn:hover,.mvbtn.on{border-color:var(--coolNeutral-400);color:var(--coolNeutral-900)}
+.mv-ic img{width:14px;height:14px;display:block}
+.mvbtn.on{background:var(--coolNeutral-100)}
+.mvbox{margin-top:-4px;padding:12px;border:1px solid var(--coolNeutral-200);border-radius:10px;background:var(--coolNeutral-50)}
+.mv-h{font-size:12px;font-weight:600;color:var(--coolNeutral-600);margin-bottom:8px}
+.mv-r{display:flex;align-items:center;gap:6px}
+.mv-r select{flex:1 1 0;min-width:0}.mv-r input{width:72px;flex:none}.mv-x{color:var(--coolNeutral-400)}
+.mv-r select,.mv-r input{height:34px;padding:0 8px;font-size:14px}
+.mv-r .btn{flex:none;height:34px}
+.mv-s{margin-top:8px;font-size:12px;color:var(--coolNeutral-600)}.mv-s b{color:var(--careBlue-600)}.mv-s.swap b{color:var(--careOrange-600)}
+.cp-eye{width:30px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.cp-eye img{width:16px;height:16px;display:block}
 .cpg{display:grid;grid-template-columns:repeat(8,1fr);gap:5px}
 .cpg button{height:30px;border-radius:6px;border:1px solid var(--coolNeutral-200);cursor:pointer}
 .cpg button:hover,.cpg button.on{outline:2px solid var(--careBlue-500);outline-offset:1px}
@@ -808,12 +822,16 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         </div>
         <div class="row">
           <div class="field"><label>콘텐츠</label>
-            <select id="itContents"><option value="01">01 (메인)</option><option value="02">02 (서브)</option><option value="03">03 (서브)</option><option value="04">04 (서브)</option><option value="05">05 (서브)</option><option value="06">06 (서브)</option><option value="07">07 (서브)</option><option value="08">08 (서브)</option><option value="09">09 (서브)</option></select>
+            <select id="itContents"><option value="01">01 (메인)</option><option value="02">02</option><option value="03">03</option><option value="04">04</option><option value="05">05</option><option value="06">06</option><option value="07">07</option><option value="08">08</option><option value="09">09</option></select>
           </div>
-          <div class="field"><label>이미지 번호</label><input type="number" id="itNo" min="1" max="20"></div>
+          <div class="field"><label class="no-lb">이미지 번호<button type="button" class="mvbtn" id="btnMoveNo" title="이 이미지 번호 바꾸기 — 고친 내용 그대로 다른 번호로 옮겨요" aria-label="이 이미지 번호 바꾸기"><span class="mv-ic"></span><span id="mvLb">번호 바꾸기</span></button></label><input type="number" id="itNo" min="1" max="20"></div>
+        </div>
+        <div class="mvbox" id="mvBox" hidden>
+          <div class="mv-h">이 이미지를 옮길 자리</div>
+          <div class="mv-r"><select id="mvC"></select><span class="mv-x">·</span><input type="number" id="mvN" min="1" max="20"><button type="button" class="btn xs primary" id="mvOk">옮기기</button><button type="button" class="btn xs" id="mvNo">취소</button></div>
+          <div class="mv-s" id="mvS"></div>
         </div>
         <div class="fname" id="fname"></div>
-        <div class="hint" style="margin:0">콘텐츠 · 번호를 바꾸면 그 이미지로 이동해요. 없는 번호면 새 이미지가 만들어져요.</div>
       </div>
     </div>
 
@@ -2206,7 +2224,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
 
   // ── 렌더 ──
   function renderItem(it, m){
-    const B = BLOCKS[it.type]; redMark(it.data);
+    const B = BLOCKS[it.type]; redMark(it.data); pickVars(it.data);
     const bgCls = B.bg === 'hero' ? 'hero' + (['grad', 'white', 'gray', 'navy'].includes(it.data.bgStyle) ? ' ' + it.data.bgStyle : '') : B.bg === 'steps' ? 'steps' : B.bg === 'raw' ? 'raw' : B.bg === 'cta' ? 'cta' : 'bg-' + (it.bg || 'gray');
     let body = B.render(it.data, m, it);
     const lg = !B.bg && (it.logo === 'top' || it.logo === 'bottom') && A.logoBlue ? it.logo : '';
@@ -2320,7 +2338,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   function setPath(o, p, v){ const ks = p.split('.'); const last = ks.pop(); const t = ks.reduce((a, k) => a[k], o); t[last] = v; }
   const iconOpts = (v, none) => (none ? `<option value=""${!v ? ' selected' : ''}>(없음)</option>` : '') + ICONS.map(([k, l]) => `<option value="${k}"${k === v ? ' selected' : ''}>${l}</option>`).join('');
 
-  const tokName = t => t.replace(/^--/, '').replace(/-(\d+)$/, ' $1');
+  const tokName = t => /^--px-[0-9a-f]{6}$/.test(t) ? '#' + t.slice(5) : t.replace(/^--/, '').replace(/-(\d+)$/, ' $1');
   function cpBtn(i, t){ return `<button type="button" class="icbtn" data-colpick="${i}"><span class="sw${t ? '' : ' auto'}"${t ? ` style="background:var(${t})"` : ''}></span><span>${t ? tokName(t) : '자동'}</span><i><svg class="tri" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4h7L6 8.5z"/></svg></i></button>`; }
   function icBtn(path, v, none){
     const st = cur() && cur().data.iconStyle, r = ICON_BY[v];
@@ -2614,13 +2632,32 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     cpTarget = i; cpItem = srcOf(anchor); const pop = $('cpPop'), now = typeof i === 'string' ? (i.startsWith('@hc:') ? anchor.getAttribute('data-color') : getPath(cpItem.data, i)) : (cpItem.data.cols || [])[i];   // 숫자 = 그래프 색 순서, 글자 = 직접 만든 블록의 색 이름 경로
     $('cpList').innerHTML = CHART_COLORS.map(([g, ts]) => `<div class="icg"><div class="icg-h">${g}</div><div class="cpg">${ts.map(t =>
       `<button type="button" data-tok="${t}" title="${tokName(t)}" class="${t === now ? 'on' : ''}" style="background:var(${t})"></button>`).join('')}</div></div>`).join('')
-      + `<button type="button" class="btn xs" data-tok="" style="margin-top:8px">자동으로 되돌리기</button>`;
+      + `<div style="display:flex;gap:6px;margin-top:8px"><button type="button" class="btn xs cp-eye" data-eyedrop="1" title="색 찍기 — 화면 어디든 누르면 그 색으로 바꿔요 (Esc 취소)" aria-label="색 찍기"><img src="${iconURL('Pipette', css('--coolNeutral-600') || '#4b5563', 16)}" alt=""></button><button type="button" class="btn xs" data-tok="">자동으로 되돌리기</button></div>`;
     pop.hidden = false;
     const a = anchor.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
     pop.style.left = Math.max(8, Math.min(innerWidth - w - 8, a.left)) + 'px';
     pop.style.top = (a.bottom + h + 8 < innerHeight ? a.bottom + 6 : Math.max(8, a.top - h - 6)) + 'px';
   }
   function closeColors(){ $('cpPop').hidden = true; cpTarget = null; }
+  // 색 찍기 (2026-11-13 사용자): 화면 어디든 찍은 색을 그대로 (토큰이 아니어도 됨)
+  const rgbOf = h => { h = String(h).trim(); if (/^rgb/.test(h)) return h.match(/\d+/g).slice(0, 3).map(Number); h = h.replace('#', ''); if (h.length === 3) h = h.replace(/./g, c => c + c); return h.length >= 6 ? [0, 2, 4].map(k => parseInt(h.slice(k, k + 2), 16)) : null; };
+  async function eyedropTok(){
+    let hex = null;
+    if (window.EyeDropper){ try { hex = (await new EyeDropper().open()).sRGBHex; } catch(_){ return null; } }   // Esc = 취소
+    else hex = await new Promise(res => { const inp = document.createElement('input'); inp.type = 'color'; inp.addEventListener('change', () => res(inp.value)); inp.click(); });
+    const a = hex && rgbOf(hex); if (!a || a.some(isNaN)) return null;
+    const h = a.map(v => v.toString(16).padStart(2, '0')).join(''), t = '--px-' + h; pickVars(t);
+    toast(`찍은 색 #${h}(으)로 바꿨어요.`, 3000); return t;
+  }
+  // 찍은 색은 토큰이 아니어도 그대로 씀 (2026-11-13 사용자) → '--px-RRGGBB' 이름의 색 변수로 저장하고 :root에 정의 (var()를 쓰는 기존 코드 · 저장 캡처가 그대로 동작)
+  const pxDone = new Set();
+  function pickVars(d){
+    const hs = (typeof d === 'string' ? d : JSON.stringify(d || {})).match(/--px-[0-9a-f]{6}/g); if (!hs) return;
+    const add = [...new Set(hs)].filter(t => !pxDone.has(t)); if (!add.length) return;
+    add.forEach(t => pxDone.add(t));
+    let st = document.getElementById('pxVars'); if (!st){ st = document.createElement('style'); st.id = 'pxVars'; document.head.appendChild(st); }
+    st.textContent = ':root{' + [...pxDone].map(t => `${t}:#${t.slice(5)}`).join(';') + '}';
+  }
   // 그래프 2개 나란히: 그래프 종류 이름은 짧게 '세로 막대 그래프'
   const pairName = k => BLOCKS[k].name.replace(/( 그래프)?$/, ' 그래프');
   let prTarget = null;
@@ -2671,10 +2708,13 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       if (!e.target.closest('#fcPop')) $('fcPop').hidden = true;
       const cb = e.target.closest('[data-colpick]'); if (cb){ e.preventDefault(); openColors(+cb.dataset.colpick, cb); return; }
       const cs = e.target.closest('[data-colpath]'); if (cs){ e.preventDefault(); openColors(cs.dataset.colpath, cs); return; }
+      const putTok = (i, d, tok) => {
+        if (typeof i === 'string'){ if (tok){ if (i.startsWith('@hc:')) hkApply(d, i, tok); else setPath(d, i, tok); } buildForm(); refresh(); return; }
+        d.cols = (d.cols || []).slice(); d.cols[i] = tok || null; buildForm(); refresh(); };
+      const ed = e.target.closest('#cpPop [data-eyedrop]');
+      if (ed){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return; eyedropTok().then(t => { if (t) putTok(i, d, t); }); return; }
       const tk = e.target.closest('#cpPop [data-tok]');
-      if (tk){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return;
-        if (typeof i === 'string'){ if (tk.dataset.tok){ if (i.startsWith('@hc:')) hkApply(d, i, tk.dataset.tok); else setPath(d, i, tk.dataset.tok); } buildForm(); refresh(); return; }
-        d.cols = (d.cols || []).slice(); d.cols[i] = tk.dataset.tok || null; buildForm(); refresh(); return; }
+      if (tk){ const i = cpTarget, d = (cpItem || cur()).data; closeColors(); if (i == null) return; putTok(i, d, tk.dataset.tok); return; }
       if (!e.target.closest('#cpPop') && !e.target.closest('[data-cp]') && !e.target.closest('[data-hcol]')) closeColors();
       const bd = e.target.closest('#bdPop [data-bd]');
       if (bd){ const t = bdTarget; $('bdPop').hidden = true; bdTarget = null;
@@ -3056,7 +3096,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
       if (!list){ box.innerHTML = ''; return; }
       const ok = list.filter(b => b && BLOCKS[b.type]);
       if (!ok.length){ box.innerHTML = `<div class="sp-e">${cutOff(raw) ? CUT_MSG : '스킬 결과를 읽을 수 없어요. claude.ai 「붙여 넣을 JSON」 창의 [복사] 버튼으로 전체를 복사해 주세요.'}</div>`; return; }
-      const cOf = b => b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => parseInt(b.no, 10) || 1;
+      const at = ok.length === 1 ? view() : null;   // 블록 하나면 지금 보고 있는 자리로 (2026-11-13 사용자: 02 · 1에 넣었는데 01로 감)
+      const cOf = b => at ? at.contents : b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => at ? (parseInt(at.no, 10) || 1) : parseInt(b.no, 10) || 1;
       box.innerHTML = `<div class="sp-h">들어올 이미지 ${ok.length}장</div>` + ok.map((b, i) => {
         const t = {id: 'sp' + i, type: b.type, contents: cOf(b), no: nOf(b), bg: b.bg || 'gray', data: skillData(b.type, b.data)};
         let th = ''; if (b.type !== 'pair'){ try { if (b.type === 'html') hkUpgrade(t.data); th = renderItem(t, 'pc'); } catch(_){} }
@@ -3072,7 +3113,7 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     $('btnSkillClear').addEventListener('click', () => { $('skillTxt').value = ''; skillPv(); });
     $('btnSkillOk').addEventListener('click', () => {
       const again = view().src && $('skillTxt').value.trim() === view().src.trim(); if (again) replaceOK = view();   // 다시 넣기: 지금 이미지 자리라 덮어쓰기 확인은 묻지 않음
-      const done = takeJSON($('skillTxt').value); replaceOK = null;
+      pasteHere = view(); const done = takeJSON($('skillTxt').value); replaceOK = null; pasteHere = null;
       if (done) skillPv();
       else toast(cutOff($('skillTxt').value) ? CUT_MSG : '스킬 결과를 읽을 수 없어요. claude.ai 「붙여 넣을 JSON」 창의 [복사] 버튼으로 전체를 복사해 주세요.', 5000);
     });
@@ -3098,6 +3139,36 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
         S.sel = Math.min(Math.max(0, i - 1), arr.length - 1); while (S.sel > 0 && arr[S.sel].owner) S.sel--; if (arr[S.sel].owner) S.sel = arr.findIndex(o => !o.owner); }
       buildForm(); refresh();
     }));
+    // 이 이미지 번호 바꾸기 (2026-11-13 사용자: 직관적으로) — 번호 칸 아래에 '옮길 자리' 줄을 펼쳐 콘텐츠 · 번호를 고르고, 그 자리 상태를 바로 보여 줌. 이미지가 있으면 서로 바꿈
+    const mvAt = (c, no, V) => S.items.filter(o => o !== V && !o.owner && !o.fresh && o.contents === c && (parseInt(o.no, 10) || 0) === no);
+    const mvRead = () => ({c: $('mvC').value, no: Math.max(1, Math.min(20, parseInt($('mvN').value, 10) || 1))});
+    const mvShow = () => { const V = view(), {c, no} = mvRead(), same = c === V.contents && no === (parseInt(V.no, 10) || 1), hit = mvAt(c, no, V).length;
+      const st = $('mvS'); st.classList.toggle('swap', !!hit && !same);
+      st.innerHTML = same ? '지금 이미지 자리예요. 다른 번호를 골라 주세요.' : hit ? `<b>이미 이미지가 있어요.</b> 두 이미지 자리를 서로 바꿔요.`
+        : `<b>빈 자리예요.</b> 저장 파일명 → ${esc(fileBase(Object.assign({}, V, {contents: c, no}), 'pc'))}.png`;
+      $('mvOk').disabled = same; $('mvOk').textContent = hit && !same ? '서로 바꾸기' : '옮기기'; };
+    const mvClose = () => { $('mvBox').hidden = true; $('mvLb').textContent = '번호 바꾸기'; $('btnMoveNo').classList.remove('on'); };
+    document.querySelector('#btnMoveNo .mv-ic').innerHTML = `<img src="${iconURL('ArrowLeftRight', css('--coolNeutral-600') || '#4b5563', 16)}" alt="">`;
+    $('btnMoveNo').addEventListener('click', () => {
+      if (!$('mvBox').hidden){ mvClose(); return; }
+      const V = view(); if (V.fresh){ toast('아직 만든 이미지가 없어요. 먼저 이미지를 만들어 주세요.'); return; }
+      $('mvC').innerHTML = $('itContents').innerHTML; $('mvC').value = V.contents;
+      const used = S.items.filter(o => !o.owner && !o.fresh && o.contents === V.contents).map(o => parseInt(o.no, 10) || 0);
+      let n = 1; while (used.includes(n) && n < 20) n++;   // 처음엔 같은 콘텐츠의 빈 번호 중 가장 앞
+      $('mvN').value = n; $('mvBox').hidden = false; $('mvLb').textContent = '닫기'; $('btnMoveNo').classList.add('on'); mvShow(); $('mvN').focus(); $('mvN').select();
+    });
+    $('mvC').addEventListener('change', mvShow); $('mvN').addEventListener('input', mvShow);
+    $('mvN').addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); $('mvOk').click(); } if (e.key === 'Escape') mvClose(); });
+    $('mvNo').addEventListener('click', mvClose);
+    $('mvOk').addEventListener('click', () => {
+      const V = view(), {c, no} = mvRead(), oc = V.contents, on = parseInt(V.no, 10) || 1; if (c === oc && no === on) return;
+      const setPos = (o, cc, nn) => { o.contents = cc; o.no = nn; S.items.forEach(k => { if (k.owner === o.id) k.contents = cc; }); };
+      const real = mvAt(c, no, V);
+      S.items.filter(o => o !== V && !o.owner && o.fresh && o.contents === c && (parseInt(o.no, 10) || 0) === no).forEach(o => S.items.splice(S.items.indexOf(o), 1));   // 그 자리의 빈 새 이미지는 지움
+      real.forEach(o => setPos(o, oc, on)); setPos(V, c, no); S.sel = S.items.indexOf(V); S.sub = null;
+      mvClose(); buildForm(); refresh();
+      toast(real.length ? `${oc} · ${pad2(on)} ↔ ${c} · ${pad2(no)} 자리를 서로 바꿨어요.` : `${c} · ${pad2(no)}로 옮겼어요.`, 3500);
+    });
     $('itContents').addEventListener('change', e => goItem(e.target.value, 1));
     $('itNo').addEventListener('change', e => goItem(view().contents, Math.max(1, parseInt(e.target.value, 10) || 1)));
     $('itFmt').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view().fmt = b.dataset.v; buildForm(); refresh(); });
@@ -3198,12 +3269,14 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
   }
 
   // Claude "뉴스레터 블록" 스킬 결과 붙여넣기: {kind:'nl-block', type, contents, no, data} (여러 개면 {kind:'nl-blocks', items:[…]})
-  let replaceOK = null;
+  let replaceOK = null, pasteHere = null;   // pasteHere: ② 스킬 칸 [넣기] 때 지금 보고 있는 이미지
   function pasteBlocks(list, src){
     const ok = list.filter(b => b && BLOCKS[b.type]);
     if (!ok.length){ toast('붙여넣은 블록 종류를 알 수 없어요.'); return; }
+    // 스킬 칸에 블록 하나를 넣으면 JSON의 콘텐츠 · 번호 대신 지금 보고 있는 자리로 (2026-11-13 사용자: 02 서브 1에 넣었는데 메인으로 바뀜)
+    const at = pasteHere && ok.length === 1 ? pasteHere : null;
     // 같은 콘텐츠 · 이미지 번호가 이미 있으면 "덮어쓸까요?" → 예: 그 이미지를 교체, 아니요: 아무것도 넣지 않음 (빈 새 이미지는 묻지 않고 교체)
-    const cOf = b => b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => parseInt(b.no, 10) || 1;
+    const cOf = b => at ? at.contents : b.contents ? pad2(b.contents) : (cur() ? cur().contents : '01'), nOf = b => at ? (parseInt(at.no, 10) || 1) : parseInt(b.no, 10) || 1;
     const dupOf = b => S.items.find(o => !o.owner && o.contents === cOf(b) && pad2(o.no) === pad2(nOf(b)));
     const hits = ok.map(dupOf).filter(o => o && !o.fresh && o !== replaceOK);
     if (hits.length && !confirm(`같은 번호의 이미지가 있어요: ${hits.map(o => `콘텐츠 ${o.contents} · 이미지 ${pad2(o.no)}`).join(', ')}\n새 내용으로 덮어쓸까요?\n(취소하면 아무것도 넣지 않아요)`)){ toast('넣지 않았어요. 같은 번호 이미지를 먼저 확인해 주세요.', 3500); return; }

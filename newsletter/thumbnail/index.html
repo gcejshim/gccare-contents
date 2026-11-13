@@ -871,7 +871,7 @@ body.embedded #btnLoad, body.embedded #btnSave, body.embedded #btnExportAll{disp
     syncGen();
     $('fname').textContent = fileName();
     // 콘텐츠 번호 목록에 작업한 썸네일 표시
-    [...$('no').options].forEach(o => { o.textContent = `${o.value} (${o.value === '01' ? '메인' : '서브'})${BOOK[o.value] && used(BOOK[o.value]) ? ' · 작업 중' : ''}`; });
+    [...$('no').options].forEach(o => { o.textContent = o.value === '01' ? '01 (메인)' : o.value; });
     lint(); autosave();
   }
   function syncForm(){
