@@ -2953,8 +2953,8 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     node.style.height = h + 'px';
     const shot = async t => { animSet(bars, t); const c = await html2canvas(node, {scale: sc, backgroundColor: '#ffffff', useCORS: true, logging: false, width: w, height: h, windowWidth: 1400}); return c.getContext('2d').getImageData(0, 0, c.width, c.height); };
     const fin = await shot(1), fr = [{d: fin, ms: 20}];
-    for (let k = 0; k <= N; k++) fr.push({d: await shot(k / N), ms: k ? 65 : 300});
-    fr.push({d: fin, ms: 7000});
+    for (let k = 0; k < N; k++) fr.push({d: await shot(k / N), ms: k ? 65 : 300});
+    fr.push({d: fin, ms: 65}, {d: fin, ms: 7000});   // 마지막 움직임 장면(t=1) = 완성 장면이라 다시 찍지 않음 (2026-11-17 속도)
     host.innerHTML = '';
     // 모든 장면을 같은 색 256개로 (장면마다 색표가 다르면 깜빡임) — 완성 · 중간 장면에서 색을 뽑음
     const {width: W2, height: H2} = fin, px = W2 * H2 * 4, all = new Uint8ClampedArray(px * 3);
@@ -2963,13 +2963,18 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     const cnt = new Map(), fd = fin.data; for (let i = 0; i < fd.length; i += 4){ const k = fd[i] << 16 | fd[i + 1] << 8 | fd[i + 2]; cnt.set(k, (cnt.get(k) || 0) + 1); }
     const keep = [...cnt].filter(([, n]) => n >= W2 * H2 * 0.001).sort((a, b) => b[1] - a[1]).slice(0, 32).map(([k]) => [k >> 16 & 255, k >> 8 & 255, k & 255]);
     const {GIFEncoder, quantize} = window.gifenc, g = GIFEncoder();
-    const pal = keep.concat(quantize(all, 256 - keep.length).filter(c => !keep.some(q => q[0] === c[0] && q[1] === c[1] && q[2] === c[2]))).slice(0, 256);
+    const pal = keep.concat(quantize(all, 255 - keep.length).filter(c => !keep.some(q => q[0] === c[0] && q[1] === c[1] && q[2] === c[2]))).slice(0, 255);   // 255번은 '안 바뀜(투명)' 자리
     // 색 번호 매기기: gifenc applyPalette는 비슷한 색(rgb565 칸)을 한 번에 처리해 흰색이 옆의 #fafbfc로 칠해짐 → 같은 색은 정확히, 나머지는 가장 가까운 색 (2026-11-17)
     const ix = new Map(); pal.forEach((c, i) => { const k = c[0] << 16 | c[1] << 8 | c[2]; if (!ix.has(k)) ix.set(k, i); });
     const toIdx = d => { const o = new Uint8Array(d.length / 4); for (let i = 0, j = 0; i < d.length; i += 4, j++){ const k = d[i] << 16 | d[i + 1] << 8 | d[i + 2]; let v = ix.get(k);
       if (v === undefined){ let best = 1e9; for (let p = 0; p < pal.length; p++){ const c = pal[p], dr = c[0] - d[i], dg = c[1] - d[i + 1], db = c[2] - d[i + 2], e = dr * dr + dg * dg + db * db; if (e < best){ best = e; v = p; } } ix.set(k, v); }
       o[j] = v; } return o; };
-    fr.forEach((f, i) => g.writeFrame(toIdx(f.d.data), W2, H2, {palette: i ? undefined : pal, delay: f.ms, repeat: 0}));
+    // 둘째 장면부터는 바뀐 픽셀만 담고 나머지는 투명(앞 장면 그대로 보임) — 매 장면 전체를 담으면 1MB를 넘음 (모바일 1,440KB → 573KB, 2026-11-17)
+    const T = 255, gp = pal.concat(Array.from({length: 256 - pal.length}, () => [0, 0, 0]));
+    let prev = null;
+    fr.forEach((f, i) => { const o = toIdx(f.d.data);
+      let w = o; if (prev){ w = new Uint8Array(o.length); for (let j = 0; j < o.length; j++) w[j] = o[j] === prev[j] ? T : o[j]; }
+      g.writeFrame(w, W2, H2, prev ? {delay: f.ms, transparent: true, transparentIndex: T, dispose: 1} : {palette: gp, delay: f.ms, repeat: 0}); prev = o; });
     g.finish();
     return {blob: new Blob([g.bytes()], {type: 'image/gif'}), w: W2, h: H2};
   }
