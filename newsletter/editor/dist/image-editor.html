@@ -3823,9 +3823,14 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     // 완성 장면에서 넓게 쓰인 색(흰 상자 · 회색 바탕 · 막대색 등)은 그대로 색표에 넣음 — 줄이면 흰색 #fff가 바탕 회색 #f7f7fb에 합쳐져 흰 상자가 사라짐 (2026-11-17)
     const cnt = new Map(), fd = fin.data; for (let i = 0; i < fd.length; i += 4){ const k = fd[i] << 16 | fd[i + 1] << 8 | fd[i + 2]; cnt.set(k, (cnt.get(k) || 0) + 1); }
     const keep = [...cnt].filter(([, n]) => n >= W2 * H2 * 0.001).sort((a, b) => b[1] - a[1]).slice(0, 32).map(([k]) => [k >> 16 & 255, k >> 8 & 255, k & 255]);
-    const {GIFEncoder, quantize, applyPalette} = window.gifenc, g = GIFEncoder();
+    const {GIFEncoder, quantize} = window.gifenc, g = GIFEncoder();
     const pal = keep.concat(quantize(all, 256 - keep.length).filter(c => !keep.some(q => q[0] === c[0] && q[1] === c[1] && q[2] === c[2]))).slice(0, 256);
-    fr.forEach((f, i) => g.writeFrame(applyPalette(f.d.data, pal), W2, H2, {palette: i ? undefined : pal, delay: f.ms, repeat: 0}));
+    // 색 번호 매기기: gifenc applyPalette는 비슷한 색(rgb565 칸)을 한 번에 처리해 흰색이 옆의 #fafbfc로 칠해짐 → 같은 색은 정확히, 나머지는 가장 가까운 색 (2026-11-17)
+    const ix = new Map(); pal.forEach((c, i) => { const k = c[0] << 16 | c[1] << 8 | c[2]; if (!ix.has(k)) ix.set(k, i); });
+    const toIdx = d => { const o = new Uint8Array(d.length / 4); for (let i = 0, j = 0; i < d.length; i += 4, j++){ const k = d[i] << 16 | d[i + 1] << 8 | d[i + 2]; let v = ix.get(k);
+      if (v === undefined){ let best = 1e9; for (let p = 0; p < pal.length; p++){ const c = pal[p], dr = c[0] - d[i], dg = c[1] - d[i + 1], db = c[2] - d[i + 2], e = dr * dr + dg * dg + db * db; if (e < best){ best = e; v = p; } } ix.set(k, v); }
+      o[j] = v; } return o; };
+    fr.forEach((f, i) => g.writeFrame(toIdx(f.d.data), W2, H2, {palette: i ? undefined : pal, delay: f.ms, repeat: 0}));
     g.finish();
     return {blob: new Blob([g.bytes()], {type: 'image/gif'}), w: W2, h: H2};
   }
