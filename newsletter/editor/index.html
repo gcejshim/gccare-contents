@@ -2959,7 +2959,11 @@ body.embedded #btnNew, body.embedded #fileStat, body.embedded #btnLoad, body.emb
     // 모든 장면을 같은 색 256개로 (장면마다 색표가 다르면 깜빡임) — 완성 · 중간 장면에서 색을 뽑음
     const {width: W2, height: H2} = fin, px = W2 * H2 * 4, all = new Uint8ClampedArray(px * 3);
     [fin, fr[4].d, fr[8].d].forEach((f, i) => all.set(f.data, i * px));
-    const {GIFEncoder, quantize, applyPalette} = window.gifenc, pal = quantize(all, 256), g = GIFEncoder();
+    // 완성 장면에서 넓게 쓰인 색(흰 상자 · 회색 바탕 · 막대색 등)은 그대로 색표에 넣음 — 줄이면 흰색 #fff가 바탕 회색 #f7f7fb에 합쳐져 흰 상자가 사라짐 (2026-11-17)
+    const cnt = new Map(), fd = fin.data; for (let i = 0; i < fd.length; i += 4){ const k = fd[i] << 16 | fd[i + 1] << 8 | fd[i + 2]; cnt.set(k, (cnt.get(k) || 0) + 1); }
+    const keep = [...cnt].filter(([, n]) => n >= W2 * H2 * 0.001).sort((a, b) => b[1] - a[1]).slice(0, 32).map(([k]) => [k >> 16 & 255, k >> 8 & 255, k & 255]);
+    const {GIFEncoder, quantize, applyPalette} = window.gifenc, g = GIFEncoder();
+    const pal = keep.concat(quantize(all, 256 - keep.length).filter(c => !keep.some(q => q[0] === c[0] && q[1] === c[1] && q[2] === c[2]))).slice(0, 256);
     fr.forEach((f, i) => g.writeFrame(applyPalette(f.d.data, pal), W2, H2, {palette: i ? undefined : pal, delay: f.ms, repeat: 0}));
     g.finish();
     return {blob: new Blob([g.bytes()], {type: 'image/gif'}), w: W2, h: H2};
